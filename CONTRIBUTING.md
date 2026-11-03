@@ -53,7 +53,10 @@ ARB files. Keep comments, fixtures and issue reports free of personal data.
 
 Format only the Dart files you changed and run the tests for affected behaviours.
 Run `flutter analyze --no-pub` before submitting. CI runs the complete Flutter
-suite for code changes; documentation-only changes run lightweight checks.
+suite and Android unit tests in parallel for unvalidated code changes. Identical
+source can reuse a recent complete CI as described in [RELEASING.md](docs/RELEASING.md);
+documentation-only changes run lightweight checks. Keep PR branches up to date
+with `main`: CI tests the exact branch head and strict branch protection is required.
 
 Run `flutter test --no-pub test/schema_verifier_test.dart` for schema changes.
 Keep migrations from schema 20 and backup compatibility from version 19.

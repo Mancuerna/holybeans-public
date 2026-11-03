@@ -4,42 +4,84 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      full:
+        description: Force complete tests even if matching CI is available
+        type: boolean
+        default: false
   workflow_call:
     inputs:
       full:
         type: boolean
-        default: true
+        default: false
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name != 'release' && github.ref_type != 'tag' }}
 jobs:
   scope:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
-      flutter: ${{ steps.scope.outputs.flutter }}
+      full: ${{ steps.validation.outputs.full }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          # Required strict branch protection keeps this head up to date with main.
+          # Explicitly test the run's head_sha so later reuse checks the same tree.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
       - id: scope
         env:
-          FULL_VALIDATION: ${{ inputs.full || github.event_name == 'workflow_dispatch' || github.event_name == 'release' }}
+          FULL_VALIDATION: ${{ inputs.full || github.event_name == 'workflow_dispatch' || github.ref_type == 'tag' }}
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: python3 -m tool.ci.scope
+      - name: Check release metadata
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: python3 -c 'import os; from pathlib import Path; from tool.ci.validation import validate_metadata; validate_metadata(Path.cwd(), os.environ.get("BASE_SHA"))'
+      - id: validation
+        name: Find complete validation of the same source
+        if: steps.scope.outputs.flutter == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FORCE_FULL: ${{ inputs.full }}
+        run: python3 -m tool.ci.validation
       - run: python3 -m tool.ci.check_docs
       - run: python3 -m unittest discover -s tool/tests
       - run: git diff --check
   flutter:
     needs: scope
-    if: needs.scope.outputs.flutter == 'true'
+    if: needs.scope.outputs.full == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: '3.47.5'
+          channel: stable
+          cache: true
+      - run: flutter pub get --enforce-lockfile
+      - run: flutter gen-l10n
+      - run: dart format --output=none --set-exit-if-changed lib test integration_test benchmark patrol_test test_driver
+      - run: flutter analyze --no-pub
+      - run: flutter test --no-pub
+  android:
+    needs: scope
+    if: needs.scope.outputs.full == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
         with:
@@ -52,28 +94,28 @@ jobs:
           cache: true
       - run: flutter pub get --enforce-lockfile
       - run: flutter gen-l10n
-      - run: dart format --output=none --set-exit-if-changed lib test integration_test benchmark patrol_test test_driver
-      - run: flutter analyze --no-pub
-      - run: flutter test --no-pub
       - name: Android backup publication tests
         working-directory: android
         run: ./gradlew :app:testDebugUnitTest
   result:
     name: CI result
-    needs: [scope, flutter]
+    needs: [scope, flutter, android]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - env:
           SCOPE_RESULT: ${{ needs.scope.result }}
           FLUTTER_RESULT: ${{ needs.flutter.result }}
-          REQUIRED: ${{ needs.scope.outputs.flutter }}
+          ANDROID_RESULT: ${{ needs.android.result }}
+          REQUIRED: ${{ needs.scope.outputs.full }}
         run: |
           test "$SCOPE_RESULT" = success
           if [ "$REQUIRED" = true ]; then
             test "$FLUTTER_RESULT" = success
+            test "$ANDROID_RESULT" = success
             echo 'Complete Flutter suite and Android unit tests passed.' >> "$GITHUB_STEP_SUMMARY"
           else
             test "$FLUTTER_RESULT" = skipped
-            echo 'Documentation checks passed. Flutter/Android tests were not run.' >> "$GITHUB_STEP_SUMMARY"
+            test "$ANDROID_RESULT" = skipped
+            echo 'Lightweight checks passed. Complete tests reused (see scope evidence) or documentation-only change.' >> "$GITHUB_STEP_SUMMARY"
           fi
