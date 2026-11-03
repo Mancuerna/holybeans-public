@@ -34,6 +34,12 @@ class FakeScale extends ChangeNotifier implements Scale {
   final commands = <ScaleCommand>[];
   // Synchronous, so a reading lands at the time the test set.
   final _readings = StreamController<ScaleReading>.broadcast(sync: true);
+  final _doses = StreamController<double>.broadcast(sync: true);
+
+  @override
+  Stream<double> get doses => _doses.stream;
+
+  void emitDose(double grams) => _doses.add(grams);
 
   @override
   String? name;
@@ -120,6 +126,7 @@ class FakeScale extends ChangeNotifier implements Scale {
 
   @override
   void dispose() {
+    _doses.close();
     _readings.close();
     super.dispose();
   }

@@ -28,6 +28,42 @@ void main() {
     scale.dispose();
   });
 
+  for (final espresso in [false, true]) {
+    test('saved scale doses fill the form (espresso: $espresso)', () {
+      scale.emitDose(15); // A dose saved before opening is not reused.
+      draft.dose.text = '17';
+      var measurements = 0;
+      final devices = BrewDevices(
+        draft: draft,
+        timer: timer,
+        isEspresso: () => espresso,
+        scale: scale,
+        onMeasurement: () => measurements++,
+      );
+      expect(draft.dose.text, '17');
+      scale.emitDose(18.2);
+      expect(draft.dose.text, '18.2');
+      expect(measurements, 1);
+      expect(timer.running, isFalse);
+      expect(devices.curve, isNull);
+
+      draft.dose.text = '19';
+      scale.emit(36);
+      expect(draft.dose.text, '19');
+      for (final invalid in [0.0, -18.0, double.nan, double.infinity]) {
+        scale.emitDose(invalid);
+      }
+      expect(draft.dose.text, '19');
+      scale.emitDose(20);
+      expect(draft.dose.text, '20');
+      expect(measurements, 2);
+
+      devices.dispose();
+      scale.emitDose(21);
+      expect(draft.dose.text, '20');
+    });
+  }
+
   /// Records a shot that ends on [grams], then [lifted] readings after the
   /// cup came off the scale, and stops it.
   Future<BrewDevices> shot(

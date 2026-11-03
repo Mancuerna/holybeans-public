@@ -48,6 +48,11 @@ class BrewDevices {
       ..isEspresso = isEspresso
       ..doseGrams = (() => parseNumber(draft.dose.text))
       ..onFirstDrip = _fillFirstDrip;
+    _doses = this.scale?.scale.doses.listen((grams) {
+      if (!grams.isFinite || grams <= 0) return;
+      draft.dose.text = fieldNumber(grams, decimals: 1);
+      onMeasurement?.call();
+    });
     _results = this.refractometer?.messages.listen((message) {
       switch (message) {
         case R2Measuring():
@@ -82,6 +87,7 @@ class BrewDevices {
   /// for from the form or with its own button.
   final Refractometer? refractometer;
   StreamSubscription<R2Message>? _results;
+  StreamSubscription<double>? _doses;
 
   /// What went wrong with the refractometer's last measurement: a failure
   /// (no sample, out of range) or a result below zero; null when it went
@@ -151,6 +157,7 @@ class BrewDevices {
   };
 
   void dispose() {
+    unawaited(_doses?.cancel());
     unawaited(_results?.cancel());
     measureProblem.dispose();
     scale?.dispose();
