@@ -1,0 +1,80 @@
+name: holybeans
+description: A coffee journal with BeanConqueror import
+publish_to: none
+version: 1.1.19+157
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  archive: ^4.3.0
+  crypto: ^3.0.7
+  drift: ^2.35.0
+  file_selector: ^1.1.0
+  flutter:
+    sdk: flutter
+  flutter_local_notifications: ^22.3.1
+  flutter_localizations:
+    sdk: flutter
+  image: ^4.10.1
+  image_picker: ^1.2.3
+  intl: ^0.20.3
+  path: ^1.9.1
+  path_provider: ^2.1.6
+  qr: ^4.0.0
+  share_plus: ^13.3.0
+  timezone: ^0.11.1
+  universal_ble: ^2.3.0
+  url_launcher: ^6.3.2
+  uuid: ^4.6.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  drift_dev: ^2.35.0
+  build_runner: ^2.16.1
+  patrol: ^4.10.0
+
+patrol:
+  app_name: HolyBeans
+  test_directory: patrol_test
+  screenshot_on_failure: true
+  android:
+    package_name: com.caffeinateddev.holybeans.patrol
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/catalogs/cafes.json
+    - assets/fonts/OFL.txt
+    - assets/licenses/meticulous-piston.txt
+    - assets/licenses/aioacaia.txt
+    - assets/licenses/niimbluelib.txt
+    - assets/licenses/noto-emoji.txt
+  fonts:
+    - family: NotoEmoji
+      fonts:
+        - asset: assets/fonts/NotoEmoji.ttf
+    - family: Plex
+      fonts:
+        - asset: assets/fonts/IBMPlexSans-Regular.ttf
+        - asset: assets/fonts/IBMPlexSans-Italic.ttf
+          style: italic
+        - asset: assets/fonts/IBMPlexSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/IBMPlexSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/IBMPlexSans-Bold.ttf
+          weight: 700
+    - family: PlexCondensed
+      fonts:
+        - asset: assets/fonts/IBMPlexSansCondensed-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/IBMPlexSansCondensed-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/IBMPlexSansCondensed-Bold.ttf
+          weight: 700

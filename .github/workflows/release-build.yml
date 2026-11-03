@@ -1,0 +1,84 @@
+name: Release bundle
+on:
+  release:
+    types: [published]
+permissions:
+  contents: read
+concurrency:
+  group: release-build-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    if: vars.RELEASE_AUTOMATION_ENABLED == 'true' && !github.event.release.prerelease
+    uses: ./.github/workflows/ci.yml
+    with:
+      full: true
+  bundle:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: release-signing
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check release identity and notes
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          python3 -c 'import os; from tool.ci.release_artifact import checked_tag; checked_tag(os.environ["TAG"])'
+          git merge-base --is-ancestor HEAD origin/main
+          python3 -c 'from pathlib import Path; from tool.publish_play import pubspec_version, parse_release_notes; v, _ = pubspec_version(Path.cwd()); parse_release_notes(Path("docs/releases") / (v + ".md"))'
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: '3.47.5'
+          channel: stable
+          cache: true
+      - run: flutter pub get --enforce-lockfile
+      - name: Build with the upload key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}
+          HOLYBEANS_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
+          HOLYBEANS_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+          HOLYBEANS_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
+        run: |
+          test -n "$KEYSTORE_BASE64"
+          test -n "$HOLYBEANS_KEYSTORE_PASSWORD"
+          test -n "$HOLYBEANS_KEY_ALIAS"
+          test -n "$HOLYBEANS_KEY_PASSWORD"
+          umask 077
+          export HOLYBEANS_KEYSTORE="$RUNNER_TEMP/upload.jks"
+          trap 'rm -f "$HOLYBEANS_KEYSTORE"' EXIT
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$HOLYBEANS_KEYSTORE"
+          flutter build appbundle --release --obfuscate --split-debug-info=build/symbols
+      - name: Verify and stage immutable release inputs
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          CERTIFICATE: ${{ vars.ANDROID_UPLOAD_CERT_SHA256 }}
+        run: |
+          curl --fail --location --silent --show-error 'https://github.com/google/bundletool/releases/download/1.18.1/bundletool-all-1.18.1.jar' -o "$RUNNER_TEMP/bundletool.jar"
+          echo '675786493983787ffa11550bdb7c0715679a44e1643f3ff980a529e9c822595c  '"$RUNNER_TEMP/bundletool.jar" | sha256sum --check
+          python3 -m tool.ci.release_artifact stage \
+            --tag "$TAG" --commit "$(git rev-parse HEAD)" --run-id "$GITHUB_RUN_ID" \
+            --bundle build/app/outputs/bundle/release/app-release.aab \
+            --bundletool "$RUNNER_TEMP/bundletool.jar" --certificate "$CERTIFICATE" \
+            --directory release-assets
+          cat release-assets/release.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Attach verified AAB and publication metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$TAG" release-assets/*
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: dart-symbols-${{ github.run_id }}
+          path: build/symbols
+          if-no-files-found: error
+          retention-days: 30

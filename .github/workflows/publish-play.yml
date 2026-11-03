@@ -1,0 +1,71 @@
+name: Publish selected release to Play
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing verified release tag, e.g. v1.1.20
+        required: true
+        type: string
+      sha256:
+        description: AAB SHA-256 from the successful Release bundle job summary
+        required: true
+        type: string
+      track:
+        description: Google Play track
+        type: choice
+        options: [internal, production]
+        default: internal
+      publish:
+        description: Send to Play (false only checks the existing artifact)
+        type: boolean
+        default: false
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: play-publication
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main' && vars.RELEASE_AUTOMATION_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: play-${{ inputs.track }}
+    steps:
+      # Execute the reviewed publisher on main, never scripts supplied by an input tag.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Fetch and verify the selected artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+          EXPECTED_SHA256: ${{ inputs.sha256 }}
+        run: |
+          python3 -c 'import os; from tool.ci.release_artifact import checked_tag; checked_tag(os.environ["TAG"])'
+          commit="$(git rev-parse --verify "refs/tags/$TAG^{commit}")"
+          git merge-base --is-ancestor "$commit" origin/main
+          mkdir release-inputs
+          gh release download "$TAG" --dir release-inputs --pattern '*.aab' --pattern release.json --pattern play-notes.md
+          python3 -m tool.ci.release_artifact verify \
+            --tag "$TAG" --commit "$commit" --sha256 "$EXPECTED_SHA256" --directory release-inputs
+          # Use the selected release's pubspec as data without checking out its code.
+          git show "$commit:pubspec.yaml" > release-inputs/pubspec.yaml
+          python3 -m tool.ci.publish_selected --check-run
+      - name: Validate publication plan (no Play requests)
+        env:
+          TRACK: ${{ inputs.track }}
+        run: python3 -m tool.ci.publish_selected
+      - name: Send the verified bundle to Play
+        if: inputs.publish
+        env:
+          TRACK: ${{ inputs.track }}
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          test -n "$PLAY_SERVICE_ACCOUNT_JSON"
+          umask 077
+          credentials="$RUNNER_TEMP/play-service-account.json"
+          trap 'rm -f "$credentials"' EXIT
+          printf '%s' "$PLAY_SERVICE_ACCOUNT_JSON" > "$credentials"
+          python3 -m tool.ci.publish_selected --publish --credentials "$credentials"

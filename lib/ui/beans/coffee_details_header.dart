@@ -1,0 +1,116 @@
+import 'package:flutter/material.dart';
+import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/l10n/app_localizations.dart';
+import 'package:holybeans/ui/core/detail_widgets.dart';
+import 'package:holybeans/ui/core/error_report.dart';
+import 'package:holybeans/ui/shell/journal_actions.dart';
+import 'package:holybeans/ui/sync/journal_write_feedback.dart';
+
+class CoffeeDetailsHeader extends StatefulWidget {
+  const CoffeeDetailsHeader({
+    super.key,
+    required this.actions,
+    required this.coffee,
+  });
+
+  final JournalActions actions;
+  final Coffee coffee;
+
+  @override
+  State<CoffeeDetailsHeader> createState() => _CoffeeDetailsHeaderState();
+}
+
+class _CoffeeDetailsHeaderState extends State<CoffeeDetailsHeader> {
+  late bool favorite = widget.coffee.isFavorite;
+
+  Future<void> _toggleFavorite() async {
+    final s = AppLocalizations.of(context)!;
+    final next = !favorite;
+    setState(() => favorite = next);
+    try {
+      await widget.actions.repository.setCoffeeFavorite(
+        widget.coffee.id,
+        favorite: next,
+      );
+    } catch (error, stack) {
+      reportError(error, stack);
+      if (mounted) setState(() => favorite = !next);
+      if (mounted) showOperationError(context, error, s.saveFailed);
+    }
+  }
+
+  Future<void> _toggleArchive() async {
+    final s = AppLocalizations.of(context)!;
+    final actions = widget.actions;
+    final coffee = widget.coffee;
+    if (coffee.archivedAtMs == null) {
+      final archived = await actions.confirmCoffeeArchive(coffee);
+      if (archived && mounted) Navigator.pop(context);
+      return;
+    }
+    try {
+      await actions.repository.setCoffeeArchived(coffee.id, archived: false);
+      if (mounted) Navigator.pop(context);
+    } catch (error, stack) {
+      reportError(error, stack);
+      if (mounted) showOperationError(context, error, s.saveFailed);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context)!;
+    final coffee = widget.coffee;
+    final archived = coffee.archivedAtMs != null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        DetailHeader(
+          title: coffee.name,
+          subtitle: archived ? s.archivedStatus : '',
+          actions: [
+            IconButton(
+              key: const ValueKey('bean-detail-favorite'),
+              tooltip: favorite ? s.removeFavorite : s.addFavorite,
+              isSelected: favorite,
+              icon: const Icon(Icons.favorite_border_rounded),
+              selectedIcon: const Icon(Icons.favorite_rounded),
+              onPressed: _toggleFavorite,
+            ),
+            IconButton(
+              key: const ValueKey('bean-detail-edit'),
+              tooltip: s.editBean,
+              icon: const Icon(Icons.edit_outlined),
+              onPressed: () async {
+                // Saved or cancelled, the edit comes back to the details.
+                final actions = widget.actions;
+                Navigator.pop(context);
+                await actions.addCoffee(coffee);
+                actions.showCoffeeDetailsById(coffee.id);
+              },
+            ),
+            IconButton(
+              key: const ValueKey('bean-detail-archive'),
+              tooltip: archived ? s.unarchiveBean : s.archiveBean,
+              icon: Icon(
+                archived
+                    ? Icons.unarchive_outlined
+                    : Icons.inventory_2_outlined,
+              ),
+              onPressed: _toggleArchive,
+            ),
+          ],
+        ),
+        if (coffee.roaster.trim().isNotEmpty)
+          TextButton.icon(
+            key: const ValueKey('bean-detail-roaster'),
+            icon: const Icon(Icons.storefront_outlined),
+            label: Text(coffee.roaster),
+            onPressed: () =>
+                widget.actions.showRoasters(roaster: coffee.roaster),
+          ),
+      ],
+    );
+  }
+}

@@ -1,0 +1,46 @@
+# Generated output and local development state.
+.dart_tool/
+.flutter-plugins*
+.packages
+.pub/
+build/
+coverage/
+lib/l10n/app_localizations*.dart
+**/test_bundle.dart
+*.log
+*.pyc
+__pycache__/
+.idea/
+.vscode/
+*.iml
+.DS_Store
+android/.gradle/
+android/.kotlin/
+android/local.properties
+android/key.properties
+# Credentials, backups and unpublished artifacts never belong in source control.
+.env
+.env.*
+.patrol.env
+*.jks
+*.keystore
+*.pem
+*.p12
+*.apk
+*.aab
+*.zip
+*.sqlite
+*.db
+artifacts/
+# Personal agent context is maintained outside this repository.
+.agent/
+.agents/
+.claude/
+.codex/
+.codex-attachments/
+AGENTS.md
+CLAUDE.md
+SESSION_HANDOFF.md
+skills-lock.json
+patrol_test/screenshots/
+patrol_test/videos/

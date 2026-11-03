@@ -1,0 +1,631 @@
+import 'dart:math' as math;
+import 'dart:typed_data';
+
+import 'package:flutter/material.dart';
+import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/preferences/share_template_settings.dart';
+import 'package:holybeans/domain/brew_parameters.dart';
+import 'package:holybeans/domain/brew_ratio.dart';
+import 'package:holybeans/domain/share_template.dart';
+import 'package:holybeans/domain/shot_curve.dart';
+import 'package:holybeans/l10n/app_localizations.dart';
+import 'package:holybeans/ui/brews/brew_share_text.dart';
+import 'package:holybeans/ui/brews/share_brew_charts.dart';
+import 'package:holybeans/ui/brews/share_template_values.dart';
+import 'package:holybeans/ui/brews/share_templates_page.dart';
+import 'package:holybeans/ui/core/brew_parameter_labels.dart';
+import 'package:holybeans/ui/core/error_report.dart';
+import 'package:holybeans/ui/core/journal_share_card.dart';
+import 'package:holybeans/ui/core/regional_dates.dart';
+import 'package:holybeans/ui/core/share_image.dart';
+import 'package:holybeans/ui/core/share_image_appearance.dart';
+import 'package:holybeans/ui/core/share_photo_card.dart';
+
+/// What the share sheet returns: the chosen fields and, in image mode, the
+/// rendered PNG.
+class ShareBrewResult {
+  const ShareBrewResult({
+    required this.fields,
+    this.image,
+    this.text,
+    this.rememberFields = true,
+  });
+
+  final Set<BrewParameter> fields;
+  final Uint8List? image;
+  final String? text;
+  final bool rememberFields;
+}
+
+class ShareBrewSheet extends StatefulWidget {
+  const ShareBrewSheet({
+    super.key,
+    required this.coffee,
+    required this.brew,
+    required this.components,
+    required this.initialFields,
+    this.initialPhoto,
+    this.cost,
+    this.method,
+    this.recording,
+    this.templateSettings,
+    this.configuration,
+    this.imageRenderer,
+    this.toolNames = const [],
+  });
+
+  final Uint8List? initialPhoto;
+  final double? cost;
+  final Coffee coffee;
+  final Brew brew;
+  final List<CoffeeComponent> components;
+  final Set<BrewParameter> initialFields;
+  final BrewMethod? method;
+  final ({ShotCurve curve, String source})? recording;
+  final List<String> toolNames;
+  final ShareTemplateSettings? templateSettings;
+  final ShareConfiguration? configuration;
+  final Future<Uint8List?> Function(
+    BuildContext context,
+    GlobalKey key, {
+    Uint8List? photo,
+  })?
+  imageRenderer;
+
+  @override
+  State<ShareBrewSheet> createState() => _ShareBrewSheetState();
+}
+
+class _ShareBrewSheetState extends State<ShareBrewSheet> {
+  late final selected = {...widget.initialFields};
+  final cardKey = GlobalKey();
+  bool asImage = false;
+  bool transparent = false;
+  bool lightText = true;
+  bool photoCaption = false;
+  late Uint8List? photo = widget.initialPhoto;
+  bool pickingPhoto = false;
+
+  Future<void> _pickPhoto() async {
+    if (pickingPhoto || rendering) return;
+    setState(() => pickingPhoto = true);
+    try {
+      final bytes = await pickSharePhoto(context);
+      if (bytes == null) return;
+      if (mounted) setState(() => photo = bytes);
+    } catch (error, stack) {
+      reportError(error, stack);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.photoFailed)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => pickingPhoto = false);
+    }
+  }
+
+  bool includeCurve = false;
+  bool includeMap = false;
+  late final chartData = brewShareChartData(
+    widget.brew,
+    widget.method,
+    widget.recording,
+  );
+  bool rendering = false;
+  bool get busy => rendering || pickingPhoto;
+  late ShareConfiguration? configuration = widget.configuration;
+  late String? templateId = configuration?.selected(style)?.id;
+  ShareTemplateStyle get style =>
+      isEspressoMethod(
+        category: widget.method?.category,
+        methodName: widget.method?.name ?? widget.brew.methodName,
+      )
+      ? ShareTemplateStyle.espresso
+      : ShareTemplateStyle.filter;
+  ShareTemplate? get template => configuration?.templates
+      .where((t) => t.id == templateId && t.style == style)
+      .firstOrNull;
+
+  Future<void> _manage(Map<String, String> values) async {
+    final settings = widget.templateSettings;
+    if (busy || settings == null) return;
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => ShareTemplatesPage(
+          settings: settings,
+          style: style,
+          values: values,
+        ),
+      ),
+    );
+    try {
+      final next = await settings.load();
+      if (mounted) {
+        setState(() {
+          configuration = next;
+          templateId = next.selected(style)?.id;
+        });
+      }
+    } catch (error, stack) {
+      reportError(error, stack);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.shareTemplateLoadFailed,
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _share(String source) async {
+    if (rendering || pickingPhoto) return;
+    setState(() => rendering = true);
+    if (!asImage) {
+      Navigator.pop(
+        context,
+        ShareBrewResult(
+          fields: selected,
+          text: source,
+          rememberFields: template == null,
+        ),
+      );
+      return;
+    }
+    try {
+      final bytes = await (widget.imageRenderer ?? renderShareImage)(
+        context,
+        cardKey,
+        photo: photoCaption ? photo : null,
+      );
+      if (!mounted) return;
+      Navigator.pop(
+        context,
+        ShareBrewResult(
+          fields: selected,
+          image: bytes,
+          text: photoCaption ? source : null,
+          rememberFields: template == null,
+        ),
+      );
+    } catch (error, stack) {
+      reportError(error, stack);
+      if (mounted) setState(() => rendering = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.shareFailed)),
+        );
+      }
+    }
+  }
+
+  /// What will be shared: the picture, the text, or why there is nothing.
+  Widget _preview(
+    AppLocalizations s,
+    List<List<(String, String)>> sections,
+    String source,
+    String? markdown,
+  ) {
+    if (source.isEmpty) return Text(s.noShareFields);
+    if (!asImage) return SelectableText(source);
+    if (photoCaption) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(
+            child: ShareImagePreview(
+              captureKey: cardKey,
+              transparent: transparent,
+              lightText: lightText,
+              child: SharePhotoCard(
+                photo: photo,
+                title: widget.coffee.name,
+                charts: BrewShareCharts(
+                  data: chartData,
+                  includeCurve: includeCurve,
+                  includeMap: includeMap,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(s.sharePhotoCaptionHint),
+          const SizedBox(height: 8),
+          SelectableText(source),
+        ],
+      );
+    }
+    return Center(
+      child: ShareImagePreview(
+        captureKey: cardKey,
+        transparent: transparent,
+        lightText: lightText,
+        child: BrewShareCard(
+          title: widget.coffee.name,
+          sections: sections,
+          customText: markdown,
+          charts: BrewShareCharts(
+            data: chartData,
+            includeCurve: includeCurve,
+            includeMap: includeMap,
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context)!;
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final height = math.min(
+      screenHeight * 0.88,
+      screenHeight - MediaQuery.paddingOf(context).top - 20,
+    );
+    final sections = BrewShareText.buildSections(
+      strings: s,
+      cost: widget.cost,
+      coffee: widget.coffee,
+      brew: widget.brew,
+      components: widget.components,
+      method: widget.method,
+      toolNames: widget.toolNames,
+      fields: selected,
+      dateLocaleName: regionalLocale.toString(),
+    );
+    final values = shareTemplateValues(
+      strings: s,
+      cost: widget.cost,
+      coffee: widget.coffee,
+      brew: widget.brew,
+      components: widget.components,
+      method: widget.method,
+      toolNames: widget.toolNames,
+      dateLocaleName: regionalLocale.toString(),
+    );
+    final template = this.template;
+    final source = template == null
+        ? BrewShareText.formatSections(sections)
+        : TemplateEngine.render(template.body, values);
+    final missing = template == null
+        ? <String>{}
+        : TemplateEngine.missingTags(template.body, values);
+    return SafeArea(
+      top: false,
+      child: SizedBox(
+        height: height,
+        child: Column(
+          children: [
+            _ShareHeader(
+              asImage: asImage,
+              onChanged: busy
+                  ? null
+                  : (value) => setState(() => asImage = value),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (configuration?.templates.any((t) => t.style == style) ??
+                        false)
+                      _ShareTemplateChoice(
+                        templates: configuration!.templates
+                            .where((t) => t.style == style)
+                            .toList(),
+                        selected: template?.id,
+                        onChanged: busy
+                            ? null
+                            : (id) => setState(() => templateId = id),
+                      ),
+                    if (widget.templateSettings != null)
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: TextButton.icon(
+                          key: const ValueKey('share-manage-templates'),
+                          onPressed: busy ? null : () => _manage(values),
+                          icon: const Icon(Icons.edit_note_rounded),
+                          label: Text(s.shareTemplateManage),
+                        ),
+                      ),
+                    if (missing.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Text(
+                          s.shareTemplateMissing(
+                            missing.map((t) => '<$t>').join(', '),
+                          ),
+                        ),
+                      ),
+                    if (asImage) ...[
+                      ShareImageOptions(
+                        transparent: transparent,
+                        lightText: lightText,
+                        enabled: !busy,
+                        onTransparentChanged: (value) =>
+                            setState(() => transparent = value),
+                        onLightTextChanged: (value) =>
+                            setState(() => lightText = value),
+                      ),
+                      SwitchListTile(
+                        key: const ValueKey('share-photo-caption'),
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(s.sharePhotoCaption),
+                        value: photoCaption,
+                        onChanged: busy
+                            ? null
+                            : (value) => setState(() => photoCaption = value),
+                      ),
+                      if (photoCaption)
+                        Wrap(
+                          spacing: 8,
+                          children: [
+                            TextButton.icon(
+                              key: const ValueKey('share-choose-photo'),
+                              onPressed: busy ? null : _pickPhoto,
+                              icon: const Icon(Icons.photo_library_outlined),
+                              label: Text(
+                                photo == null ? s.addPhoto : s.changePhoto,
+                              ),
+                            ),
+                            if (photo != null)
+                              TextButton(
+                                key: const ValueKey('share-remove-photo'),
+                                onPressed: busy
+                                    ? null
+                                    : () => setState(() => photo = null),
+                                child: Text(s.removePhoto),
+                              ),
+                          ],
+                        ),
+                    ],
+                    if (asImage)
+                      ShareChartOptions(
+                        data: chartData,
+                        curveSelected: includeCurve,
+                        mapSelected: includeMap,
+                        enabled: !busy,
+                        onCurveChanged: (on) =>
+                            setState(() => includeCurve = on),
+                        onMapChanged: (on) => setState(() => includeMap = on),
+                      ),
+                    _preview(
+                      s,
+                      sections,
+                      source,
+                      template == null
+                          ? null
+                          : TemplateEngine.renderMarkdown(
+                              template.body,
+                              values,
+                            ),
+                    ),
+                    const SizedBox(height: 18),
+                    if (template == null)
+                      _ShareFields(
+                        selected: selected,
+                        enabled: !busy,
+                        onChanged: (field, on) => setState(() {
+                          if (on) {
+                            selected.add(field);
+                          } else {
+                            selected.remove(field);
+                          }
+                        }),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            _ShareActions(
+              busy: busy,
+              onShare: source.isEmpty || busy ? null : () => _share(source),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Cancel and share, under the scrolling preview.
+class _ShareActions extends StatelessWidget {
+  const _ShareActions({required this.onShare, required this.busy});
+
+  /// Null while there is nothing to share or the picture is rendering.
+  final VoidCallback? onShare;
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: OutlinedButton(
+              onPressed: busy ? null : () => Navigator.pop(context),
+              child: Text(s.cancel),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: FilledButton(
+              key: const ValueKey('share-confirm'),
+              onPressed: onShare,
+              child: Text(s.share),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A shareable picture built from the same complete fields as the text share.
+class BrewShareCard extends StatelessWidget {
+  const BrewShareCard({
+    super.key,
+    required this.title,
+    required this.sections,
+    this.customText,
+    this.charts,
+  });
+  final String title;
+  final List<List<(String, String)>> sections;
+  final String? customText;
+  final Widget? charts;
+
+  @override
+  Widget build(BuildContext context) {
+    final coffeeLabel = BrewParameter.coffee.label(
+      AppLocalizations.of(context)!,
+    );
+    return JournalShareCard(
+      key: const ValueKey('brew-share-card'),
+      title: title,
+      sections: [
+        for (final section in sections)
+          [
+            for (final row in section)
+              if (!(row.$1 == coffeeLabel && row.$2 == title)) row,
+          ],
+      ],
+      customText: customText,
+      charts: charts,
+    );
+  }
+}
+
+class _ShareFields extends StatelessWidget {
+  const _ShareFields({
+    required this.selected,
+    required this.onChanged,
+    required this.enabled,
+  });
+  final Set<BrewParameter> selected;
+  final void Function(BrewParameter, bool) onChanged;
+  final bool enabled;
+  @override
+  Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context)!;
+    return ExpansionTile(
+      title: Text(s.shareFields),
+      subtitle: Text(s.shareFieldsSettingsHint),
+      tilePadding: EdgeInsets.zero,
+      children: [
+        for (final group in BrewParameterGroup.values) ...[
+          Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 2),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                group.label(s),
+                style: Theme.of(context).textTheme.titleSmall
+                    ?.copyWith(color: Theme.of(context).colorScheme.primary),
+              ),
+            ),
+          ),
+          for (final field in BrewParameter.values)
+            if (field.group == group && field.canShare)
+              CheckboxListTile(
+                key: ValueKey('share-field-${field.name}'),
+                title: Text(field.label(s)),
+                dense: true,
+                value: selected.contains(field),
+                onChanged: enabled
+                    ? (value) => onChanged(field, value == true)
+                    : null,
+              ),
+        ],
+      ],
+    );
+  }
+}
+
+class _ShareTemplateChoice extends StatelessWidget {
+  const _ShareTemplateChoice({
+    required this.templates,
+    required this.selected,
+    required this.onChanged,
+  });
+
+  final List<ShareTemplate> templates;
+  final String? selected;
+  final ValueChanged<String?>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context)!;
+    return DropdownButtonFormField<String>(
+      key: ValueKey('share-template-$selected'),
+      initialValue: selected ?? '',
+      isExpanded: true,
+      decoration: InputDecoration(labelText: s.shareTemplateChoice),
+      items: [
+        DropdownMenuItem(value: '', child: Text(s.shareTemplateFields)),
+        for (final template in templates)
+          DropdownMenuItem(
+            value: template.id,
+            child: Text(template.name, overflow: TextOverflow.ellipsis),
+          ),
+      ],
+      onChanged: onChanged == null
+          ? null
+          : (id) => onChanged!(id == '' ? null : id),
+    );
+  }
+}
+
+class _ShareHeader extends StatelessWidget {
+  const _ShareHeader({required this.asImage, required this.onChanged});
+  final bool asImage;
+  final ValueChanged<bool>? onChanged;
+  @override
+  Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 8,
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(
+            s.share,
+            style: Theme.of(context).textTheme.headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          SegmentedButton<bool>(
+            key: const ValueKey('share-format'),
+            showSelectedIcon: false,
+            segments: [
+              ButtonSegment(
+                value: false,
+                icon: const Icon(Icons.notes_rounded),
+                tooltip: s.shareFormatText,
+                label: Text(s.shareFormatText),
+              ),
+              ButtonSegment(
+                value: true,
+                icon: const Icon(Icons.image_outlined),
+                tooltip: s.shareFormatImage,
+                label: Text(s.shareFormatImage),
+              ),
+            ],
+            selected: {asImage},
+            onSelectionChanged: onChanged == null
+                ? null
+                : (value) => onChanged!(value.single),
+          ),
+        ],
+      ),
+    );
+  }
+}

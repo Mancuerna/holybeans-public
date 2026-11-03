@@ -1,0 +1,3282 @@
+{
+  "historyLastSevenDays": "Últimos 7 días",
+  "historyThisMonth": "Este mes",
+  "@@locale": "es",
+  "appTitle": "HolyBeans",
+  "navHome": "Inicio",
+  "navBeans": "Granos",
+  "navHistory": "Historial",
+  "actionBrew": "Preparar",
+  "brewWithBean": "Preparar con este grano",
+  "language": "Idioma",
+  "systemLanguage": "Idioma del sistema",
+  "settings": "Ajustes",
+  "moreOptions": "Más opciones",
+  "lastBrew": "Última preparación",
+  "recentBrews": "Preparaciones recientes",
+  "beansTitle": "Granos",
+  "historyTitle": "Historial",
+  "statsTitle": "Datos",
+  "archived": "Archivados",
+  "roastDate": "Fecha de tueste",
+  "roastLevel": "Nivel de tueste",
+  "roastDark": "Oscuro",
+  "roastMedium": "Medio",
+  "roastOmni": "Omni",
+  "roastLight": "Claro",
+  "roastUltraLight": "Ultraligero",
+  "origin": "Origen",
+  "process": "Proceso",
+  "variety": "Variedad",
+  "method": "Método",
+  "grinder": "Molino",
+  "dose": "Dosis",
+  "water": "Agua",
+  "brewOutput": "Peso de bebida",
+  "time": "Tiempo",
+  "extractionDuration": "Duración de extracción",
+  "ratio": "Ratio",
+  "ratioShortcuts": "Ratios café:agua",
+  "optionalMeasure": "Resultados (opcional)",
+  "temperature": "Temperatura",
+  "tds": "TDS",
+  "ey": "EY",
+  "openSensoryMap": "Ver mapa sensorial",
+  "sensoryMap": "Mapa sensorial",
+  "sensoryMapSweet": "Sensación más dulce",
+  "sensoryMapCitrus": "Más cítrico",
+  "sensoryMapRoasty": "Más amargo / tostado",
+  "sensoryMapTea": "Más notas de té",
+  "sensoryMapOutOfRange": "Fuera de rango",
+  "sensoryMapSourceLink": "Leer el artículo (DOI 10.1111/1750-3841.16531)",
+  "sensoryMapEyAxis": "EY (%)",
+  "sensoryMapTdsAxis": "TDS (%)",
+  "rating": "Valoración",
+  "notes": "Notas",
+  "formPreviewTitle": "Nueva preparación",
+  "coffeeBlock": "Grano",
+  "newBean": "Añadir grano",
+  "editBean": "Editar grano",
+  "beanName": "Nombre del café",
+  "roaster": "Tostador",
+  "country": "País",
+  "region": "Región",
+  "farm": "Finca",
+  "producer": "Productor",
+  "purchasedQuantity": "Cantidad comprada (g)",
+  "paidPrice": "Precio pagado (€)",
+  "pricePerKg": "Precio por kg",
+  "invalidPrice": "Introduce un precio con un máximo de dos decimales.",
+  "inventoryMultiLotReadOnly": "El saldo total no se puede editar desde esta ficha.",
+  "remainingQuantity": "Cantidad restante (g)",
+  "inventoryStartsFresh": "Al guardar se crea un lote nuevo. Las preparaciones antiguas sin lote siguen sin asignar.",
+  "inventoryLot": "Lote de inventario",
+  "inventoryItem": "Inventario {number}",
+  "@inventoryItem": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "noInventoryRecorded": "No hay inventario registrado",
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "requiredField": "Este campo es obligatorio",
+  "invalidNumber": "Introduce un número válido",
+  "clearDate": "Borrar fecha",
+  "saveFailed": "No se pudo guardar",
+  "noBeans": "No hay granos.",
+  "noBrews": "No hay preparaciones.",
+  "chooseBean": "Elige un grano",
+  "needBean": "Añade un grano antes de preparar.",
+  "backup": "Copia de seguridad",
+  "exportBackup": "Compartir copia de seguridad",
+  "importBackup": "Restaurar copia de seguridad",
+  "backupFailed": "No se pudo preparar la copia",
+  "restoreFailed": "No se pudo restaurar la copia",
+  "restoreTitle": "Restaurar diario",
+  "restoreWarning": "Esto sustituirá todos los datos actuales de HolyBeans. Esta copia contiene {coffees} granos y {brews} preparaciones.",
+  "restore": "Restaurar",
+  "restored": "Copia restaurada",
+  "archiveBean": "Archivar grano",
+  "unarchiveBean": "Recuperar grano",
+  "archiveBeanTitle": "¿Archivar el café?",
+  "archiveBeanDescription": "Al archivar el café también se archivan sus preparaciones. Al recuperarlo, vuelven solo las preparaciones archivadas junto con él.",
+  "archiveBeanForOverdraw": "La preparación se guardó, pero la dosis superó el inventario registrado. ¿Quieres archivar este café y sus preparaciones?",
+  "beanArchived": "Se archivaron el café y sus preparaciones activas",
+  "restoreCoffeeFirst": "Recupera el café para restaurar esta preparación.",
+  "coffeeArchivedCannotBrew": "Recupera el café antes de guardar una preparación.",
+  "clearSearch": "Borrar búsqueda",
+  "noRating": "Sin valorar",
+  "startTimer": "Iniciar",
+  "stopTimer": "Detener",
+  "resetTimer": "Reiniciar tiempo",
+  "clearRating": "Quitar valoración",
+  "slideToRate": "Desliza para valorar",
+  "showCompactCards": "Mostrar tarjetas compactas",
+  "showDetailedCards": "Mostrar tarjetas con más datos",
+  "sortBeans": "Ordenar granos",
+  "sortBeansByName": "Nombre",
+  "sortBeansByRecentBrew": "Preparación más reciente",
+  "sortBeansByRoastDate": "Fecha de tueste",
+  "sortBeansByFrozenDate": "Fecha de congelación",
+  "sortBeansByFreshness": "Frescura (gastar antes)",
+  "brewsCount": "{count, plural, one {{count} preparación} other {{count} preparaciones}}",
+  "seconds": "Segundos",
+  "durationMinutes": "Minutos",
+  "durationSeconds": "Segundos",
+  "invalidDuration": "Introduce minutos enteros y segundos entre 0 y 59.",
+  "invalidBackup": "El archivo no es una copia HolyBeans válida",
+  "fileTooLarge": "La copia supera el límite de 50 MB",
+  "date": "Fecha",
+  "noSelection": "Selecciona un grano",
+  "brewSaved": "Preparación guardada",
+  "beanSaved": "Grano guardado",
+  "dataError": "No se pudieron cargar los datos",
+  "@restoreWarning": {
+    "placeholders": {
+      "coffees": {
+        "type": "int"
+      },
+      "brews": {
+        "type": "int"
+      }
+    }
+  },
+  "@brewsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "search": "Buscar",
+  "noMatchingBeans": "No hay granos que coincidan.",
+  "noMatchingBrews": "No hay preparaciones que coincidan.",
+  "historyFilters": "Filtros",
+  "historyFilterHint": "Filtra por grano, método, fecha o valoración",
+  "historyActiveFilters": "{count, plural, one {{count} filtro activo} other {{count} filtros activos}}",
+  "@historyActiveFilters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "anyBean": "Cualquier grano",
+  "anyMethod": "Cualquier método",
+  "dateRange": "Intervalo de fechas",
+  "selectStartDate": "Seleccionar fecha inicial",
+  "selectEndDate": "Seleccionar fecha final",
+  "anyDate": "Cualquier fecha",
+  "historyDateRangeValue": "{start} – {end}",
+  "@historyDateRangeValue": {
+    "placeholders": {
+      "start": {},
+      "end": {}
+    }
+  },
+  "minimumRating": "Valoración mínima",
+  "anyRating": "Cualquier valoración",
+  "historyRatingFilterBehavior": "Las preparaciones sin valorar solo se excluyen al fijar una valoración mínima.",
+  "clearFilters": "Borrar filtros",
+  "repeatBrew": "Repetir",
+  "previousBrewYieldReference": "Receta de partida: {amount} g",
+  "@previousBrewYieldReference": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "previousBrewDurationReference": "Receta de partida: {duration}",
+  "@previousBrewDurationReference": {
+    "placeholders": {
+      "duration": {}
+    }
+  },
+  "editBrew": "Editar",
+  "archiveBrew": "Archivar preparación",
+  "unarchiveBrew": "Recuperar preparación",
+  "showArchivedBrews": "Mostrar archivadas",
+  "hideArchivedBrews": "Ocultar archivadas",
+  "shareText": "Compartir preparación",
+  "shareFields": "Campos compartidos",
+  "share": "Compartir",
+  "shareFailed": "No se pudo compartir",
+  "noShareFields": "Selecciona al menos un campo.",
+  "bag": "Bolsa",
+  "remaining": "Restante",
+  "freezer": "Congelador",
+  "lastBrewTile": "Última preparación",
+  "oldestFreeze": "Congelado más antiguo",
+  "justNow": "Ahora mismo",
+  "minutesAgo": "{minutes, plural, =1{Hace 1 min} other{Hace {minutes} min}}",
+  "hoursAgo": "{hours, plural, =1{Hace 1 h} other{Hace {hours} h}}",
+  "daysAgo": "{days, plural, =1{Ayer} other{Hace {days} días}}",
+  "daysCount": "{days, plural, =1{1 día} other{{days} días}}",
+  "weeksCount": "{weeks, plural, =1{1 semana} other{{weeks} semanas}}",
+  "@minutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@hoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "@daysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "@daysCount": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "@weeksCount": {
+    "placeholders": {
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "averageBrewRating": "Media de tus preparaciones: {rating} ({count})",
+  "useAverageRating": "Usar la media",
+  "@averageBrewRating": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rateReminderTitle": "Valóralo en caliente",
+  "rateReminderBody": "{coffee}: apunta qué tal ha salido la taza",
+  "rateReminder": "Recordar valorar",
+  "rateReminderHint": "Un aviso después de guardar una preparación sin nota",
+  "minutesShort": "{minutes} min",
+  "notificationsDenied": "Sin permiso para notificaciones",
+  "@rateReminderBody": {
+    "placeholders": {
+      "coffee": {
+        "type": "String"
+      }
+    }
+  },
+  "@minutesShort": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "rateBrew": "Valorar",
+  "tasting": "Cata",
+  "extractionCompass": "Brújula de extracción",
+  "compassSour": "Demasiado ácido",
+  "compassBitter": "Demasiado amargo",
+  "compassWeak": "Flojo",
+  "compassStrong": "Fuerte",
+  "compassBalanced": "Equilibrado",
+  "compassHint": "Toca la casilla que mejor describe la taza; tócala otra vez para quitarla.",
+  "adviceSour": "Extrae más: muele más fino, alarga el tiempo o sube la temperatura.",
+  "adviceBitter": "Extrae menos: muele más grueso, acorta el tiempo o baja la temperatura.",
+  "adviceWeak": "Aumenta la concentración: más café o menos agua.",
+  "adviceStrong": "Reduce la concentración: menos café o más agua.",
+  "adviceBalanced": "Equilibrada: repite la receta.",
+  "flavorScores": "Perfil de la taza",
+  "scoreAcidity": "Acidez",
+  "scoreSweetness": "Dulzor",
+  "scoreBitterness": "Amargor",
+  "scoreBody": "Cuerpo",
+  "scoreAftertaste": "Retrogusto",
+  "brewRated": "Valoración guardada",
+  "restDays": "Reposo recomendado (días)",
+  "restDaysHint": "Lo que indica el tostador; marca el ritmo de desgasificación",
+  "freshness": "Frescura",
+  "phaseDegassing": "Desgasificando",
+  "phasePrime": "En su punto",
+  "phaseGood": "Bueno",
+  "phaseAging": "Envejeciendo",
+  "phaseStale": "Pasado",
+  "styleFilter": "Filtro",
+  "freshnessDay": "Edad estimada: {day} días",
+  "daysLeft": "{days, plural, =1{Queda 1 día} other{Quedan {days} días}}",
+  "freshnessBasisRoast": "Según el nivel de tueste",
+  "freshnessBasisRest": "Según el reposo del tostador ({days} días)",
+  "freshnessPaused": "{days, plural, =1{Descontado 1 día en el congelador} other{Descontados {days} días en el congelador}}",
+  "sweetSpot": "Tu punto óptimo",
+  "sweetSpotValue": "{style}, días {start}–{end}: en torno a {rating} en {count} preparaciones",
+  "freshnessHelpTitle": "Cómo calculamos la frescura",
+  "freshnessHelp": "La fecha de tueste indica los días de calendario. La frescura usa una edad estimada: descontamos el tiempo congelado y cada día con la bolsa abierta cuenta como unos 1,7 días. Por eso un café tostado hace 12 días y abierto hace 11 puede mostrar una edad estimada de 20 días.\n\nEl café libera CO₂ después del tueste. Los tuestes oscuros suelen liberarlo antes que los claros; el espresso suele necesitar más reposo que el filtro (Smrke et al., 2018). Usamos un modelo de esa liberación para orientar las fases, no una medición del grano.\n\nLa apertura acelera la pérdida de aromas (Smrke et al., 2022). Si indicas el reposo recomendado por el tostador, ajustamos la curva para que el inicio de «En su punto» en filtro coincida con ese reposo.\n\n«Tu punto óptimo» se aprende de tus valoraciones de este café y otros parecidos. Las fases son orientativas: prueba el café y sigue las indicaciones del tostador.",
+  "@freshnessDay": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "@daysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "@freshnessBasisRest": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "@freshnessPaused": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "@sweetSpotValue": {
+    "placeholders": {
+      "style": {
+        "type": "String"
+      },
+      "start": {
+        "type": "int"
+      },
+      "end": {
+        "type": "int"
+      },
+      "rating": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "photo": "Foto",
+  "addPhoto": "Añadir foto",
+  "changePhoto": "Cambiar foto",
+  "removePhoto": "Quitar foto",
+  "takePhoto": "Hacer foto",
+  "choosePhoto": "Elegir de la galería",
+  "photoFailed": "No se pudo guardar la foto",
+  "bagPhoto": "Foto del paquete",
+  "brewPhoto": "Foto de la preparación",
+  "shareFormatText": "Texto",
+  "shareTransparentBackground": "Fondo transparente",
+  "shareTransparentHint": "Para superponer la imagen a tu foto. El cuadriculado no se exporta.",
+  "shareLightText": "Texto claro",
+  "shareDarkText": "Texto oscuro",
+  "shareFormatImage": "Imagen",
+  "frozenAtAge": "{days, plural, =0{Congelado el día del tueste} =1{Congelado 1 día tras el tueste} other{Congelado {days} días tras el tueste}}",
+  "@frozenAtAge": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "flavorProfile": "Notas de cata",
+  "flavorProfileHint": "Añade cada nota con una coma o Intro. También puedes escribir tus propias notas.",
+  "addFavorite": "Marcar como favorito",
+  "removeFavorite": "Quitar de favoritos",
+  "favorite": "Favorito",
+  "favoritesFirst": "Favoritos primero",
+  "consumed": "Consumido",
+  "adjustableRpm": "RPM ajustables",
+  "adjustableRpmHint": "Registra la velocidad del motor en cada preparación",
+  "grindRpm": "RPM",
+  "pressureBar": "Presión máxima (bar)",
+  "pressure": "Presión máxima",
+  "preinfusion": "Preinfusión",
+  "preinfusionSeconds": "Preinfusión (s)",
+  "bloom": "Bloom",
+  "bloomSeconds": "Bloom (s)",
+  "bloomTotalSeconds": "Tiempo total de bloom (s)",
+  "bloomTime": "Tiempo de bloom",
+  "markBloom": "Marcar bloom",
+  "markPreinfusion": "Marcar preinfusión",
+  "seeMethodBrews": "Ver preparaciones",
+  "lastUsed": "Último uso",
+  "averageRating": "Nota media",
+  "methodMemoryApplied": "Valores de la última preparación con {method}",
+  "@methodMemoryApplied": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "saveFrozen": "Guardar congelado",
+  "saveFrozenHint": "Congela el café al añadirlo, entero o en parte",
+  "freezeNeedsQuantity": "Indica la cantidad comprada para congelarla.",
+  "frozenNotes": "Notas del congelado",
+  "freezeCoffee": "Congelar café",
+  "frozen": "Congelado",
+  "frozenPartial": "Parcial",
+  "thawed": "Descongelado",
+  "thaw": "Descongelar",
+  "thawAndBrew": "Descongelar y preparar",
+  "thawAmount": "Gramos a descongelar",
+  "freezeAmount": "Gramos a congelar",
+  "allAmount": "Todo",
+  "frozenDate": "Fecha de congelación",
+  "frozenOn": "Congelado el {date}",
+  "container": "Recipiente",
+  "containerVacuumBag": "Bolsa al vacío",
+  "containerTube": "Tubo",
+  "containerZipBag": "Bolsa zip",
+  "containerJar": "Tarro",
+  "containerBox": "Táper",
+  "containerOriginalBag": "Bolsa original",
+  "containerOther": "Otro",
+  "editFrozenPortion": "Editar porción",
+  "deleteFrozenPortion": "Eliminar porción",
+  "deleteFrozenPortionWarning": "Los {grams} que siguen congelados vuelven al café sin congelar.",
+  "delete": "Eliminar",
+  "frozenSaved": "Congelado. Escribe {label} en el recipiente.",
+  "thawedSaved": "Descongelados {grams}",
+  "notEnoughToFreeze": "No hay tanto café sin congelar.",
+  "thawTooMuch": "No puedes descongelar más de lo que queda congelado.",
+  "onlyFrozenLeft": "Todo lo que queda de este café está en el congelador: descongela una porción para preparar.",
+  "thawWhichPortion": "¿Qué porción descongelas?",
+  "frozenPortionOption": "{label}, {grams}, congelada el {date}",
+  "@frozenPortionOption": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "grams": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "showThawedPortions": "{count, plural, =1{Ver 1 porción descongelada} other{Ver {count} porciones descongeladas}}",
+  "hideThawedPortions": "Ocultar porciones descongeladas",
+  "beansAvailable": "Disponibles",
+  "beansFrozen": "Congelados",
+  "beansArchived": "Archivados",
+  "frozenSummary": "{grams} en {count, plural, =1{1 porción} other{{count} porciones}}",
+  "availableFresh": "Disponible",
+  "seeAll": "Ver todos",
+  "portionLabel": "Etiqueta",
+  "@frozenSaved": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "@thawedSaved": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "@frozenOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@deleteFrozenPortionWarning": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "@showThawedPortions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@frozenSummary": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "today": "Hoy",
+  "yesterday": "Ayer",
+  "timeShort": "Tiempo",
+  "roastedDaysAgo": "{days, plural, =0{Tostado hoy} =1{Tostado ayer} other{Tostado hace {days} días}}",
+  "@roastedDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "unknownStock": "Peso desconocido",
+  "brewDate": "Fecha de preparación",
+  "brewTime": "Hora de preparación",
+  "recipeSection": "Receta",
+  "resultSection": "Resultado",
+  "originDetails": "Origen",
+  "originNumber": "Origen {number}",
+  "@originNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "addOrigin": "Añadir origen",
+  "removeOrigin": "Quitar origen",
+  "moveOriginUp": "Mover origen hacia arriba",
+  "moveOriginDown": "Mover origen hacia abajo",
+  "emptyOriginMustBeRemoved": "Quita esta tarjeta de origen vacía o añade datos antes de guardar.",
+  "altitude": "Altitud (m)",
+  "brewUpdated": "Preparación actualizada",
+  "actions": "Acciones",
+  "equipment": "Equipo",
+  "methods": "Métodos",
+  "grinders": "Molinos",
+  "addMethod": "Añadir método",
+  "editMethod": "Editar método",
+  "methodName": "Nombre del método",
+  "methodStyle": "Estilo",
+  "methodNotes": "Notas del método",
+  "styleEspresso": "Espresso",
+  "stylePourover": "Filtro por vertido",
+  "styleImmersion": "Inmersión",
+  "archiveMethod": "Archivar método",
+  "restoreMethod": "Recuperar método",
+  "methodSaved": "Método guardado",
+  "methodTools": "Accesorios",
+  "addTool": "Añadir accesorio",
+  "editTool": "Editar accesorio",
+  "toolName": "Nombre del accesorio",
+  "noMethodTools": "Aún no hay accesorios para este método.",
+  "archiveTool": "Archivar accesorio",
+  "restoreTool": "Restaurar accesorio",
+  "toolSaved": "Accesorio guardado",
+  "addGrinder": "Añadir molino",
+  "editGrinder": "Editar molino",
+  "grinderName": "Nombre del molino",
+  "grinderNotes": "Notas del molino",
+  "noGrinders": "Aún no hay molinos.",
+  "archiveGrinder": "Archivar molino",
+  "restoreGrinder": "Recuperar molino",
+  "grinderSaved": "Molino guardado",
+  "showArchivedEquipment": "Mostrar archivados",
+  "selectMethod": "Elige un método",
+  "selectGrinder": "Elige un molino",
+  "grindSetting": "Punto de molienda",
+  "noActiveMethods": "Añade un método para registrar una preparación.",
+  "manageMethodTools": "Gestionar accesorios",
+  "waterProfiles": "Perfiles de agua",
+  "waterTab": "Agua",
+  "addWaterProfile": "Añadir perfil de agua",
+  "editWaterProfile": "Editar perfil de agua",
+  "archiveWaterProfile": "Archivar perfil de agua",
+  "restoreWaterProfile": "Recuperar perfil de agua",
+  "waterProfileSaved": "Perfil de agua guardado",
+  "waterProfileName": "Nombre del perfil",
+  "waterHardness": "Dureza GH (ppm como CaCO₃)",
+  "waterAlkalinity": "Alcalinidad KH (ppm como CaCO₃)",
+  "waterTdsPpm": "TDS del agua (ppm)",
+  "waterPh": "pH (0–14)",
+  "waterProfileNotes": "Notas (opcional)",
+  "noWaterProfiles": "No hay perfiles de agua que mostrar.",
+  "noActiveWaterProfiles": "Aún no hay perfiles de agua activos.",
+  "waterProfile": "Perfil de agua",
+  "brewWaterProfile": "Perfil de agua (opcional)",
+  "noWaterProfile": "Sin perfil",
+  "archivedWaterReference": "La preparación anterior usó agua archivada: {name}",
+  "@archivedWaterReference": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "none": "Ninguno",
+  "unspecifiedGrinder": "Sin indicar",
+  "preGround": "Premolido",
+  "archivedStatus": "Archivado",
+  "statsRangeWeek": "7 días",
+  "statsRangeMonth": "30 días",
+  "statsRangeQuarter": "90 días",
+  "statsRangeYear": "1 año",
+  "statsRangeAll": "Todo",
+  "statsIncludesArchived": "Las métricas históricas incluyen granos y preparaciones archivados.",
+  "statsCurrentInventoryNote": "El inventario actual excluye los granos archivados y no depende del periodo; incluye los congelados.",
+  "statsNoBrewsInRange": "No hay preparaciones en este periodo.",
+  "statsBrews": "Preparaciones",
+  "statsGround": "Café molido",
+  "statsAverageDose": "Dosis media",
+  "statsBrewsPerDay": "Preparaciones al día",
+  "statsAverageRatingShort": "Nota media",
+  "statsRatedCount": "{count, plural, one {{count} valorada} other {{count} valoradas}}",
+  "@statsRatedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsFrozenPart": "{grams} congelado",
+  "@statsFrozenPart": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "statsActivity": "Actividad",
+  "statsActivitySummary": "{count, plural, one {1 preparación} other {{count} preparaciones}} en las últimas {weeks} semanas",
+  "@statsActivitySummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "statsCurrentStreak": "Racha: {days, plural, one {1 día} other {{days} días}}",
+  "@statsCurrentStreak": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "statsLongestStreak": "Mejor racha: {days, plural, one {1 día} other {{days} días}}",
+  "@statsLongestStreak": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "statsLess": "Menos",
+  "statsMore": "Más",
+  "statsExtraction": "Mapa de extracción",
+  "statsExtractionHint": "Preparaciones valoradas con la brújula de extracción y su nota media.",
+  "statsExtractionCell": "{label}: {count, plural, one {1 preparación} other {{count} preparaciones}}",
+  "@statsExtractionCell": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsTopMethods": "Métodos más usados",
+  "statsTopOrigins": "Orígenes",
+  "statsTopRoasters": "Tostadores",
+  "statsTopRatedBeans": "Granos mejor valorados",
+  "statsTopRatedHint": "Granos con al menos dos preparaciones valoradas.",
+  "statsRatingByStyle": "Nota por estilo",
+  "freshnessOpened": "{days, plural, =0{Bolsa abierta hoy, envejece más rápido} =1{Bolsa abierta hace 1 día, envejece más rápido} other{Bolsa abierta hace {days} días, envejece más rápido}}",
+  "@freshnessOpened": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "runningLow": "Queda poco",
+  "dosesLeft": "{count, plural, =0{Menos de una dosis} =1{Queda 1 dosis} other{Quedan {count} dosis}}",
+  "@dosesLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inFreezer": "{grams} en el congelador",
+  "@inFreezer": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "brewCost": "Coste",
+  "statsCoffeeCost": "Café preparado",
+  "statsCostPerCup": "Coste por preparación",
+  "statsCostCoverage": "{count} con precio",
+  "statsTabOverview": "Resumen",
+  "statsTabBeans": "Cafés",
+  "statsTabBrews": "Preparaciones",
+  "statsTabCosts": "Costes",
+  "statsBrewsPerPeriod": "{period, select, day{Preparaciones por día} week{Preparaciones por semana} other{Preparaciones por mes}}",
+  "@statsBrewsPerPeriod": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "statsSpendingPerPeriod": "{period, select, day{Gasto por día} week{Gasto por semana} other{Gasto por mes}}",
+  "@statsSpendingPerPeriod": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "statsWeekOf": "Semana del {date}",
+  "@statsWeekOf": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "statsBeansTried": "Cafés distintos",
+  "statsRoastersTried": "Tostadores",
+  "statsOriginsTried": "Países de origen",
+  "statsFirstCup": "Primera preparación",
+  "statsDaysAfterRoast": "{days, plural, one {1 día} other {{days} días}}",
+  "@statsDaysAfterRoast": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "statsDaysAfterRoastCaption": "tras el tueste (mediana)",
+  "statsMedian": "mediana",
+  "statsTopProcesses": "Procesos",
+  "statsTopVarieties": "Variedades",
+  "statsFilterRatio": "Ratio de filtro",
+  "statsEspressoRatio": "Ratio de espresso",
+  "statsShotTime": "Tiempo de espresso",
+  "statsFilterTime": "Tiempo de filtro",
+  "statsShotTimes": "Tiempos de espresso",
+  "statsShotTimesHint": "Extracciones por tramo de 5 s.",
+  "statsFilterTimes": "Tiempos de filtro",
+  "statsFilterTimesHint": "Preparaciones por tramo de 30 s.",
+  "statsLearningCurve": "Afinando cada café",
+  "statsLearningCurveHint": "Nota media de la primera, segunda… preparación de cada café; de la octava en adelante, juntas.",
+  "statsBrewNumber": "{number}.ª",
+  "@statsBrewNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "statsRatingByTemperature": "Nota por temperatura",
+  "statsRatingByTemperatureHint": "Nota media por tramo de 2 °C, con las preparaciones valoradas.",
+  "statsSpent": "Gastado en bolsas",
+  "statsBags": "{count, plural, one {1 bolsa} other {{count} bolsas}}",
+  "@statsBags": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsAveragePricePerKg": "Precio medio",
+  "statsCostVsRating": "Coste por preparación y nota",
+  "statsCostVsRatingHint": "Cada punto es un café: más a la derecha, más caro por preparación; más arriba, mejor nota.",
+  "statsCostVsRatingFew": "Valora preparaciones de al menos dos cafés con precio para ver esta gráfica.",
+  "statsCostAxis": "€ por preparación",
+  "statsRatingAxis": "Nota",
+  "statsBestValue": "Mejor relación calidad-precio",
+  "statsBestValueHint": "Entre los cafés con una nota igual o superior a tu mediana, los más baratos por preparación.",
+  "statsCupCost": "{cost} por preparación",
+  "@statsCupCost": {
+    "placeholders": {
+      "cost": {
+        "type": "String"
+      }
+    }
+  },
+  "statsPricePerKgByRoaster": "Precio por kilo de cada tostador",
+  "statsPricePerKgByRoasterHint": "Media de sus bolsas con precio, según lo que pesaba cada una.",
+  "statsNoPrices": "Apunta el precio y los gramos de tus cafés para ver aquí cuánto gastas.",
+  "@statsCostCoverage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dialInTitle": "La última vez con este café",
+  "dialInRatedTitle": "Última valorada con este café",
+  "exportBrewsCsv": "Exportar preparaciones (CSV)",
+  "exportBrewsCsvHint": "Para hojas de cálculo; no es una copia de seguridad",
+  "ratingByAgeTitle": "Valoraciones por edad estimada",
+  "ratingByAgeSummary": "{count} preparaciones valoradas entre los días {first} y {last}; la mejor, {rating}, el día {bestDay}",
+  "@ratingByAgeSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "first": {
+        "type": "int"
+      },
+      "last": {
+        "type": "int"
+      },
+      "rating": {
+        "type": "String"
+      },
+      "bestDay": {
+        "type": "int"
+      }
+    }
+  },
+  "chartPhasesFor": "Fases: {style}",
+  "@chartPhasesFor": {
+    "placeholders": {
+      "style": {
+        "type": "String"
+      }
+    }
+  },
+  "meticulousAddress": "Dirección de la máquina",
+  "meticulousAddressHint": "p. ej., meticulous.local",
+  "meticulousInvalidAddress": "Eso no parece una dirección.",
+  "meticulousConnectFailed": "No se pudo leer la máquina: {error}",
+  "@meticulousConnectFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "meticulousNoShots": "La máquina aún no tiene extracciones.",
+  "meticulousImported": "Ya importada",
+  "connectedMachine": "Máquina conectada",
+  "connectedMachineHint": "Las preparaciones con este método podrán importar sus extracciones",
+  "testConnection": "Probar conexión",
+  "machineConnected": "Conectada. Última extracción: {profile}",
+  "@machineConnected": {
+    "placeholders": {
+      "profile": {
+        "type": "String"
+      }
+    }
+  },
+  "machineConnectedEmpty": "Conectada, aún sin extracciones",
+  "curveWeight": "Peso",
+  "curveFlow": "Caudal",
+  "curvePressure": "Presión",
+  "comparisonPlay": "Reproducir comparación",
+  "comparisonPause": "Pausar comparación",
+  "curveReplay": "Reproducir extracción",
+  "curvePause": "Pausar extracción",
+  "curvePeak": "máx. {value}",
+  "@curvePeak": {
+    "description": "Highest value of a series in the extraction chart, e.g. 9,2 bar",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "extractionCurve": "Curva de extracción",
+  "curveSummary": "{seconds} s, pico de {pressure} bar, {grams} g en la taza",
+  "@curveSummary": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      },
+      "pressure": {
+        "type": "String"
+      },
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "importShot": "Importar extracción",
+  "changeShot": "Cambiar extracción",
+  "importShotHint": "Últimas extracciones de tu Meticulous. Al elegir una se rellenan el tiempo, el peso de bebida, la temperatura, la presión, la primera gota, el perfil y la curva; el café y la dosis los completas tú.",
+  "loadMore": "Cargar más",
+  "retry": "Reintentar",
+  "profileName": "Perfil",
+  "importedShot": "Extracción de la Meticulous",
+  "removeImportedShot": "Quitar la extracción importada",
+  "importFreePour": "Importar free pour",
+  "importFreePourHint": "Lo último que preparaste en modo free pour con la báscula de tu Meticulous; desde fuera de la máquina solo se puede leer el último. Al elegirlo se rellenan la dosis, el agua, la bebida, la temperatura, el tiempo, los blooms y vertidos y la curva.",
+  "meticulousNoFreePour": "No hay un free pour reciente: solo se puede leer lo último que se hizo en la báscula de la Meticulous, y no fue un free pour.",
+  "importedFreePour": "Free pour de la Meticulous",
+  "removeImportedFreePour": "Quitar el free pour importado",
+  "decaf": "Descafeinado",
+  "shopUrl": "Web de la tienda",
+  "shopUrlHint": "tienda.com/cafe",
+  "invalidWebLink": "No parece una dirección web",
+  "openShop": "Ver en la tienda",
+  "harvest": "Cosecha",
+  "harvestHint": "2025 o enero 2025",
+  "coverPhoto": "{label}, portada",
+  "@coverPhoto": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "photoNumber": "{label} {number}",
+  "@photoNumber": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "photoCount": "{label}, {number} de {total}",
+  "@photoCount": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "number": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "firstDrip": "Primera gota",
+  "firstDripSeconds": "Primera gota (s)",
+  "waterMinerals": "Minerales (ppm)",
+  "mineralsHint": "Cada ion en ppm (mg/l), como en la etiqueta del agua",
+  "calcium": "Calcio",
+  "magnesium": "Magnesio",
+  "sodium": "Sodio",
+  "potassium": "Potasio",
+  "chloride": "Cloruro",
+  "sulfate": "Sulfato",
+  "jug": "la jarra",
+  "methodJug": "Jarra",
+  "methodJugHint": "Si pesas la bebida en ella, su peso se resta solo",
+  "jugName": "Nombre del recipiente",
+  "jugEmptyWeight": "Peso del recipiente vacío (g)",
+  "weightWithJug": "Peso con recipiente (g)",
+  "jugTare": "Menos {grams} g de {name}",
+  "@jugTare": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "pourAssistant": "Asistente de vertido",
+  "pourAssistantHint": "Reparte el agua en vertidos iguales tras los blooms y te avisa con pitidos de cada uno.",
+  "totalWater": "Agua total: {grams} g",
+  "@totalWater": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "bloomNumber": "Bloom {number}",
+  "@bloomNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "bloomWait": "Espera (s)",
+  "bloomShare": "{multiple}× la dosis",
+  "@bloomShare": {
+    "placeholders": {
+      "multiple": {
+        "type": "String"
+      }
+    }
+  },
+  "addBloom": "Añadir bloom",
+  "removeBloom": "Quitar bloom",
+  "pourCount": "Vertidos",
+  "fewerPours": "Un vertido menos",
+  "morePours": "Un vertido más",
+  "pourInterval": "Cada (s)",
+  "pourSummary": "{count} vertidos de {grams} g; terminas de verter a los {time}",
+  "@pourSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "grams": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "startPouring": "Empezar",
+  "pausePouring": "Pausar",
+  "resumePouring": "Seguir",
+  "finishPouring": "Terminar",
+  "pourStepPour": "Vertido {number} de {total}",
+  "@pourStepPour": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "pourTo": "Vierte hasta {grams} g",
+  "@pourTo": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "pourAdd": "+{grams} g",
+  "@pourAdd": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "nextPour": "Siguiente en {seconds} s, hasta {grams} g",
+  "@nextPour": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      },
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "drawdown": "Ya está todo el agua: deja que termine de filtrar y pulsa Terminar.",
+  "pourProblemDose": "Indica la dosis.",
+  "pourProblemRatio": "El ratio tiene que estar entre 1:1 y 1:30.",
+  "pourProblemBloom": "Cada bloom necesita agua y tiempo de espera.",
+  "pourProblemPours": "Entre 1 y 10 vertidos, con su intervalo en segundos.",
+  "pourProblemBloomWater": "Los blooms se llevan casi toda el agua: no queda para los vertidos.",
+  "pourResultApplied": "Agua y tiempo aplicados; vertidos detectados de la curva cuando hay datos",
+  "backupReminderNever": "Aún no has guardado ninguna copia de tu diario",
+  "backupReminderDays": "Hace {days} días de tu última copia",
+  "@backupReminderDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "backupReminderHint": "Tu diario solo vive en este móvil: guarda una copia en tu nube o en otro sitio.",
+  "backupNow": "Hacer copia",
+  "notNow": "Ahora no",
+  "scaleSection": "Báscula Bluetooth",
+  "scaleHint": "Vincula tus básculas una vez: HolyBeans conectará con la que esté encendida mientras uses la app. Si hay varias encendidas, prioriza la última utilizada y mantiene la conexión actual. Compatible con BOOKOO y DiFluid Microbalance (V300 o posterior) / Microbalance Ti (V010 o posterior). Compatibilidad DiFluid en pruebas. La compatibilidad con Acaia Lunar, Pearl / Pearl S y Pyxis es experimental y está pendiente de pruebas con básculas físicas. Cierra otras apps conectadas a la báscula.",
+  "scaleRemembered": "Vinculada · conexión automática",
+  "scaleFind": "Buscar báscula",
+  "scaleSearching": "Buscando básculas…",
+  "scaleNoneFound": "No aparece ninguna. Enciéndela y comprueba que no esté conectada a otro móvil.",
+  "scaleConnect": "Conectar",
+  "scaleDisconnect": "Desconectar",
+  "scaleForget": "Olvidar báscula",
+  "scaleConnected": "Conectada",
+  "scaleConnecting": "Conectando…",
+  "scaleDisconnected": "Desconectada",
+  "scaleFailed": "No se pudo conectar. ¿Está encendida y libre?",
+  "scaleBluetoothOff": "Activa el Bluetooth para usar la báscula.",
+  "scaleDenied": "HolyBeans necesita el permiso de dispositivos cercanos para usar la báscula.",
+  "scaleBattery": "Batería {percent} %",
+  "@scaleBattery": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "scaleTare": "Tara",
+  "scaleRecording": "Grabando el peso",
+  "scaleCurveRecorded": "Curva de peso grabada: {seconds} s",
+  "@scaleCurveRecorded": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "weightCurveSummary": "{seconds} s, {grams} g en la báscula",
+  "@weightCurveSummary": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      },
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "scaleOnScale": "En la báscula: {grams} g",
+  "@scaleOnScale": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "pourRemaining": "Faltan {grams} g",
+  "@pourRemaining": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "pourOver": "Te pasas {grams} g",
+  "@pourOver": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "pourScaleHint": "Al empezar, la báscula se pone a cero y arranca su temporizador.",
+  "bqImport": "Importar de BeanConqueror",
+  "bqHowTo": "En BeanConqueror, ve a Ajustes → «Full export to directory» y elige aquí esa carpeta: trae también las curvas y las fotos.",
+  "bqNotAnExport": "Ese archivo no es una exportación de BeanConqueror.",
+  "bqIntro": "Esto es lo que se añadirá a tu diario. Lo que ya importaste antes se omite, sin tocar lo que hayas cambiado aquí, y los campos que HolyBeans no usa quedan guardados con cada registro.",
+  "bqCoffees": "{count, plural, =1{1 grano} other{{count} granos}}",
+  "@bqCoffees": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqBrews": "{count, plural, =1{1 preparación} other{{count} preparaciones}}",
+  "@bqBrews": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqMethods": "{count, plural, =1{1 método} other{{count} métodos}}",
+  "@bqMethods": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqGrinders": "{count, plural, =1{1 molino} other{{count} molinos}}",
+  "@bqGrinders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqWaters": "{count, plural, =1{1 perfil de agua} other{{count} perfiles de agua}}",
+  "@bqWaters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqReused": "{count, plural, =1{1 método, molino o agua ya existía con ese nombre y se reutiliza.} other{{count} métodos, molinos o aguas ya existían con ese nombre y se reutilizan.}}",
+  "@bqReused": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqFrozen": "{count, plural, =1{1 bolsa entra al congelador con lo que le queda.} other{{count} bolsas entran al congelador con lo que les queda.}}",
+  "@bqFrozen": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqArchived": "{count, plural, =1{1 grano terminado entra archivado, con sus preparaciones.} other{{count} granos terminados entran archivados, con sus preparaciones.}}",
+  "@bqArchived": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqSkipped": "{count, plural, =1{1 registro ya importado se omite.} other{{count} registros ya importados se omiten.}}",
+  "@bqSkipped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqNoBean": "{count, plural, =1{1 preparación sin su grano no se importa.} other{{count} preparaciones sin su grano no se importan.}}",
+  "@bqNoBean": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqNoDate": "{count, plural, =1{1 registro no tiene fecha: si es una preparación se omite; si es un grano, toma la de hoy.} other{{count} registros no tienen fecha: las preparaciones se omiten y los granos toman la de hoy.}}",
+  "@bqNoDate": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqPhotos": "Fotos: {found} de {total}",
+  "@bqPhotos": {
+    "placeholders": {
+      "found": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "bqNothingNew": "No hay nada nuevo que importar: todo estaba importado.",
+  "bqImportAction": "Importar",
+  "bqImporting": "Importando…",
+  "bqImported": "Importados {coffees} granos y {brews} preparaciones",
+  "@bqImported": {
+    "placeholders": {
+      "coffees": {
+        "type": "int"
+      },
+      "brews": {
+        "type": "int"
+      }
+    }
+  },
+  "bqImportFailed": "No se pudo importar; tu diario no ha cambiado.",
+  "bqPhotosAdded": "{count, plural, =1{1 foto añadida} other{{count} fotos añadidas}}",
+  "@bqPhotosAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqCurves": "Curvas: {found} de {total}",
+  "@bqCurves": {
+    "placeholders": {
+      "found": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "bqFilesHint": "El archivo elegido no lleva fotos ni curvas. Para traerlas, importa eligiendo la carpeta de la exportación, o añade aquí un ZIP de esa carpeta o archivos sueltos, pocos cada vez. Lo que falte se queda fuera.",
+  "bqPickFiles": "Elegir archivos",
+  "bqUpdates": "{count, plural, =1{1 registro ya importado recibe sus fotos o su curva si aquí no tiene.} other{{count} registros ya importados reciben sus fotos o su curva si aquí no tienen.}}",
+  "@bqUpdates": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqCurvesAdded": "{count, plural, =1{1 curva añadida} other{{count} curvas añadidas}}",
+  "@bqCurvesAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqPhotosHint": "El archivo elegido no lleva las fotos. Para traerlas, importa eligiendo la carpeta de la exportación, o añade aquí un ZIP de esa carpeta o las fotos sueltas. Las que falten se quedan fuera.",
+  "bqChanged": "{count, plural, =1{1 registro cambiado en BeanConqueror se actualiza aquí (las existencias no cambian).} other{{count} registros cambiados en BeanConqueror se actualizan aquí (las existencias no cambian).}}",
+  "@bqChanged": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqConflicts": "{count, plural, =1{1 registro cambió aquí y en BeanConqueror: se queda la versión de HolyBeans.} other{{count} registros cambiaron aquí y en BeanConqueror: se queda la versión de HolyBeans.}}",
+  "@bqConflicts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqUpdatedCount": "{count, plural, =1{1 actualizado} other{{count} actualizados}}",
+  "@bqUpdatedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sortAscending": "Ascendente",
+  "sortDescending": "Descendente",
+  "sortBrews": "Ordenar por fecha",
+  "archiveBeanForLowStock": "Quedan {remaining}, menos que tu dosis media de {dose} con {method}. ¿Quieres archivar este café y sus preparaciones?",
+  "@archiveBeanForLowStock": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      },
+      "dose": {
+        "type": "String"
+      },
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteBean": "Eliminar café",
+  "deleteBeanTitle": "¿Eliminar el café?",
+  "deleteBeanDescription": "Se eliminarán «{name}», sus lotes, porciones congeladas y fotos. No se puede deshacer.",
+  "beanDeleted": "Café eliminado",
+  "deleteBeanHasBrews": "Este café tiene preparaciones y no se puede eliminar.",
+  "deleteBeanFailed": "No se pudo eliminar el café",
+  "deleteBrew": "Eliminar preparación",
+  "deleteBrewTitle": "¿Eliminar la preparación?",
+  "deleteBrewDescription": "Se eliminarán la preparación, su curva y sus fotos. No se puede deshacer.",
+  "deleteBrewGivesBack": "Sus {grams} vuelven al café.",
+  "@deleteBrewGivesBack": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "brewDeleted": "Preparación eliminada",
+  "deleteBrewFailed": "No se pudo eliminar la preparación",
+  "@deleteBeanDescription": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bloomCount": "Blooms",
+  "poursUnrecorded": "Sin registrar",
+  "pourCountHint": "Los blooms se contabilizan por separado.",
+  "pourDetails": "Detalles de blooms y vertidos",
+  "pourNumber": "Vertido {number}",
+  "pourWaterGrams": "Agua añadida (g)",
+  "pourDurationSeconds": "Tiempo de vertido (s)",
+  "bloomRestSeconds": "Reposo del bloom (s)",
+  "pourWaterValue": "{grams} g",
+  "pourDurationValue": "Vertido: {seconds} s",
+  "bloomRestValue": "Reposo: {seconds} s",
+  "@pourNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "@pourDurationValue": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "@bloomRestValue": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "@pourWaterValue": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "pourDetailsInvalid": "Revisa el agua y los tiempos de los detalles de vertido.",
+  "noTools": "Aún no hay accesorios. Añade uno y elige los métodos en los que lo usas.",
+  "toolCompatibleMethods": "Métodos compatibles",
+  "toolCompatibleMethodsHint": "Elige uno o varios métodos, o asócialos más adelante.",
+  "toolNoMethods": "Sin métodos asociados",
+  "reuseToolHint": "Selecciona una sugerencia para reutilizar un accesorio existente.",
+  "toolReusedHint": "Este accesorio es compartido. Los cambios se aplican a todos sus métodos.",
+  "detachTool": "Desvincular de este método",
+  "archiveSharedTool": "Archivar en el catálogo",
+  "mergeTools": "Unir accesorios",
+  "mergeToolTarget": "Accesorio que conservar",
+  "mergeToolsHint": "Une «{name}» con el accesorio elegido. Se conservará el nombre del elegido y se sumarán los métodos y las preparaciones. No se puede deshacer.",
+  "toolsMerged": "Accesorios unidos",
+  "@mergeToolsHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "restoreKeepsCurrent": "Antes de restaurar, HolyBeans guardará tu diario actual entre las copias automáticas, por si quieres volver atrás.",
+  "autoBackups": "Copias automáticas en este móvil",
+  "autoBackupsTitle": "Copias automáticas",
+  "autoBackupsLast": "Última: {when}",
+  "@autoBackupsLast": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "autoBackupsNone": "Todavía ninguna: la primera se guarda al salir de la app.",
+  "autoBackupsExplain": "Al salir de la app, HolyBeans guarda una copia de tu diario si ha cambiado, como mucho una al día. Conserva las {count} más recientes.",
+  "@autoBackupsExplain": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "autoBackupsLimits": "Están dentro de la app: no incluyen fotos (al restaurar se conservan las que sigan en el móvil) y se borran si desinstalas HolyBeans. Para tener copias fuera, usa la carpeta de copias diarias.",
+  "autoBackupsEmpty": "Aún no hay copias automáticas.",
+  "autoBackupLatest": "La más reciente",
+  "backupFolder": "Carpeta de copias diarias",
+  "backupFolderNone": "Elige una carpeta del móvil y cada día que cambie tu diario te recordaremos guardar ahí una copia completa, con fotos. Se conservan aunque desinstales la app.",
+  "backupFolderLast": "{folder}. Última copia: {when}",
+  "@backupFolderLast": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "backupFolderNoCopy": "{folder}, todavía sin copias",
+  "@backupFolderNoCopy": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "backupFolderLost": "No se puede acceder a la carpeta: vuelve a elegirla.",
+  "backupFolderKept": "Se conservan las {count} copias diarias más recientes. Los demás archivos de la carpeta no se tocan.",
+  "@backupFolderKept": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupFolderSaveNow": "Guardar copia ahora",
+  "backupFolderChange": "Cambiar carpeta",
+  "backupFolderForget": "Dejar de usar esta carpeta",
+  "backupFolderForgetHint": "Las copias ya guardadas se quedan en la carpeta.",
+  "backupFolderSaved": "Copia guardada en {folder}",
+  "@backupFolderSaved": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "backupFolderFailed": "No se pudo guardar la copia en la carpeta",
+  "folderReminderTitle": "Guarda la copia de hoy",
+  "folderReminderBody": "Tu diario ha cambiado desde la última copia en {folder}.",
+  "@folderReminderBody": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "folderReminderLostTitle": "No se puede guardar en tu carpeta de copias",
+  "folderReminderLostBody": "Puede que se haya borrado o movido. Elige de nuevo dónde guardar las copias.",
+  "saveCopy": "Guardar copia",
+  "chooseFolder": "Elegir carpeta",
+  "brewParameters": "Parámetros de preparación",
+  "brewParametersHint": "Elige qué se muestra en el formulario, la ficha y el historial, y qué se comparte.",
+  "brewParametersHiddenNote": "Ocultar un parámetro no borra sus datos: se sigue guardando al importar, desde la cafetera o la báscula y al repetir.",
+  "parameterShow": "Mostrar",
+  "parameterShare": "Compartir",
+  "parameterAlwaysShown": "Siempre visible",
+  "parameterKeepOneShared": "Debe haber al menos un campo para compartir.",
+  "parameterGroupCoffee": "Café",
+  "parameterGroupRecipe": "Receta",
+  "parameterGroupEquipment": "Equipo",
+  "parameterGroupTiming": "Tiempos",
+  "parameterGroupPours": "Blooms y vertidos",
+  "parameterGroupResult": "Resultado",
+  "photos": "Fotos",
+  "hiddenDataCount": "{count, plural, =1{1 dato oculto} other{{count} datos ocultos}}",
+  "@hiddenDataCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "showHiddenData": "Ver",
+  "hideHiddenData": "Ocultar",
+  "shareFieldsSettingsHint": "Se aplican a todas las preparaciones; también en Ajustes → Parámetros de preparación.",
+  "sensorSection": "Sensor de presión Bluetooth",
+  "sensorHint": "Conecta un BOOKOO Espresso Monitor para ver la presión del espresso mientras preparas, guardar su máximo y añadirla a la curva de la báscula. HolyBeans solo inicia y para la transmisión: no lo pone a cero ni cambia sus ajustes. Compatibilidad en pruebas.",
+  "sensorFind": "Buscar sensor",
+  "sensorSearching": "Buscando sensores…",
+  "sensorNoneFound": "No aparece ninguno. Enciéndelo y comprueba que no esté conectado a otro móvil.",
+  "sensorForget": "Olvidar sensor",
+  "sensorConnected": "Conectado",
+  "sensorConnecting": "Conectando…",
+  "sensorDisconnected": "Desconectado",
+  "sensorFailed": "No se pudo conectar. ¿Está encendido y libre?",
+  "sensorBluetoothOff": "Activa el Bluetooth para usar el sensor.",
+  "sensorDenied": "HolyBeans necesita el permiso de dispositivos cercanos para usar el sensor.",
+  "sensorBar": "{bar} bar",
+  "@sensorBar": {
+    "placeholders": {
+      "bar": {
+        "type": "String"
+      }
+    }
+  },
+  "sensorRecording": "Grabando la presión",
+  "sensorPeak": "Máximo: {bar} bar",
+  "toastScaleConnected": "Báscula conectada",
+  "toastScaleDisconnected": "Báscula desconectada",
+  "toastSensorConnected": "Sensor de presión conectado",
+  "toastSensorDisconnected": "Sensor de presión desconectado",
+  "toastRefractometerConnected": "Refractómetro conectado",
+  "toastRefractometerDisconnected": "Refractómetro desconectado",
+  "refractometerSection": "Refractómetro Bluetooth",
+  "refractometerHint": "Conecta un DiFluid R2 para medir el TDS al preparar: el botón junto al TDS le pide una medida, y las que hagas con su propio botón también se apuntan. HolyBeans solo le pide medir: no cambia sus ajustes ni lo calibra. Compatibilidad en pruebas.",
+  "refractometerFind": "Buscar refractómetro",
+  "refractometerSearching": "Buscando refractómetros…",
+  "refractometerForget": "Olvidar refractómetro",
+  "refractometerBluetoothOff": "Activa el Bluetooth para usar el refractómetro.",
+  "refractometerDenied": "HolyBeans necesita el permiso de dispositivos cercanos para usar el refractómetro.",
+  "refractometerTds": "TDS {tds} %",
+  "@refractometerTds": {
+    "placeholders": {
+      "tds": {
+        "type": "String"
+      }
+    }
+  },
+  "refractometerMeasure": "Medir con el refractómetro",
+  "refractometerMeasuring": "Midiendo…",
+  "refractometerFailed": "No se pudo medir. ¿Hay muestra en el prisma?",
+  "refractometerBelowZero": "Midió {tds} %, bajo cero (agua o prisma vacío): no se apunta.",
+  "@refractometerBelowZero": {
+    "placeholders": {
+      "tds": {
+        "type": "String"
+      }
+    }
+  },
+  "@sensorPeak": {
+    "placeholders": {
+      "bar": {
+        "type": "String"
+      }
+    }
+  },
+  "scaleUseWeight": "Usar el peso de la báscula ({grams} g)",
+  "@scaleUseWeight": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "scaleUseWeightOff": "Usar el peso de la báscula (sin conectar)",
+  "scaleWaitDrip": "Esperar gota",
+  "scaleWaitDripHint": "Tara y empieza con la primera gota",
+  "scaleWaitingDrip": "Esperando la primera gota…",
+  "espressoMap": "Mapa de espresso",
+  "openEspressoMap": "Ver mapa de espresso",
+  "espressoRistretto": "Ristretto",
+  "espressoNormale": "Normale",
+  "espressoLungo": "Lungo",
+  "espressoStyleByRatio": "Estilo sugerido por ratio {ratio}: {style}",
+  "@espressoStyleByRatio": {
+    "placeholders": {
+      "style": {
+        "type": "String"
+      },
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "espressoWithin": "Dentro de {style}",
+  "@espressoWithin": {
+    "placeholders": {
+      "style": {
+        "type": "String"
+      }
+    }
+  },
+  "espressoEyLow": "Extracción baja",
+  "espressoEyHigh": "Extracción alta",
+  "espressoEyWithin": "Extracción en rango",
+  "espressoTdsLow": "TDS bajo",
+  "espressoTdsHigh": "TDS alto",
+  "espressoTdsWithin": "TDS en rango",
+  "espressoOffChart": "Fuera de la gráfica",
+  "favoriteRecipe": "Receta favorita",
+  "markFavoriteRecipe": "Marcar como receta favorita",
+  "unmarkFavoriteRecipe": "Quitar receta favorita",
+  "favoriteRecipeSet": "Tu receta favorita de {method} con este café: las nuevas preparaciones parten de ella",
+  "favoriteRecipeRemoved": "Ya no es tu receta favorita",
+  "methodMemoryFavorite": "Valores de tu receta favorita de {method}",
+  "dialInFavoriteTitle": "Tu receta favorita con este café",
+  "dialInLatestNote": "La última vez: {result}",
+  "dialInLatestRatedNote": "Última preparación valorada: {result}",
+  "favoriteRecipeNote": "Receta favorita: las nuevas preparaciones de este café con {method} parten de ella",
+  "bqFilesIncluded": "La exportación trae todas las curvas y fotos que hacen falta.",
+  "preMigrationTitle": "Antes de actualizar la app",
+  "preMigrationExplain": "Cuando una actualización cambia cómo se guardan tus datos, HolyBeans guarda antes tu diario tal como estaba. Se conservan las {count} últimas. Al restaurar una, se pone al día con esta versión.",
+  "@preMigrationExplain": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bqSourceFolder": "Carpeta de la exportación",
+  "bqSourceFolderHint": "La que crea «Full export to directory». Trae también las curvas y las fotos.",
+  "bqSourceFile": "Un archivo",
+  "bqSourceFileHint": "Su Beanconqueror.zip, o un ZIP de la carpeta entera.",
+  "bqFolderNoExport": "En esa carpeta no hay ningún Beanconqueror.zip. Elige la carpeta de «Full export to directory».",
+  "bqReadingExport": "Leyendo la exportación…",
+  "bqReadingAllCurves": "Leyendo curvas…",
+  "bqSavingImport": "Guardando en el diario…",
+  "bqPreparingPhotos": "Preparando fotos: {done} de {total}",
+  "@bqPreparingPhotos": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "bqReadingCurves": "Leyendo curvas: {done} de {total}",
+  "@bqReadingCurves": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "poursFromCurve": "Rellenado desde la curva de la báscula.",
+  "undo": "Deshacer",
+  "curveShowsPours": "La curva muestra {blooms, plural, =1{1 bloom} other{{blooms} blooms}} y {pours, plural, =1{1 vertido} other{{pours} vertidos}}.",
+  "@curveShowsPours": {
+    "placeholders": {
+      "blooms": {
+        "type": "int"
+      },
+      "pours": {
+        "type": "int"
+      }
+    }
+  },
+  "poursFromCurvesTitle": "Blooms y vertidos desde las curvas",
+  "poursFromCurvesHint": "Rellena las preparaciones de filtro con curva de báscula que aún no los tienen.",
+  "poursFromCurvesNone": "No hay preparaciones de filtro con curva y sin blooms ni vertidos.",
+  "poursFromCurvesConfirm": "{count, plural, =1{Se rellenarán los blooms y vertidos de 1 preparación a partir de su curva} other{Se rellenarán los blooms y vertidos de {count} preparaciones a partir de sus curvas}}. Las que ya los tengan, o en las que hayas escrito algo, no se tocan.",
+  "poursFromCurvesFill": "Rellenar",
+  "poursFromCurvesDone": "{count, plural, =1{1 preparación rellenada} other{{count} preparaciones rellenadas}}",
+  "@poursFromCurvesConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@poursFromCurvesDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pourFlowValue": "{flow} g/s",
+  "pourFlowHint": "Caudal: {flow} g/s",
+  "shareBeanCard": "Compartir ficha",
+  "shareBeanTitle": "Ficha de {name}",
+  "@shareBeanTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shareBeanHint": "Quien la abra con HolyBeans tendrá este café listo para guardar, con el peso y el precio de la bolsa. Tus notas, tu valoración y tus preparaciones no viajan con ella.",
+  "shareBeanFile": "Enviar archivo",
+  "shareBeanQrImage": "Enviar el QR como imagen",
+  "shareBeanQrCaption": "Escanéalo con HolyBeans",
+  "importScanQr": "Escanear un QR",
+  "importPaste": "Pegar del portapapeles",
+  "importOpenFile": "Abrir un archivo",
+  "importCopyAi": "Copiar instrucciones para una IA",
+  "aiInstructionsCopied": "Instrucciones copiadas. Pégalas en ChatGPT u otra IA con los enlaces de tus cafés y comparte su respuesta con HolyBeans.",
+  "beanAiInstructions": "Prepara fichas de café para HolyBeans a partir de los enlaces y datos que te pase al final. Devuelve un único objeto JSON válido, sin Markdown ni texto antes o después, con una entrada en beans por café. Mantén format y version tal como aparecen aquí:\n\n{example}\n\nFuentes y datos desconocidos:\n- Lee la página de cada café. Usa solo información explícita de esa página o de la bolsa que yo te proporcione. Si no puedes acceder a una página, no inventes su contenido.\n- El ejemplo muestra la estructura: sus nombres, cifras, fechas y demás valores son ficticios. No los copies como datos reales.\n- name debe identificar el café. Si no puedes identificarlo, omite esa entrada. Omite cualquier otro campo desconocido; no lo rellenes con valores supuestos, cadenas vacías ni el texto \"desconocido\".\n- Conserva los nombres comerciales y las variedades. flavorNotes es una lista de notas de cata del tostador, no una valoración inventada. shopUrl es el enlace a ese café.\n- Escribe los datos en español: países, procesos y notas de cata (por ejemplo, Etiopía, lavado, melocotón), aunque la página esté en otro idioma. Deja como en la fuente los nombres del café, del tostador, de la región, de la finca, del productor y de las variedades.\n\nTueste y fechas:\n- roastLevel solo admite dark, medium, omni, light o ultra_light, y únicamente cuando la fuente indique el nivel de tueste. Una recomendación para espresso o filtro no permite deducirlo.\n- Incluye decaf solo si se indica expresamente si el café es descafeinado.\n- roastDate debe ser una fecha de tueste explícita, completa y válida, en formato AAAA-MM-DD. No uses la fecha actual, de publicación, compra, caducidad ni cosecha. Si solo dice \"recién tostado\", falta el año o la fecha es ambigua, omite el campo.\n- harvest es la cosecha indicada por la fuente, no la fecha de tueste. No añadas fechas de apertura ni cálculos de frescura.\n\nBolsa, precio y origen:\n- price es el precio total de una bolsa en euros, como número con punto decimal, sin símbolo de moneda. No uses el precio por kilo ni conviertas otra moneda por tu cuenta.\n- bagGrams es el peso de esa misma bolsa en gramos, como número sin unidad. Si hay varias variantes y no te he indicado cuál, omite price y bagGrams en vez de escoger una. No mezcles el precio de un tamaño con el peso de otro.\n- En origins, usa una entrada para un origen único y una por componente conocido de una mezcla, sin inventar porcentajes ni repartir datos entre componentes.\n- Para una altitud única usa altitudeMeters. Para un rango usa altitudeMeters como mínimo y altitudeMaxMeters como máximo, ambos números enteros en metros, sin unidades. Omite el máximo si no se conoce; no copies el rango del ejemplo.\n- No añadas campos fuera de la estructura indicada ni recomendaciones de preparación.\n\nMis cafés y variantes de bolsa:\n",
+  "@beanAiInstructions": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "importInvalidJson": "No se puede leer esta ficha. Comprueba que has copiado el JSON completo.",
+  "importDroppedTitle": "No se pudieron leer algunos campos",
+  "importDroppedBody": "Sin leer: {fields}. Revisa y completa estos campos antes de guardar el café.",
+  "importReviewAction": "Revisar café",
+  "importNothing": "No se ha encontrado ningún café con nombre en esta ficha.",
+  "importNewer": "Esta ficha viene de una versión más nueva de HolyBeans. Actualiza la app para abrirla.",
+  "importAlreadyHave": "Ya tienes {name}",
+  "@importAlreadyHave": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "importAlreadyHaveBody": "Puedes abrir el que tienes o añadirlo de nuevo como otro café.",
+  "importOpenMine": "Abrir el mío",
+  "importAddAnyway": "Añadir otro",
+  "importReviewTitle": "Cafés para importar",
+  "importSelected": "{count, plural, =1{Importar 1 café} other{Importar {count} cafés}}",
+  "@importSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importDone": "{count, plural, =1{1 café importado} other{{count} cafés importados}}",
+  "@importDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importDuplicate": "Ya está en tu diario",
+  "importDropped": "Sin leer: {fields}",
+  "@importDropped": {
+    "placeholders": {
+      "fields": {
+        "type": "String"
+      }
+    }
+  },
+  "importNoRoaster": "Sin tostador",
+  "scanFailed": "No se pudo abrir el lector de QR.",
+  "importFailed": "No se pudieron importar los cafés.",
+  "importPasteHint": "Pega aquí la ficha o la respuesta de la IA",
+  "importAction": "Importar",
+  "deleteBrewGivesBackFrozen": "Sus {grams} vuelven a la porción congelada {label}.",
+  "@deleteBrewGivesBackFrozen": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "brewThawOnSave": "Se descongelarán {grams} al guardar. Si cancelas, seguirán congelados.",
+  "@brewThawOnSave": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "brewFrozenNeedsDose": "Indica la dosis para preparar con la porción congelada.",
+  "beanAddOptions": "Más formas de añadir un grano",
+  "loffeeSearchTitle": "Buscar en Loffee Labs",
+  "loffeeSearchHint": "Elige un café para revisar su ficha antes de añadirlo.",
+  "loffeeQueryHint": "Nombre, tostador u origen",
+  "loffeeKeyTitle": "Clave de Loffee Labs",
+  "loffeeKeyLabel": "Tu clave API",
+  "loffeeKeyHint": "Introduce la clave de tu cuenta de Loffee Labs. Se guarda protegida en este dispositivo y no se incluye en las copias del diario. Puedes obtenerla en loffeelabs.com/developers.",
+  "loffeeKeySettingsHint": "Configura o elimina tu clave para buscar cafés en su catálogo.",
+  "loffeeKeyStored": "Ya tienes una clave guardada. Introduce otra para sustituirla.",
+  "loffeeShowKey": "Mostrar clave",
+  "loffeeHideKey": "Ocultar clave",
+  "loffeeForgetKey": "Eliminar clave",
+  "loffeeKeyInvalid": "Introduce una clave sin espacios.",
+  "loffeeKeyFailed": "No se pudo acceder a la clave guardada. Puedes volver a configurarla.",
+  "loffeeNeedsKey": "Añade tu clave de Loffee Labs para buscar.",
+  "loffeeAuthenticationFailed": "Loffee Labs no acepta esta clave. Comprueba tu cuenta o configura otra.",
+  "loffeeRateLimited": "Has alcanzado un límite de Loffee Labs. Espera antes de volver a buscar; si has agotado la cuota diaria, tendrás que esperar a que se renueve.",
+  "loffeeNetworkFailed": "No se pudo conectar con Loffee Labs. Comprueba tu conexión o inténtalo más tarde.",
+  "loffeeResponseFailed": "No pudimos leer los resultados de Loffee Labs. Inténtalo más tarde.",
+  "loffeeUnavailable": "Loffee Labs no está disponible ahora. Inténtalo más tarde.",
+  "loffeeNoResults": "No hay resultados para esta búsqueda en el catálogo al que da acceso tu cuenta.",
+  "loffeeCatalogHint": "Los cafés y campos disponibles dependen de tu cuenta de Loffee Labs. Confirma después los gramos de tu bolsa, las fechas y el precio que pagaste.",
+  "loffeeAttribution": "Datos de Loffee Labs",
+  "loffeeReview": "Revisar y añadir",
+  "loffeePrevious": "Página anterior",
+  "loffeeNext": "Página siguiente",
+  "loffeeRoastType": "Uso recomendado por el tostador",
+  "loffeeImportPhoto": "Añadir foto de Loffee Labs",
+  "loffeePhotoFailed": "No se pudo añadir la foto del catálogo. Puedes añadir una tuya o guardar sin foto.",
+  "loffeeHarvestNeedsReview": "Cosecha pendiente de confirmar en la ficha de la tienda.",
+  "loffeeRoastApproximation": "Tueste aproximado desde Loffee: {degree}",
+  "@loffeeRoastApproximation": {
+    "placeholders": {
+      "degree": {
+        "type": "String"
+      }
+    }
+  },
+  "altitudeMax": "Hasta (m)",
+  "altitudeMaxHint": "Opcional, para rangos",
+  "invalidAltitudeRange": "Indica la altitud inicial y un valor final igual o mayor.",
+  "filterCurrentRatio": "Ratio actual",
+  "filterTargetRatio": "Ratio objetivo",
+  "filterWaterRemaining": "Agua por verter",
+  "filterWaterOver": "Agua de más",
+  "waterCalculator": "Calculadora de agua",
+  "waterGraph": "Gráfica",
+  "waterList": "Lista",
+  "waterBicarbonate": "Bicarbonato",
+  "waterSaltEpsom": "Sulfato de magnesio (Epsom)",
+  "waterSaltMagnesiumChloride": "Cloruro de magnesio",
+  "waterSaltCalciumChloride": "Cloruro de calcio",
+  "waterSaltSodiumBicarbonate": "Bicarbonato de sodio",
+  "waterSaltPotassiumBicarbonate": "Bicarbonato de potasio",
+  "waterPresetBh": "Barista Hustle #4 (80/40)",
+  "waterPresetHendon": "Hendon, adaptación BH (100/31)",
+  "waterPresetRaoPerger": "Rao/Perger (Gagné 2018)",
+  "waterDistilled": "Agua destilada",
+  "waterMineralBottle": "Introducir análisis",
+  "waterFinalLitres": "Volumen final (L)",
+  "waterPresetMode": "Recetas y aguas guardadas",
+  "waterCustomMode": "Dosis para un objetivo",
+  "waterQuantitiesMode": "Resultado de mi dosis",
+  "waterCalciumForm": "Forma del cloruro de calcio",
+  "waterCalciumAnhydrous": "Anhidro (CaCl₂)",
+  "waterCalciumDihydrate": "Dihidratado (CaCl₂·2H₂O)",
+  "waterInitial": "Inicial",
+  "waterTarget": "Objetivo",
+  "waterResult": "Resultado",
+  "waterGhSource": "Sal para la dureza",
+  "waterKhSource": "Sal para la alcalinidad",
+  "waterBottleData": "Composición de la etiqueta",
+  "waterUnknownHint": "Introduce los minerales en mg/L. Un campo vacío queda como desconocido.",
+  "waterMissingBase": "Completa Ca y Mg, y el bicarbonato; o introduce GH y alcalinidad conocidos.",
+  "waterInvalidCalculation": "Revisa los números y el volumen para calcular la receta.",
+  "waterDirectDose": "Sales que añadir",
+  "waterDirectHint": "Dosificación directa para el volumen final indicado. Usa sales de grado alimentario en la forma especificada.",
+  "waterSaveResult": "Guardar como perfil de agua",
+  "waterCalculatedMinerals": "Minerales calculados (mg/L)",
+  "waterCompositionDetail": "Comparar composición",
+  "waterPotassiumAdded": "K añadido {value} mg/L",
+  "@waterPotassiumAdded": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "waterPotassiumTotalUnknown": "El K total es desconocido porque no se conoce el del agua inicial.",
+  "waterExcessHint": "El agua inicial supera parte del objetivo. Añadir sales no reduce esos valores.",
+  "waterApproximationHint": "El resultado aproxima la receta. Consulta las diferencias: el mismo GH/KH puede tener otra composición.",
+  "waterUnknown": "Desconocido",
+  "waterReferences": "Recetas de referencia",
+  "waterChartHint": "Pulsa un punto para ver el agua. Ambos ejes están en ppm como CaCO₃.",
+  "waterMissingCoordinates": "Hay aguas sin GH o KH suficientes para situarlas en la gráfica.",
+  "waterUseInitial": "Usar como agua inicial",
+  "waterRecipeOpen": "Abrir receta",
+  "waterRecipeEditHint": "Si cambias la composición manualmente, se desvincula la receta calculada.",
+  "waterGhAxis": "GH (dureza)",
+  "waterKhAxis": "KH (alcalinidad)",
+  "waterRecipeSource": "Fuente de la receta",
+  "waterNoDose": "No hace falta añadir sales para los objetivos alcanzables.",
+  "waterSavedBase": "Elegir un agua guardada",
+  "waterNoChartPoints": "Completa GH y KH para comparar tus aguas.",
+  "discardChangesTitle": "¿Descartar los cambios?",
+  "discardChangesMessage": "Los cambios y las mediciones sin guardar se perderán.",
+  "keepEditing": "Seguir editando",
+  "discardChanges": "Descartar",
+  "compareBrewAction": "Comparar",
+  "compareBrews": "Comparar preparaciones",
+  "chooseComparisonBrew": "Elige la segunda preparación",
+  "comparisonSearch": "Buscar café o método",
+  "comparisonNoCandidates": "No hay otra preparación para comparar.",
+  "comparisonDifference": "Cambio de A a B",
+  "comparisonMissing": "Sin dato",
+  "comparisonCurvesMissing": "Esta preparación no tiene una curva guardada.",
+  "comparisonFlowUnits": "Los caudales usan unidades distintas y se muestran por separado.",
+  "comparisonCurveTime": "Tiempo desde el inicio de cada preparación; las curvas no se ajustan en duración.",
+  "comparisonCurveFailed": "No se pudieron cargar las curvas. Puedes volver a intentarlo.",
+  "comparisonOtherMethod": "Los métodos son distintos; tenlo en cuenta al comparar el ratio y la extracción.",
+  "cuppingTitle": "Cata",
+  "cuppingStart": "Comenzar cata",
+  "cuppingSessions": "Sesiones de cata",
+  "cuppingEmpty": "Todavía no tienes sesiones de cata.",
+  "cuppingDraft": "Borrador, puedes retomarlo",
+  "cuppingSaved": "Cata guardada",
+  "cuppingName": "Nombre de la sesión (opcional)",
+  "cuppingCommon": "Para todas las tazas",
+  "cuppingCup": "Taza {number}",
+  "@cuppingCup": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "cuppingByCup": "Por taza",
+  "cuppingMatrix": "Comparar",
+  "cuppingAddCup": "Añadir taza",
+  "cuppingRemoveCup": "Quitar taza",
+  "cuppingCommonGrinder": "Usar molino y ajuste comunes",
+  "cuppingCommonWater": "Usar agua común",
+  "cuppingSource": "Existencias para esta taza",
+  "cuppingFresh": "Sin congelar, {grams} g",
+  "@cuppingFresh": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "cuppingFrozen": "Congelado {label}, {grams} g",
+  "@cuppingFrozen": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "cuppingUnknownStock": "Cantidad sin registrar",
+  "cuppingPour": "Iniciar y echar agua",
+  "cuppingInfusion": "Infusión",
+  "cuppingCrustDue": "Toca romper la costra",
+  "cuppingCrustHint": "Rompe la costra y retira la espuma al llegar a tu tiempo. El reloj continúa desde el primer vertido.",
+  "cuppingBroken": "Costra rota y espuma retirada",
+  "cuppingCooling": "Deja enfriar",
+  "cuppingTasteDue": "Ya puedes empezar a catar",
+  "cuppingTasteHint": "El tiempo es orientativo. Empieza por debajo de 65 °C y prueba de nuevo al enfriarse.",
+  "cuppingTaste": "Empezar a catar",
+  "cuppingFinish": "Finalizar cata",
+  "cuppingProgress": "{done} de {total} valoraciones",
+  "@cuppingProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "cuppingScoresHint": "Nota general de 0 a 10; las cinco intensidades, de 1 a 5. No son puntuaciones de calidad SCA.",
+  "cuppingUnanswered": "Sin responder",
+  "cuppingNotEvaluated": "No evaluado",
+  "cuppingPause": "Pausar",
+  "cuppingResume": "Reanudar",
+  "cuppingResetClock": "Reiniciar reloj",
+  "cuppingEditTime": "Ajustar tiempo",
+  "cuppingCrustTime": "Romper costra (mm:ss)",
+  "cuppingTasteTime": "Empezar a catar (mm:ss)",
+  "cuppingTimeError": "Introduce un tiempo válido",
+  "cuppingGuide": "Guía de cata",
+  "cuppingGuideText": "Adaptación personal para 2–6 tazas. La SCA propone 8,25 g por cada 150 ml de capacidad del recipiente y agua a 93 ± 3 °C. Nuestra sugerencia de agua se basa en esa proporción: ajústala a tu taza. Barista Hustle propone romper la costra a los 5 minutos y empezar a catar por debajo de 65 °C, cerca de los 10 minutos. Ajusta los avisos según tus tazas; la temperatura manda. Puedes pausar o reiniciar el reloj y se recupera al volver; los pitidos funcionan mientras esta pantalla está abierta y respetan el modo silencio. El borrador no descuenta café. Al finalizar, cada taza se guarda como una preparación y consume su dosis.",
+  "cuppingSound": "Avisos sonoros",
+  "cuppingDiscard": "Eliminar borrador",
+  "cuppingDiscardHint": "Se eliminará esta sesión sin terminar. No se han descontado existencias.",
+  "cuppingDeletedCup": "Preparación eliminada",
+  "cuppingStockError": "No queda suficiente café para todas las tazas. Revisa las existencias; el borrador sigue guardado.",
+  "cuppingSetupError": "Elige café y existencias para cada taza y revisa las cantidades.",
+  "cuppingRecommendation": "Sugerencia SCA: {grams} g de agua por taza; ajusta según la capacidad.",
+  "@cuppingRecommendation": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "cuppingIntensityAcidity": "Acidez",
+  "cuppingIntensitySweetness": "Dulzor",
+  "cuppingIntensityBitterness": "Amargor",
+  "cuppingIntensityBody": "Cuerpo",
+  "cuppingIntensityAftertaste": "Retrogusto",
+  "cuppingBackup": "Sesiones de cata: {count}",
+  "@cuppingBackup": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diagnosticTitle": "HolyBeans DiFluid",
+  "diagnosticInstructions": "Enciende la báscula y cierra otras apps que puedan estar conectadas a ella, también en otros teléfonos. Busca dispositivos, conecta tu DiFluid y, aunque falle, guarda o comparte el registro. Si no aparece como báscula, busca su nombre en la lista y pulsa «Leer servicios».",
+  "diagnosticPrivacy": "El fichero incluye modelo y versión de Android, nombres e identificadores Bluetooth cercanos, servicios, paquetes y errores. Se guarda en este teléfono y solo se envía cuando lo compartes.",
+  "diagnosticContext": "Modelo / firmware de la báscula y qué ocurre (opcional)",
+  "diagnosticStopSearch": "Parar búsqueda",
+  "diagnosticSave": "Guardar registro",
+  "diagnosticShare": "Compartir registro",
+  "diagnosticSaved": "Registro guardado",
+  "diagnosticNearby": "Dispositivos encontrados",
+  "diagnosticNoDevices": "Pulsa buscar. Puedes exportar el registro aunque no aparezca ningún dispositivo.",
+  "diagnosticUnnamed": "Sin nombre",
+  "diagnosticInspect": "Leer servicios",
+  "diagnosticLogCount": "{count} eventos registrados",
+  "diagnosticLogError": "No se ha podido guardar todo el registro: {error}",
+  "@diagnosticLogCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@diagnosticLogError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "cuppingShare": "Compartir cata",
+  "cuppingShareNotes": "Incluir notas",
+  "cuppingShareDark": "Fondo oscuro",
+  "cuppingShareProfile": "Perfil de las tazas",
+  "cuppingShareIntensities": "Intensidades / 5",
+  "cuppingShareLegend": "Nota general 0–10 · Intensidades personales 1–5",
+  "cuppingShareIndividualRecipe": "Receta indicada en cada taza",
+  "cuppingShareCupCount": "Sesión de cata · {count} tazas",
+  "@cuppingShareCupCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cuppingBlind": "Cata a ciegas",
+  "cuppingBlindHint": "Valora las tazas A–F sin elegir cafés. Los identificarás al terminar la cata.",
+  "cuppingBlindCup": "Taza {letter}",
+  "cuppingIdentify": "Identificar cafés",
+  "cuppingRevealHint": "Confirma tus valoraciones antes de elegir los cafés. Las puntuaciones y notas quedarán fijadas; después podrás asignar cada taza a un café de tu diario.",
+  "cuppingIdentifyHint": "Asigna un café de tu diario y sus existencias a cada letra. Puedes repetir café. Las valoraciones de la cata a ciegas están fijadas; el café se descuenta al finalizar.",
+  "cuppingReviewScores": "Ver valoraciones",
+  "@cuppingBlindCup": {
+    "placeholders": {
+      "letter": {
+        "type": "String"
+      }
+    }
+  },
+  "curveFlowMean": "Media",
+  "curveFlowMedian": "Mediana",
+  "curveFlowWindow": "Media y mediana del caudal desde la primera gota ({start} s) hasta el final de la curva ({end} s), ponderadas por tiempo. Si no hay primera gota registrada, se estima cuando la taza alcanza 0,1 g.",
+  "@curveFlowWindow": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "curveFlowWindowMissing": "Sin un tramo de salida suficiente para calcular media y mediana.",
+  "flavorNoteInputHint": "Añadir una nota",
+  "flavorNoteSuggestions": "Sugerencias",
+  "flavorNoteRemove": "Quitar {note}",
+  "@flavorNoteRemove": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "flavorNoteStrawberry": "fresa",
+  "flavorNoteRaspberry": "frambuesa",
+  "flavorNoteBlackberry": "mora",
+  "flavorNoteBlueberry": "arándano",
+  "flavorNoteBlackcurrant": "grosella negra",
+  "flavorNoteRedcurrant": "grosella roja",
+  "flavorNoteCherry": "cereza",
+  "flavorNoteApple": "manzana",
+  "flavorNotePear": "pera",
+  "flavorNotePeach": "melocotón",
+  "flavorNoteApricot": "albaricoque",
+  "flavorNoteNectarine": "nectarina",
+  "flavorNotePlum": "ciruela",
+  "flavorNoteGrape": "uva",
+  "flavorNoteRaisin": "pasa",
+  "flavorNotePrune": "ciruela pasa",
+  "flavorNoteFig": "higo",
+  "flavorNoteDate": "dátil",
+  "flavorNotePomegranate": "granada",
+  "flavorNoteOrange": "naranja",
+  "flavorNoteMandarin": "mandarina",
+  "flavorNoteLemon": "limón",
+  "flavorNoteLime": "lima",
+  "flavorNoteGrapefruit": "pomelo",
+  "flavorNoteBergamot": "bergamota",
+  "flavorNoteCitrus": "cítricos",
+  "flavorNoteMango": "mango",
+  "flavorNotePineapple": "piña",
+  "flavorNotePapaya": "papaya",
+  "flavorNotePassionFruit": "fruta de la pasión",
+  "flavorNoteBanana": "plátano",
+  "flavorNoteCoconut": "coco",
+  "flavorNoteLychee": "lichi",
+  "flavorNoteGuava": "guayaba",
+  "flavorNoteFloral": "floral",
+  "flavorNoteJasmine": "jazmín",
+  "flavorNoteRose": "rosa",
+  "flavorNoteChamomile": "manzanilla",
+  "flavorNoteOrangeBlossom": "azahar",
+  "flavorNoteLavender": "lavanda",
+  "flavorNoteHibiscus": "hibisco",
+  "flavorNoteCaramel": "caramelo",
+  "flavorNoteHoney": "miel",
+  "flavorNoteBrownSugar": "azúcar moreno",
+  "flavorNoteMolasses": "melaza",
+  "flavorNoteMapleSyrup": "sirope de arce",
+  "flavorNoteVanilla": "vainilla",
+  "flavorNoteChocolate": "chocolate",
+  "flavorNoteDarkChocolate": "chocolate negro",
+  "flavorNoteMilkChocolate": "chocolate con leche",
+  "flavorNoteCocoa": "cacao",
+  "flavorNoteAlmond": "almendra",
+  "flavorNoteHazelnut": "avellana",
+  "flavorNoteWalnut": "nuez",
+  "flavorNotePeanut": "cacahuete",
+  "flavorNoteNutty": "frutos secos",
+  "flavorNoteCinnamon": "canela",
+  "flavorNoteClove": "clavo",
+  "flavorNoteNutmeg": "nuez moscada",
+  "flavorNoteAnise": "anís",
+  "flavorNotePepper": "pimienta",
+  "flavorNoteBlackTea": "té negro",
+  "flavorNoteGreenTea": "té verde",
+  "flavorNoteHerbal": "herbal",
+  "flavorNoteWoody": "madera",
+  "flavorNoteTobacco": "tabaco",
+  "flavorNoteFermented": "fermentado",
+  "flavorNoteWiney": "vinoso",
+  "flavorNoteSmoky": "ahumado",
+  "compareShots": "Comparar extracciones",
+  "comparisonAlignStart": "Inicio",
+  "comparisonAlignmentUnavailable": "Para alinear por primera gota, ambas extracciones deben tener ese tiempo registrado dentro de su curva.",
+  "comparisonTimeFromStart": "Tiempo desde el inicio",
+  "comparisonTimeFromDrip": "Tiempo desde la primera gota",
+  "comparisonCursorHint": "Arrastra sobre una gráfica o usa el deslizador para consultar ambas extracciones.",
+  "comparisonRecordedPeak": "Pico de presión registrado",
+  "comparisonFlowMean": "Caudal medio",
+  "comparisonFlowMedian": "Mediana del caudal",
+  "comparisonFlowStatsHint": "Media y mediana ponderadas por tiempo desde la primera gota; si no está registrada, se estima al alcanzar 0,1 g de bebida.",
+  "comparisonRecipeTasting": "Receta y cata",
+  "comparisonBeverage": "Peso de bebida",
+  "comparisonCombined": "Juntas",
+  "comparisonSeparated": "Separadas",
+  "comparisonPeakPressure": "Pico de presión",
+  "comparisonPeakFlow": "Caudal máximo",
+  "frozenSomeShort": "Parte",
+  "frozenAllShort": "Congelado",
+  "frozenSomeHint": "Tiene porciones congeladas",
+  "frozenAllHint": "Todo el café disponible está congelado",
+  "shareTemplates": "Plantillas para compartir",
+  "shareTemplatesHint": "Tus textos guardados para espresso y filtro",
+  "shareTemplateFields": "Formato por campos",
+  "shareTemplateChoice": "Formato del contenido",
+  "shareTemplateNew": "Nueva plantilla",
+  "shareTemplateEdit": "Editar plantilla",
+  "shareTemplateName": "Nombre de la plantilla",
+  "shareTemplateBody": "Texto con etiquetas",
+  "shareTemplateTags": "Insertar etiqueta",
+  "shareTemplateCountryFlag": "Bandera del país de origen",
+  "shareTemplateHelp": "Usa <country_flag> <country> para añadir la bandera junto al país. En mezclas se muestran las banderas reconocidas sin repetirlas. Toca una etiqueta para insertarla donde está el cursor. Incluye sus unidades: <time> → 0:28, <ratio> → 1:2 y <brew_temp> → 93 °C. Los datos que no estén registrados se muestran como —. En imágenes y vistas previas puedes usar **negrita**, *cursiva*, ~~tachado~~ y `monoespaciado`; comienza una línea con - para una lista o > para una cita. Para mostrar un símbolo literalmente, antepón una barra inversa (\\). Al compartir texto se conserva la plantilla original.",
+  "shareTemplatePreview": "Vista previa",
+  "shareTemplateSample": "Vista previa con datos de ejemplo",
+  "shareTemplateEmpty": "Sin plantillas. Se mantiene el formato por campos.",
+  "shareTemplateDefault": "Usar por defecto",
+  "shareTemplateDefaultHint": "Para las preparaciones de este tipo",
+  "shareTemplateSaved": "Plantilla guardada",
+  "shareTemplateFailed": "No se pudieron guardar las plantillas",
+  "shareTemplateLoadFailed": "No se pudieron cargar las plantillas",
+  "shareTemplateDelete": "¿Eliminar esta plantilla?",
+  "shareTemplateDeleteHint": "Si era la predeterminada, se volverá al formato por campos.",
+  "shareTemplateInvalid": "Escribe un nombre y un texto con etiquetas válidas.",
+  "shareTemplateUnknown": "Etiquetas desconocidas: {tags}",
+  "@shareTemplateUnknown": {
+    "placeholders": {
+      "tags": {
+        "type": "String"
+      }
+    }
+  },
+  "shareTemplateSampleMissing": "El ejemplo no tiene {tags}: en una preparación sin ese dato se mostrará —.",
+  "@shareTemplateSampleMissing": {
+    "placeholders": {
+      "tags": {
+        "type": "String"
+      }
+    }
+  },
+  "shareTemplateMissing": "Sin datos en esta preparación: {tags}. Se mostrará —.",
+  "@shareTemplateMissing": {
+    "placeholders": {
+      "tags": {
+        "type": "String"
+      }
+    }
+  },
+  "shareTemplateExampleEspresso": "Mi espresso de <coffee> salió en <time> con ratio <ratio> y temperatura <brew_temp>.",
+  "shareTemplateExampleFilter": "Hoy preparé <coffee> con <method>: <dose> de café y <water> de agua, ratio <ratio>, en <time>.",
+  "shareTemplateSampleCoffee": "Café de ejemplo",
+  "shareTemplateSampleRoaster": "Tostador de ejemplo",
+  "shareTemplateSampleFarm": "Finca de ejemplo",
+  "shareTemplateSampleProducer": "Productora de ejemplo",
+  "shareTemplateSampleProcess": "Lavado",
+  "shareTemplateSampleFlavor": "Cacao, naranja, panela",
+  "shareTemplateSampleGrinder": "Molino de ejemplo",
+  "shareTemplateSampleProfile": "Perfil de ejemplo",
+  "shareTemplateSampleWater": "Agua de ejemplo",
+  "shareTemplateSampleNotes": "Dulce y limpio",
+  "shareTemplateSampleBasket": "Cesta de 18 g",
+  "shareTemplateSamplePaper": "Papel de filtro",
+  "shareTemplateManage": "Gestionar plantillas",
+  "settingsPreparation": "Preparación y compartir",
+  "settingsDevices": "Dispositivos",
+  "settingsTransfers": "Importar y exportar",
+  "settingsMaintenance": "Mantenimiento del diario",
+  "settingsGeneral": "General",
+  "shareIncludeCurve": "Incluir curva de extracción",
+  "shareCurveHint": "Presión, caudal y peso, según los datos registrados",
+  "shareCurveUnavailable": "Esta preparación no tiene una curva registrada.",
+  "shareIncludeEspressoMap": "Incluir mapa de extracción de espresso",
+  "shareIncludeSensoryMap": "Incluir mapa sensorial de filtro",
+  "shareMapUnavailable": "Necesita dosis, bebida y TDS registrados.",
+  "shareSensorySource": "Fuente del mapa sensorial: DOI 10.1111/1750-3841.16531",
+  "waterSummaryUnits": "ppm como CaCO₃",
+  "waterCompositionSummary": "Composición mineral en mg/L",
+  "waterSummaryTds": "TDS (ppm)",
+  "waterSummaryPh": "pH",
+  "waterSummaryMissing": "— Sin dato",
+  "comparisonChanges": "Qué cambió",
+  "comparisonRecipeEquipment": "Receta y equipo",
+  "comparisonNoChanges": "Sin diferencias en los parámetros visibles registrados.",
+  "comparisonToolsRetry": "No se pudieron comparar los accesorios. Reintentar",
+  "shareTemplateExport": "Compartir plantilla",
+  "shareTemplateImport": "Importar plantilla",
+  "shareTemplateImportReview": "Revisar plantilla",
+  "shareTemplateImportHint": "Revisa el texto y el ejemplo antes de guardar. Se añadirá una copia nueva sin cambiar tu plantilla predeterminada. Sirve para compartir como texto o imagen.",
+  "shareTemplateImportFailed": "No se pudo importar la plantilla. Comprueba que sea un archivo de plantilla de HolyBeans compatible y que sus etiquetas sean válidas.",
+  "shareTemplateExportFailed": "No se pudo compartir la plantilla. Inténtalo de nuevo.",
+  "shareTemplatesTitle": "Plantillas",
+  "statsConsumptionPerPeriod": "{period, select, day{Consumo por día (g)} week{Consumo por semana (g)} other{Consumo por mes (g)}}",
+  "@statsConsumptionPerPeriod": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "statsConsumptionByGrinder": "Consumo por molino",
+  "statsConsumptionHint": "Dosis registradas; no incluye purgas ni usos fuera del diario. El porcentaje es sobre el consumo registrado del periodo, incluido premolido y sin molino.",
+  "statsDoseCoverage": "{known} de {total} preparaciones con dosis registrada",
+  "@statsDoseCoverage": {
+    "placeholders": {
+      "known": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "statsNoDoses": "Sin dosis registradas",
+  "statsNoGrinder": "Sin molino registrado",
+  "waterPresetHoly": "Holy Water (StriveForTone)",
+  "waterPresetRaoLotus": "Rao (Lotus)",
+  "waterPresetGwo": "GWO sin sal marina",
+  "waterPresetScaBh": "SCA, adaptación BH",
+  "waterPresetMelbourneBh": "Melbourne, adaptación BH",
+  "waterPresetBudapestBh": "WOC Budapest, adaptación BH",
+  "waterPresetRaoBh": "Rao clásico, adaptación BH",
+  "waterPresetGwoHint": "Adaptación de la receta de GWO con Epsom y bicarbonato sódico. Omite la sal marina del original; la composición es diferente.",
+  "waterPresetRaoLotusHint": "Composición de Rao publicada por Lotus, convertida a gramos de las sales disponibles. Conserva el reparto de dureza y alcalinidad entre los cuatro minerales.",
+  "waterPresetBhAdaptationHint": "Adaptación publicada por Barista Hustle con Epsom y bicarbonato sódico. Iguala sus objetivos de GH y KH, no necesariamente todos los minerales del agua de referencia.",
+  "pourFollow": "Seguir vertido",
+  "pourFollowing": "Seguimiento automático",
+  "pourNoReading": "Sin peso actual: solo se muestran los objetivos de la receta",
+  "pourWait": "Espera",
+  "pourBars": "Agua por paso",
+  "pourRecordedCurve": "Curva registrada",
+  "pourTimeComplete": "Tiempo de vertido previsto cumplido",
+  "stockReviewTitle": "Revisar consumo antiguo",
+  "stockReviewBody": "Esta preparación se archivó con una versión que devolvía su dosis al inventario. Hemos conservado tus existencias. Si ya las corregiste, confirma el saldo; si no, descuenta ahora la dosis. Archivar o recuperar ya no cambia las existencias.",
+  "stockReviewRequired": "Revisa el consumo antiguo desde la ficha de esta preparación antes de cambiar su dosis, café o lote.",
+  "stockReviewKeep": "El saldo ya es correcto",
+  "stockReviewDeduct": "Descontar la dosis ahora",
+  "stockReviewFailed": "No se pudo ajustar el consumo. Revisa la dosis y las existencias, incluida su porción congelada. No se ha cambiado nada.",
+  "stockReviewConfirmKeep": "Confirmarás que las existencias actuales ya incluyen el consumo de esta preparación. No cambiarán los gramos. Al eliminarla más adelante, su dosis se devolverá al inventario.",
+  "stockReviewConfirmDeduct": "Se descontará la dosis de esta preparación del inventario, respetando su origen congelado si lo tiene. Confirma solo si aún no has corregido ese consumo.",
+  "stockReviewConfirm": "Confirmar consumo",
+  "cuppingCoffeeCount": "{count, plural, one {{count} café} other {{count} cafés}}",
+  "cuppingBlindShort": "a ciegas",
+  "statsTotalStock": "Existencias totales",
+  "homeRecipeWhen": "{method}, {when}",
+  "homeYourCoffees": "Tus cafés",
+  "homeSpendSoon": "Gástalos pronto",
+  "homeReady": "Listos",
+  "homeResting": "En reposo",
+  "homeRestingOthers": "Otros en reposo",
+  "homeRestingSummary": "{count, plural, =1{1 café} other{{count} cafés}}; el primero estará listo en {days, plural, =1{1 día} other{{days} días}}",
+  "@homeRestingSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "homeUndated": "Sin fecha de tueste",
+  "homeUndatedSummary": "{count, plural, =1{1 café. Añade su fecha de tueste para ver su frescura.} other{{count} cafés. Añade su fecha de tueste para ver su frescura.}}",
+  "@homeUndatedSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeFirstBrew": "Estrenar",
+  "homeNotBrewedYet": "Aún no lo has preparado",
+  "homeOldestFreeze": "el más antiguo, {span}",
+  "homeFrozenToday": "congelado hoy",
+  "historyClearFilter": "Quitar filtro",
+  "adjustBrew": "Ajustar",
+  "adjustPrevious": "Receta de partida: {value}",
+  "adjustLess": "Bajar {field}",
+  "adjustMore": "Subir {field}",
+  "adjustFullForm": "Formulario completo",
+  "adjustFullFormHint": "Café, método, equipo y el resto de la receta",
+  "statsChangeVsPrevious": "{change} frente al periodo anterior",
+  "statsBestShotsBand": "En verde, el tiempo de la mitad central de tus extracciones valoradas con 8 o más: de {from} a {to} s.",
+  "statsRangeWeekShort": "7 d",
+  "statsRangeMonthShort": "30 d",
+  "statsRangeQuarterShort": "90 d",
+  "statsRangeYearShort": "1 año",
+  "statsRangeAllShort": "Todo",
+  "comparisonColumnEmpty": "{letter} no tiene nada registrado en esta parte.",
+  "cuppingEntryHint": "Compara varios cafés lado a lado",
+  "cuppingStartShort": "Comenzar",
+  "grinderUsualSettings": "Ajuste habitual: {settings}",
+  "waterCalculatorEntryHint": "Sales para llegar a una receta desde agua destilada o mineral",
+  "parametersPresetAll": "Mostrar todo",
+  "parametersPresetEssential": "Solo lo esencial",
+  "parametersPresetsHint": "Atajos para lo que se muestra; lo que se comparte no cambia.",
+  "openBluetoothSettings": "Abrir ajustes de Bluetooth",
+  "shortcutBrew": "Preparar",
+  "@shortcutBrew": {
+    "description": "Launcher shortcut and widget button that starts a brew; also kept in Android resources."
+  },
+  "shortcutBrewLong": "Nueva preparación",
+  "shortcutRepeat": "Repetir",
+  "shortcutRepeatLong": "Repetir la última preparación",
+  "shortcutScan": "Escanear café",
+  "shortcutScanLong": "Escanear el QR de un café",
+  "widgetLabel": "Última preparación",
+  "widgetEmpty": "Abre HolyBeans para rellenarlo",
+  "liveUpdateChannel": "Preparación en curso",
+  "stockAdjustTitle": "Ajustar existencias",
+  "stockAdjustHistory": "Ajustes de existencias",
+  "stockAdjustReason": "Motivo",
+  "stockAdjustGift": "Regalo",
+  "stockAdjustWaste": "Merma",
+  "stockAdjustCorrection": "Corrección por pesada",
+  "stockAdjustSource": "De dónde sale el café",
+  "stockAdjustFresh": "Sin congelar",
+  "stockAdjustAmount": "Cantidad que retiras (g)",
+  "stockAdjustMeasured": "Cantidad que queda (g)",
+  "stockAdjustHelp": "Regalos y mermas reducen las existencias sin contar como café preparado. Una corrección fija el peso que queda en el origen elegido.",
+  "stockAdjustInvalid": "Introduce una cantidad válida.",
+  "stockAdjustInsufficient": "No queda suficiente café en el origen elegido.",
+  "stockAdjustUnknown": "Primero indica cuánto queda con una corrección por pesada.",
+  "stockAdjustChanged": "Las existencias han cambiado y no se puede aplicar este ajuste. Revisa cuánto queda.",
+  "stockAdjustCapacity": "La cantidad supera el café que puede quedar en esa porción.",
+  "stockAdjustArchived": "Recupera el café del archivo antes de ajustar sus existencias.",
+  "stockAdjustUndoTitle": "¿Deshacer este ajuste?",
+  "stockAdjustUndoBody": "Se revertirá solo este movimiento. Las preparaciones y los demás ajustes se conservarán.",
+  "stockAdjustReversed": "Deshecho",
+  "stockAdjustSaved": "Existencias actualizadas",
+  "stockAdjustCurrent": "Ahora: {grams}",
+  "@stockAdjustCurrent": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "stockAdjustResult": "Quedarán: {grams}",
+  "@stockAdjustResult": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "yearReviewTitle": "Tu año en café",
+  "yearReviewEntry": "Un recorrido por tus cafés, tus hábitos y tus mejores preparaciones.",
+  "yearReviewSeason": "Tu año merece otra taza. Descubre tu resumen de {year}.",
+  "@yearReviewSeason": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewYear": "Elegir año",
+  "yearReviewUntil": "Hasta el {date}",
+  "@yearReviewUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "yearReviewComplete": "Del 1 de enero al 31 de diciembre",
+  "yearReviewIntro": "Un año.\nMuchas historias.",
+  "yearReviewBrews": "preparaciones registradas",
+  "yearReviewBeans": "cafés distintos",
+  "yearReviewDays": "días con preparaciones",
+  "yearReviewDose": "{grams} g de café en {known} de tus {total} preparaciones.",
+  "@yearReviewDose": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      },
+      "known": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewOrigins": "El mundo,\nen tu taza.",
+  "yearReviewCountries": "orígenes distintos",
+  "yearReviewOriginCoverage": "Origen registrado en {known} de {total} cafés. Cada mezcla puede aportar varios países.",
+  "@yearReviewOriginCoverage": {
+    "placeholders": {
+      "known": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewRoaster": "Quienes pusieron\nel sabor.",
+  "yearReviewRoasterBody": "Los tostadores que más veces aparecieron en tus preparaciones.",
+  "yearReviewMethod": "Tu ritual\nmás repetido.",
+  "yearReviewMethodBody": "Cada método tiene su momento. Estos fueron los tuyos.",
+  "yearReviewCountShare": "{count} preparaciones · {percent} % del año",
+  "@yearReviewCountShare": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "yearReviewReturn": "Siempre había\nsitio para otra.",
+  "yearReviewReturnBody": "El café que más veces preparaste.",
+  "yearReviewTied": "Primer puesto compartido.",
+  "yearReviewBest": "Una taza\npara recordar.",
+  "yearReviewBestBody": "Una de tus preparaciones mejor valoradas, entre {count} con valoración.",
+  "@yearReviewBestBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewBestTies": "{count} preparaciones comparten esta valoración máxima.",
+  "@yearReviewBestTies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewRhythm": "Tu año tuvo\nsu propio ritmo.",
+  "yearReviewMonth": "{month}: {count} cafés distintos.",
+  "@yearReviewMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewExplorer": "Tu mes más explorador.",
+  "yearReviewExplorerTie": "Uno de tus meses más exploradores.",
+  "yearReviewChartHint": "Preparaciones por mes. Los meses futuros todavía no tienen datos.",
+  "yearReviewMonthCount": "{month}: {count} preparaciones",
+  "@yearReviewMonthCount": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewFinal": "Todo un año.\nMuy tuyo.",
+  "yearReviewFinalBody": "Cafés que descubriste. Rituales que repetiste. Un diario que sigue creciendo contigo.",
+  "yearReviewBasis": "Basado en tu diario, incluidas las preparaciones archivadas e importadas. No equivale a tazas bebidas.",
+  "yearReviewEmpty": "Este año todavía no tiene preparaciones registradas. Tu historia empieza con la primera.",
+  "yearReviewNext": "Siguiente",
+  "yearReviewPrevious": "Anterior",
+  "yearReviewAgain": "Volver al principio",
+  "yearReviewProgress": "Historia {current} de {total}",
+  "@yearReviewProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewShare": "Compartir mi año",
+  "yearReviewShareHint": "Solo se compartirá esta tarjeta, sin fotos, notas personales ni gastos.",
+  "yearReviewTopMethod": "Mi ritual",
+  "yearReviewTopCoffee": "El café al que volví",
+  "yearReviewBrand": "HolyBeans · Tu diario de café",
+  "yearReviewPhoto": "Foto de esta preparación",
+  "yearMoneyExpensiveCoffee": "El capricho\ndel año.",
+  "yearMoneyCheapCoffee": "El café\nmás económico.",
+  "yearMoneyExpensiveCup": "La taza\nde lujo.",
+  "yearMoneyCheapCup": "La taza\nmás económica.",
+  "yearMoneySpending": "Tu año,\nen euros.",
+  "yearMoneyPerKg": "por kilo de café comprado",
+  "yearMoneyPerCup": "de café en esta preparación",
+  "yearMoneyCoffeeBasis": "Entre los cafés comprados este año, comparados por €/kg según el precio pagado y la cantidad total registrada.",
+  "yearMoneyPurchaseCoverage": "Importes calculables para {known} de {total} cafés con compras fechadas en este año. Los precios desconocidos quedan fuera; un precio registrado de 0 € sí cuenta.",
+  "@yearMoneyPurchaseCoverage": {
+    "placeholders": {
+      "known": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "yearMoneyDateFallback": "Para {count} cafés sin fecha de compra se usa la fecha de tueste o, si falta, la de alta. Su reparto por año y mes es aproximado.",
+  "@yearMoneyDateFallback": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearMoneyTies": "Hay {count} registros empatados a la precisión mostrada. Este es uno de ellos.",
+  "@yearMoneyTies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearMoneyDose": "Dosis registrada: {grams} g.",
+  "@yearMoneyDose": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "yearMoneyCupBasis": "Coste estimado solo del café: dosis × precio medio por gramo registrado. Sin agua, leche, energía ni equipo. Calculable en {known} de {total} preparaciones del año.",
+  "@yearMoneyCupBasis": {
+    "placeholders": {
+      "known": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "yearMoneyAnnual": "en compras de café registradas este año",
+  "yearMoneyMonthly": "Mes a mes",
+  "yearMoneySpendingBasis": "Gasto en compras, independientemente de cuándo preparaste el café. Los importes se reparten por la cantidad comprada, con el mismo criterio que Estadísticas. Los meses sin importe calculable muestran 0 €.",
+  "roasterProfilesTitle": "Tostadores",
+  "roasterDirectoryHint": "Tu recorrido por los tostadores: cafés de casa, incluidos los archivados, y bebidas en cafeterías.",
+  "roasterSearch": "Buscar tostador",
+  "roasterClearSearch": "Borrar búsqueda",
+  "roasterEmpty": "Añade el tostador a un café de casa o a una bebida de cafetería para ver su ficha aquí.",
+  "roasterNoResults": "No hay tostadores con ese nombre.",
+  "roasterListSummary": "{coffees, plural, one{1 café} other{{coffees} cafés}}, {brews, plural, one{1 preparación} other{{brews} preparaciones}}",
+  "@roasterListSummary": {
+    "placeholders": {
+      "coffees": {
+        "type": "int"
+      },
+      "brews": {
+        "type": "int"
+      }
+    }
+  },
+  "roasterUnavailable": "Ya no hay cafés ni bebidas con este nombre de tostador.",
+  "roasterHistoryHint": "Tu historial con este tostador. Las bebidas de cafetería se cuentan aparte de tus cafés y preparaciones de casa.",
+  "roasterCoffeeCount": "Cafés registrados",
+  "roasterPreparedCoffees": "Cafés preparados",
+  "roasterPurchasedWeight": "Cantidad comprada",
+  "roasterTotalSpent": "Gasto registrado",
+  "roasterCoffeeRating": "Valoración de cafés",
+  "roasterBrewRating": "Valoración de preparaciones",
+  "roasterLatestPurchase": "Última compra fechada",
+  "roasterCoverage": "Dato en {known} de {total, plural, one{1 café} other{{total} cafés}}",
+  "@roasterCoverage": {
+    "placeholders": {
+      "known": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "roasterRatedCoffees": "{count, plural, one{1 café valorado} other{{count} cafés valorados}}",
+  "@roasterRatedCoffees": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "roasterRatedBrews": "{count, plural, one{1 preparación valorada} other{{count} preparaciones valoradas}}",
+  "@roasterRatedBrews": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "roasterDataHint": "El gasto suma el precio apuntado de cada café; la cantidad es lo comprado, preparado o no.",
+  "roasterOrigins": "Orígenes preparados",
+  "roasterNoOrigins": "Aún no hay orígenes registrados para los cafés que has preparado.",
+  "roasterOriginCoverage": "Origen en {known} de {total, plural, one{1 café preparado} other{{total} cafés preparados}}",
+  "@roasterOriginCoverage": {
+    "placeholders": {
+      "known": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "roasterCoffees": "Tus cafés",
+  "roasterCoffeesHint": "Primero los activos; después, los archivados. Abre un café para consultar su ficha.",
+  "freshnessGuideTitle": "Guía orientativa por tueste",
+  "freshnessGuideNote": "Días estimados desde el tueste para una bolsa cerrada, sin congelación ni reposo indicado por el tostador. No son fechas de caducidad: el sabor y la conservación pueden variar. Desliza la tabla para ver todas las fases.",
+  "freshnessGuideFrom": "Desde {day}",
+  "curveFlowMaximum": "Máx.",
+  "curveFlowCurrent": "Actual",
+  "pourModeTimed": "Por tiempo",
+  "pourModeManual": "A tu ritmo",
+  "pourTimedHint": "Los pasos avanzan automáticamente según los tiempos de la receta.",
+  "pourManualHint": "Pulsa al empezar cada bloom o vertido. El intervalo avisa, pero tú decides cuándo avanzar. El cronómetro total sigue corriendo.",
+  "pourManualSummary": "{count} vertidos de {grams} g. Tú marcas el inicio de cada paso.",
+  "pourWhenReady": "Cuando estés listo",
+  "pourStartNext": "Empezar siguiente vertido",
+  "pourStartNextBloom": "Empezar siguiente bloom",
+  "pourStartDrawdown": "Dejar drenar",
+  "pourManualCurveHint": "Con una báscula conectada verás aquí la curva del agua medida.",
+  "recipients": "Recipientes",
+  "recipient": "Recipiente",
+  "defaultRecipient": "Recipiente predeterminado",
+  "addRecipient": "Añadir recipiente",
+  "editRecipient": "Editar recipiente",
+  "noRecipient": "Peso neto, sin recipiente",
+  "recipientsEmpty": "Guarda tus jarras y tazas con su peso en vacío.",
+  "archiveRecipient": "Archivar recipiente",
+  "recipientTooHeavy": "El peso total debe ser mayor que el peso del recipiente vacío.",
+  "brewTargetBeverage": "Bebida objetivo",
+  "brewRatioDecrease": "Reducir ratio",
+  "brewRatioIncrease": "Aumentar ratio",
+  "chooseCoffeeToBrew": "¿Qué café?",
+  "lastBrewedWhen": "preparado {when}",
+  "@lastBrewedWhen": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "notBrewedYet": "aún sin preparar",
+  "homeWeekTile": "Últimos 7 días",
+  "archivedOn": "Archivado en {date}",
+  "@archivedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "hideArchivedEquipment": "Ocultar archivados",
+  "statsActivityHint": "Siempre las últimas semanas, sea cual sea el periodo elegido arriba.",
+  "yearReviewDoseAll": "{grams} g de café, con la dosis de todas tus preparaciones.",
+  "@yearReviewDoseAll": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "altitudeHeading": "Altitud",
+  "seeAllBrews": "{count, plural, one {Ver la preparación} other {Ver las {count} preparaciones}}",
+  "@seeAllBrews": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inFreezerFor": "{span} en el congelador",
+  "@inFreezerFor": {
+    "placeholders": {
+      "span": {
+        "type": "String"
+      }
+    }
+  },
+  "vesselEmptyWeight": "Vacío: {grams}",
+  "@vesselEmptyWeight": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "roasterCoffeesTile": "Cafés",
+  "brewNeedsMethod": "Elige un método para guardar la preparación.",
+  "deviceNotPaired": "Sin emparejar",
+  "settingsAbout": "Acerca de",
+  "appVersionLabel": "Versión",
+  "scaleTurnOnBluetooth": "Activar",
+  "dialInNote": "Nota",
+  "dialInNewestNote": "Nota de la última vez",
+  "showMore": "Ver más",
+  "showLess": "Ver menos",
+  "waterPlanTitle": "Reparto de agua",
+  "waterPlanBloomRatio": "Ratio por bloom",
+  "waterPlanPhase": "Fase",
+  "waterPlanAdded": "Añadir",
+  "waterPlanCumulative": "Acumulado",
+  "waterPlanPour": "Vertido {number}",
+  "waterPlanNeedsRecipe": "Indica dosis, agua, número de blooms y al menos un vertido para calcular el reparto.",
+  "waterPlanHint": "Cada bloom usa el ratio indicado; el resto se reparte en vertidos iguales. Si usas este reparto y no hay curva, al guardar se completan las cantidades de agua vacías como planificadas, sin estimar tiempos ni caudales.",
+  "pourWaterFromPlan": "Agua según el reparto",
+  "scaleStartFailed": "No se pudo iniciar la báscula. Comprueba la conexión y vuelve a iniciar.",
+  "@waterPlanPour": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "sharePhotoCaption": "Foto y texto",
+  "sharePhotoCaptionHint": "El texto se adjunta a la imagen. Podrás revisarlo en la aplicación de destino antes de enviar.",
+  "freezeSplit": "Dividir en porciones",
+  "freezePortionGrams": "Gramos por porción",
+  "freezeInvalidDivision": "Indica un peso que quepa en el total y genere entre 1 y 500 porciones.",
+  "freezeDivision": "{count, plural, =1{Se creará 1 porción de {grams}.} other{Se crearán {count} porciones de {grams}.}}",
+  "@freezeDivision": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "freezeRemainder": "Congelar también los {grams} restantes",
+  "@freezeRemainder": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "freezeRemainderHint": "Se guardarán como otra porción. Si lo desmarcas, quedarán sin congelar.",
+  "brewChooseFrozen": "Faltan {grams} sin congelar para esta preparación. Elige de qué porción los has sacado. Se descontarán al guardar.",
+  "@brewChooseFrozen": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "brewFrozenTooSmall": "Ninguna porción cubre esa cantidad. Cancela y descongela primero las cantidades utilizadas desde la ficha del café; después vuelve a guardar esta preparación.",
+  "frozenBatchSaved": "Congeladas {count} porciones. Puedes ver sus etiquetas en la ficha del café.",
+  "@frozenBatchSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "beanShareTransfer": "Ficha para HolyBeans (archivo o QR)",
+  "beanShareFieldsHint": "Elige qué datos compartir. Precio, existencias, valoración y notas personales empiezan desactivados. Estas elecciones no modifican tu café.",
+  "beanSharePhotoRequired": "Elige una foto para compartirla con el texto.",
+  "waterMixture": "Mezclar calcio y magnesio",
+  "waterCalciumPercent": "GH aportado por calcio (%)",
+  "waterMagnesiumSource": "Sal de magnesio",
+  "waterMixtureHint": "El resto del GH lo aporta el magnesio. El porcentaje se refiere a la dureza final, no al peso de las sales. El calcio se añade como cloruro, con la forma elegida abajo.",
+  "waterMixtureMissingBase": "Introduce el calcio y el magnesio del agua inicial para calcular estos objetivos. Con solo el GH no se conoce su proporción.",
+  "waterMixtureApproximation": "El agua inicial no permite alcanzar este reparto manteniendo el GH objetivo solo con adiciones. Se aproxima la mezcla priorizando el GH; consulta el calcio y magnesio finales en el detalle.",
+  "waterStartingSection": "1. Agua y volumen",
+  "waterSaltsSection": "2. Sales disponibles",
+  "waterModeSection": "3. Qué quieres calcular",
+  "waterAvailableSaltsHint": "Añade las sales que tienes. El cálculo solo usará las seleccionadas.",
+  "waterAddSalt": "Añadir sal",
+  "waterSavedSource": "Agua guardada",
+  "waterInitialComposition": "Composición inicial",
+  "waterDistilledComposition": "KH 0 · Ca 0 · Mg 0. Los demás minerales también se consideran cero.",
+  "waterShowDerived": "Mostrar GH y relación Ca/Mg",
+  "waterDerivedGh": "GH calculado (ppm como CaCO₃)",
+  "waterMassRatio": "Ca/Mg por masa",
+  "waterOtherIons": "Otros minerales (opcional)",
+  "waterOptionalTargets": "En blanco: sin objetivo. Cero: intentar no añadir ese mineral.",
+  "waterNoSalts": "Añade una sal para introducir su dosis.",
+  "waterIonTarget": "Calcio y magnesio",
+  "waterGhTarget": "GH y reparto",
+  "waterDesiredComposition": "Composición final deseada",
+  "waterTargetPriorityHint": "KH, calcio y magnesio tienen prioridad. Los otros objetivos se aproximan con las sales disponibles; el resultado muestra lo que realmente se obtiene.",
+  "waterMissingRecipeSalts": "Faltan sales de la receta; el resultado es una adaptación",
+  "waterUseRecipeSalts": "Añadir las sales de esta receta",
+  "waterFinalComposition": "Composición final calculada",
+  "waterCompositionUnits": "KH y GH: ppm como CaCO₃. Minerales: mg/L. — indica un valor desconocido o sin objetivo.",
+  "waterUnreachableTarget": "No se alcanza el objetivo con estas sales y el agua inicial. Compara los valores objetivo y resultado; añadir sales no elimina minerales.",
+  "bookooDiagnosticTitle": "HolyBeans BOOKOO",
+  "bookooDiagnosticInstructions": "Cierra HolyBeans y la app de BOOKOO, también en otros teléfonos que puedan conectarse a la báscula. Busca y conecta tu Ultra. Mantén esta pantalla abierta y haz una extracción con los controles de la báscula. Cuando termine y el tiempo parpadee, espera 10 segundos antes de guardar o compartir el registro. Anota si retiraste la taza o pulsaste algún botón. Esta herramienta registra Bluetooth; no reproduce el formulario de preparación ni guarda cafés.",
+  "waterManualGh": "GH manual (ppm como CaCO₃)",
+  "waterManualGhHint": "Opcional: dureza medida o indicada en la etiqueta. Tiene prioridad; si lo dejas vacío, se usa el GH calculado con calcio y magnesio.",
+  "waterAlternatives": "Elegir combinación de sales",
+  "waterAlternativesHint": "Compara las dosis y elige una opción. La composición y la gráfica se actualizan debajo.",
+  "waterAutomaticHint": "La propuesta inicial conserva la receta de referencia cuando es posible; en los ajustes considera los objetivos y los iones conocidos. Las alternativas alcanzan el calcio, magnesio y alcalinidad objetivo, pero pueden cambiar otros iones.",
+  "waterAutomaticProposal": "Propuesta inicial",
+  "waterAlternative": "Alternativa",
+  "waterReferenceTargets": "Recetas de referencia",
+  "waterMyTargets": "Mis aguas",
+  "waterSavedTarget": "Objetivo guardado",
+  "waterMissingTarget": "El agua objetivo necesita GH o calcio y magnesio, y KH o bicarbonato. Completa esos datos en su ficha.",
+  "pressureAssistant": "Asistente de presión",
+  "pressureGuideChoose": "Elegir tiro de referencia",
+  "pressureGuideTarget": "Referencia",
+  "pressureGuideAhead": "Dentro de 2 s",
+  "pressureGuideActual": "Tu presión",
+  "pressureGuideInstructions": "Inicia el cronómetro al comenzar la extracción, igual que en el tiro original. Sigue la presión objetivo con la palanca o el control de flujo. La guía no controla la máquina.",
+  "pressureGuideManual": "Sin lectura reciente: sigue el objetivo mirando el manómetro de tu máquina.",
+  "pressureGuideMarkers": "Discontinua y círculo: referencia. Continua y rombo: tu presión. Los huecos indican pausas o ausencia de lecturas.",
+  "pressureGuideDifference": "Diferencia: {value} bar",
+  "pressureGuideComplete": "Referencia terminada",
+  "pressureGuideExit": "Salir detiene el cronómetro del diario. La máquina sigue bajo tu control. Reiniciar borra la captura actual.",
+  "pressureGuideEmpty": "No hay tiros con una curva de presión utilizable para esta búsqueda. Puedes usar curvas registradas con sensor o importadas de una máquina.",
+  "pressureGuideLoadError": "No se pudieron cargar las referencias.",
+  "@pressureGuideDifference": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "cafeTitle": "Cafeterías",
+  "cafeAddDrink": "Apuntar una bebida",
+  "cafeEditDrink": "Editar bebida",
+  "cafeVenue": "Cafetería",
+  "cafeCity": "Ciudad",
+  "cafeVenueCountry": "País de la cafetería",
+  "cafeOriginCountry": "Origen del café",
+  "cafeDrinkType": "Bebida o método",
+  "cafeCoffeeName": "Nombre del café (si lo sabes)",
+  "cafePrice": "Precio",
+  "cafeCurrency": "Moneda (EUR, USD…)",
+  "cafeChooseVenue": "Buscar cafetería",
+  "cafeCatalogSource": "Catálogo: Coffee & Translation · 23/10/2026. Municipio sugerido con geoBoundaries y DGT (CAOP2025). Puedes corregir ciudad y país.",
+  "cafeManual": "Introducir a mano",
+  "cafeEmpty": "Guarda aquí los cafés que tomas fuera, sin afectar a tu inventario.",
+  "cafeStatsHint": "Solo bebidas de cafetería. Tus estadísticas de preparaciones siguen separadas.",
+  "cafeDrinksLabel": "Bebidas en cafeterías",
+  "cafeVenuesLabel": "Cafeterías visitadas",
+  "cafeAverageRating": "Valoración media de bebidas",
+  "cafeRequired": "Completa este campo",
+  "cafeInvalidNumber": "Introduce un valor válido",
+  "cafeDeleteTitle": "¿Eliminar esta bebida?",
+  "cafeDeleteMessage": "Se eliminará esta visita y sus fotos. La cafetería y el tostador se conservarán.",
+  "cafeLoadFailed": "No se pudieron cargar las cafeterías",
+  "cafeUnknownCoffee": "Café sin nombre",
+  "cafeAddress": "Dirección",
+  "cafeSavedVenues": "Tus cafeterías",
+  "cafeMapCatalog": "Catálogo del mapa",
+  "cafeDrinkSuggestions": "Espresso;V60;Flat white;Cappuccino;Batch brew;Cold brew",
+  "cafePriceTotal": "Gasto registrado",
+  "cafeHistoryTitle": "Bebidas",
+  "cafeShareTitle": "Compartir bebida de cafetería",
+  "cafeShareFieldsHint": "Elige qué datos compartir. La fecha, la valoración, el precio, las notas y la foto empiezan sin seleccionar. Estas opciones no modifican la bebida.",
+  "cafeShareIncludePhoto": "Incluir foto",
+  "gaggimateName": "Gaggimate",
+  "gaggimateAddressHint": "p. ej., gaggimate.local",
+  "gaggimateImportHint": "Elige una extracción terminada. HolyBeans lee su peso, tiempo, perfil y curva desde Gaggimate; no controla la máquina ni se conecta a su báscula.",
+  "gaggimateConnectionFailed": "No se pudo conectar con Gaggimate. Comprueba la dirección y que esté en la misma red.",
+  "gaggimateHistoryUnavailable": "El historial no está disponible. Comprueba que Gaggimate haya guardado alguna extracción y que no esté actualizándose. El firmware debe ofrecer el historial binario por HTTP.",
+  "gaggimateInvalidData": "No se puede leer este registro: está incompleto o su formato no es compatible. Espera a que termine de guardarse y vuelve a intentarlo.",
+  "gaggimateNoScaleWeight": "No hay peso de báscula válido en este registro. Introduce la bebida manualmente.",
+  "waterTargetsShow": "Mostrar objetivos",
+  "waterTargetsSaveFailed": "No se pudo recordar esta elección. Puedes seguir usando la gráfica.",
+  "waterPlanBloomRatioValue": "Ratio del bloom: 1:{ratio}",
+  "@waterPlanBloomRatioValue": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "driveLabTitle": "Laboratorio de Drive",
+  "driveLabIntro": "Prueba aislada de conexión con Google Drive. Solo utiliza registros de prueba generados: no abre tu diario ni tus fotos. Elige la misma cuenta de prueba en ambos dispositivos.",
+  "driveLabConnect": "Conectar con Google",
+  "driveLabInspect": "Consultar datos de prueba",
+  "driveLabPublish": "Subir un registro de prueba",
+  "driveLabWorking": "Esperando a Google Drive…",
+  "driveLabCancelled": "Autorización cancelada. Puedes volver a conectar.",
+  "driveLabError": "No se ha completado la prueba ({code}). Los registros pendientes se conservan. Comprueba la conexión y los permisos; después reintenta.",
+  "driveLabConnected": "Conexión y lectura de Drive comprobadas.",
+  "driveLabVerified": "Registro de prueba subido y comprobado por descarga.",
+  "driveLabReport": "Registros: {count} · Ramas: {heads} · Tiempo: {milliseconds} ms",
+  "driveLabPending": "Hay un registro de prueba pendiente. Subir reintentará ese mismo registro.",
+  "driveLabDivergence": "Hay varias ramas. Se conservan todas; no se ha fusionado ni borrado ninguna.",
+  "@driveLabError": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "@driveLabReport": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "heads": {
+        "type": "int"
+      },
+      "milliseconds": {
+        "type": "int"
+      }
+    }
+  },
+  "driveSyncTitle": "Copia de seguridad en Google Drive",
+  "driveSyncIntro": "Guarda una copia del diario y sus fotos al abrir la app o pasarla a segundo plano si hay cambios, o cuando pulses «Crear copia ahora». Puedes seguir usando el diario durante la subida, incluso sin conexión. Se conservan las cinco últimas copias de cada dispositivo. Las copias internas y la copia diaria en carpeta siguen funcionando. Para recuperar otro diario, elige una copia y restáurala.",
+  "driveSyncDisabled": "Copias en Drive desactivadas",
+  "driveSyncConnect": "Activar con Google",
+  "driveSyncChecking": "Preparando copia en Drive…",
+  "driveSyncCurrent": "Copia guardada en Drive",
+  "driveSyncPending": "Cambios pendientes de copiar",
+  "driveSyncEditing": "Cierra la pantalla de edición para recibir los cambios",
+  "driveSyncChoice": "Hay un diario en Drive: elige cuál continuar",
+  "driveSyncConflict": "Hay versiones distintas. Se conservan ambas.",
+  "driveSyncUnavailable": "No se pudo completar la operación en Drive. Puedes seguir usando el diario.",
+  "driveSyncRetry": "Crear copia ahora",
+  "driveSyncDisable": "Desactivar copias en Drive",
+  "driveSyncKeepLocal": "Continuar con este dispositivo",
+  "driveSyncUseRemote": "Restaurar esta copia",
+  "driveSyncChooseWarning": "Esta copia sustituirá el diario completo de este móvil. Antes guardaremos y verificaremos una copia local de seguridad. Se conservarán tus ajustes locales, las copias automáticas y el historial de Drive.",
+  "driveSyncDisableWarning": "Dejarán de subirse copias a Drive. El diario, las copias internas y la copia diaria en carpeta seguirán funcionando. Las copias ya guardadas en Drive se conservan.",
+  "driveSyncConfirm": "Continuar",
+  "driveSyncCancel": "Cancelar",
+  "driveSyncReadOnly": "Drive: solo lectura hasta verificar",
+  "driveSyncConnectFailed": "No se pudo conectar con Google. Comprueba la cuenta y vuelve a intentarlo.",
+  "driveSyncExport": "Exportar esta versión",
+  "driveSyncThisDevice": "Este dispositivo",
+  "driveSyncOtherDevice": "Otro dispositivo",
+  "scaleLabTitle": "HolyBeans Scale Lab",
+  "scaleLabInstructions": "Scale Lab 9: Timemore Dot experimental, DiFluid y Acaia. Cierra HolyBeans y las demás apps que usen la báscula, también en otros teléfonos. Busca y conecta tu báscula; acepta la vinculación Bluetooth si Android la solicita. Con Dot, compara primero el mismo objeto en la app Timemore y ciérrala antes de abrir este laboratorio. Pon y retira el objeto durante un minuto y prueba tara, inicio, parada y reinicio desde sus botones. Si el peso es incorrecto o no aparece, anótalo aquí y guarda el registro aunque no conecte. «Leer servicios» solo inspecciona la conexión. No cambies ajustes de la báscula para esta prueba.",
+  "scaleLabTiming": "Paquetes recibidos: {packets} · Lecturas interpretadas: {readings}",
+  "@scaleLabTiming": {
+    "placeholders": {
+      "packets": {
+        "type": "int"
+      },
+      "readings": {
+        "type": "int"
+      }
+    }
+  },
+  "scaleLabStalled": "El peso se ha parado",
+  "scaleLabBlinking": "La pantalla parpadea",
+  "scaleLabRecovered": "Vuelve a funcionar",
+  "feederRpm": "RPM del alimentador",
+  "adjustableFeederRpm": "Alimentador con RPM regulables",
+  "adjustableFeederRpmHint": "Velocidad independiente del tornillo de alimentación (feeder/auger).",
+  "measureBrix": "Medir en Brix",
+  "brix": "Brix (°Bx)",
+  "brixFactor": "Factor Brix → TDS",
+  "estimatedTds": "TDS estimado",
+  "brixHint": "TDS y EY son estimaciones. El factor 0,85 es aproximado.",
+  "ratingSaveRetry": "Tu valoración sigue aquí. Vuelve a guardar cuando Drive esté disponible.",
+  "ratingSaveFailed": "No se pudo guardar la valoración. Tus cambios siguen aquí; vuelve a intentarlo.",
+  "ratingSaving": "Guardando valoración…",
+  "ratingWaitingForDrive": "Esperando a que termine la restauración…",
+  "releaseNotesTitle": "Novedades de esta versión",
+  "releaseNotesTimer": "El cronómetro respeta la parada y el reinicio al usar una báscula Acaia.",
+  "releaseNotesRating": "Valorar una preparación recién guardada es más cómodo, con avisos claros si hay que esperar.",
+  "releaseNotesPours": "Los detalles de blooms y vertidos se completan desde la curva respetando los recuentos que elijas.",
+  "releaseNotesPrinters": "Soporte experimental para impresoras Niimbot: etiquetas con texto, emojis e imágenes. El texto aprovecha el espacio libre alrededor del logo.",
+  "releaseNotesBeansViews": "Agrupa tus cafés por tostador y consulta el calendario de frescura de tus lotes.",
+  "releaseNotesDriveBackups": "Drive ahora guarda copias de seguridad sin bloquear el diario. Ya no sincroniza los cambios entre dispositivos; restaura una copia desde Ajustes cuando lo necesites.",
+  "releaseNotesProfiles": "El campo Perfil sugiere nombres de tu historial y da prioridad al método elegido.",
+  "releaseNotesCompactHeaders": "Las cabeceras de Granos y Preparaciones ocupan menos espacio. Busca y accede a vista, calendario, filtros y orden desde una barra compacta.",
+  "releaseNotesRegionalDates": "Las fechas y los calendarios siguen la región del dispositivo, aunque el idioma de la app sea distinto.",
+  "releaseNotesDone": "Entendido",
+  "driveWriteChecking": "Se está restaurando una copia del diario. Espera a que termine antes de guardar.",
+  "driveWriteUnavailable": "No se puede guardar porque no hemos podido comprobar Drive. Revisa la conexión y pulsa «Comprobar ahora» en Ajustes → Sincronización con Drive.",
+  "driveWriteChoice": "Hay versiones del diario pendientes de revisar. Abre Ajustes → Sincronización con Drive y elige con cuál continuar antes de guardar.",
+  "driveWriteEditing": "Hay cambios de otro dispositivo pendientes de recibir. Conserva lo que necesites de este formulario y ciérralo para actualizar el diario antes de volver a intentarlo.",
+  "driveWriteDismiss": "Entendido",
+  "releaseNotesWriteErrors": "Avisos más claros cuando una acción tiene que esperar, sin perder lo escrito.",
+  "releaseNotesWaterTimer": "Sin báscula conectada, inicia y consulta el cronómetro junto al reparto de agua. Al iniciar, la tabla queda centrada.",
+  "releaseNotesWaterTargets": "Las etiquetas de blooms y vertidos se leen mejor sobre las curvas de la gráfica.",
+  "releaseNotesBrewOpening": "El formulario muestra sus campos juntos al terminar de cargar y oculta el selector de lote cuando solo hay uno.",
+  "listView": "Vista de lista",
+  "compactCards": "Tarjetas compactas",
+  "beansViewCoffees": "Cafés",
+  "beansViewRoasters": "Tostadores",
+  "beansNoRoaster": "Sin tostador",
+  "beansGroupCount": "{count, plural, =1{1 café} other{{count} cafés}}",
+  "@beansGroupCount": {"placeholders": {"count": {"type": "int"}}},
+  "beansGroupPartialStock": "{weight} conocidos · peso incompleto",
+  "@beansGroupPartialStock": {"placeholders": {"weight": {"type": "String"}}},
+  "freshnessCalendar": "Calendario de frescura",
+  "freshnessCalendarForecast": "Previsión orientativa de tus existencias actuales, por lote. No anticipa consumos, aperturas ni descongelaciones. Las cifras del calendario indican lotes con estimación; los colores muestran sus estados.",
+  "freshnessCalendarUnknown": "Sin estimación",
+  "freshnessCalendarFrozen": "Congelados · envejecimiento pausado",
+  "freshnessCalendarLotCount": "{count, plural, =1{1 lote} other{{count} lotes}}",
+  "@freshnessCalendarLotCount": {"placeholders": {"count": {"type": "int"}}},
+  "freshnessCalendarToday": "Hoy",
+  "freshnessCalendarEmpty": "No hay existencias que mostrar.",
+  "freshnessCalendarNoDate": "Sin fecha de tueste",
+  "freshnessCalendarRoasted": "Tueste: {date}",
+  "@freshnessCalendarRoasted": {"placeholders": {"date": {"type": "String"}}},
+  "labelPrint": "Imprimir etiqueta",
+  "labelTitle": "Etiqueta del café",
+  "labelCoffee": "Café",
+  "labelFrozen": "Porción congelada",
+  "labelLot": "Lote",
+  "labelChooseLot": "Elige el lote para usar su fecha de tueste.",
+  "labelChoosePortion": "Elige la porción que vas a etiquetar.",
+  "labelNoPortions": "Este café no tiene porciones congeladas disponibles.",
+  "labelRoastDate": "Fecha de tueste",
+  "labelFreezeDate": "Fecha de congelación",
+  "labelPortionWeight": "Peso original de la porción",
+  "labelPortionCode": "Código de la porción",
+  "labelPaper": "Tamaño del papel",
+  "labelPaperHint": "Etiquetas blancas con separación. Confirma el tamaño del rollo antes de imprimir.",
+  "labelTemplate": "Plantilla",
+  "labelDefault": "Plantilla básica",
+  "labelBody": "Contenido de la etiqueta",
+  "labelBodyHint": "Toca un campo para insertarlo. Usa **texto** para negrita.",
+  "labelTemplateSave": "Guardar plantilla",
+  "labelTemplateDelete": "Eliminar plantilla",
+  "labelTemplateSaved": "Plantilla guardada",
+  "labelTemplateName": "Nombre de la plantilla",
+  "labelPreview": "Vista previa",
+  "labelOverflow": "El contenido no cabe con letra legible. Acorta la plantilla o elige una etiqueta más larga.",
+  "labelRotate": "Girar 180°",
+  "labelCopies": "Copias",
+  "labelPrinterHint": "Enciende la impresora y desconéctala de la app Niimbot antes de buscar.",
+  "labelFindPrinter": "Buscar {model}",
+  "labelSearching": "Buscando impresora…",
+  "labelNoneFound": "No se ha encontrado ninguna {model} cercana.",
+  "labelConnect": "Conectar",
+  "labelDisconnect": "Desconectar",
+  "labelForget": "Olvidar impresora",
+  "labelDisconnected": "Impresora desconectada",
+  "labelConnecting": "Conectando…",
+  "labelConnected": "Impresora conectada",
+  "labelConnectionFailed": "No se pudo conectar. Comprueba el modelo seleccionado y la compatibilidad del firmware.",
+  "labelBluetoothOff": "Activa Bluetooth para conectar la impresora.",
+  "labelBluetoothDenied": "Permite el acceso a dispositivos cercanos para buscar la impresora.",
+  "labelPrinting": "Imprimiendo…",
+  "labelPrinted": "La impresora ha confirmado el trabajo. Revisa la etiqueta.",
+  "labelPrintFailed": "No se pudo confirmar la impresión. Revisa el papel, la tapa y la batería. Comprueba si salió una etiqueta antes de reconectar e imprimir otra vez.",
+  "labelOutputSaveFailed": "No se pudo recordar la impresora y el tamaño para la próxima vez.",
+  "labelSaveFailed": "No se pudo guardar la plantilla.",
+  "labelOpenFailed": "No se pudo abrir la etiqueta.",
+  "labelExport": "Compartir imagen",
+  "labelExportFailed": "No se pudo compartir la etiqueta.",
+  "labelCoffeeBody": "**<coffee>**\n<roaster>\nTueste <roast_date>",
+  "labelFrozenBody": "**<coffee>**\n<portion_label> · <portion_weight>\nCong. <freeze_date>",
+  "labelNoDate": "Sin fecha de tueste",
+  "labelKind": "Tipo de etiqueta",
+  "labelPrinterModel": "Modelo de impresora",
+  "labelImageChoose": "Elegir imagen",
+  "labelImageRemove": "Quitar imagen",
+  "labelImageHint": "La imagen y sus ajustes se guardan con la plantilla. La vista previa muestra los puntos que se imprimirán.",
+  "labelImageFailed": "No se pudo cargar la imagen. Prueba con otra imagen o quítala para continuar.",
+  "@labelFindPrinter": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      }
+    }
+  },
+  "@labelNoneFound": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      }
+    }
+  },
+  "labelModelTrial": "Compatibilidad experimental con {model}. Puede variar según el firmware; revisa el resultado impreso.",
+  "@labelModelTrial": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      }
+    }
+  },
+  "labelB21Variants": "Admite B21 original, L2B, C2B y B21S. La variante se identifica al conectar. B21 Pro no es compatible.",
+  "labelB2Protocol": "La B2 debe confirmar un protocolo compatible al conectar para poder imprimir.",
+  "testAppTitle": "HolyBeans Test",
+  "testAppNotice": "Diario de prueba independiente · Sin Drive",
+  "labelCopyDiagnostics": "Copiar diagnóstico de conexión",
+  "labelDiagnosticsCopied": "Diagnóstico copiado. Pégalo al comunicar el problema.",
+  "labelImagePosition": "Posición de la imagen",
+  "labelImageAbove": "Arriba",
+  "labelImageLeft": "Izquierda",
+  "labelImageRight": "Derecha",
+  "labelImageBelow": "Abajo",
+  "labelImageCenter": "Centro",
+  "labelImageAlignment": "Alineación de la imagen",
+  "labelImageSize": "Espacio para la imagen",
+  "labelImageTreatment": "Tratamiento de la imagen",
+  "labelImageLogo": "Logo",
+  "labelImagePhoto": "Foto",
+  "labelImageLogoHint": "Negros sólidos para logos y dibujos. Si una imagen antigua ya tiene puntos, vuelve a elegir el original.",
+  "labelImagePhotoHint": "Puntos en blanco y negro para representar los grises de una fotografía.",
+  "labelImageContrast": "Contraste",
+  "driveBackupLast": "Última copia completada: {date}",
+  "driveBackupBrowse": "Ver copias para restaurar",
+  "driveBackupLegacy": "Versión de la sincronización anterior",
+  "@driveBackupLast": {"placeholders": {"date": {"type": "String"}}},
+  "driveBackupRestoring": "Restaurando la copia del diario…",
+  "driveBackupEmpty": "Todavía no hay copias guardadas en esta cuenta.",
+  "pistonTitle": "Estado del pistón",
+  "pistonEffort": "Esfuerzo del pistón",
+  "pistonRefresh": "Actualizar historial",
+  "pistonUpdated": "Última actualización",
+  "pistonNeverUpdated": "El historial todavía no se ha descargado.",
+  "pistonProgress": "Tiros analizados en esta consulta",
+  "pistonOffline": "No se pudo completar la actualización. Se conservan los datos descargados. Comprueba que la Meticulous esté encendida y en tu misma red local y vuelve a intentarlo.",
+  "pistonPartial": "Historial parcial. Actualiza para continuar desde el último bloque completado.",
+  "pistonStart": "Recupera los tiros guardados en tu Meticulous para ver cómo evoluciona el esfuerzo del pistón. La primera lectura puede tardar; después solo se buscan tiros nuevos. Podrás consultar la gráfica sin conexión.",
+  "pistonCurrent": "Corriente",
+  "pistonSpeed": "Velocidad",
+  "pistonAll": "Todo",
+  "pistonYear": "1 año",
+  "pistonDays": "días",
+  "pistonRecent": "Nivel reciente",
+  "pistonChange": "Variación",
+  "pistonTrend": "Tendencia / mes",
+  "pistonReference60": "Referencia: primeros datos de los últimos 60 días medidos. Sin mantenimiento registrado.",
+  "pistonReferenceService": "Variación y tendencia desde el último mantenimiento con lecturas posteriores.",
+  "pistonLastReading": "Última medida",
+  "pistonUsable": "Tiros con medida válida / analizados",
+  "pistonExplanation": "La corriente del motor durante la retracción después del espresso es un indicador indirecto del esfuerzo. La línea muestra la mediana de siete días y se separa en cada mantenimiento. Se necesitan al menos cinco muestras estables por tiro; algunos se descartan. Una subida no distingue entre falta de lubricación, cal o residuos. Consulta las recomendaciones de mantenimiento de Meticulous.",
+  "pistonRecordService": "Registrar mantenimiento",
+  "pistonMaintenance": "Mantenimiento",
+  "pistonServiceType": "Tipo",
+  "pistonGrease": "Engrase",
+  "pistonDescale": "Descalcificación",
+  "pistonClean": "Limpieza",
+  "pistonNotes": "Notas (opcional)",
+  "pistonDeleteService": "Eliminar mantenimiento",
+  "pistonDeleteConfirm": "Se eliminará este registro y se recalculará la gráfica. No se enviará ninguna orden a la máquina.",
+  "pistonSaveError": "No se pudo guardar el cambio. Inténtalo de nuevo.",
+  "pistonNoRange": "No hay medidas utilizables en este periodo.",
+  "pistonMedian": "Mediana de 7 días",
+  "pistonMeasurements": "Medidas por tiro",
+  "pistonCredits": "Gráfica inspirada en ha-meticulous-cards, de Chris Borchert. Análisis adaptado de ha-meticulous, de hessius y colaboradores. Ambos proyectos tienen licencia MIT.",
+  "pistonProjectUnavailable": "No se ha podido abrir el proyecto en el navegador.",
+  "openSourceLicenses": "Licencias de código abierto",
+  "releaseNotesPiston": "En Equipo → Meticulous puedes consultar la evolución del esfuerzo del pistón y registrar mantenimientos. El primer análisis recupera el historial de la máquina; después solo descarga tiros nuevos y conserva la gráfica sin conexión.",
+  "releaseNotesCredits": "Reconocimiento a los proyectos originales en la pantalla del pistón y licencias de código abierto en Ajustes → Acerca de.",
+  "releaseNotesTransparentSharing": "Comparte cafés y preparaciones como PNG con fondo transparente y elige texto claro u oscuro para colocarlos sobre tus fotos.",
+  "releaseNotesD11Printers": "Añadidas Niimbot D11 y D11-H al catálogo experimental de impresoras. D11-H tiene una primera impresión confirmada; D11 sigue pendiente de prueba física.",
+  "releaseNotesEspressoRatios": "El mapa de espresso sugiere Ristretto, Normale o Lungo según el ratio bebida/dosis, con límites y redondeos más claros."
+}

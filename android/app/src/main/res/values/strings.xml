@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Notification channel of the brew in progress (timer and pours). -->
+    <string name="live_update_channel">Brew in progress</string>
+    <string name="shortcut_brew">New brew</string>
+    <string name="shortcut_brew_long">New brew</string>
+    <string name="shortcut_repeat">Repeat last</string>
+    <string name="shortcut_repeat_long">Repeat the last brew</string>
+    <string name="shortcut_scan">Scan coffee</string>
+    <string name="shortcut_scan_long">Scan a coffee QR code</string>
+    <string name="widget_label">Last brew</string>
+    <string name="widget_empty">Open HolyBeans to fill this in</string>
+    <string name="widget_description">Your last brew, to repeat it in one tap</string>
+</resources>

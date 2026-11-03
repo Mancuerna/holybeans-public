@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Canal de la preparación en curso (temporizador y vertidos). -->
+    <string name="live_update_channel">Preparación en curso</string>
+    <string name="shortcut_brew">Preparar</string>
+    <string name="shortcut_brew_long">Nueva preparación</string>
+    <string name="shortcut_repeat">Repetir</string>
+    <string name="shortcut_repeat_long">Repetir la última preparación</string>
+    <string name="shortcut_scan">Escanear café</string>
+    <string name="shortcut_scan_long">Escanear el QR de un café</string>
+    <string name="widget_label">Última preparación</string>
+    <string name="widget_empty">Abre HolyBeans para rellenarlo</string>
+    <string name="widget_description">Tu última preparación, para repetirla con un toque</string>
+</resources>

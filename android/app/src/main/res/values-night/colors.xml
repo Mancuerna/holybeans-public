@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="splash_background">#1B1A18</color>
+    <color name="widget_sheet">#242320</color>
+    <color name="widget_ink">#ECEBE6</color>
+    <color name="widget_grey">#B7B3AC</color>
+    <color name="widget_accent">#E06573</color>
+    <color name="widget_on_accent">#2B0309</color>
+    <color name="widget_tonal">#3D3B38</color>
+</resources>

@@ -1,0 +1,2485 @@
+{
+  "historyLastSevenDays": "Last 7 days",
+  "historyThisMonth": "This month",
+  "@@locale": "en",
+  "appTitle": "HolyBeans",
+  "navHome": "Home",
+  "navBeans": "Beans",
+  "navHistory": "Brews",
+  "actionBrew": "Brew",
+  "brewWithBean": "Brew with this bean",
+  "language": "Language",
+  "systemLanguage": "System language",
+  "settings": "Settings",
+  "moreOptions": "More options",
+  "lastBrew": "Last brew",
+  "recentBrews": "Recent brews",
+  "beansTitle": "Beans",
+  "historyTitle": "Brews",
+  "statsTitle": "Stats",
+  "archived": "Archived",
+  "roastDate": "Roast date",
+  "roastLevel": "Roast level",
+  "roastDark": "Dark",
+  "roastMedium": "Medium",
+  "roastOmni": "Omni",
+  "roastLight": "Light",
+  "roastUltraLight": "Ultra light",
+  "origin": "Origin",
+  "process": "Process",
+  "variety": "Variety",
+  "method": "Method",
+  "grinder": "Grinder",
+  "dose": "Dose",
+  "water": "Water",
+  "brewOutput": "Beverage weight",
+  "time": "Time",
+  "extractionDuration": "Extraction time",
+  "ratio": "Ratio",
+  "ratioShortcuts": "Coffee:water ratios",
+  "optionalMeasure": "Results (optional)",
+  "temperature": "Temperature",
+  "tds": "TDS",
+  "ey": "EY",
+  "openSensoryMap": "View sensory map",
+  "sensoryMap": "Sensory map",
+  "sensoryMapSweet": "Sweeter impression",
+  "sensoryMapCitrus": "More citrusy",
+  "sensoryMapRoasty": "More bitter / roasty",
+  "sensoryMapTea": "More tea-like",
+  "sensoryMapOutOfRange": "Out of range",
+  "sensoryMapSourceLink": "Read the paper (DOI 10.1111/1750-3841.16531)",
+  "sensoryMapEyAxis": "EY (%)",
+  "sensoryMapTdsAxis": "TDS (%)",
+  "rating": "Rating",
+  "notes": "Notes",
+  "formPreviewTitle": "New brew",
+  "coffeeBlock": "Bean",
+  "newBean": "Add bean",
+  "editBean": "Edit bean",
+  "beanName": "Coffee name",
+  "roaster": "Roaster",
+  "country": "Country",
+  "region": "Region",
+  "farm": "Farm",
+  "producer": "Producer",
+  "purchasedQuantity": "Purchased quantity (g)",
+  "paidPrice": "Paid price (€)",
+  "pricePerKg": "Price per kg",
+  "invalidPrice": "Enter a price with up to two decimal places.",
+  "inventoryMultiLotReadOnly": "The total balance cannot be edited from this form.",
+  "remainingQuantity": "Remaining quantity (g)",
+  "inventoryStartsFresh": "Saving creates a new lot. Older brews without a lot stay unassigned.",
+  "inventoryLot": "Inventory lot",
+  "inventoryItem": "Inventory {number}",
+  "@inventoryItem": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "noInventoryRecorded": "No inventory recorded",
+  "save": "Save",
+  "cancel": "Cancel",
+  "requiredField": "This field is required",
+  "invalidNumber": "Enter a valid number",
+  "clearDate": "Clear date",
+  "saveFailed": "Could not save",
+  "noBeans": "No beans.",
+  "noBrews": "No brews.",
+  "chooseBean": "Choose a bean",
+  "needBean": "Add a bean before brewing.",
+  "backup": "Backup",
+  "exportBackup": "Share backup",
+  "importBackup": "Restore backup",
+  "backupFailed": "Could not prepare backup",
+  "restoreFailed": "Could not restore backup",
+  "restoreTitle": "Restore journal",
+  "restoreWarning": "This will replace all current HolyBeans data. This backup contains {coffees} beans and {brews} brews.",
+  "restore": "Restore",
+  "restored": "Backup restored",
+  "archiveBean": "Archive bean",
+  "unarchiveBean": "Restore bean",
+  "archiveBeanTitle": "Archive coffee?",
+  "archiveBeanDescription": "Archiving this coffee also archives its brews. Restoring the coffee restores only the brews archived with it.",
+  "archiveBeanForOverdraw": "The brew is saved, but its dose exceeded the recorded stock. Archive this coffee and its brews?",
+  "beanArchived": "Coffee and its active brews archived",
+  "restoreCoffeeFirst": "Restore the coffee to restore this brew.",
+  "coffeeArchivedCannotBrew": "Restore this coffee before saving a brew.",
+  "clearSearch": "Clear search",
+  "noRating": "No rating",
+  "startTimer": "Start",
+  "stopTimer": "Stop",
+  "resetTimer": "Reset time",
+  "clearRating": "Clear rating",
+  "slideToRate": "Slide to rate",
+  "showCompactCards": "Show compact cards",
+  "showDetailedCards": "Show more card details",
+  "sortBeans": "Sort beans",
+  "sortBeansByName": "Name",
+  "sortBeansByRecentBrew": "Most recently brewed",
+  "sortBeansByRoastDate": "Roast date",
+  "sortBeansByFrozenDate": "Freeze date",
+  "sortBeansByFreshness": "Freshness (use soon)",
+  "brewsCount": "{count, plural, one {{count} brew} other {{count} brews}}",
+  "seconds": "Seconds",
+  "durationMinutes": "Minutes",
+  "durationSeconds": "Seconds",
+  "invalidDuration": "Enter whole minutes and seconds from 0 to 59.",
+  "invalidBackup": "This is not a valid HolyBeans backup",
+  "fileTooLarge": "The backup exceeds the 50 MB limit",
+  "date": "Date",
+  "noSelection": "Choose a bean",
+  "brewSaved": "Brew saved",
+  "beanSaved": "Bean saved",
+  "dataError": "Could not load data",
+  "@restoreWarning": {
+    "placeholders": {
+      "coffees": {
+        "type": "int"
+      },
+      "brews": {
+        "type": "int"
+      }
+    }
+  },
+  "@brewsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "search": "Search",
+  "noMatchingBeans": "No matching beans.",
+  "noMatchingBrews": "No matching brews.",
+  "historyFilters": "Filters",
+  "historyFilterHint": "Filter by bean, method, date, or rating",
+  "historyActiveFilters": "{count, plural, one {{count} active filter} other {{count} active filters}}",
+  "@historyActiveFilters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "anyBean": "Any bean",
+  "anyMethod": "Any method",
+  "dateRange": "Date range",
+  "selectStartDate": "Select start date",
+  "selectEndDate": "Select end date",
+  "anyDate": "Any date",
+  "historyDateRangeValue": "{start} – {end}",
+  "@historyDateRangeValue": {
+    "placeholders": {
+      "start": {},
+      "end": {}
+    }
+  },
+  "minimumRating": "Minimum rating",
+  "anyRating": "Any rating",
+  "historyRatingFilterBehavior": "Unrated brews are excluded only when a minimum rating is set.",
+  "clearFilters": "Clear filters",
+  "repeatBrew": "Repeat",
+  "previousBrewYieldReference": "Starting recipe: {amount} g",
+  "@previousBrewYieldReference": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "previousBrewDurationReference": "Starting recipe: {duration}",
+  "@previousBrewDurationReference": {
+    "placeholders": {
+      "duration": {}
+    }
+  },
+  "editBrew": "Edit",
+  "archiveBrew": "Archive brew",
+  "unarchiveBrew": "Restore brew",
+  "showArchivedBrews": "Show archived",
+  "hideArchivedBrews": "Hide archived",
+  "shareText": "Share brew",
+  "shareFields": "Shared fields",
+  "share": "Share",
+  "shareFailed": "Could not share",
+  "noShareFields": "Select at least one field.",
+  "bag": "Bag",
+  "remaining": "Remaining",
+  "freezer": "Freezer",
+  "lastBrewTile": "Last brew",
+  "oldestFreeze": "Oldest freeze",
+  "justNow": "Just now",
+  "minutesAgo": "{minutes, plural, =1{1 min ago} other{{minutes} min ago}}",
+  "hoursAgo": "{hours, plural, =1{1 h ago} other{{hours} h ago}}",
+  "daysAgo": "{days, plural, =1{Yesterday} other{{days} days ago}}",
+  "daysCount": "{days, plural, =1{1 day} other{{days} days}}",
+  "weeksCount": "{weeks, plural, =1{1 week} other{{weeks} weeks}}",
+  "averageBrewRating": "Your brews average {rating} ({count})",
+  "useAverageRating": "Use the average",
+  "rateReminderTitle": "Rate it while it's fresh",
+  "rateReminderBody": "{coffee}: note down how the cup turned out",
+  "rateReminder": "Rating reminder",
+  "rateReminderHint": "A notification after saving a brew without a rating",
+  "minutesShort": "{minutes} min",
+  "notificationsDenied": "Notification permission denied",
+  "rateBrew": "Rate",
+  "tasting": "Tasting",
+  "extractionCompass": "Extraction compass",
+  "compassSour": "Too sour",
+  "compassBitter": "Too bitter",
+  "compassWeak": "Weak",
+  "compassStrong": "Strong",
+  "compassBalanced": "Balanced",
+  "compassHint": "Tap the cell that best describes the cup; tap it again to clear.",
+  "adviceSour": "Extract more: grind finer, brew longer or use hotter water.",
+  "adviceBitter": "Extract less: grind coarser, brew shorter or use cooler water.",
+  "adviceWeak": "Increase the concentration: more coffee or less water.",
+  "adviceStrong": "Reduce the concentration: less coffee or more water.",
+  "adviceBalanced": "Balanced: repeat the recipe.",
+  "flavorScores": "Cup profile",
+  "scoreAcidity": "Acidity",
+  "scoreSweetness": "Sweetness",
+  "scoreBitterness": "Bitterness",
+  "scoreBody": "Body",
+  "scoreAftertaste": "Aftertaste",
+  "brewRated": "Rating saved",
+  "restDays": "Recommended rest (days)",
+  "restDaysHint": "From the roaster; sets the pace of the degassing curve",
+  "freshness": "Freshness",
+  "phaseDegassing": "Degassing",
+  "phasePrime": "Prime",
+  "phaseGood": "Good",
+  "phaseAging": "Aging",
+  "phaseStale": "Stale",
+  "styleFilter": "Filter",
+  "freshnessDay": "Estimated age: {day} days",
+  "daysLeft": "{days, plural, =1{1 day left} other{{days} days left}}",
+  "freshnessBasisRoast": "Based on roast level",
+  "freshnessBasisRest": "Based on the roaster's rest ({days} days)",
+  "freshnessPaused": "{days, plural, =1{1 day in the freezer not counted} other{{days} days in the freezer not counted}}",
+  "sweetSpot": "Your sweet spot",
+  "sweetSpotValue": "{style}, days {start}–{end}: around {rating} across {count} brews",
+  "freshnessHelpTitle": "How we estimate freshness",
+  "freshnessHelp": "The roast date shows calendar days. Freshness uses an estimated age: frozen time is subtracted and each day with the bag open counts as about 1.7 days. A coffee roasted 12 days ago and opened 11 days ago can therefore show an estimated age of 20 days.\n\nCoffee releases CO₂ after roasting. Darker roasts usually release it sooner than lighter ones; espresso usually needs more rest than filter (Smrke et al., 2018). We use a model of that release to estimate the phases, not a measurement of your beans.\n\nOpening a bag speeds up aroma loss (Smrke et al., 2022). If you enter the roaster’s recommended rest, we adjust the curve so that filter’s prime phase starts at that age.\n\n“Your sweet spot” is learned from your ratings of this coffee and similar ones. The phases are a guide: taste your coffee and follow the roaster’s advice.",
+  "photo": "Photo",
+  "addPhoto": "Add photo",
+  "changePhoto": "Change photo",
+  "removePhoto": "Remove photo",
+  "takePhoto": "Take photo",
+  "choosePhoto": "Choose from gallery",
+  "photoFailed": "Could not save the photo",
+  "bagPhoto": "Bag photo",
+  "brewPhoto": "Brew photo",
+  "shareFormatText": "Text",
+  "shareTransparentBackground": "Transparent background",
+  "shareTransparentHint": "Overlay the image on your photo. The checkerboard is not exported.",
+  "shareLightText": "Light text",
+  "shareDarkText": "Dark text",
+  "shareFormatImage": "Image",
+  "frozenAtAge": "{days, plural, =0{Frozen on roast day} =1{Frozen 1 day after roasting} other{Frozen {days} days after roasting}}",
+  "flavorProfile": "Tasting notes",
+  "flavorProfileHint": "Add each note with a comma or Enter. You can also write your own notes.",
+  "addFavorite": "Mark as favourite",
+  "removeFavorite": "Remove from favourites",
+  "favorite": "Favourite",
+  "favoritesFirst": "Favourites first",
+  "consumed": "Consumed",
+  "adjustableRpm": "Adjustable RPM",
+  "adjustableRpmHint": "Record motor speed with each brew",
+  "grindRpm": "RPM",
+  "pressureBar": "Peak pressure (bar)",
+  "pressure": "Peak pressure",
+  "preinfusion": "Pre-infusion",
+  "preinfusionSeconds": "Pre-infusion (s)",
+  "bloom": "Bloom",
+  "bloomSeconds": "Bloom (s)",
+  "bloomTotalSeconds": "Total bloom time (s)",
+  "bloomTime": "Bloom time",
+  "markBloom": "Mark bloom",
+  "markPreinfusion": "Mark pre-infusion",
+  "seeMethodBrews": "See brews",
+  "lastUsed": "Last used",
+  "averageRating": "Average rating",
+  "methodMemoryApplied": "Values from your last {method} brew",
+  "saveFrozen": "Save as frozen",
+  "saveFrozenHint": "Freeze all or part of the coffee as you add it",
+  "freezeNeedsQuantity": "Enter the purchased quantity to freeze it.",
+  "frozenNotes": "Freezer notes",
+  "freezeCoffee": "Freeze coffee",
+  "frozen": "Frozen",
+  "frozenPartial": "Partial",
+  "thawed": "Thawed",
+  "thaw": "Thaw",
+  "thawAndBrew": "Thaw and brew",
+  "thawAmount": "Grams to thaw",
+  "freezeAmount": "Grams to freeze",
+  "allAmount": "All",
+  "frozenDate": "Frozen on",
+  "frozenOn": "Frozen {date}",
+  "container": "Container",
+  "containerVacuumBag": "Vacuum bag",
+  "containerTube": "Tube",
+  "containerZipBag": "Zip bag",
+  "containerJar": "Jar",
+  "containerBox": "Box",
+  "containerOriginalBag": "Original bag",
+  "containerOther": "Other",
+  "editFrozenPortion": "Edit portion",
+  "deleteFrozenPortion": "Delete portion",
+  "deleteFrozenPortionWarning": "The {grams} still frozen go back to the unfrozen coffee.",
+  "delete": "Delete",
+  "frozenSaved": "Frozen. Write {label} on the container.",
+  "thawedSaved": "Thawed {grams}",
+  "notEnoughToFreeze": "There is not that much unfrozen coffee.",
+  "thawTooMuch": "You cannot thaw more than is still frozen.",
+  "onlyFrozenLeft": "All that is left of this coffee is in the freezer: thaw a portion to brew it.",
+  "thawWhichPortion": "Which portion do you thaw?",
+  "frozenPortionOption": "{label}, {grams}, frozen on {date}",
+  "showThawedPortions": "{count, plural, =1{Show 1 thawed portion} other{Show {count} thawed portions}}",
+  "hideThawedPortions": "Hide thawed portions",
+  "beansAvailable": "Available",
+  "beansFrozen": "Frozen",
+  "beansArchived": "Archived",
+  "frozenSummary": "{grams} in {count, plural, =1{1 portion} other{{count} portions}}",
+  "availableFresh": "Available",
+  "seeAll": "See all",
+  "portionLabel": "Label",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "timeShort": "Time",
+  "roastedDaysAgo": "{days, plural, =0{Roasted today} =1{Roasted yesterday} other{Roasted {days} days ago}}",
+  "@roastedDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "unknownStock": "Unknown weight",
+  "brewDate": "Brew date",
+  "brewTime": "Brew time",
+  "recipeSection": "Recipe",
+  "resultSection": "Result",
+  "originDetails": "Origin",
+  "originNumber": "Origin {number}",
+  "@originNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "addOrigin": "Add origin",
+  "removeOrigin": "Remove origin",
+  "moveOriginUp": "Move origin up",
+  "moveOriginDown": "Move origin down",
+  "emptyOriginMustBeRemoved": "Remove this empty origin card or add origin details before saving.",
+  "altitude": "Altitude (m)",
+  "brewUpdated": "Brew updated",
+  "actions": "Actions",
+  "equipment": "Equipment",
+  "methods": "Methods",
+  "grinders": "Grinders",
+  "addMethod": "Add method",
+  "editMethod": "Edit method",
+  "methodName": "Method name",
+  "methodStyle": "Style",
+  "methodNotes": "Method notes",
+  "styleEspresso": "Espresso",
+  "stylePourover": "Pour-over",
+  "styleImmersion": "Immersion",
+  "archiveMethod": "Archive method",
+  "restoreMethod": "Restore method",
+  "methodSaved": "Method saved",
+  "methodTools": "Accessories",
+  "addTool": "Add accessory",
+  "editTool": "Edit accessory",
+  "toolName": "Accessory name",
+  "noMethodTools": "No accessories for this method yet.",
+  "archiveTool": "Archive accessory",
+  "restoreTool": "Restore accessory",
+  "toolSaved": "Accessory saved",
+  "addGrinder": "Add grinder",
+  "editGrinder": "Edit grinder",
+  "grinderName": "Grinder name",
+  "grinderNotes": "Grinder notes",
+  "noGrinders": "No grinders yet.",
+  "archiveGrinder": "Archive grinder",
+  "restoreGrinder": "Restore grinder",
+  "grinderSaved": "Grinder saved",
+  "showArchivedEquipment": "Show archived",
+  "selectMethod": "Choose a method",
+  "selectGrinder": "Choose a grinder",
+  "grindSetting": "Grind setting",
+  "noActiveMethods": "Add a method to record a brew.",
+  "manageMethodTools": "Manage accessories",
+  "waterProfiles": "Water profiles",
+  "waterTab": "Water",
+  "addWaterProfile": "Add water profile",
+  "editWaterProfile": "Edit water profile",
+  "archiveWaterProfile": "Archive water profile",
+  "restoreWaterProfile": "Restore water profile",
+  "waterProfileSaved": "Water profile saved",
+  "waterProfileName": "Profile name",
+  "waterHardness": "GH hardness (ppm as CaCO₃)",
+  "waterAlkalinity": "KH alkalinity (ppm as CaCO₃)",
+  "waterTdsPpm": "Water TDS (ppm)",
+  "waterPh": "pH (0–14)",
+  "waterProfileNotes": "Notes (optional)",
+  "noWaterProfiles": "No water profiles to show.",
+  "noActiveWaterProfiles": "No active water profiles yet.",
+  "waterProfile": "Water profile",
+  "brewWaterProfile": "Water profile (optional)",
+  "noWaterProfile": "No profile",
+  "archivedWaterReference": "Previous brew used archived water: {name}",
+  "@archivedWaterReference": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "none": "None",
+  "unspecifiedGrinder": "Not specified",
+  "preGround": "Pre-ground",
+  "archivedStatus": "Archived",
+  "statsRangeWeek": "7 days",
+  "statsRangeMonth": "30 days",
+  "statsRangeQuarter": "90 days",
+  "statsRangeYear": "1 year",
+  "statsRangeAll": "All time",
+  "statsIncludesArchived": "Historical metrics include archived beans and brews.",
+  "statsCurrentInventoryNote": "Current inventory excludes archived beans and does not depend on the period; frozen beans are included.",
+  "statsNoBrewsInRange": "No brews in this period.",
+  "statsBrews": "Brews",
+  "statsGround": "Coffee ground",
+  "statsAverageDose": "Average dose",
+  "statsBrewsPerDay": "Brews per day",
+  "statsAverageRatingShort": "Average rating",
+  "statsRatedCount": "{count, plural, one {{count} rated} other {{count} rated}}",
+  "statsFrozenPart": "{grams} frozen",
+  "statsActivity": "Brew activity",
+  "statsActivitySummary": "{count, plural, one {1 brew} other {{count} brews}} in the last {weeks} weeks",
+  "statsCurrentStreak": "Streak: {days, plural, one {1 day} other {{days} days}}",
+  "statsLongestStreak": "Longest: {days, plural, one {1 day} other {{days} days}}",
+  "statsLess": "Less",
+  "statsMore": "More",
+  "statsExtraction": "Extraction map",
+  "statsExtractionHint": "Brews rated with the extraction compass, with their average rating.",
+  "statsExtractionCell": "{label}: {count, plural, one {1 brew} other {{count} brews}}",
+  "statsTopMethods": "Most used methods",
+  "statsTopOrigins": "Origins",
+  "statsTopRoasters": "Roasters",
+  "statsTopRatedBeans": "Top rated beans",
+  "statsTopRatedHint": "Beans with at least two rated brews.",
+  "statsRatingByStyle": "Rating by style",
+  "freshnessOpened": "{days, plural, =0{Bag opened today, ages faster} =1{Bag opened 1 day ago, ages faster} other{Bag opened {days} days ago, ages faster}}",
+  "runningLow": "Running low",
+  "dosesLeft": "{count, plural, =0{Less than a dose left} =1{1 dose left} other{{count} doses left}}",
+  "inFreezer": "{grams} in the freezer",
+  "brewCost": "Cost",
+  "statsCoffeeCost": "Coffee brewed",
+  "statsCostPerCup": "Cost per brew",
+  "statsCostCoverage": "{count, plural, one {1 brew with a price} other {{count} brews with a price}}",
+  "statsTabOverview": "Overview",
+  "statsTabBeans": "Coffees",
+  "statsTabBrews": "Brews",
+  "statsTabCosts": "Costs",
+  "statsBrewsPerPeriod": "{period, select, day{Brews per day} week{Brews per week} other{Brews per month}}",
+  "statsSpendingPerPeriod": "{period, select, day{Spending per day} week{Spending per week} other{Spending per month}}",
+  "statsWeekOf": "Week of {date}",
+  "statsBeansTried": "Different coffees",
+  "statsRoastersTried": "Roasters",
+  "statsOriginsTried": "Origin countries",
+  "statsFirstCup": "First brew",
+  "statsDaysAfterRoast": "{days, plural, one {1 day} other {{days} days}}",
+  "statsDaysAfterRoastCaption": "after roasting (median)",
+  "statsMedian": "median",
+  "statsTopProcesses": "Processes",
+  "statsTopVarieties": "Varieties",
+  "statsFilterRatio": "Filter ratio",
+  "statsEspressoRatio": "Espresso ratio",
+  "statsShotTime": "Espresso time",
+  "statsFilterTime": "Filter time",
+  "statsShotTimes": "Espresso times",
+  "statsShotTimesHint": "Shots per 5 s step.",
+  "statsFilterTimes": "Filter times",
+  "statsFilterTimesHint": "Brews per 30 s step.",
+  "statsLearningCurve": "Dialling in each coffee",
+  "statsLearningCurveHint": "Average rating of the first, second… brew of each coffee; the eighth and later ones together.",
+  "statsBrewNumber": "#{number}",
+  "statsRatingByTemperature": "Rating by temperature",
+  "statsRatingByTemperatureHint": "Average rating per 2 °C step, over rated brews.",
+  "statsSpent": "Spent on bags",
+  "statsBags": "{count, plural, one {1 bag} other {{count} bags}}",
+  "statsAveragePricePerKg": "Average price",
+  "statsCostVsRating": "Cost per brew and rating",
+  "statsCostVsRatingHint": "Each dot is a coffee: further right, dearer per brew; higher, better rated.",
+  "statsCostVsRatingFew": "Rate brews of at least two coffees with a price to see this chart.",
+  "statsCostAxis": "€ per brew",
+  "statsRatingAxis": "Rating",
+  "statsBestValue": "Best value",
+  "statsBestValueHint": "Among the coffees rated at your median or above, the cheapest per brew.",
+  "statsCupCost": "{cost} per brew",
+  "statsPricePerKgByRoaster": "Price per kilo by roaster",
+  "statsPricePerKgByRoasterHint": "Average of their bags with a price, by what each one weighed.",
+  "statsNoPrices": "Note the price and grams of your coffees to see your spending here.",
+  "dialInTitle": "Last time with this coffee",
+  "dialInRatedTitle": "Last rated with this coffee",
+  "exportBrewsCsv": "Export brews (CSV)",
+  "exportBrewsCsvHint": "For spreadsheets; not a backup",
+  "ratingByAgeTitle": "Ratings by estimated age",
+  "ratingByAgeSummary": "{count} rated brews between days {first} and {last}; best {rating} on day {bestDay}",
+  "chartPhasesFor": "Phases: {style}",
+  "meticulousAddress": "Machine address",
+  "meticulousAddressHint": "e.g. meticulous.local",
+  "meticulousInvalidAddress": "That doesn't look like an address.",
+  "meticulousConnectFailed": "Couldn't read the machine: {error}",
+  "meticulousNoShots": "The machine has no shots yet.",
+  "meticulousImported": "Already imported",
+  "connectedMachine": "Connected machine",
+  "connectedMachineHint": "Brews with this method can import shots from it",
+  "testConnection": "Test connection",
+  "machineConnected": "Connected. Last shot: {profile}",
+  "machineConnectedEmpty": "Connected, no shots yet",
+  "curveWeight": "Weight",
+  "curveFlow": "Flow",
+  "curvePressure": "Pressure",
+  "comparisonPlay": "Play comparison",
+  "comparisonPause": "Pause comparison",
+  "curveReplay": "Replay the shot",
+  "curvePause": "Pause the shot",
+  "curvePeak": "max {value}",
+  "extractionCurve": "Extraction curve",
+  "curveSummary": "{seconds} s, peak {pressure} bar, {grams} g in the cup",
+  "importShot": "Import a shot",
+  "changeShot": "Change shot",
+  "importShotHint": "Latest shots on your Meticulous. Picking one fills in the time, beverage weight, temperature, pressure, first drip, profile and curve; the coffee and dose are yours to complete.",
+  "loadMore": "Load more",
+  "retry": "Retry",
+  "profileName": "Profile",
+  "importedShot": "Shot from the Meticulous",
+  "removeImportedShot": "Remove imported shot",
+  "importFreePour": "Import free pour",
+  "importFreePourHint": "The last brew you poured in free pour mode on your Meticulous's scale; only the latest can be read from outside the machine. Picking it fills in the dose, water, beverage, temperature, time, blooms and pours, and the curve.",
+  "meticulousNoFreePour": "No recent free pour: only the latest pour on the Meticulous's scale can be read, and it wasn't a free pour.",
+  "importedFreePour": "Free pour from the Meticulous",
+  "removeImportedFreePour": "Remove the imported free pour",
+  "decaf": "Decaf",
+  "shopUrl": "Shop website",
+  "shopUrlHint": "shop.com/coffee",
+  "invalidWebLink": "That doesn't look like a web address",
+  "openShop": "View in the shop",
+  "harvest": "Harvest",
+  "harvestHint": "2025 or January 2025",
+  "coverPhoto": "{label}, cover",
+  "photoNumber": "{label} {number}",
+  "photoCount": "{label}, {number} of {total}",
+  "firstDrip": "First drip",
+  "firstDripSeconds": "First drip (s)",
+  "waterMinerals": "Minerals (ppm)",
+  "mineralsHint": "Each ion in ppm (mg/l), as on the bottle label",
+  "calcium": "Calcium",
+  "magnesium": "Magnesium",
+  "sodium": "Sodium",
+  "potassium": "Potassium",
+  "chloride": "Chloride",
+  "sulfate": "Sulphate",
+  "jug": "the jug",
+  "methodJug": "Jug",
+  "methodJugHint": "If you weigh the coffee in it, its weight is taken off for you",
+  "jugName": "Vessel name",
+  "jugEmptyWeight": "Empty vessel weight (g)",
+  "weightWithJug": "Weight with vessel (g)",
+  "jugTare": "Less {grams} g for {name}",
+  "pourAssistant": "Pour assistant",
+  "pourAssistantHint": "Splits the water into equal pours after the blooms and beeps when each one is due.",
+  "totalWater": "Total water: {grams} g",
+  "bloomNumber": "Bloom {number}",
+  "bloomWait": "Wait (s)",
+  "bloomShare": "{multiple}× the dose",
+  "addBloom": "Add bloom",
+  "removeBloom": "Remove bloom",
+  "pourCount": "Pours",
+  "fewerPours": "One pour fewer",
+  "morePours": "One more pour",
+  "pourInterval": "Every (s)",
+  "pourSummary": "{count} pours of {grams} g; pouring ends at {time}",
+  "startPouring": "Start",
+  "pausePouring": "Pause",
+  "resumePouring": "Resume",
+  "finishPouring": "Finish",
+  "pourStepPour": "Pour {number} of {total}",
+  "pourTo": "Pour up to {grams} g",
+  "pourAdd": "+{grams} g",
+  "nextPour": "Next in {seconds} s, up to {grams} g",
+  "drawdown": "All the water is in: let it draw down, then tap Finish.",
+  "pourProblemDose": "Enter the dose.",
+  "pourProblemRatio": "The ratio has to be between 1:1 and 1:30.",
+  "pourProblemBloom": "Each bloom needs water and a waiting time.",
+  "pourProblemPours": "Between 1 and 10 pours, with their interval in seconds.",
+  "pourProblemBloomWater": "The blooms take nearly all the water, leaving none for the pours.",
+  "pourResultApplied": "Water and time applied; available pours detected from the curve",
+  "backupReminderNever": "You have not saved a backup of your journal yet",
+  "backupReminderDays": "Your last backup was {days} days ago",
+  "backupReminderHint": "Your journal only lives on this phone: keep a copy in your cloud or somewhere else.",
+  "backupNow": "Back up now",
+  "notNow": "Not now",
+  "scaleSection": "Bluetooth scale",
+  "scaleHint": "Pair your scales once: HolyBeans connects to whichever is switched on while you use the app. If several are on, it prefers the last used scale and keeps an existing connection. Supports BOOKOO and DiFluid Microbalance (V300 or later) / Microbalance Ti (V010 or later). DiFluid support is experimental. Acaia Lunar, Pearl / Pearl S and Pyxis support is experimental and awaits testing on physical scales. Close other apps connected to the scale.",
+  "scaleRemembered": "Paired · automatic connection",
+  "scaleFind": "Find scale",
+  "scaleSearching": "Looking for scales…",
+  "scaleNoneFound": "None found. Switch it on and check it isn't connected to another phone.",
+  "scaleConnect": "Connect",
+  "scaleDisconnect": "Disconnect",
+  "scaleForget": "Forget scale",
+  "scaleConnected": "Connected",
+  "scaleConnecting": "Connecting…",
+  "scaleDisconnected": "Disconnected",
+  "scaleFailed": "Couldn't connect. Is it on and free?",
+  "scaleBluetoothOff": "Turn Bluetooth on to use the scale.",
+  "scaleDenied": "HolyBeans needs the nearby devices permission to use the scale.",
+  "scaleBattery": "Battery {percent} %",
+  "scaleTare": "Tare",
+  "scaleRecording": "Recording the weight",
+  "scaleCurveRecorded": "Weight curve recorded: {seconds} s",
+  "weightCurveSummary": "{seconds} s, {grams} g on the scale",
+  "scaleOnScale": "On the scale: {grams} g",
+  "pourRemaining": "{grams} g to go",
+  "pourOver": "{grams} g over",
+  "pourScaleHint": "When you start, the scale zeroes and starts its timer.",
+  "bqImport": "Import from BeanConqueror",
+  "bqHowTo": "In BeanConqueror, go to Settings → “Full export to directory” and pick that folder here: it brings the curves and photos too.",
+  "bqNotAnExport": "That file is not a BeanConqueror export.",
+  "bqIntro": "This is what will be added to your journal. Anything imported before is skipped, leaving your changes here alone, and fields HolyBeans does not use are kept with each record.",
+  "bqCoffees": "{count, plural, =1{1 bean} other{{count} beans}}",
+  "bqBrews": "{count, plural, =1{1 brew} other{{count} brews}}",
+  "bqMethods": "{count, plural, =1{1 method} other{{count} methods}}",
+  "bqGrinders": "{count, plural, =1{1 grinder} other{{count} grinders}}",
+  "bqWaters": "{count, plural, =1{1 water profile} other{{count} water profiles}}",
+  "bqReused": "{count, plural, =1{1 method, grinder or water already existed under that name and is reused.} other{{count} methods, grinders or waters already existed under those names and are reused.}}",
+  "bqFrozen": "{count, plural, =1{1 bag goes into the freezer with what is left in it.} other{{count} bags go into the freezer with what is left in them.}}",
+  "bqArchived": "{count, plural, =1{1 finished bean comes in archived, with its brews.} other{{count} finished beans come in archived, with their brews.}}",
+  "bqSkipped": "{count, plural, =1{1 record imported before is skipped.} other{{count} records imported before are skipped.}}",
+  "bqNoBean": "{count, plural, =1{1 brew without its bean is not imported.} other{{count} brews without their bean are not imported.}}",
+  "bqNoDate": "{count, plural, =1{1 record has no date: a brew is skipped, a bean gets today's.} other{{count} records have no date: brews are skipped and beans get today's.}}",
+  "bqPhotos": "Photos: {found} of {total}",
+  "bqNothingNew": "Nothing new to import: everything was imported before.",
+  "bqImportAction": "Import",
+  "bqImporting": "Importing…",
+  "bqImported": "Imported {coffees} beans and {brews} brews",
+  "bqImportFailed": "The import failed; your journal is unchanged.",
+  "bqPhotosAdded": "{count, plural, =1{1 photo added} other{{count} photos added}}",
+  "bqCurves": "Curves: {found} of {total}",
+  "bqFilesHint": "The file picked carries no photos or curves. To bring them, import by picking the export folder, or add here a ZIP of that folder or loose files, a few at a time. Anything missing is left out.",
+  "bqPickFiles": "Pick files",
+  "bqUpdates": "{count, plural, =1{1 record imported before gets its photos or curve if it has none here.} other{{count} records imported before get their photos or curve if they have none here.}}",
+  "bqCurvesAdded": "{count, plural, =1{1 curve added} other{{count} curves added}}",
+  "bqPhotosHint": "The file picked carries no photos. To bring them, import by picking the export folder, or add here a ZIP of that folder or the loose photos. Any missing are left out.",
+  "bqChanged": "{count, plural, =1{1 record changed in BeanConqueror is updated here (stock stays as it is).} other{{count} records changed in BeanConqueror are updated here (stock stays as it is).}}",
+  "bqConflicts": "{count, plural, =1{1 record changed both here and in BeanConqueror: HolyBeans' version stays.} other{{count} records changed both here and in BeanConqueror: HolyBeans' version stays.}}",
+  "bqUpdatedCount": "{count, plural, =1{1 updated} other{{count} updated}}",
+  "sortAscending": "Ascending",
+  "sortDescending": "Descending",
+  "sortBrews": "Sort by date",
+  "archiveBeanForLowStock": "There are {remaining} left, less than your average {dose} dose with {method}. Would you like to archive this coffee and its brews?",
+  "@archiveBeanForLowStock": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      },
+      "dose": {
+        "type": "String"
+      },
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteBean": "Delete coffee",
+  "deleteBeanTitle": "Delete coffee?",
+  "deleteBeanDescription": "“{name}”, its bags, frozen portions and photos will be deleted. This cannot be undone.",
+  "beanDeleted": "Coffee deleted",
+  "deleteBeanHasBrews": "This coffee has brews and cannot be deleted.",
+  "deleteBeanFailed": "Could not delete the coffee",
+  "deleteBrew": "Delete brew",
+  "deleteBrewTitle": "Delete brew?",
+  "deleteBrewDescription": "The brew, its curve and its photos will be deleted. This cannot be undone.",
+  "deleteBrewGivesBack": "Its {grams} go back to the coffee.",
+  "brewDeleted": "Brew deleted",
+  "deleteBrewFailed": "Could not delete the brew",
+  "@deleteBeanDescription": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bloomCount": "Blooms",
+  "poursUnrecorded": "Not recorded",
+  "pourCountHint": "Blooms are counted separately from pours.",
+  "pourDetails": "Bloom and pour details",
+  "pourNumber": "Pour {number}",
+  "pourWaterGrams": "Water added (g)",
+  "pourDurationSeconds": "Pouring time (s)",
+  "bloomRestSeconds": "Bloom rest (s)",
+  "pourWaterValue": "{grams} g",
+  "pourDurationValue": "Pouring: {seconds} s",
+  "bloomRestValue": "Rest: {seconds} s",
+  "@bloomNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "@pourNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "@pourDurationValue": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "@bloomRestValue": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "@pourWaterValue": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "pourDetailsInvalid": "Check the water and times in the pour details.",
+  "noTools": "No accessories yet. Add one and choose the methods it works with.",
+  "toolCompatibleMethods": "Compatible methods",
+  "toolCompatibleMethodsHint": "Choose one or more methods, or associate them later.",
+  "toolNoMethods": "No methods associated",
+  "reuseToolHint": "Select a suggestion to reuse an existing accessory.",
+  "toolReusedHint": "This accessory is shared. Changes apply to all its methods.",
+  "detachTool": "Remove from this method",
+  "archiveSharedTool": "Archive in the catalog",
+  "mergeTools": "Merge accessories",
+  "mergeToolTarget": "Accessory to keep",
+  "mergeToolsHint": "Merge “{name}” into the selected accessory. Its name will be kept, and methods and brew counts will be combined. This cannot be undone.",
+  "toolsMerged": "Accessories merged",
+  "@mergeToolsHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "restoreKeepsCurrent": "Before restoring, HolyBeans keeps your current journal among the automatic copies, in case you want to go back.",
+  "autoBackups": "Automatic copies on this phone",
+  "autoBackupsTitle": "Automatic copies",
+  "autoBackupsLast": "Latest: {when}",
+  "@autoBackupsLast": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "autoBackupsNone": "None yet: the first is saved when you leave the app.",
+  "autoBackupsExplain": "When you leave the app, HolyBeans saves a copy of your journal if it has changed, at most once a day. It keeps the {count} most recent.",
+  "@autoBackupsExplain": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "autoBackupsLimits": "They live inside the app: they hold no photos (restoring keeps the ones still on the phone) and are deleted if you uninstall HolyBeans. For copies outside it, use the daily copy folder.",
+  "autoBackupsEmpty": "No automatic copies yet.",
+  "autoBackupLatest": "Most recent",
+  "backupFolder": "Daily copy folder",
+  "backupFolderNone": "Choose a folder on your phone and, each day your journal changes, we'll remind you to save a full copy there, photos included. They stay even if you uninstall the app.",
+  "backupFolderLast": "{folder}. Last copy: {when}",
+  "@backupFolderLast": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "backupFolderNoCopy": "{folder}, no copies yet",
+  "@backupFolderNoCopy": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "backupFolderLost": "The folder can't be reached: choose it again.",
+  "backupFolderKept": "The {count} most recent daily copies are kept. Other files in the folder are never touched.",
+  "@backupFolderKept": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupFolderSaveNow": "Save a copy now",
+  "backupFolderChange": "Change folder",
+  "backupFolderForget": "Stop using this folder",
+  "backupFolderForgetHint": "Copies already saved stay in the folder.",
+  "backupFolderSaved": "Copy saved in {folder}",
+  "@backupFolderSaved": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "backupFolderFailed": "Couldn't save the copy in the folder",
+  "folderReminderTitle": "Save today's copy",
+  "folderReminderBody": "Your journal has changed since the last copy in {folder}.",
+  "@folderReminderBody": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "folderReminderLostTitle": "Can't save to your copy folder",
+  "folderReminderLostBody": "It may have been deleted or moved. Choose again where to save your copies.",
+  "saveCopy": "Save copy",
+  "chooseFolder": "Choose folder",
+  "brewParameters": "Brew parameters",
+  "brewParametersHint": "Choose what shows in the form, the details and the history, and what is shared.",
+  "brewParametersHiddenNote": "Hiding a parameter keeps its data: imports, the machine, the scale and Repeat still fill it in.",
+  "parameterShow": "Show",
+  "parameterShare": "Share",
+  "parameterAlwaysShown": "Always shown",
+  "parameterKeepOneShared": "At least one field must remain selected for sharing.",
+  "parameterGroupCoffee": "Coffee",
+  "parameterGroupRecipe": "Recipe",
+  "parameterGroupEquipment": "Equipment",
+  "parameterGroupTiming": "Timing",
+  "parameterGroupPours": "Blooms and pours",
+  "parameterGroupResult": "Result",
+  "photos": "Photos",
+  "hiddenDataCount": "{count, plural, =1{1 hidden value} other{{count} hidden values}}",
+  "@hiddenDataCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "showHiddenData": "Show",
+  "hideHiddenData": "Hide",
+  "shareFieldsSettingsHint": "They apply to every brew; also in Settings → Brew parameters.",
+  "sensorSection": "Bluetooth pressure sensor",
+  "sensorHint": "Connect a BOOKOO Espresso Monitor to see the espresso pressure while you brew, save its peak and add it to the scale's curve. HolyBeans only starts and stops transmission: it never zeroes it or changes its settings. Support is being tested.",
+  "sensorFind": "Find sensor",
+  "sensorSearching": "Searching for sensors…",
+  "sensorNoneFound": "None found. Switch it on and check it is not connected to another phone.",
+  "sensorForget": "Forget sensor",
+  "sensorConnected": "Connected",
+  "sensorConnecting": "Connecting…",
+  "sensorDisconnected": "Disconnected",
+  "sensorFailed": "Couldn't connect. Is it on and free?",
+  "sensorBluetoothOff": "Turn on Bluetooth to use the sensor.",
+  "sensorDenied": "HolyBeans needs the nearby devices permission to use the sensor.",
+  "sensorBar": "{bar} bar",
+  "@sensorBar": {
+    "placeholders": {
+      "bar": {
+        "type": "String"
+      }
+    }
+  },
+  "sensorRecording": "Recording the pressure",
+  "sensorPeak": "Peak: {bar} bar",
+  "toastScaleConnected": "Scale connected",
+  "toastScaleDisconnected": "Scale disconnected",
+  "toastSensorConnected": "Pressure sensor connected",
+  "toastSensorDisconnected": "Pressure sensor disconnected",
+  "toastRefractometerConnected": "Refractometer connected",
+  "toastRefractometerDisconnected": "Refractometer disconnected",
+  "refractometerSection": "Bluetooth refractometer",
+  "refractometerHint": "Connect a DiFluid R2 to measure the TDS while you brew: the button next to the TDS asks it to measure, and readings taken with its own button are noted too. HolyBeans only asks it to measure: it never changes its settings or calibrates it. Support is being tested.",
+  "refractometerFind": "Find refractometer",
+  "refractometerSearching": "Looking for refractometers…",
+  "refractometerForget": "Forget refractometer",
+  "refractometerBluetoothOff": "Turn Bluetooth on to use the refractometer.",
+  "refractometerDenied": "HolyBeans needs the nearby devices permission to use the refractometer.",
+  "refractometerTds": "TDS {tds} %",
+  "@refractometerTds": {
+    "placeholders": {
+      "tds": {
+        "type": "String"
+      }
+    }
+  },
+  "refractometerMeasure": "Measure with the refractometer",
+  "refractometerMeasuring": "Measuring…",
+  "refractometerFailed": "Couldn't measure. Is there a sample on the prism?",
+  "refractometerBelowZero": "Read {tds} %, below zero (water or an empty prism): not noted.",
+  "@sensorPeak": {
+    "placeholders": {
+      "bar": {
+        "type": "String"
+      }
+    }
+  },
+  "scaleUseWeight": "Use the scale's weight ({grams} g)",
+  "@scaleUseWeight": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "scaleUseWeightOff": "Use the scale's weight (not connected)",
+  "scaleWaitDrip": "Wait for drip",
+  "scaleWaitDripHint": "Tares and starts with the first drop",
+  "scaleWaitingDrip": "Waiting for the first drop…",
+  "espressoMap": "Espresso map",
+  "openEspressoMap": "View espresso map",
+  "espressoRistretto": "Ristretto",
+  "espressoNormale": "Normale",
+  "espressoLungo": "Lungo",
+  "espressoStyleByRatio": "Suggested style for ratio {ratio}: {style}",
+  "@espressoStyleByRatio": {
+    "placeholders": {
+      "style": {
+        "type": "String"
+      },
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "espressoWithin": "Within {style}",
+  "@espressoWithin": {
+    "placeholders": {
+      "style": {
+        "type": "String"
+      }
+    }
+  },
+  "espressoEyLow": "Low extraction",
+  "espressoEyHigh": "High extraction",
+  "espressoEyWithin": "Extraction in range",
+  "espressoTdsLow": "Low TDS",
+  "espressoTdsHigh": "High TDS",
+  "espressoTdsWithin": "TDS in range",
+  "espressoOffChart": "Off the chart",
+  "favoriteRecipe": "Favourite recipe",
+  "markFavoriteRecipe": "Mark as favourite recipe",
+  "unmarkFavoriteRecipe": "Remove favourite recipe",
+  "favoriteRecipeSet": "Your favourite {method} recipe for this coffee: new brews start from it",
+  "favoriteRecipeRemoved": "No longer your favourite recipe",
+  "methodMemoryFavorite": "Values from your favourite {method} recipe",
+  "dialInFavoriteTitle": "Your favourite recipe with this coffee",
+  "dialInLatestNote": "Last time: {result}",
+  "dialInLatestRatedNote": "Last rated brew: {result}",
+  "favoriteRecipeNote": "Favourite recipe: new {method} brews of this coffee start from it",
+  "bqFilesIncluded": "The export brings every curve and photo needed.",
+  "preMigrationTitle": "Before updating the app",
+  "preMigrationExplain": "When an update changes how your data is stored, HolyBeans first keeps your journal as it was. The {count} most recent are kept. Restoring one brings it up to date with this version.",
+  "bqSourceFolder": "Export folder",
+  "bqSourceFolderHint": "The one “Full export to directory” creates. It brings the curves and photos too.",
+  "bqSourceFile": "A file",
+  "bqSourceFileHint": "Its Beanconqueror.zip, or a ZIP of the whole folder.",
+  "bqFolderNoExport": "There is no Beanconqueror.zip in that folder. Pick the “Full export to directory” folder.",
+  "bqReadingExport": "Reading the export…",
+  "bqReadingAllCurves": "Reading curves…",
+  "bqSavingImport": "Saving to your journal…",
+  "bqPreparingPhotos": "Preparing photos: {done} of {total}",
+  "bqReadingCurves": "Reading curves: {done} of {total}",
+  "poursFromCurve": "Filled in from the scale curve.",
+  "undo": "Undo",
+  "curveShowsPours": "The curve shows {blooms, plural, =1{1 bloom} other{{blooms} blooms}} and {pours, plural, =1{1 pour} other{{pours} pours}}.",
+  "poursFromCurvesTitle": "Blooms and pours from curves",
+  "poursFromCurvesHint": "Fills the filter brews with a scale curve that do not have them yet.",
+  "poursFromCurvesNone": "No filter brews with a curve and no blooms or pours.",
+  "poursFromCurvesConfirm": "{count, plural, =1{The blooms and pours of 1 brew will be filled from its curve} other{The blooms and pours of {count} brews will be filled from their curves}}. Brews that already have them, or where you wrote something, are left alone.",
+  "poursFromCurvesFill": "Fill",
+  "poursFromCurvesDone": "{count, plural, =1{1 brew filled} other{{count} brews filled}}",
+  "pourFlowValue": "{flow} g/s",
+  "pourFlowHint": "Flow: {flow} g/s",
+  "shareBeanCard": "Share card",
+  "shareBeanTitle": "{name} card",
+  "shareBeanHint": "Whoever opens it with HolyBeans gets this coffee ready to save, with the bag's weight and price. Your notes, rating and brews stay with you.",
+  "shareBeanFile": "Send file",
+  "shareBeanQrImage": "Send the QR as an image",
+  "shareBeanQrCaption": "Scan it with HolyBeans",
+  "importScanQr": "Scan a QR code",
+  "importPaste": "Paste from the clipboard",
+  "importOpenFile": "Open a file",
+  "importCopyAi": "Copy instructions for an AI",
+  "aiInstructionsCopied": "Instructions copied. Paste them into ChatGPT or another AI with the links to your coffees, then share its answer with HolyBeans.",
+  "beanAiInstructions": "Prepare coffee cards for HolyBeans from the links and details I provide below. Return one valid JSON object, without Markdown or text before or after it, with one entry in beans per coffee. Keep format and version exactly as shown here:\n\n{example}\n\nSources and unknown details:\n- Read each coffee's page. Use only information explicitly stated on that page or in the bag details I provide. If you cannot access a page, do not invent its contents.\n- The example shows the structure: its names, numbers, dates and other values are fictional. Do not copy them as real data.\n- name must identify the coffee. If you cannot identify it, omit that entry. Omit any other unknown field; do not fill it with assumptions, empty strings or the word \"unknown\".\n- Preserve product names and varieties. flavorNotes is a list of the roaster's tasting notes, not an invented review. shopUrl is the link to that coffee.\n- Write the data in English: countries, processes and tasting notes (for example Ethiopia, washed, peach), even if the page is in another language. Keep the names of the coffee, roaster, region, farm, producer and varieties as the source gives them.\n\nRoast and dates:\n- roastLevel only accepts dark, medium, omni, light or ultra_light, and only when the source states the roast level. An espresso or filter recommendation does not establish the roast level.\n- Include decaf only when the source explicitly states whether the coffee is decaffeinated.\n- roastDate must be an explicit, complete and valid roast date in YYYY-MM-DD format. Do not use today's date, a publication, purchase, expiry or harvest date. If it only says \"freshly roasted\", the year is missing or the date is ambiguous, omit the field.\n- harvest is the harvest stated by the source, not the roast date. Do not add opening dates or freshness calculations.\n\nBag, price and origin:\n- price is the total price of one bag in euros, as a number with a decimal point and no currency symbol. Do not use a price per kilogram or convert another currency yourself.\n- bagGrams is the weight of that same bag in grams, as a number without units. If there are several variants and I have not specified one, omit price and bagGrams rather than choosing one. Do not combine one size's price with another's weight.\n- In origins, use one entry for a single origin and one per known component of a blend, without inventing percentages or assigning details to unspecified components.\n- For a single altitude, use altitudeMeters. For a range, use altitudeMeters for the minimum and altitudeMaxMeters for the maximum, both whole numbers in metres without units. Omit the maximum if unknown; do not copy the example's range.\n- Do not add fields outside the given structure or brewing recommendations.\n\nMy coffees and bag variants:\n",
+  "importInvalidJson": "This card could not be read. Check that you copied the complete JSON.",
+  "importDroppedTitle": "Some fields could not be read",
+  "importDroppedBody": "Not read: {fields}. Review and complete these fields before saving the coffee.",
+  "importReviewAction": "Review coffee",
+  "importNothing": "No named coffee was found in this card.",
+  "importNewer": "This card comes from a newer HolyBeans. Update the app to open it.",
+  "importAlreadyHave": "You already have {name}",
+  "importAlreadyHaveBody": "You can open yours or add it again as another coffee.",
+  "importOpenMine": "Open mine",
+  "importAddAnyway": "Add another",
+  "importReviewTitle": "Coffees to import",
+  "importSelected": "{count, plural, =1{Import 1 coffee} other{Import {count} coffees}}",
+  "importDone": "{count, plural, =1{1 coffee imported} other{{count} coffees imported}}",
+  "importDuplicate": "Already in your journal",
+  "importDropped": "Not read: {fields}",
+  "importNoRoaster": "No roaster",
+  "scanFailed": "Could not open the QR scanner.",
+  "importFailed": "Could not import the coffees.",
+  "importPasteHint": "Paste the card or the AI's answer here",
+  "importAction": "Import",
+  "deleteBrewGivesBackFrozen": "Its {grams} go back to frozen portion {label}.",
+  "@deleteBrewGivesBackFrozen": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "brewThawOnSave": "{grams} will be thawed when you save. If you cancel, they stay frozen.",
+  "@brewThawOnSave": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "brewFrozenNeedsDose": "Enter the dose to brew with the frozen portion.",
+  "beanAddOptions": "More ways to add a bean",
+  "loffeeSearchTitle": "Search Loffee Labs",
+  "loffeeSearchHint": "Choose a coffee to review its details before adding it.",
+  "loffeeQueryHint": "Name, roaster or origin",
+  "loffeeKeyTitle": "Loffee Labs key",
+  "loffeeKeyLabel": "Your API key",
+  "loffeeKeyHint": "Enter the key from your Loffee Labs account. It is stored securely on this device and is not included in journal backups. Get one at loffeelabs.com/developers.",
+  "loffeeKeySettingsHint": "Set or remove your key to search their coffee catalogue.",
+  "loffeeKeyStored": "You already have a saved key. Enter another to replace it.",
+  "loffeeShowKey": "Show key",
+  "loffeeHideKey": "Hide key",
+  "loffeeForgetKey": "Remove key",
+  "loffeeKeyInvalid": "Enter a key without spaces.",
+  "loffeeKeyFailed": "Could not access the saved key. You can set it again.",
+  "loffeeNeedsKey": "Add your Loffee Labs key to search.",
+  "loffeeAuthenticationFailed": "Loffee Labs did not accept this key. Check your account or set another key.",
+  "loffeeRateLimited": "You have reached a Loffee Labs limit. Wait before searching again; if your daily allowance is used up, wait for it to reset.",
+  "loffeeNetworkFailed": "Could not connect to Loffee Labs. Check your connection or try again later.",
+  "loffeeResponseFailed": "Could not read the Loffee Labs results. Try again later.",
+  "loffeeUnavailable": "Loffee Labs is unavailable right now. Try again later.",
+  "loffeeNoResults": "No results for this search in the catalogue available to your account.",
+  "loffeeCatalogHint": "The coffees and fields available depend on your Loffee Labs account. Afterwards, confirm your bag weight, dates and the price you paid.",
+  "loffeeAttribution": "Data from Loffee Labs",
+  "loffeeReview": "Review and add",
+  "loffeePrevious": "Previous page",
+  "loffeeNext": "Next page",
+  "loffeeRoastType": "Roaster’s recommended use",
+  "loffeeImportPhoto": "Add Loffee Labs photo",
+  "loffeePhotoFailed": "Could not add the catalogue photo. You can add your own or save without a photo.",
+  "loffeeHarvestNeedsReview": "Confirm the harvest on the shop’s product page.",
+  "loffeeRoastApproximation": "Approximate roast from Loffee: {degree}",
+  "@loffeeRoastApproximation": {
+    "placeholders": {
+      "degree": {
+        "type": "String"
+      }
+    }
+  },
+  "altitudeMax": "To (m)",
+  "altitudeMaxHint": "Optional, for ranges",
+  "invalidAltitudeRange": "Enter a starting altitude and an end value at least as high.",
+  "filterCurrentRatio": "Current ratio",
+  "filterTargetRatio": "Target ratio",
+  "filterWaterRemaining": "Water to pour",
+  "filterWaterOver": "Over target",
+  "waterCalculator": "Water calculator",
+  "waterGraph": "Chart",
+  "waterList": "List",
+  "waterBicarbonate": "Bicarbonate",
+  "waterSaltEpsom": "Magnesium sulfate (Epsom)",
+  "waterSaltMagnesiumChloride": "Magnesium chloride",
+  "waterSaltCalciumChloride": "Calcium chloride",
+  "waterSaltSodiumBicarbonate": "Sodium bicarbonate",
+  "waterSaltPotassiumBicarbonate": "Potassium bicarbonate",
+  "waterPresetBh": "Barista Hustle #4 (80/40)",
+  "waterPresetHendon": "Hendon, BH adaptation (100/31)",
+  "waterPresetRaoPerger": "Rao/Perger (Gagné 2018)",
+  "waterDistilled": "Distilled water",
+  "waterMineralBottle": "Enter water analysis",
+  "waterFinalLitres": "Final volume (L)",
+  "waterPresetMode": "Recipes and saved waters",
+  "waterCustomMode": "Doses for a target",
+  "waterQuantitiesMode": "Result of my doses",
+  "waterCalciumForm": "Calcium chloride form",
+  "waterCalciumAnhydrous": "Anhydrous (CaCl₂)",
+  "waterCalciumDihydrate": "Dihydrate (CaCl₂·2H₂O)",
+  "waterInitial": "Initial",
+  "waterTarget": "Target",
+  "waterResult": "Result",
+  "waterGhSource": "Hardness salt",
+  "waterKhSource": "Alkalinity salt",
+  "waterBottleData": "Label composition",
+  "waterUnknownHint": "Enter minerals in mg/L. An empty field remains unknown.",
+  "waterMissingBase": "Enter Ca and Mg, and bicarbonate; or enter known GH and alkalinity.",
+  "waterInvalidCalculation": "Check the numbers and volume to calculate the recipe.",
+  "waterDirectDose": "Salts to add",
+  "waterDirectHint": "Direct dosing for the stated final volume. Use food-grade salts in the specified form.",
+  "waterSaveResult": "Save as water profile",
+  "waterCalculatedMinerals": "Calculated minerals (mg/L)",
+  "waterCompositionDetail": "Compare composition",
+  "waterPotassiumAdded": "K added {value} mg/L",
+  "@waterPotassiumAdded": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "waterPotassiumTotalUnknown": "Total K is unknown because the starting water does not specify it.",
+  "waterExcessHint": "The starting water exceeds part of the target. Adding salts cannot reduce those values.",
+  "waterApproximationHint": "The result approximates the recipe. Check the differences: the same GH/KH can have a different composition.",
+  "waterUnknown": "Unknown",
+  "waterReferences": "Reference recipes",
+  "waterChartHint": "Tap a point to view the water. Both axes are in ppm as CaCO₃.",
+  "waterMissingCoordinates": "Some waters lack enough GH or KH data to appear on the chart.",
+  "waterUseInitial": "Use as starting water",
+  "waterRecipeOpen": "Open recipe",
+  "waterRecipeEditHint": "Changing the composition manually detaches the calculated recipe.",
+  "waterGhAxis": "GH (hardness)",
+  "waterKhAxis": "KH (alkalinity)",
+  "waterRecipeSource": "Recipe source",
+  "waterNoDose": "No salts are needed for the achievable targets.",
+  "waterSavedBase": "Choose a saved water",
+  "waterNoChartPoints": "Enter GH and KH to compare your waters.",
+  "discardChangesTitle": "Discard changes?",
+  "discardChangesMessage": "Unsaved changes and measurements will be lost.",
+  "keepEditing": "Keep editing",
+  "discardChanges": "Discard",
+  "compareBrewAction": "Compare",
+  "compareBrews": "Compare brews",
+  "chooseComparisonBrew": "Choose the second brew",
+  "comparisonSearch": "Search coffee or method",
+  "comparisonNoCandidates": "There is no other brew to compare.",
+  "comparisonDifference": "Change from A to B",
+  "comparisonMissing": "Not recorded",
+  "comparisonCurvesMissing": "This brew has no saved curve.",
+  "comparisonFlowUnits": "Flow uses different units and is shown separately.",
+  "comparisonCurveTime": "Time from the start of each brew; curve durations are not stretched.",
+  "comparisonCurveFailed": "Could not load curves. You can try again.",
+  "comparisonOtherMethod": "The methods differ; bear this in mind when comparing ratio and extraction.",
+  "cuppingTitle": "Cupping",
+  "cuppingStart": "Start cupping",
+  "cuppingSessions": "Cupping sessions",
+  "cuppingEmpty": "No cupping sessions yet.",
+  "cuppingDraft": "Draft, ready to resume",
+  "cuppingSaved": "Cupping saved",
+  "cuppingName": "Session name (optional)",
+  "cuppingCommon": "For all cups",
+  "cuppingCup": "Cup {number}",
+  "@cuppingCup": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "cuppingByCup": "By cup",
+  "cuppingMatrix": "Compare",
+  "cuppingAddCup": "Add cup",
+  "cuppingRemoveCup": "Remove cup",
+  "cuppingCommonGrinder": "Use shared grinder and setting",
+  "cuppingCommonWater": "Use shared water",
+  "cuppingSource": "Stock for this cup",
+  "cuppingFresh": "Unfrozen, {grams} g",
+  "@cuppingFresh": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "cuppingFrozen": "Frozen {label}, {grams} g",
+  "@cuppingFrozen": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "cuppingUnknownStock": "Untracked quantity",
+  "cuppingPour": "Start and pour water",
+  "cuppingInfusion": "Infusion",
+  "cuppingCrustDue": "Time to break the crust",
+  "cuppingCrustHint": "Break the crust and skim the foam at your chosen time. The clock continues from the first pour.",
+  "cuppingBroken": "Crust broken and foam skimmed",
+  "cuppingCooling": "Let it cool",
+  "cuppingTasteDue": "You can start tasting",
+  "cuppingTasteHint": "Time is a guide. Start below 65 °C and taste again as it cools.",
+  "cuppingTaste": "Start tasting",
+  "cuppingFinish": "Finish cupping",
+  "cuppingProgress": "{done} of {total} scores",
+  "@cuppingProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "cuppingScoresHint": "Overall rating from 0 to 10; the five intensities from 1 to 5. These are not SCA quality scores.",
+  "cuppingUnanswered": "Unanswered",
+  "cuppingNotEvaluated": "Not evaluated",
+  "cuppingPause": "Pause",
+  "cuppingResume": "Resume",
+  "cuppingResetClock": "Reset timer",
+  "cuppingEditTime": "Adjust time",
+  "cuppingCrustTime": "Break crust (mm:ss)",
+  "cuppingTasteTime": "Start tasting (mm:ss)",
+  "cuppingTimeError": "Enter a valid time",
+  "cuppingGuide": "Cupping guide",
+  "cuppingGuideText": "Personal adaptation for 2–6 cups. The SCA suggests 8.25 g per 150 ml of vessel capacity and water at 93 ± 3 °C. Our water suggestion uses this proportion: adjust it to your cup. Barista Hustle suggests breaking the crust at 5 minutes and tasting below 65 °C, around 10 minutes. Adjust the reminders for your bowls; use temperature to decide. You can pause or reset the timer, and it resumes when you return; beeps work while this screen is open and respect silent mode. Drafts do not consume coffee. Finishing saves each cup as a brew and consumes its dose.",
+  "cuppingSound": "Sound reminders",
+  "cuppingDiscard": "Delete draft",
+  "cuppingDiscardHint": "Delete this unfinished session? No stock has been consumed.",
+  "cuppingDeletedCup": "Brew deleted",
+  "cuppingStockError": "Not enough coffee for all cups. Check your stock; the draft is still saved.",
+  "cuppingSetupError": "Choose coffee and stock for every cup and check the quantities.",
+  "cuppingRecommendation": "SCA suggestion: {grams} g of water per cup; adjust to the vessel capacity.",
+  "@cuppingRecommendation": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "cuppingIntensityAcidity": "Acidity",
+  "cuppingIntensitySweetness": "Sweetness",
+  "cuppingIntensityBitterness": "Bitterness",
+  "cuppingIntensityBody": "Body",
+  "cuppingIntensityAftertaste": "Aftertaste",
+  "cuppingBackup": "Cupping sessions: {count}",
+  "@cuppingBackup": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diagnosticTitle": "HolyBeans DiFluid",
+  "diagnosticInstructions": "Turn on the scale and close other apps connected to it, including those on other phones. Search, connect your DiFluid and save or share the log even if it fails. If it is not recognised as a scale, find its name below and tap “Read services”.",
+  "diagnosticPrivacy": "The file includes the phone model and Android version, nearby Bluetooth names and identifiers, services, packets and errors. It stays on this phone until you share it.",
+  "diagnosticContext": "Scale model / firmware and what happens (optional)",
+  "diagnosticStopSearch": "Stop search",
+  "diagnosticSave": "Save log",
+  "diagnosticShare": "Share log",
+  "diagnosticSaved": "Log saved",
+  "diagnosticNearby": "Discovered devices",
+  "diagnosticNoDevices": "Tap search. You can export the log even if no device appears.",
+  "diagnosticUnnamed": "Unnamed",
+  "diagnosticInspect": "Read services",
+  "diagnosticLogCount": "{count} recorded events",
+  "diagnosticLogError": "The complete log could not be saved: {error}",
+  "@diagnosticLogCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@diagnosticLogError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "cuppingShare": "Share cupping",
+  "cuppingShareNotes": "Include notes",
+  "cuppingShareDark": "Dark background",
+  "cuppingShareProfile": "Cup profiles",
+  "cuppingShareIntensities": "Intensities / 5",
+  "cuppingShareLegend": "Overall rating 0–10 · Personal intensities 1–5",
+  "cuppingShareIndividualRecipe": "Recipe shown for each cup",
+  "cuppingShareCupCount": "Cupping session · {count} cups",
+  "@cuppingShareCupCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cuppingBlind": "Blind cupping",
+  "cuppingBlindHint": "Rate cups A–F without choosing coffees. Identify them after tasting.",
+  "cuppingBlindCup": "Cup {letter}",
+  "cuppingIdentify": "Identify coffees",
+  "cuppingRevealHint": "Confirm your ratings before choosing coffees. Scores and notes will be fixed; you can then assign each cup to a coffee in your journal.",
+  "cuppingIdentifyHint": "Assign a coffee from your journal and its stock to each letter. You can repeat coffees. Blind tasting scores are fixed; coffee is deducted when you finish.",
+  "cuppingReviewScores": "View ratings",
+  "@cuppingBlindCup": {
+    "placeholders": {
+      "letter": {
+        "type": "String"
+      }
+    }
+  },
+  "curveFlowMean": "Mean",
+  "curveFlowMedian": "Median",
+  "curveFlowWindow": "Time-weighted mean and median flow from first drip ({start} s) to the end of the curve ({end} s). If first drip was not recorded, it is estimated when the cup reaches 0.1 g.",
+  "@curveFlowWindow": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "curveFlowWindowMissing": "Not enough recorded output to calculate mean and median.",
+  "flavorNoteInputHint": "Add a note",
+  "flavorNoteSuggestions": "Suggestions",
+  "flavorNoteRemove": "Remove {note}",
+  "@flavorNoteRemove": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "flavorNoteStrawberry": "strawberry",
+  "flavorNoteRaspberry": "raspberry",
+  "flavorNoteBlackberry": "blackberry",
+  "flavorNoteBlueberry": "blueberry",
+  "flavorNoteBlackcurrant": "blackcurrant",
+  "flavorNoteRedcurrant": "redcurrant",
+  "flavorNoteCherry": "cherry",
+  "flavorNoteApple": "apple",
+  "flavorNotePear": "pear",
+  "flavorNotePeach": "peach",
+  "flavorNoteApricot": "apricot",
+  "flavorNoteNectarine": "nectarine",
+  "flavorNotePlum": "plum",
+  "flavorNoteGrape": "grape",
+  "flavorNoteRaisin": "raisin",
+  "flavorNotePrune": "prune",
+  "flavorNoteFig": "fig",
+  "flavorNoteDate": "date",
+  "flavorNotePomegranate": "pomegranate",
+  "flavorNoteOrange": "orange",
+  "flavorNoteMandarin": "mandarin",
+  "flavorNoteLemon": "lemon",
+  "flavorNoteLime": "lime",
+  "flavorNoteGrapefruit": "grapefruit",
+  "flavorNoteBergamot": "bergamot",
+  "flavorNoteCitrus": "citrus",
+  "flavorNoteMango": "mango",
+  "flavorNotePineapple": "pineapple",
+  "flavorNotePapaya": "papaya",
+  "flavorNotePassionFruit": "passion fruit",
+  "flavorNoteBanana": "banana",
+  "flavorNoteCoconut": "coconut",
+  "flavorNoteLychee": "lychee",
+  "flavorNoteGuava": "guava",
+  "flavorNoteFloral": "floral",
+  "flavorNoteJasmine": "jasmine",
+  "flavorNoteRose": "rose",
+  "flavorNoteChamomile": "chamomile",
+  "flavorNoteOrangeBlossom": "orange blossom",
+  "flavorNoteLavender": "lavender",
+  "flavorNoteHibiscus": "hibiscus",
+  "flavorNoteCaramel": "caramel",
+  "flavorNoteHoney": "honey",
+  "flavorNoteBrownSugar": "brown sugar",
+  "flavorNoteMolasses": "molasses",
+  "flavorNoteMapleSyrup": "maple syrup",
+  "flavorNoteVanilla": "vanilla",
+  "flavorNoteChocolate": "chocolate",
+  "flavorNoteDarkChocolate": "dark chocolate",
+  "flavorNoteMilkChocolate": "milk chocolate",
+  "flavorNoteCocoa": "cocoa",
+  "flavorNoteAlmond": "almond",
+  "flavorNoteHazelnut": "hazelnut",
+  "flavorNoteWalnut": "walnut",
+  "flavorNotePeanut": "peanut",
+  "flavorNoteNutty": "nutty",
+  "flavorNoteCinnamon": "cinnamon",
+  "flavorNoteClove": "clove",
+  "flavorNoteNutmeg": "nutmeg",
+  "flavorNoteAnise": "anise",
+  "flavorNotePepper": "pepper",
+  "flavorNoteBlackTea": "black tea",
+  "flavorNoteGreenTea": "green tea",
+  "flavorNoteHerbal": "herbal",
+  "flavorNoteWoody": "woody",
+  "flavorNoteTobacco": "tobacco",
+  "flavorNoteFermented": "fermented",
+  "flavorNoteWiney": "winey",
+  "flavorNoteSmoky": "smoky",
+  "compareShots": "Compare shots",
+  "comparisonAlignStart": "Start",
+  "comparisonAlignmentUnavailable": "To align by first drip, both shots need that time recorded within their curve.",
+  "comparisonTimeFromStart": "Time from start",
+  "comparisonTimeFromDrip": "Time from first drip",
+  "comparisonCursorHint": "Drag across a chart or use the slider to inspect both shots.",
+  "comparisonRecordedPeak": "Recorded pressure peak",
+  "comparisonFlowMean": "Mean flow",
+  "comparisonFlowMedian": "Median flow",
+  "comparisonFlowStatsHint": "Mean and median are weighted by time from first drip; if not recorded, it is estimated when output reaches 0.1 g.",
+  "comparisonRecipeTasting": "Recipe and tasting",
+  "comparisonBeverage": "Beverage weight",
+  "comparisonCombined": "Combined",
+  "comparisonSeparated": "Separate",
+  "comparisonPeakPressure": "Peak pressure",
+  "comparisonPeakFlow": "Peak flow",
+  "frozenSomeShort": "Part",
+  "frozenAllShort": "Frozen",
+  "frozenSomeHint": "Has frozen portions",
+  "frozenAllHint": "All remaining coffee is frozen",
+  "shareTemplates": "Share templates",
+  "shareTemplatesHint": "Your saved texts for espresso and filter",
+  "shareTemplateFields": "Field format",
+  "shareTemplateChoice": "Content format",
+  "shareTemplateNew": "New template",
+  "shareTemplateEdit": "Edit template",
+  "shareTemplateName": "Template name",
+  "shareTemplateBody": "Text with tags",
+  "shareTemplateTags": "Insert tag",
+  "shareTemplateCountryFlag": "Origin country flag",
+  "shareTemplateHelp": "Use <country_flag> <country> to add the flag beside the country. Blends show recognised flags without duplicates. Tap a tag to insert it at the cursor. Values include units: <time> → 0:28, <ratio> → 1:2 and <brew_temp> → 93 °C. Unrecorded values appear as —. In images and previews, use **bold**, *italic*, ~~strikethrough~~ and `monospace`; start a line with - for a list or > for a quote. To show a symbol literally, precede it with a backslash (\\). Text sharing keeps the original template.",
+  "shareTemplatePreview": "Preview",
+  "shareTemplateSample": "Preview with sample data",
+  "shareTemplateEmpty": "No templates. Sharing keeps the field format.",
+  "shareTemplateDefault": "Use by default",
+  "shareTemplateDefaultHint": "For brews of this type",
+  "shareTemplateSaved": "Template saved",
+  "shareTemplateFailed": "Could not save templates",
+  "shareTemplateLoadFailed": "Could not load templates",
+  "shareTemplateDelete": "Delete this template?",
+  "shareTemplateDeleteHint": "If it was the default, sharing will return to the field format.",
+  "shareTemplateInvalid": "Enter a name and text with valid tags.",
+  "shareTemplateUnknown": "Unknown tags: {tags}",
+  "@shareTemplateUnknown": {
+    "placeholders": {
+      "tags": {
+        "type": "String"
+      }
+    }
+  },
+  "shareTemplateSampleMissing": "The sample has no {tags}: a brew without them will show —.",
+  "shareTemplateMissing": "No data in this brew: {tags}. Shown as —.",
+  "@shareTemplateMissing": {
+    "placeholders": {
+      "tags": {
+        "type": "String"
+      }
+    }
+  },
+  "shareTemplateExampleEspresso": "My espresso with <coffee> took <time>, with a <ratio> ratio at <brew_temp>.",
+  "shareTemplateExampleFilter": "Today I brewed <coffee> with <method>: <dose> coffee and <water> water, a <ratio> ratio, in <time>.",
+  "shareTemplateSampleCoffee": "Sample coffee",
+  "shareTemplateSampleRoaster": "Sample roaster",
+  "shareTemplateSampleFarm": "Sample farm",
+  "shareTemplateSampleProducer": "Sample producer",
+  "shareTemplateSampleProcess": "Washed",
+  "shareTemplateSampleFlavor": "Cocoa, orange, panela",
+  "shareTemplateSampleGrinder": "Sample grinder",
+  "shareTemplateSampleProfile": "Sample profile",
+  "shareTemplateSampleWater": "Sample water",
+  "shareTemplateSampleNotes": "Sweet and clean",
+  "shareTemplateSampleBasket": "18 g basket",
+  "shareTemplateSamplePaper": "Paper filter",
+  "shareTemplateManage": "Manage templates",
+  "settingsPreparation": "Brewing and sharing",
+  "settingsDevices": "Devices",
+  "settingsTransfers": "Import and export",
+  "settingsMaintenance": "Journal maintenance",
+  "settingsGeneral": "General",
+  "shareIncludeCurve": "Include extraction curve",
+  "shareCurveHint": "Recorded pressure, flow and weight, where available",
+  "shareCurveUnavailable": "This brew has no recorded curve.",
+  "shareIncludeEspressoMap": "Include espresso extraction map",
+  "shareIncludeSensoryMap": "Include filter sensory map",
+  "shareMapUnavailable": "Requires recorded dose, beverage yield and TDS.",
+  "shareSensorySource": "Sensory map source: DOI 10.1111/1750-3841.16531",
+  "waterSummaryUnits": "ppm as CaCO₃",
+  "waterCompositionSummary": "Mineral composition in mg/L",
+  "waterSummaryTds": "TDS (ppm)",
+  "waterSummaryPh": "pH",
+  "waterSummaryMissing": "— Unknown",
+  "comparisonChanges": "What changed",
+  "comparisonRecipeEquipment": "Recipe and equipment",
+  "comparisonNoChanges": "No differences in the recorded visible parameters.",
+  "comparisonToolsRetry": "Could not compare accessories. Retry",
+  "shareTemplateExport": "Share template",
+  "shareTemplateImport": "Import template",
+  "shareTemplateImportReview": "Review template",
+  "shareTemplateImportHint": "Review the text and example before saving. A new copy will be added without changing your default template. It works for text and image sharing.",
+  "shareTemplateImportFailed": "Could not import the template. Check that it is a supported HolyBeans template file with valid tags.",
+  "shareTemplateExportFailed": "Could not share the template. Try again.",
+  "shareTemplatesTitle": "Templates",
+  "statsConsumptionPerPeriod": "{period, select, day{Daily consumption (g)} week{Weekly consumption (g)} other{Monthly consumption (g)}}",
+  "@statsConsumptionPerPeriod": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "statsConsumptionByGrinder": "Consumption by grinder",
+  "statsConsumptionHint": "Recorded doses; excludes purges and uses outside the journal. Percentages use the period’s recorded consumption, including pre-ground coffee and brews without a grinder.",
+  "statsDoseCoverage": "{known} of {total} brews with a recorded dose",
+  "@statsDoseCoverage": {
+    "placeholders": {
+      "known": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "statsNoDoses": "No recorded doses",
+  "statsNoGrinder": "No grinder recorded",
+  "waterPresetHoly": "Holy Water (StriveForTone)",
+  "waterPresetRaoLotus": "Rao (Lotus)",
+  "waterPresetGwo": "GWO without sea salt",
+  "waterPresetScaBh": "SCA, BH adaptation",
+  "waterPresetMelbourneBh": "Melbourne, BH adaptation",
+  "waterPresetBudapestBh": "WOC Budapest, BH adaptation",
+  "waterPresetRaoBh": "Classic Rao, BH adaptation",
+  "waterPresetGwoHint": "Adaptation of GWO’s recipe using Epsom salt and sodium bicarbonate. Omits the original sea salt; the composition is different.",
+  "waterPresetRaoLotusHint": "Rao’s composition published by Lotus, converted to grams of the available salts. Preserves each of the four minerals’ contributions to hardness and alkalinity.",
+  "waterPresetBhAdaptationHint": "Barista Hustle’s adaptation using Epsom salt and sodium bicarbonate. Matches its GH and KH targets, not necessarily every mineral in the reference water.",
+  "pourFollow": "Follow pour",
+  "pourFollowing": "Automatic following",
+  "pourNoReading": "No current weight: showing recipe targets only",
+  "pourWait": "Wait",
+  "pourBars": "Water per step",
+  "pourRecordedCurve": "Recorded curve",
+  "pourTimeComplete": "Planned pouring time reached",
+  "stockReviewTitle": "Review earlier consumption",
+  "stockReviewBody": "This brew was archived with a version that returned its dose to inventory. Your stock has been preserved. If you already corrected it, confirm the balance; otherwise deduct the dose now. Archiving or restoring no longer changes stock.",
+  "stockReviewRequired": "Review earlier consumption in this brew’s details before changing its dose, coffee or lot.",
+  "stockReviewKeep": "The balance is already correct",
+  "stockReviewDeduct": "Deduct the dose now",
+  "stockReviewFailed": "Could not adjust consumption. Check the dose and stock, including its frozen portion. Nothing was changed.",
+  "stockReviewConfirmKeep": "You will confirm that the current stock already accounts for this brew. Grams will stay unchanged. Deleting this brew later will return its dose to inventory.",
+  "stockReviewConfirmDeduct": "This brew’s dose will be deducted from inventory, respecting its frozen origin if recorded. Confirm only if you have not already corrected this consumption.",
+  "stockReviewConfirm": "Confirm consumption",
+  "cuppingCoffeeCount": "{count, plural, one {{count} coffee} other {{count} coffees}}",
+  "cuppingBlindShort": "blind",
+  "statsTotalStock": "Total stock",
+  "homeRecipeWhen": "{method}, {when}",
+  "homeYourCoffees": "Your coffees",
+  "homeSpendSoon": "Use them soon",
+  "homeReady": "Ready",
+  "homeResting": "Resting",
+  "homeRestingOthers": "Others resting",
+  "homeRestingSummary": "{count, plural, =1{1 coffee} other{{count} coffees}}; the first will be ready in {days, plural, =1{1 day} other{{days} days}}",
+  "homeUndated": "No roast date",
+  "homeUndatedSummary": "{count, plural, =1{1 coffee. Add its roast date to see its freshness.} other{{count} coffees. Add their roast date to see their freshness.}}",
+  "homeFirstBrew": "First brew",
+  "homeNotBrewedYet": "Not brewed yet",
+  "homeOldestFreeze": "oldest {span}",
+  "homeFrozenToday": "frozen today",
+  "historyClearFilter": "Clear filter",
+  "adjustBrew": "Adjust",
+  "adjustPrevious": "Starting recipe: {value}",
+  "adjustLess": "Lower {field}",
+  "adjustMore": "Raise {field}",
+  "adjustFullForm": "Full form",
+  "adjustFullFormHint": "Coffee, method, equipment and the rest of the recipe",
+  "statsChangeVsPrevious": "{change} vs previous period",
+  "statsBestShotsBand": "In green, the middle half of your shots rated 8 or more: {from} to {to} s.",
+  "statsRangeWeekShort": "7 d",
+  "statsRangeMonthShort": "30 d",
+  "statsRangeQuarterShort": "90 d",
+  "statsRangeYearShort": "1 yr",
+  "statsRangeAllShort": "All",
+  "comparisonColumnEmpty": "{letter} has nothing recorded here.",
+  "cuppingEntryHint": "Compare several coffees side by side",
+  "cuppingStartShort": "Start",
+  "grinderUsualSettings": "Usual setting: {settings}",
+  "waterCalculatorEntryHint": "Salts to reach a recipe from distilled or mineral water",
+  "parametersPresetAll": "Show everything",
+  "parametersPresetEssential": "Essentials only",
+  "parametersPresetsHint": "Shortcuts for what shows; what is shared does not change.",
+  "openBluetoothSettings": "Open Bluetooth settings",
+  "shortcutBrew": "New brew",
+  "@shortcutBrew": {
+    "description": "Launcher shortcut and widget button that starts a brew; also kept in Android resources."
+  },
+  "shortcutBrewLong": "New brew",
+  "shortcutRepeat": "Repeat last",
+  "shortcutRepeatLong": "Repeat the last brew",
+  "shortcutScan": "Scan coffee",
+  "shortcutScanLong": "Scan a coffee QR code",
+  "widgetLabel": "Last brew",
+  "widgetEmpty": "Open HolyBeans to fill this in",
+  "liveUpdateChannel": "Brew in progress",
+  "stockAdjustTitle": "Adjust stock",
+  "stockAdjustHistory": "Stock adjustments",
+  "stockAdjustReason": "Reason",
+  "stockAdjustGift": "Gift",
+  "stockAdjustWaste": "Waste",
+  "stockAdjustCorrection": "Weighed correction",
+  "stockAdjustSource": "Coffee source",
+  "stockAdjustFresh": "Unfrozen",
+  "stockAdjustAmount": "Amount removed (g)",
+  "stockAdjustMeasured": "Amount remaining (g)",
+  "stockAdjustHelp": "Gifts and waste reduce stock without counting as brewed coffee. A correction sets the remaining weight in the selected source.",
+  "stockAdjustInvalid": "Enter a valid amount.",
+  "stockAdjustInsufficient": "There is not enough coffee in the selected source.",
+  "stockAdjustUnknown": "First set the remaining amount with a weighed correction.",
+  "stockAdjustChanged": "Stock has changed and this adjustment cannot be applied. Check the remaining amount.",
+  "stockAdjustCapacity": "The amount exceeds what can remain in this portion.",
+  "stockAdjustArchived": "Unarchive the coffee before adjusting its stock.",
+  "stockAdjustUndoTitle": "Undo this adjustment?",
+  "stockAdjustUndoBody": "Only this movement will be reversed. Brews and other adjustments will be kept.",
+  "stockAdjustReversed": "Undone",
+  "stockAdjustSaved": "Stock updated",
+  "stockAdjustCurrent": "Now: {grams}",
+  "@stockAdjustCurrent": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "stockAdjustResult": "Remaining after saving: {grams}",
+  "@stockAdjustResult": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "yearReviewTitle": "Your coffee year in review",
+  "yearReviewEntry": "A look back at your coffees, your habits and your best brews.",
+  "yearReviewSeason": "Your year deserves another cup. Discover your {year} review.",
+  "@yearReviewSeason": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewYear": "Choose year",
+  "yearReviewUntil": "Through {date}",
+  "@yearReviewUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "yearReviewComplete": "January 1 – December 31",
+  "yearReviewIntro": "One year.\nSo many stories.",
+  "yearReviewBrews": "recorded brews",
+  "yearReviewBeans": "different coffees",
+  "yearReviewDays": "days with brews",
+  "yearReviewDose": "{grams} g of coffee across {known} of your {total} brews.",
+  "@yearReviewDose": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      },
+      "known": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewOrigins": "The world,\nin your cup.",
+  "yearReviewCountries": "different origins",
+  "yearReviewOriginCoverage": "Origin recorded for {known} of {total} coffees. A blend may include several countries.",
+  "@yearReviewOriginCoverage": {
+    "placeholders": {
+      "known": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewRoaster": "The people\nbehind the flavour.",
+  "yearReviewRoasterBody": "The roasters that appeared most often in your brews.",
+  "yearReviewMethod": "Your most\nfamiliar ritual.",
+  "yearReviewMethodBody": "Every method has its moment. These were yours.",
+  "yearReviewCountShare": "{count} brews · {percent}% of the year",
+  "@yearReviewCountShare": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "yearReviewReturn": "Always room\nfor one more.",
+  "yearReviewReturnBody": "The coffee you brewed most often.",
+  "yearReviewTied": "A shared first place.",
+  "yearReviewBest": "A cup\nto remember.",
+  "yearReviewBestBody": "One of your highest-rated brews, from {count} with a rating.",
+  "@yearReviewBestBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewBestTies": "{count} brews share this highest rating.",
+  "@yearReviewBestTies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewRhythm": "Your year had\nits own rhythm.",
+  "yearReviewMonth": "{month}: {count} different coffees.",
+  "@yearReviewMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewExplorer": "Your most adventurous month.",
+  "yearReviewExplorerTie": "One of your most adventurous months.",
+  "yearReviewChartHint": "Brews by month. Future months have no data yet.",
+  "yearReviewMonthCount": "{month}: {count} brews",
+  "@yearReviewMonthCount": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewFinal": "A whole year.\nEntirely yours.",
+  "yearReviewFinalBody": "Coffees you discovered. Rituals you returned to. A journal that keeps growing with you.",
+  "yearReviewBasis": "Based on your journal, including archived and imported brews. This is not a count of cups consumed.",
+  "yearReviewEmpty": "No brews recorded for this year yet. Your story begins with the first one.",
+  "yearReviewNext": "Next",
+  "yearReviewPrevious": "Previous",
+  "yearReviewAgain": "Back to the beginning",
+  "yearReviewProgress": "Story {current} of {total}",
+  "@yearReviewProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewShare": "Share my year",
+  "yearReviewShareHint": "Only this card will be shared, without photos, personal notes or spending.",
+  "yearReviewTopMethod": "My ritual",
+  "yearReviewTopCoffee": "The coffee I returned to",
+  "yearReviewBrand": "HolyBeans · Your coffee journal",
+  "yearReviewPhoto": "Photo of this brew",
+  "yearMoneyExpensiveCoffee": "Your biggest\ncoffee splurge.",
+  "yearMoneyCheapCoffee": "Your most\naffordable coffee.",
+  "yearMoneyExpensiveCup": "Your most\nexpensive cup.",
+  "yearMoneyCheapCup": "Your most\naffordable cup.",
+  "yearMoneySpending": "Your year,\nin euros.",
+  "yearMoneyPerKg": "per kilo of coffee purchased",
+  "yearMoneyPerCup": "of coffee in this brew",
+  "yearMoneyCoffeeBasis": "Among coffees purchased this year, compared by €/kg using the price paid and total recorded weight.",
+  "yearMoneyPurchaseCoverage": "Costs available for {known} of {total} coffees with purchases dated in this year. Unknown prices are excluded; a recorded €0 price counts.",
+  "@yearMoneyPurchaseCoverage": {
+    "placeholders": {
+      "known": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "yearMoneyDateFallback": "For {count} coffees without a purchase date, the roast date or, if missing, the date added is used. Their year and month allocation is approximate.",
+  "@yearMoneyDateFallback": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearMoneyTies": "There are {count} entries tied at the displayed precision. This is one of them.",
+  "@yearMoneyTies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearMoneyDose": "Recorded dose: {grams} g.",
+  "@yearMoneyDose": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "yearMoneyCupBasis": "Estimated coffee-only cost: dose × recorded average price per gram. Excludes water, milk, energy and equipment. Available for {known} of {total} brews this year.",
+  "@yearMoneyCupBasis": {
+    "placeholders": {
+      "known": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "yearMoneyAnnual": "in recorded coffee purchases this year",
+  "yearMoneyMonthly": "Month by month",
+  "yearMoneySpendingBasis": "Purchase spending, regardless of when you brewed the coffee. Amounts are allocated by purchased weight, using the same method as Stats. Months with no calculable amount show €0.",
+  "roasterProfilesTitle": "Roasters",
+  "roasterDirectoryHint": "Your history with each roaster: home coffees, including archived ones, and café drinks.",
+  "roasterSearch": "Search roasters",
+  "roasterClearSearch": "Clear search",
+  "roasterEmpty": "Add a roaster to a home coffee or a café drink to see its profile here.",
+  "roasterNoResults": "No roasters match that name.",
+  "roasterListSummary": "{coffees, plural, one{1 coffee} other{{coffees} coffees}}, {brews, plural, one{1 brew} other{{brews} brews}}",
+  "@roasterListSummary": {
+    "placeholders": {
+      "coffees": {
+        "type": "int"
+      },
+      "brews": {
+        "type": "int"
+      }
+    }
+  },
+  "roasterUnavailable": "There are no longer any coffees or drinks with this roaster name.",
+  "roasterHistoryHint": "Your history with this roaster. Café drinks are counted separately from your home coffees and brews.",
+  "roasterCoffeeCount": "Coffees recorded",
+  "roasterPreparedCoffees": "Coffees brewed",
+  "roasterPurchasedWeight": "Amount purchased",
+  "roasterTotalSpent": "Recorded spending",
+  "roasterCoffeeRating": "Coffee rating",
+  "roasterBrewRating": "Brew rating",
+  "roasterLatestPurchase": "Latest dated purchase",
+  "roasterCoverage": "Recorded for {known} of {total, plural, one{1 coffee} other{{total} coffees}}",
+  "@roasterCoverage": {
+    "placeholders": {
+      "known": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "roasterRatedCoffees": "{count, plural, one{1 rated coffee} other{{count} rated coffees}}",
+  "@roasterRatedCoffees": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "roasterRatedBrews": "{count, plural, one{1 rated brew} other{{count} rated brews}}",
+  "@roasterRatedBrews": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "roasterDataHint": "Spending adds the price recorded for each coffee; the amount is what you bought, brewed or not.",
+  "roasterOrigins": "Origins brewed",
+  "roasterNoOrigins": "No origins are recorded yet for the coffees you have brewed.",
+  "roasterOriginCoverage": "Origin recorded for {known} of {total, plural, one{1 coffee brewed} other{{total} coffees brewed}}",
+  "@roasterOriginCoverage": {
+    "placeholders": {
+      "known": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "roasterCoffees": "Your coffees",
+  "roasterCoffeesHint": "Active coffees first, followed by archived ones. Open a coffee to view its details.",
+  "freshnessGuideTitle": "Roast freshness guide",
+  "freshnessGuideNote": "Estimated days after roasting for a sealed bag, without freezing or a roaster’s recommended rest. These are not expiry dates: taste and storage conditions vary. Scroll the table to see every phase.",
+  "freshnessGuideFrom": "From {day}",
+  "curveFlowMaximum": "Max",
+  "curveFlowCurrent": "Now",
+  "pourModeTimed": "By time",
+  "pourModeManual": "At your pace",
+  "pourTimedHint": "Steps advance automatically at the times set in the recipe.",
+  "pourManualHint": "Tap when you start each bloom or pour. The interval is a reminder; you decide when to advance. The total timer keeps running.",
+  "pourManualSummary": "{count} pours of {grams} g. You choose when each step starts.",
+  "pourWhenReady": "When you’re ready",
+  "pourStartNext": "Start next pour",
+  "pourStartNextBloom": "Start next bloom",
+  "pourStartDrawdown": "Let it drain",
+  "pourManualCurveHint": "With a connected scale, the measured water curve appears here.",
+  "recipients": "Vessels",
+  "recipient": "Vessel",
+  "defaultRecipient": "Default vessel",
+  "addRecipient": "Add vessel",
+  "editRecipient": "Edit vessel",
+  "noRecipient": "Net weight, no vessel",
+  "recipientsEmpty": "Save your jugs and cups with their empty weight.",
+  "archiveRecipient": "Archive vessel",
+  "recipientTooHeavy": "Total weight must exceed the empty vessel weight.",
+  "brewTargetBeverage": "Target beverage",
+  "brewRatioDecrease": "Decrease ratio",
+  "brewRatioIncrease": "Increase ratio",
+  "chooseCoffeeToBrew": "Which coffee?",
+  "lastBrewedWhen": "brewed {when}",
+  "@lastBrewedWhen": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "notBrewedYet": "not brewed yet",
+  "homeWeekTile": "Last 7 days",
+  "archivedOn": "Archived {date}",
+  "@archivedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "hideArchivedEquipment": "Hide archived",
+  "statsActivityHint": "Always the last weeks, whatever the period chosen above.",
+  "yearReviewDoseAll": "{grams} g of coffee, with every brew’s dose recorded.",
+  "@yearReviewDoseAll": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "altitudeHeading": "Altitude",
+  "seeAllBrews": "{count, plural, one {See the brew} other {See all {count} brews}}",
+  "@seeAllBrews": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inFreezerFor": "{span} in the freezer",
+  "@inFreezerFor": {
+    "placeholders": {
+      "span": {
+        "type": "String"
+      }
+    }
+  },
+  "vesselEmptyWeight": "Empty: {grams}",
+  "@vesselEmptyWeight": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "roasterCoffeesTile": "Coffees",
+  "brewNeedsMethod": "Choose a method to save the brew.",
+  "deviceNotPaired": "Not paired",
+  "settingsAbout": "About",
+  "appVersionLabel": "Version",
+  "scaleTurnOnBluetooth": "Turn on",
+  "dialInNote": "Note",
+  "dialInNewestNote": "Last time's note",
+  "showMore": "Show more",
+  "showLess": "Show less",
+  "waterPlanTitle": "Water breakdown",
+  "waterPlanBloomRatio": "Ratio per bloom",
+  "waterPlanPhase": "Phase",
+  "waterPlanAdded": "Add",
+  "waterPlanCumulative": "Cumulative",
+  "waterPlanPour": "Pour {number}",
+  "waterPlanNeedsRecipe": "Enter dose, water, bloom count and at least one pour to calculate the breakdown.",
+  "waterPlanHint": "Each bloom uses the selected ratio; the rest is split into equal pours. If you use this breakdown and there is no curve, saving fills empty water amounts as planned, without estimating times or flow.",
+  "pourWaterFromPlan": "Water from breakdown",
+  "scaleStartFailed": "Could not start the scale. Check the connection and try starting again.",
+  "@waterPlanPour": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "sharePhotoCaption": "Photo and text",
+  "sharePhotoCaptionHint": "The text is attached to the image. You can review it in the receiving app before sending.",
+  "freezeSplit": "Divide into portions",
+  "freezePortionGrams": "Grams per portion",
+  "freezeInvalidDivision": "Enter a weight that fits in the total and makes 1 to 500 portions.",
+  "freezeDivision": "{count, plural, =1{Create 1 portion of {grams}.} other{Create {count} portions of {grams}.}}",
+  "@freezeDivision": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "freezeRemainder": "Also freeze the remaining {grams}",
+  "@freezeRemainder": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "freezeRemainderHint": "Save them as another portion. Uncheck to leave them unfrozen.",
+  "brewChooseFrozen": "This brew needs another {grams} of unfrozen coffee. Choose the portion you took them from. They will be deducted when saved.",
+  "@brewChooseFrozen": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "brewFrozenTooSmall": "No single portion covers this amount. Cancel and thaw the amounts used from the coffee details first, then save this brew again.",
+  "frozenBatchSaved": "Froze {count} portions. Their labels are shown in the coffee details.",
+  "@frozenBatchSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "beanShareTransfer": "HolyBeans card (file or QR)",
+  "beanShareFieldsHint": "Choose which details to share. Price, stock, rating and personal notes start unselected. These choices do not change your coffee.",
+  "beanSharePhotoRequired": "Choose a photo to share with the text.",
+  "waterMixture": "Mix calcium and magnesium",
+  "waterCalciumPercent": "GH supplied by calcium (%)",
+  "waterMagnesiumSource": "Magnesium salt",
+  "waterMixtureHint": "Magnesium supplies the remaining GH. The percentage refers to final hardness, not salt weight. Calcium is added as chloride, using the form selected below.",
+  "waterMixtureMissingBase": "Enter calcium and magnesium in the starting water to calculate these targets. GH alone does not tell us their proportions.",
+  "waterMixtureApproximation": "The starting water cannot reach this split at the target GH through additions alone. The mixture is approximated with GH taking priority; check final calcium and magnesium in the details.",
+  "waterStartingSection": "1. Water and volume",
+  "waterSaltsSection": "2. Available salts",
+  "waterModeSection": "3. What to calculate",
+  "waterAvailableSaltsHint": "Add the salts you have. Calculations only use the selected salts.",
+  "waterAddSalt": "Add salt",
+  "waterSavedSource": "Saved water",
+  "waterInitialComposition": "Starting composition",
+  "waterDistilledComposition": "KH 0 · Ca 0 · Mg 0. All other minerals are also treated as zero.",
+  "waterShowDerived": "Show GH and Ca/Mg ratio",
+  "waterDerivedGh": "Calculated GH (ppm as CaCO₃)",
+  "waterMassRatio": "Ca/Mg by mass",
+  "waterOtherIons": "Other minerals (optional)",
+  "waterOptionalTargets": "Blank: no target. Zero: try not to add that mineral.",
+  "waterNoSalts": "Add a salt to enter its dose.",
+  "waterIonTarget": "Calcium and magnesium",
+  "waterGhTarget": "GH and split",
+  "waterDesiredComposition": "Desired final composition",
+  "waterTargetPriorityHint": "KH, calcium and magnesium take priority. Other targets are approximated with the available salts; the result shows what is actually obtained.",
+  "waterMissingRecipeSalts": "Recipe salts are missing; the result is an adaptation",
+  "waterUseRecipeSalts": "Add this recipe’s salts",
+  "waterFinalComposition": "Calculated final composition",
+  "waterCompositionUnits": "KH and GH: ppm as CaCO₃. Minerals: mg/L. — means unknown or no target.",
+  "waterUnreachableTarget": "The target cannot be reached with these salts and starting water. Compare target and result values; adding salts cannot remove minerals.",
+  "bookooDiagnosticTitle": "HolyBeans BOOKOO",
+  "bookooDiagnosticInstructions": "Close HolyBeans and the BOOKOO app, including on other phones that may connect to the scale. Search and connect your Ultra. Keep this screen open and run an extraction using the scale controls. When it finishes and the time flashes, wait 10 seconds before saving or sharing the log. Note whether you removed the cup or pressed any buttons. This tool records Bluetooth; it does not reproduce the brew form or save coffees.",
+  "waterManualGh": "Manual GH (ppm as CaCO₃)",
+  "waterManualGhHint": "Optional: measured hardness or the value on the label. It takes priority; leave empty to use GH calculated from calcium and magnesium.",
+  "waterAlternatives": "Choose a salt combination",
+  "waterAlternativesHint": "Compare doses and choose an option. The composition and chart update below.",
+  "waterAutomaticHint": "The initial proposal keeps the reference recipe when possible; adjustments consider the targets and known ions. Alternatives reach the calcium, magnesium and alkalinity targets, but may change other ions.",
+  "waterAutomaticProposal": "Initial proposal",
+  "waterAlternative": "Alternative",
+  "waterReferenceTargets": "Reference recipes",
+  "waterMyTargets": "My waters",
+  "waterSavedTarget": "Saved target",
+  "waterMissingTarget": "The target water needs GH or calcium and magnesium, and KH or bicarbonate. Complete those values in its profile.",
+  "pressureAssistant": "Pressure assistant",
+  "pressureGuideChoose": "Choose a reference shot",
+  "pressureGuideTarget": "Reference",
+  "pressureGuideAhead": "In 2 s",
+  "pressureGuideActual": "Your pressure",
+  "pressureGuideInstructions": "Start the timer when extraction begins, just as in the original shot. Follow the pressure target using your lever or flow control. The guide does not control the machine.",
+  "pressureGuideManual": "No recent reading: follow the target using your machine’s pressure gauge.",
+  "pressureGuideMarkers": "Dashed line and circle: reference. Solid line and diamond: your pressure. Gaps indicate pauses or missing readings.",
+  "pressureGuideDifference": "Difference: {value} bar",
+  "pressureGuideComplete": "Reference finished",
+  "pressureGuideExit": "Leaving stops the journal timer. The machine remains under your control. Reset clears the current recording.",
+  "pressureGuideEmpty": "No shots with a usable pressure curve match this search. You can use curves recorded with a sensor or imported from a machine.",
+  "pressureGuideLoadError": "Could not load references.",
+  "@pressureGuideDifference": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "cafeTitle": "Cafés",
+  "cafeAddDrink": "Log a drink",
+  "cafeEditDrink": "Edit drink",
+  "cafeVenue": "Café",
+  "cafeCity": "City",
+  "cafeVenueCountry": "Café country",
+  "cafeOriginCountry": "Coffee origin",
+  "cafeDrinkType": "Drink or method",
+  "cafeCoffeeName": "Coffee name (if known)",
+  "cafePrice": "Price",
+  "cafeCurrency": "Currency (EUR, USD…)",
+  "cafeChooseVenue": "Find a café",
+  "cafeCatalogSource": "Catalog: Coffee & Translation · 23 Oct 2026. Municipality suggested using geoBoundaries and DGT (CAOP2025). City and country are editable.",
+  "cafeManual": "Enter manually",
+  "cafeEmpty": "Keep the coffees you drink out here, without changing your inventory.",
+  "cafeStatsHint": "Café drinks only. Your home brewing statistics stay separate.",
+  "cafeDrinksLabel": "Café drinks",
+  "cafeVenuesLabel": "Cafés visited",
+  "cafeAverageRating": "Average drink rating",
+  "cafeRequired": "Fill in this field",
+  "cafeInvalidNumber": "Enter a valid value",
+  "cafeDeleteTitle": "Delete this drink?",
+  "cafeDeleteMessage": "This drink and its photos will be removed. The café and roaster will be kept.",
+  "cafeLoadFailed": "Could not load cafés",
+  "cafeUnknownCoffee": "Unnamed coffee",
+  "cafeAddress": "Address",
+  "cafeSavedVenues": "Your cafés",
+  "cafeMapCatalog": "Map catalog",
+  "cafeDrinkSuggestions": "Espresso;V60;Flat white;Cappuccino;Batch brew;Cold brew",
+  "cafePriceTotal": "Recorded spending",
+  "cafeHistoryTitle": "Drinks",
+  "cafeShareTitle": "Share café drink",
+  "cafeShareFieldsHint": "Choose which details to share. Date, rating, price, notes and the photo start unselected. These choices do not change your drink.",
+  "cafeShareIncludePhoto": "Include photo",
+  "gaggimateName": "Gaggimate",
+  "gaggimateAddressHint": "e.g. gaggimate.local",
+  "gaggimateImportHint": "Choose a finished shot. HolyBeans reads its weight, time, profile and curve from Gaggimate; it does not control the machine or connect to its scale.",
+  "gaggimateConnectionFailed": "Could not connect to Gaggimate. Check its address and that it is on the same network.",
+  "gaggimateHistoryUnavailable": "History is unavailable. Check that Gaggimate has saved a shot and is not updating. Its firmware must support binary history over HTTP.",
+  "gaggimateInvalidData": "This recording is incomplete or uses an unsupported format. Wait for it to finish saving and try again.",
+  "gaggimateNoScaleWeight": "This recording has no valid scale weight. Enter the beverage weight manually.",
+  "waterTargetsShow": "Show targets",
+  "waterTargetsSaveFailed": "Could not remember this choice. You can still use the chart.",
+  "waterPlanBloomRatioValue": "Bloom ratio: 1:{ratio}",
+  "@waterPlanBloomRatioValue": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "driveLabTitle": "Drive laboratory",
+  "driveLabIntro": "Isolated Google Drive connection test. Uses generated test records only: it does not open your journal or photos. Choose the same test account on both devices.",
+  "driveLabConnect": "Connect with Google",
+  "driveLabInspect": "Check test data",
+  "driveLabPublish": "Upload a test record",
+  "driveLabWorking": "Waiting for Google Drive…",
+  "driveLabCancelled": "Authorization cancelled. You can connect again.",
+  "driveLabError": "The test did not complete ({code}). Pending records are retained. Check the connection and permissions, then retry.",
+  "driveLabConnected": "Drive connection and reading verified.",
+  "driveLabVerified": "Test record uploaded and verified by downloading it.",
+  "driveLabReport": "Records: {count} · Branches: {heads} · Time: {milliseconds} ms",
+  "driveLabPending": "A test record is pending. Upload will retry that same record.",
+  "driveLabDivergence": "There are multiple branches. All are retained; none have been merged or deleted.",
+  "@driveLabError": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "@driveLabReport": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "heads": {
+        "type": "int"
+      },
+      "milliseconds": {
+        "type": "int"
+      }
+    }
+  },
+  "driveSyncTitle": "Google Drive backup",
+  "driveSyncIntro": "Back up your journal and photos when you open the app or move it to the background if there are changes, or tap “Back up now”. You can keep using your journal during uploads, even offline. The latest five backups from each device are kept. Internal backups and the daily folder backup keep working. To recover another journal, choose a backup and restore it.",
+  "driveSyncDisabled": "Drive backups are off",
+  "driveSyncConnect": "Enable with Google",
+  "driveSyncChecking": "Preparing Drive backup…",
+  "driveSyncCurrent": "Backup saved to Drive",
+  "driveSyncPending": "Changes waiting to be backed up",
+  "driveSyncEditing": "Close the editing screen to receive changes",
+  "driveSyncChoice": "There is a journal in Drive: choose which one to continue",
+  "driveSyncConflict": "There are different versions. Both are preserved.",
+  "driveSyncUnavailable": "The Drive operation could not finish. You can keep using your journal.",
+  "driveSyncRetry": "Back up now",
+  "driveSyncDisable": "Turn off Drive backups",
+  "driveSyncKeepLocal": "Continue with this device",
+  "driveSyncUseRemote": "Restore this backup",
+  "driveSyncChooseWarning": "This backup will replace the entire journal on this phone. We will first save and verify a local safety copy. Your local settings, automatic backups and Drive history will be preserved.",
+  "driveSyncDisableWarning": "Backups will stop uploading to Drive. Your journal, internal backups and daily folder backup will keep working. Existing Drive backups are kept.",
+  "driveSyncConfirm": "Continue",
+  "driveSyncCancel": "Cancel",
+  "driveSyncReadOnly": "Drive: read-only until verified",
+  "driveSyncConnectFailed": "Could not connect to Google. Check the account and try again.",
+  "driveSyncExport": "Export this version",
+  "driveSyncThisDevice": "This device",
+  "driveSyncOtherDevice": "Another device",
+  "scaleLabTitle": "HolyBeans Scale Lab",
+  "scaleLabInstructions": "Scale Lab 9: experimental Timemore Dot, DiFluid and Acaia. Close HolyBeans and other apps using the scale, including on other phones. Search and connect your scale; accept Bluetooth pairing if Android asks. For Dot, first weigh the same object in the Timemore app, then close it before opening this lab. Add and remove the object for one minute and try tare, start, stop and reset using the buttons. If the weight is wrong or missing, describe it here and save the log even if connection fails. “Read services” only inspects the connection. Do not change scale settings for this test.",
+  "scaleLabTiming": "Received packets: {packets} · Decoded readings: {readings}",
+  "@scaleLabTiming": {
+    "placeholders": {
+      "packets": {
+        "type": "int"
+      },
+      "readings": {
+        "type": "int"
+      }
+    }
+  },
+  "scaleLabStalled": "Weight stalled",
+  "scaleLabBlinking": "Display blinking",
+  "scaleLabRecovered": "Working again",
+  "feederRpm": "Feeder RPM",
+  "adjustableFeederRpm": "Adjustable feeder RPM",
+  "adjustableFeederRpmHint": "Independent speed of the feed screw (feeder/auger).",
+  "measureBrix": "Measure in Brix",
+  "brix": "Brix (°Bx)",
+  "brixFactor": "Brix → TDS factor",
+  "estimatedTds": "Estimated TDS",
+  "brixHint": "TDS and EY are estimates. The 0.85 factor is approximate.",
+  "ratingSaveRetry": "Your rating is still here. Save again when Drive is available.",
+  "ratingSaveFailed": "Could not save your rating. Your changes are still here; please try again.",
+  "ratingSaving": "Saving rating…",
+  "ratingWaitingForDrive": "Waiting for restoration to finish…",
+  "releaseNotesTitle": "What’s new in this version",
+  "releaseNotesTimer": "The timer respects Stop and Reset when using an Acaia scale.",
+  "releaseNotesRating": "Rating a freshly saved brew is smoother, with clear messages if you need to wait.",
+  "releaseNotesPours": "Bloom and pour details are filled from the curve, respecting the counts you choose.",
+  "releaseNotesPrinters": "Experimental Niimbot printer support: labels with text, emojis and images. Text uses the free space around the logo.",
+  "releaseNotesBeansViews": "Group your coffees by roaster and explore the freshness calendar for your lots.",
+  "releaseNotesDriveBackups": "Drive now saves backups without blocking your journal. It no longer syncs changes between devices; restore a copy from Settings when needed.",
+  "releaseNotesProfiles": "The Profile field suggests names from your history, prioritizing the selected method.",
+  "releaseNotesCompactHeaders": "Beans and Brews headers take up less space. Search and access view, calendar, filters and sorting from a compact toolbar.",
+  "releaseNotesRegionalDates": "Dates and calendars follow your device region, even when the app uses a different language.",
+  "releaseNotesDone": "Got it",
+  "driveWriteChecking": "A journal backup is being restored. Wait for it to finish before saving.",
+  "driveWriteUnavailable": "Saving is unavailable because Drive could not be checked. Check your connection and tap “Check now” in Settings → Drive synchronization.",
+  "driveWriteChoice": "There are journal versions to review. Open Settings → Drive synchronization and choose which one to continue before saving.",
+  "driveWriteEditing": "Changes from another device are waiting to be received. Keep any information you need from this form, then close it to update the journal before trying again.",
+  "driveWriteDismiss": "Got it",
+  "releaseNotesWriteErrors": "Clearer messages when an action needs to wait, keeping what you have written.",
+  "releaseNotesWaterTimer": "Without a connected scale, start and read the timer alongside the water breakdown. Starting centers the table.",
+  "releaseNotesWaterTargets": "Bloom and pour labels are easier to read over the chart curves.",
+  "releaseNotesBrewOpening": "The form shows its fields together once loading finishes and hides the lot selector when there is only one.",
+  "listView": "List view",
+  "compactCards": "Compact cards",
+  "beansViewCoffees": "Coffees",
+  "beansViewRoasters": "Roasters",
+  "beansNoRoaster": "No roaster",
+  "beansGroupCount": "{count, plural, =1{1 coffee} other{{count} coffees}}",
+  "@beansGroupCount": {"placeholders": {"count": {"type": "int"}}},
+  "beansGroupPartialStock": "{weight} known · incomplete weight",
+  "@beansGroupPartialStock": {"placeholders": {"weight": {"type": "String"}}},
+  "freshnessCalendar": "Freshness calendar",
+  "freshnessCalendarForecast": "An estimated forecast of your current stock, by lot. It does not predict consumption, bag opening or thawing. Calendar numbers count lots with an estimate; colours show their states.",
+  "freshnessCalendarUnknown": "No estimate",
+  "freshnessCalendarFrozen": "Frozen · ageing paused",
+  "freshnessCalendarLotCount": "{count, plural, =1{1 lot} other{{count} lots}}",
+  "@freshnessCalendarLotCount": {"placeholders": {"count": {"type": "int"}}},
+  "freshnessCalendarToday": "Today",
+  "freshnessCalendarEmpty": "There is no stock to show.",
+  "freshnessCalendarNoDate": "No roast date",
+  "freshnessCalendarRoasted": "Roasted: {date}",
+  "@freshnessCalendarRoasted": {"placeholders": {"date": {"type": "String"}}},
+  "labelPrint": "Print label",
+  "labelTitle": "Coffee label",
+  "labelCoffee": "Coffee",
+  "labelFrozen": "Frozen portion",
+  "labelLot": "Lot",
+  "labelChooseLot": "Choose the lot to use its roast date.",
+  "labelChoosePortion": "Choose the portion you want to label.",
+  "labelNoPortions": "This coffee has no available frozen portions.",
+  "labelRoastDate": "Roast date",
+  "labelFreezeDate": "Freeze date",
+  "labelPortionWeight": "Original portion weight",
+  "labelPortionCode": "Portion code",
+  "labelPaper": "Paper size",
+  "labelPaperHint": "White labels with gaps. Check the roll size before printing.",
+  "labelTemplate": "Template",
+  "labelDefault": "Basic template",
+  "labelBody": "Label content",
+  "labelBodyHint": "Tap a field to insert it. Use **text** for bold.",
+  "labelTemplateSave": "Save template",
+  "labelTemplateDelete": "Delete template",
+  "labelTemplateSaved": "Template saved",
+  "labelTemplateName": "Template name",
+  "labelPreview": "Preview",
+  "labelOverflow": "The content does not fit at a readable size. Shorten the template or choose a longer label.",
+  "labelRotate": "Rotate 180°",
+  "labelCopies": "Copies",
+  "labelPrinterHint": "Turn the printer on and disconnect it from the Niimbot app before searching.",
+  "labelFindPrinter": "Find {model}",
+  "labelSearching": "Searching for printer…",
+  "labelNoneFound": "No nearby {model} was found.",
+  "labelConnect": "Connect",
+  "labelDisconnect": "Disconnect",
+  "labelForget": "Forget printer",
+  "labelDisconnected": "Printer disconnected",
+  "labelConnecting": "Connecting…",
+  "labelConnected": "Printer connected",
+  "labelConnectionFailed": "Could not connect. Check the selected model and firmware compatibility.",
+  "labelBluetoothOff": "Turn on Bluetooth to connect the printer.",
+  "labelBluetoothDenied": "Allow nearby device access to find the printer.",
+  "labelPrinting": "Printing…",
+  "labelPrinted": "The printer confirmed the job. Check the label.",
+  "labelPrintFailed": "Printing could not be confirmed. Check the paper, cover and battery. Check whether a label came out before reconnecting and printing again.",
+  "labelOutputSaveFailed": "Could not remember the printer and label size for next time.",
+  "labelSaveFailed": "Could not save the template.",
+  "labelOpenFailed": "Could not open the label.",
+  "labelExport": "Share image",
+  "labelExportFailed": "Could not share the label.",
+  "labelCoffeeBody": "**<coffee>**\n<roaster>\nRoasted <roast_date>",
+  "labelFrozenBody": "**<coffee>**\n<portion_label> · <portion_weight>\nFrozen <freeze_date>",
+  "labelNoDate": "No roast date",
+  "labelKind": "Label type",
+  "labelPrinterModel": "Printer model",
+  "labelImageChoose": "Choose image",
+  "labelImageRemove": "Remove image",
+  "labelImageHint": "The image and its settings are saved with the template. The preview shows the dots that will be printed.",
+  "labelImageFailed": "Could not load the image. Try another image or remove it to continue.",
+  "@labelFindPrinter": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      }
+    }
+  },
+  "@labelNoneFound": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      }
+    }
+  },
+  "labelModelTrial": "Experimental {model} support. Compatibility may vary by firmware; check the printed result.",
+  "@labelModelTrial": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      }
+    }
+  },
+  "labelB21Variants": "Supports original B21, L2B, C2B and B21S. The variant is identified on connection. B21 Pro is not supported.",
+  "labelB2Protocol": "B2 must report a compatible protocol on connection before printing is enabled.",
+  "testAppTitle": "HolyBeans Test",
+  "testAppNotice": "Separate test diary · No Drive",
+  "labelCopyDiagnostics": "Copy connection diagnostics",
+  "labelDiagnosticsCopied": "Diagnostics copied. Paste them when reporting the problem.",
+  "labelImagePosition": "Image position",
+  "labelImageAbove": "Top",
+  "labelImageLeft": "Left",
+  "labelImageRight": "Right",
+  "labelImageBelow": "Bottom",
+  "labelImageCenter": "Center",
+  "labelImageAlignment": "Image alignment",
+  "labelImageSize": "Image space",
+  "labelImageTreatment": "Image treatment",
+  "labelImageLogo": "Logo",
+  "labelImagePhoto": "Photo",
+  "labelImageLogoHint": "Solid blacks for logos and drawings. If an older image already has dots, choose the original again.",
+  "labelImagePhotoHint": "Black and white dots to represent the shades of gray in a photograph.",
+  "labelImageContrast": "Contrast",
+  "driveBackupLast": "Last completed backup: {date}",
+  "driveBackupBrowse": "Browse backups to restore",
+  "driveBackupLegacy": "Previous synchronization version",
+  "@driveBackupLast": {"placeholders": {"date": {"type": "String"}}},
+  "driveBackupRestoring": "Restoring journal backup…",
+  "driveBackupEmpty": "There are no saved backups in this account yet.",
+  "pistonTitle": "Piston condition",
+  "pistonEffort": "Piston effort",
+  "pistonRefresh": "Update history",
+  "pistonUpdated": "Last updated",
+  "pistonNeverUpdated": "History has not been downloaded yet.",
+  "pistonProgress": "Shots analysed in this update",
+  "pistonOffline": "Could not complete the update. Downloaded data is retained. Check that your Meticulous is on and connected to the same local network, then try again.",
+  "pistonPartial": "Partial history. Update to continue from the last completed batch.",
+  "pistonStart": "Read the shots stored on your Meticulous to see how piston effort changes over time. The first download may take a while; subsequent updates only look for new shots. The chart remains available offline.",
+  "pistonCurrent": "Current",
+  "pistonSpeed": "Speed",
+  "pistonAll": "All",
+  "pistonYear": "1 year",
+  "pistonDays": "days",
+  "pistonRecent": "Recent level",
+  "pistonChange": "Change",
+  "pistonTrend": "Trend / month",
+  "pistonReference60": "Reference: first readings within the last 60 measured days. No maintenance recorded.",
+  "pistonReferenceService": "Change and trend since the latest maintenance followed by readings.",
+  "pistonLastReading": "Latest reading",
+  "pistonUsable": "Shots with usable readings / analysed",
+  "pistonExplanation": "Motor current during post-shot retraction is an indirect indication of effort. The line shows a seven-day median and starts a new section at each maintenance event. Each shot needs at least five steady samples; some shots are excluded. A rise cannot distinguish between insufficient lubrication, scale or residue. Follow Meticulous maintenance recommendations.",
+  "pistonRecordService": "Record maintenance",
+  "pistonMaintenance": "Maintenance",
+  "pistonServiceType": "Type",
+  "pistonGrease": "Greasing",
+  "pistonDescale": "Descaling",
+  "pistonClean": "Cleaning",
+  "pistonNotes": "Notes (optional)",
+  "pistonDeleteService": "Delete maintenance",
+  "pistonDeleteConfirm": "This record will be removed and the chart recalculated. No command will be sent to the machine.",
+  "pistonSaveError": "Could not save the change. Please try again.",
+  "pistonNoRange": "No usable readings in this period.",
+  "pistonMedian": "7-day median",
+  "pistonMeasurements": "Shot readings",
+  "pistonCredits": "Chart inspired by ha-meticulous-cards, by Chris Borchert. Analysis adapted from ha-meticulous, by hessius and contributors. Both projects are MIT licensed.",
+  "pistonProjectUnavailable": "Could not open the project in your browser.",
+  "openSourceLicenses": "Open-source licences",
+  "releaseNotesPiston": "In Equipment → Meticulous, follow piston effort over time and record maintenance. The first analysis reads the machine’s history; later updates only download new shots and keep the chart available offline.",
+  "releaseNotesCredits": "Credits to the original projects on the piston screen, and open-source licences in Settings → About.",
+  "releaseNotesTransparentSharing": "Share coffees and brews as PNG images with a transparent background and choose light or dark text to place them over your photos.",
+  "releaseNotesD11Printers": "Niimbot D11 and D11-H added to the experimental printer catalog. A first D11-H print is confirmed; D11 still awaits physical testing.",
+  "releaseNotesEspressoRatios": "The espresso map suggests Ristretto, Normale or Lungo from the beverage-to-dose ratio, with clearer boundaries and rounding."
+}

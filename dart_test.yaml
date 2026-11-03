@@ -1,0 +1,3 @@
+tags:
+  slow:
+    description: Integration tests with real-time waits or substantial file I/O.

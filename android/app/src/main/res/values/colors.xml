@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Same as the app background, so starting up doesn't flash white. -->
+    <color name="splash_background">#EEEFEB</color>
+    <!-- Home screen widget: sheet, ink, grey and cherry of the app. -->
+    <color name="widget_sheet">#FFFFFF</color>
+    <color name="widget_ink">#221E1B</color>
+    <color name="widget_grey">#5F5B55</color>
+    <color name="widget_accent">#9E1F35</color>
+    <color name="widget_on_accent">#FFFFFF</color>
+    <color name="widget_tonal">#E2E3DE</color>
+</resources>

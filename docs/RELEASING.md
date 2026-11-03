@@ -1,0 +1,103 @@
+# Release automation
+
+## What runs when
+
+| Event | Result |
+| --- | --- |
+| Code PR, or push to `main` | Documentation/helper checks, formatting, analysis, complete Flutter suite and Android unit tests |
+| Documentation-only change | Lightweight checks; the required `CI result` reports that Flutter/Android were skipped |
+| Push to `main` with release automation enabled | Release Please updates one pending release PR |
+| Merge the reviewed release PR | Release Please creates a tag/release; the release workflow validates that exact code and builds its signed AAB |
+| Manual `Publish selected release to Play` run | Checks an existing bundle; uploads it only if `publish` is explicitly enabled |
+
+Ordinary commits do not create a release or publish to Play. Branch CI cancels
+superseded runs; release and Play jobs are serialized without cancellation.
+Actions and bundletool are pinned to immutable revisions or checksums.
+
+## One-time repository setup
+
+1. Require the `CI result` status on `main` and review changes to workflows.
+   Protect `v*` tags against updates/deletion and limit their creation to the
+   release automation and maintainers.
+2. Create a GitHub App installed **only on this repository**, with Contents,
+   Pull requests and Issues read/write permissions. Set repository variable
+   `RELEASE_APP_ID` and secret `RELEASE_APP_PRIVATE_KEY`. This token allows
+   Release Please's PRs and release events to trigger their CI jobs; the default
+   `GITHUB_TOKEN` would suppress these follow-up runs.
+3. Create environment `release-signing`, allowing reviewed `v*` release tags.
+   Add secrets `ANDROID_UPLOAD_KEYSTORE_BASE64`,
+   `ANDROID_UPLOAD_KEYSTORE_PASSWORD`, `ANDROID_UPLOAD_KEY_ALIAS`, and
+   `ANDROID_UPLOAD_KEY_PASSWORD`. Add environment variable
+   `ANDROID_UPLOAD_CERT_SHA256` from the existing Play upload certificate.
+4. Create environments `play-internal` and `play-production`, restricted to
+   `main`. Configure required reviewer approval for production. Add
+   `PLAY_SERVICE_ACCOUNT_JSON` in each environment with the appropriate
+   Google Play Console permissions. Never put this JSON in the repository.
+5. Set `RELEASE_AUTOMATION_ENABLED=true` only after these settings are reviewed.
+   CI itself does not require this switch or any secrets.
+
+The App cannot bypass branch protection. It proposes release metadata; the
+maintainer chooses when to merge. Release signing does not receive Play
+credentials, and PR tests receive neither key.
+
+Use English Conventional Commit messages and PR titles as described in
+[CONTRIBUTING.md](../CONTRIBUTING.md#commit-messages). When squash merging, review
+the final message that reaches `main`; that is what Release Please reads.
+
+## Prepare a release
+
+Release Please starts from **1.1.19**, with `pubspec.yaml` at **1.1.19+157**.
+Its Dart updater increments the numeric build suffix. Keep the proposed code
+higher than **every code already uploaded to Play**, including other tracks.
+Never reset the sequence because a repository or workflow is new.
+
+Before merging the release PR:
+
+- Review the version and changelog, and complete any device/real-data migration
+  checks required by the changes. Keep the private evidence outside GitHub.
+- Add `docs/releases/<version>.md` with concise, reviewed notes in this format
+  (each language at most 500 characters):
+
+  ```text
+  <es-ES>
+  Descripción de los cambios para quienes usan la app.
+  </es-ES>
+  <en-GB>
+  Description of the changes for people using the app.
+  </en-GB>
+  ```
+
+After merge, the release workflow runs the full suite on the release code,
+then builds one signed AAB. It checks the bundle's application ID, version,
+signature and expected certificate using bundletool, jarsigner and keytool.
+The release receives the AAB, `release.json`, and `play-notes.md`. Symbols are
+retained as a separate Actions artifact for 30 days; maintainers must archive
+symbols needed for long-term debugging before expiration.
+
+A failed build can leave a GitHub release without a bundle. Such a release
+cannot be sent by the manual publisher. Review the failure before retrying;
+asset uploads do not silently overwrite an existing bundle.
+
+## Send a selected release to Play
+
+Run `Publish selected release to Play` **from `main`**. Enter its tag and the
+AAB SHA-256 from the successful `Release bundle` summary. Choose `internal` or
+`production`. The default `publish=false` performs a dry run with no Play API
+requests. Enable it deliberately to submit the same verified bundle.
+
+The workflow verifies the tag's ancestry, bundle and notes hashes, selected
+pubspec version, and a successful release-build run for that exact commit.
+It executes publisher code from the reviewed default branch, never from an
+arbitrary input tag, and does not rebuild the app. A manual input never becomes
+an unquoted shell command.
+
+Submission does not mean Google has approved or made the release available.
+The publisher refuses to cancel an existing review and does not automatically
+retry an uncertain commit; inspect Play Console before a manual retry.
+
+## References
+
+- [Release Please action](https://github.com/googleapis/release-please-action)
+- [Dart version updater](https://github.com/googleapis/release-please/blob/main/src/updaters/dart/pubspec-yaml.ts)
+- [GitHub deployment environments](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)
+- [Google Play Developer API](https://developers.google.com/android-publisher/getting_started)

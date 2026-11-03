@@ -1,0 +1,13 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity android:name="com.caffeinateddev.holybeans.ShareReceiverActivity"
+            android:label="HB Share Test" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain"/>
+                <data android:mimeType="image/png"/>
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
