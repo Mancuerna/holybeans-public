@@ -13,7 +13,7 @@ permissions:
   contents: read
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name != 'release' }}
+  cancel-in-progress: ${{ github.event_name != 'release' && github.ref_type != 'tag' }}
 jobs:
   scope:
     runs-on: ubuntu-latest

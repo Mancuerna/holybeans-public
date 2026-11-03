@@ -2,6 +2,7 @@ name: Release bundle
 on:
   release:
     types: [published]
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
@@ -9,7 +10,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   validate:
-    if: vars.RELEASE_AUTOMATION_ENABLED == 'true' && !github.event.release.prerelease
+    if: vars.RELEASE_AUTOMATION_ENABLED == 'true' && github.ref_type == 'tag' && (github.event_name == 'workflow_dispatch' || !github.event.release.prerelease)
     uses: ./.github/workflows/ci.yml
     with:
       full: true
@@ -27,7 +28,7 @@ jobs:
           persist-credentials: false
       - name: Check release identity and notes
         env:
-          TAG: ${{ github.event.release.tag_name }}
+          TAG: ${{ github.event.release.tag_name || github.ref_name }}
         run: |
           python3 -c 'import os; from tool.ci.release_artifact import checked_tag; checked_tag(os.environ["TAG"])'
           git merge-base --is-ancestor HEAD origin/main
@@ -60,7 +61,7 @@ jobs:
           flutter build appbundle --release --obfuscate --split-debug-info=build/symbols
       - name: Verify and stage immutable release inputs
         env:
-          TAG: ${{ github.event.release.tag_name }}
+          TAG: ${{ github.event.release.tag_name || github.ref_name }}
           CERTIFICATE: ${{ vars.ANDROID_UPLOAD_CERT_SHA256 }}
         run: |
           curl --fail --location --silent --show-error 'https://github.com/google/bundletool/releases/download/1.18.1/bundletool-all-1.18.1.jar' -o "$RUNNER_TEMP/bundletool.jar"
@@ -74,7 +75,7 @@ jobs:
       - name: Attach verified AAB and publication metadata
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.event.release.tag_name }}
+          TAG: ${{ github.event.release.tag_name || github.ref_name }}
         run: gh release upload "$TAG" release-assets/*
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

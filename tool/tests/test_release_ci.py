@@ -110,10 +110,13 @@ class BuildEvidenceTests(unittest.TestCase):
         run = {'conclusion': 'success', 'event': 'release',
                'head_sha': 'a' * 40, 'path': '.github/workflows/release-build.yml'}
         with patch.dict('os.environ', {'GITHUB_REPOSITORY': 'example/app'}):
-            with patch('subprocess.check_output', return_value=json.dumps(run)):
-                check_run(metadata)
+            for event in ('release', 'workflow_dispatch'):
+                with self.subTest(event=event):
+                    with patch('subprocess.check_output', return_value=json.dumps({**run, 'event': event})):
+                        check_run(metadata)
             for field, value in [('conclusion', 'failure'), ('conclusion', None),
                                  ('head_sha', 'b' * 40), ('event', 'pull_request'),
+                                 ('event', 'push'), ('event', None),
                                  ('path', '.github/workflows/ci.yml')]:
                 with self.subTest(field=field, value=value):
                     invalid = {**run, field: value}

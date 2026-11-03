@@ -6,5 +6,6 @@
       "include-component-in-tag": false,
       "include-v-in-tag": true
     }
-  }
+  },
+  "bootstrap-sha": "a38dc8eeb9427c51f9fc8ad5f70bffd87152d1c6"
 }

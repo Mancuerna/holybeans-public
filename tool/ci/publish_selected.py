@@ -15,7 +15,7 @@ def check_run(metadata):
     repository = os.environ['GITHUB_REPOSITORY']
     run = json.loads(subprocess.check_output(
         ['gh', 'api', f'repos/{repository}/actions/runs/{run_id}'], text=True))
-    if (run.get('conclusion') != 'success' or run.get('event') != 'release'
+    if (run.get('conclusion') != 'success' or run.get('event') not in {'release', 'workflow_dispatch'}
             or run.get('head_sha') != metadata['commit']
             or run.get('path') != '.github/workflows/release-build.yml'):
         raise ValueError('A successful release-build run for this commit is required.')
