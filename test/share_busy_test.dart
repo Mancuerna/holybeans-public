@@ -212,6 +212,13 @@ void main() {
     }
     expect(renders, 1);
 
+    expect(
+      tester
+          .widget<IconButton>(find.byKey(const ValueKey('share-copy')))
+          .onPressed,
+      isNull,
+    );
+
     capture.complete(Uint8List.fromList([1, 2, 3]));
     await tester.pumpAndSettle();
     expect(harness.result?.image, [1, 2, 3]);

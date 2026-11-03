@@ -72,6 +72,15 @@
                 <data android:mimeType="application/octet-stream"/>
             </intent-filter>
         </activity>
+        <provider
+            android:name=".ClipboardImageProvider"
+            android:authorities="${applicationId}.clipboard"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/clipboard_paths" />
+        </provider>
         <!-- Home screen widget with the last brew, to repeat it. -->
         <receiver
             android:name=".NextBrewWidget"

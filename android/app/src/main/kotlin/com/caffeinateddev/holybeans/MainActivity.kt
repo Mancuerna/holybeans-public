@@ -31,6 +31,7 @@ class MainActivity : FlutterActivity() {
     private val loffeeKey = LoffeeKeyBridge(this)
     private val liveUpdate = LiveUpdateBridge(this)
     private val driveSync = DriveSyncBridge(this)
+    private val shareClipboard = ShareClipboardBridge(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,6 +131,8 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler(loffeeKey::handle)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "holybeans/drive-sync")
             .setMethodCallHandler(driveSync::handle)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "holybeans/share-clipboard")
+            .setMethodCallHandler(shareClipboard::handle)
     }
 
     /**
@@ -179,6 +182,7 @@ class MainActivity : FlutterActivity() {
         exportFolder.dispose()
         loffeeKey.dispose()
         driveSync.dispose()
+        shareClipboard.dispose()
         super.onDestroy()
     }
 }

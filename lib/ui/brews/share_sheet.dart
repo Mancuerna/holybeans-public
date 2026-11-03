@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
+import 'package:holybeans/data/services/share_clipboard.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_ratio.dart';
 import 'package:holybeans/domain/share_template.dart';
@@ -52,6 +53,7 @@ class ShareBrewSheet extends StatefulWidget {
     this.configuration,
     this.imageRenderer,
     this.toolNames = const [],
+    this.clipboard = const ShareClipboard(),
   });
 
   final Uint8List? initialPhoto;
@@ -63,6 +65,7 @@ class ShareBrewSheet extends StatefulWidget {
   final BrewMethod? method;
   final ({ShotCurve curve, String source})? recording;
   final List<String> toolNames;
+  final ShareClipboard clipboard;
   final ShareTemplateSettings? templateSettings;
   final ShareConfiguration? configuration;
   final Future<Uint8List?> Function(
@@ -85,9 +88,11 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
   bool photoCaption = false;
   late Uint8List? photo = widget.initialPhoto;
   bool pickingPhoto = false;
+  bool copying = false;
+  String? copyMessage;
 
   Future<void> _pickPhoto() async {
-    if (pickingPhoto || rendering) return;
+    if (busy) return;
     setState(() => pickingPhoto = true);
     try {
       final bytes = await pickSharePhoto(context);
@@ -113,7 +118,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
     widget.recording,
   );
   bool rendering = false;
-  bool get busy => rendering || pickingPhoto;
+  bool get busy => rendering || pickingPhoto || copying;
   late ShareConfiguration? configuration = widget.configuration;
   late String? templateId = configuration?.selected(style)?.id;
   ShareTemplateStyle get style =>
@@ -162,7 +167,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
   }
 
   Future<void> _share(String source) async {
-    if (rendering || pickingPhoto) return;
+    if (busy) return;
     setState(() => rendering = true);
     if (!asImage) {
       Navigator.pop(
@@ -199,6 +204,39 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
           SnackBar(content: Text(AppLocalizations.of(context)!.shareFailed)),
         );
       }
+    }
+  }
+
+  Future<void> _copy(String source) async {
+    if (busy || source.isEmpty) return;
+    final s = AppLocalizations.of(context)!;
+    setState(() {
+      copying = true;
+      copyMessage = null;
+    });
+    try {
+      if (asImage) {
+        final bytes = await (widget.imageRenderer ?? renderShareImage)(
+          context,
+          cardKey,
+          photo: photoCaption ? photo : null,
+        );
+        if (!mounted) return;
+        if (bytes == null) throw StateError('Image capture failed');
+        await widget.clipboard.copyImage(bytes);
+      } else {
+        await widget.clipboard.copyText(source);
+      }
+      if (mounted) {
+        setState(
+          () => copyMessage = asImage ? s.shareImageCopied : s.shareTextCopied,
+        );
+      }
+    } catch (error, stack) {
+      reportError(error, stack);
+      if (mounted) setState(() => copyMessage = s.shareCopyFailed);
+    } finally {
+      if (mounted) setState(() => copying = false);
     }
   }
 
@@ -424,6 +462,18 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
             _ShareActions(
               busy: busy,
               onShare: source.isEmpty || busy ? null : () => _share(source),
+              onCopy:
+                  source.isEmpty ||
+                      busy ||
+                      (asImage && !widget.clipboard.supportsImages)
+                  ? null
+                  : () => _copy(source),
+              copyLabel: asImage && !widget.clipboard.supportsImages
+                  ? s.shareImageCopyUnavailable
+                  : asImage
+                  ? s.shareCopyImage
+                  : s.shareCopyText,
+              message: copyMessage,
             ),
           ],
         ),
@@ -434,10 +484,19 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
 
 /// Cancel and share, under the scrolling preview.
 class _ShareActions extends StatelessWidget {
-  const _ShareActions({required this.onShare, required this.busy});
+  const _ShareActions({
+    required this.onShare,
+    required this.onCopy,
+    required this.copyLabel,
+    required this.busy,
+    this.message,
+  });
 
   /// Null while there is nothing to share or the picture is rendering.
   final VoidCallback? onShare;
+  final VoidCallback? onCopy;
+  final String copyLabel;
+  final String? message;
   final bool busy;
 
   @override
@@ -445,22 +504,42 @@ class _ShareActions extends StatelessWidget {
     final s = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: busy ? null : () => Navigator.pop(context),
-              child: Text(s.cancel),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: busy ? null : () => Navigator.pop(context),
+                  child: Text(s.cancel),
+                ),
+              ),
+              const SizedBox(width: 10),
+              IconButton.outlined(
+                key: const ValueKey('share-copy'),
+                onPressed: onCopy,
+                tooltip: copyLabel,
+                icon: const Icon(Icons.content_copy_rounded),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: FilledButton(
+                  key: const ValueKey('share-confirm'),
+                  onPressed: onShare,
+                  child: Text(s.share),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: FilledButton(
-              key: const ValueKey('share-confirm'),
-              onPressed: onShare,
-              child: Text(s.share),
+          if (message case final text?)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Semantics(
+                liveRegion: true,
+                child: Text(text, key: const ValueKey('share-copy-message')),
+              ),
             ),
-          ),
         ],
       ),
     );
