@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/domain/flow_guide.dart';
 import 'package:holybeans/domain/pressure_guide.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
+import 'package:holybeans/ui/brews/pressure_assistant/flow_guide_page.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/pressure_guide_page.dart';
 import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -24,7 +26,7 @@ class PressureAssistantButton extends StatelessWidget {
             ),
           ),
     icon: const Icon(Icons.show_chart),
-    label: Text(AppLocalizations.of(context)!.pressureAssistant),
+    label: Text(AppLocalizations.of(context)!.shotAssistant),
   );
 }
 
@@ -36,13 +38,30 @@ class PressureReferencePage extends StatefulWidget {
   State<PressureReferencePage> createState() => _PressureReferencePageState();
 }
 
+enum _GuideMode { pressure, flow }
+
+typedef _Reference = ({Brew brew, PressureGuide? pressure, FlowGuide? flow});
+
 class _PressureReferencePageState extends State<PressureReferencePage> {
-  late Future<List<({Brew brew, PressureGuide guide})>> _references = _load();
+  late _GuideMode _mode = widget.model.pressureSession?.sensor.connected == true
+      ? _GuideMode.pressure
+      : _GuideMode.flow;
+  late Future<List<_Reference>> _references = _load();
   String _search = '';
 
-  Future<List<({Brew brew, PressureGuide guide})>> _load() async {
+  Future<List<_Reference>> _load() async {
     try {
-      final result = await widget.model.repository.pressureReferences();
+      final result = _mode == _GuideMode.pressure
+          ? (await widget.model.repository.pressureReferences())
+                .map<_Reference>(
+                  (item) => (brew: item.brew, pressure: item.guide, flow: null),
+                )
+                .toList()
+          : (await widget.model.repository.flowReferences())
+                .map<_Reference>(
+                  (item) => (brew: item.brew, pressure: null, flow: item.guide),
+                )
+                .toList();
       int priority(Brew brew) => brew.id == widget.model.seed?.id
           ? 0
           : brew.coffeeId == widget.model.coffeeId
@@ -78,6 +97,26 @@ class _PressureReferencePageState extends State<PressureReferencePage> {
         child: Column(
           children: [
             Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: SegmentedButton<_GuideMode>(
+                segments: [
+                  ButtonSegment(
+                    value: _GuideMode.pressure,
+                    label: Text(s.curvePressure),
+                  ),
+                  ButtonSegment(
+                    value: _GuideMode.flow,
+                    label: Text(s.curveFlow),
+                  ),
+                ],
+                selected: {_mode},
+                onSelectionChanged: (selection) => setState(() {
+                  _mode = selection.single;
+                  _references = _load();
+                }),
+              ),
+            ),
+            Padding(
               padding: const EdgeInsets.all(16),
               child: TextField(
                 decoration: InputDecoration(
@@ -107,7 +146,8 @@ class _PressureReferencePageState extends State<PressureReferencePage> {
                       ),
                     );
                   }
-                  if (!snapshot.hasData) {
+                  if (snapshot.connectionState != ConnectionState.done ||
+                      !snapshot.hasData) {
                     return const Center(child: CircularProgressIndicator());
                   }
                   final references = snapshot.data!
@@ -120,7 +160,11 @@ class _PressureReferencePageState extends State<PressureReferencePage> {
                   if (references.isEmpty) {
                     return Padding(
                       padding: const EdgeInsets.all(24),
-                      child: Text(s.pressureGuideEmpty),
+                      child: Text(
+                        _mode == _GuideMode.flow
+                            ? s.flowGuideEmpty
+                            : s.pressureGuideEmpty,
+                      ),
                     );
                   }
                   return ListView.builder(
@@ -135,7 +179,9 @@ class _PressureReferencePageState extends State<PressureReferencePage> {
                       );
                       final title = '${_name(item.brew)} · $date';
                       return ListTile(
-                        key: ValueKey('pressure-reference-${item.brew.id}'),
+                        key: ValueKey(
+                          '${_mode.name}-reference-${item.brew.id}',
+                        ),
                         leading: Icon(
                           item.brew.isFavorite
                               ? Icons.favorite
@@ -144,7 +190,7 @@ class _PressureReferencePageState extends State<PressureReferencePage> {
                         title: Text(_name(item.brew)),
                         subtitle: Text(
                           '$date · ${item.brew.methodName}\n'
-                          '${NumberFormat('0.#', locale).format(item.guide.endMs / 1000)} s',
+                          '${NumberFormat('0.#', locale).format((item.pressure?.endMs ?? item.flow!.endMs) / 1000)} s',
                         ),
                         isThreeLine: true,
                         trailing: const Icon(Icons.chevron_right),
@@ -152,12 +198,19 @@ class _PressureReferencePageState extends State<PressureReferencePage> {
                           FocusManager.instance.primaryFocus?.unfocus();
                           Navigator.of(context).push<void>(
                             MaterialPageRoute(
-                              builder: (_) => PressureGuidePage(
-                                guide: item.guide,
-                                title: title,
-                                timer: widget.model.timer,
-                                session: widget.model.pressureSession,
-                              ),
+                              builder: (_) => item.flow != null
+                                  ? FlowGuidePage(
+                                      guide: item.flow!,
+                                      title: title,
+                                      timer: widget.model.timer,
+                                      session: widget.model.scaleSession,
+                                    )
+                                  : PressureGuidePage(
+                                      guide: item.pressure!,
+                                      title: title,
+                                      timer: widget.model.timer,
+                                      session: widget.model.pressureSession,
+                                    ),
                             ),
                           );
                         },

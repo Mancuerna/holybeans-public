@@ -2481,5 +2481,32 @@
   "releaseNotesCredits": "Credits to the original projects on the piston screen, and open-source licences in Settings → About.",
   "releaseNotesTransparentSharing": "Share coffees and brews as PNG images with a transparent background and choose light or dark text to place them over your photos.",
   "releaseNotesD11Printers": "Niimbot D11 and D11-H added to the experimental printer catalog. A first D11-H print is confirmed; D11 still awaits physical testing.",
-  "releaseNotesEspressoRatios": "The espresso map suggests Ristretto, Normale or Lungo from the beverage-to-dose ratio, with clearer boundaries and rounding."
+  "releaseNotesEspressoRatios": "The espresso map suggests Ristretto, Normale or Lungo from the beverage-to-dose ratio, with clearer boundaries and rounding.",
+  "shotAssistant": "Extraction assistant",
+  "flowAssistant": "Flow assistant",
+  "flowGuideActual": "Your flow",
+  "flowGuideInstructions": "Place the cup on the scale. Start the timer at the same point as in the original shot: when starting the machine or at the first drip. Adjust your lever or flow control to follow the reference.",
+  "flowGuideConnect": "Connect a Bluetooth scale in Settings to follow live flow.",
+  "flowGuideWaiting": "Waiting for stable scale readings…",
+  "flowGuideStale": "No recent scale readings.",
+  "flowGuideMarkers": "Dashed line and circle: reference. Solid line and diamond: your flow. Gaps indicate pauses or missing readings.",
+  "flowGuideSmoothing": "Flow is calculated from weight and smoothed over approximately one second.",
+  "flowGuideEmpty": "No espresso shots with a usable weight curve match this search. Record a shot with a scale or import one with cup weight.",
+  "flowGuideAbove": "Above target: {value} g/s",
+  "flowGuideBelow": "Below target: {value} g/s",
+  "flowGuideOnTarget": "On target",
+  "@flowGuideAbove": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@flowGuideBelow": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  }
 }

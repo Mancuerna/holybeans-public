@@ -7,6 +7,15 @@ HolyBeans includes integrations for supported Bluetooth scales, DiFluid R2
 refractometers and BOOKOO pressure sensors. Meticulous and Gaggimate history
 integrations read documented machine endpoints without changing machine state.
 
+For a new espresso, **Extraction assistant** offers **Pressure** and **Flow**
+reference modes. Flow needs only a connected Bluetooth scale and an earlier
+espresso with a usable cup-weight curve. Both the reference and live flow are
+calculated from weight in g/s with the same trailing one-second smoothing;
+machine flow in ml/s is never treated as gravimetric flow. Start the timer at
+the same point as in the original shot. Pauses, missing readings, tare and
+sudden load changes interrupt the displayed trace. The assistant does not
+control the machine or stop it at the end of the reference.
+
 BOOKOO Themis Ultra dose capture has been physically verified on Android with
 firmware 4.0.1. With a brew form open and the scale in Ratio mode, double-tap the
 left (power/timer) button to save the weighed dose and fill HolyBeans' dose field.
