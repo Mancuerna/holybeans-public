@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:holybeans/data/preferences/scale_settings.dart';
 import 'package:holybeans/data/services/acaia_scale_connection.dart';
@@ -49,10 +51,17 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
   }
 
   final ScaleSettings settings;
+  final _doses = StreamController<double>.broadcast();
+
+  @override
+  Stream<double> get doses => _doses.stream;
+
   DifluidScaleConnection? _difluid;
   AcaiaScaleConnection? _acaia;
   Future<bool> _commands = Future.value(true);
   int _generation = 0;
+  bool _bookooDoseNotify = false;
+  StreamSubscription<Uint8List>? _bookooDoseNotifications;
 
   @override
   String get service =>
@@ -88,6 +97,7 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
   void configureServices(FoundDevice device, List<BleService> services) {
     _difluid = null;
     _acaia = null;
+    _bookooDoseNotify = false;
     if (isAcaiaScaleName(device.name)) {
       for (final found in services) {
         for (final classic in [false, true]) {
@@ -128,7 +138,17 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
       }
       throw StateError('No supported Acaia channel');
     }
-    if (isBookooScaleName(device.name)) return;
+    if (isBookooScaleName(device.name)) {
+      _bookooDoseNotify = services
+          .where((service) => service.uuid == BookooUuids.service)
+          .expand((service) => service.characteristics)
+          .any(
+            (c) =>
+                c.uuid == BookooUuids.command &&
+                c.properties.contains(CharacteristicProperty.notify),
+          );
+      return;
+    }
     for (final uuid in [
       DifluidScaleUuids.microbalanceTi,
       DifluidScaleUuids.microbalance,
@@ -159,6 +179,29 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
 
   @override
   Future<void> onNotificationsSubscribed(String deviceId) async {
+    if (_bookooDoseNotify) {
+      _bookooDoseNotifications =
+          UniversalBle.characteristicValueStream(
+            deviceId,
+            BookooUuids.command,
+          ).listen(
+            _receiveBookooDose,
+            onError: (Object error) =>
+                traceEvent('scale.dose.error', {'error': '$error'}),
+          );
+      try {
+        await UniversalBle.subscribeNotifications(
+          deviceId,
+          BookooUuids.service,
+          BookooUuids.command,
+        );
+      } on Object catch (error) {
+        // The optional dose channel must not prevent live weighing.
+        await _bookooDoseNotifications?.cancel();
+        _bookooDoseNotifications = null;
+        traceEvent('scale.dose.subscribe.error', {'error': '$error'});
+      }
+    }
     await _difluid?.start();
     await _acaia?.start();
   }
@@ -166,6 +209,9 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
   @override
   void connectionClosed() {
     _generation++;
+    unawaited(_bookooDoseNotifications?.cancel());
+    _bookooDoseNotifications = null;
+    _bookooDoseNotify = false;
     _acaia?.close();
     _acaia = null;
     _difluid?.close();
@@ -179,6 +225,9 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
   @override
   ScaleReading? parse(Uint8List packet) {
     if (_acaia case final acaia?) return acaia.parse(packet).lastOrNull;
+    if (_difluid == null) {
+      if (_receiveBookooDose(packet)) return null;
+    }
     final reading =
         _difluid?.parse(packet) ??
         (_difluid == null ? parseBookooWeight(packet) : null);
@@ -193,6 +242,14 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
       });
     }
     return reading;
+  }
+
+  bool _receiveBookooDose(Uint8List packet) {
+    final dose = parseBookooDose(packet);
+    if (dose == null) return false;
+    traceEvent('scale.dose', {'grams': dose});
+    _doses.add(dose);
+    return true;
   }
 
   @override
@@ -213,6 +270,12 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
 
   @override
   ScaleReading? get reading => latest;
+
+  @override
+  void dispose() {
+    unawaited(_doses.close());
+    super.dispose();
+  }
 
   @override
   Future<bool> send(ScaleCommand command) {

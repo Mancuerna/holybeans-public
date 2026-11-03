@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/domain/bookoo_protocol.dart';
 
+import 'helpers/bookoo_dose_packet.dart';
+
 /// A weight packet as the scale sends it, with its checksum.
 List<int> packet({
   int timerMs = 0,
@@ -34,6 +36,54 @@ List<int> packet({
 }
 
 void main() {
+  test('Ultra 4.0.1 physical double-tap capture decodes its saved dose', () {
+    // Captured from the scale while saving a 57.6 g object in Ratio mode.
+    const captured = [
+      0x03,
+      0x0F,
+      0x2B,
+      0x00,
+      0x16,
+      0x80,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0xB1,
+    ];
+    expect(parseBookooDose(captured), 57.6);
+    expect(parseBookooWeight(captured), isNull);
+  });
+
+  test('saved doses use their own frame and centigram encoding', () {
+    expect(parseBookooDose(bookooDosePacket(1820)), 18.2);
+    expect(parseBookooDose(bookooDosePacket(99990)), 999.9);
+    expect(parseBookooWeight(bookooDosePacket(1820)), isNull);
+    expect(parseBookooDose(packet(centigrams: 1820)), isNull);
+  });
+
+  test('invalid dose packets cannot fill the form', () {
+    final good = bookooDosePacket(1820);
+    expect(parseBookooDose(good.sublist(0, 19)), isNull);
+    expect(parseBookooDose([...good, 0]), isNull);
+    expect(parseBookooDose([...good.sublist(0, 19), good[19] ^ 1]), isNull);
+    final otherProduct = [...good]..[0] = 0x02;
+    otherProduct[19] = bookooChecksum(otherProduct.take(19));
+    expect(parseBookooDose(otherProduct), isNull);
+    expect(parseBookooDose(bookooDosePacket(1820, sign: 0x00)), isNull);
+    expect(parseBookooDose(bookooDosePacket(1820, sign: 0x2D)), isNull);
+    expect(parseBookooDose(bookooDosePacket(0)), isNull);
+  });
+
   test('commands match the ones the maker documents', () {
     List<int> bytes(ScaleCommand command) => bookooCommandBytes(command);
     // Tare, timer and tare-and-start, as listed in the protocol.

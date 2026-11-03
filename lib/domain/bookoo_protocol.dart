@@ -52,6 +52,19 @@ ScaleReading? parseBookooWeight(List<int> packet) {
   );
 }
 
+// Ultra powder-weight notifications use a separate frame from live weight:
+// https://github.com/BooKooCode/OpenSource/blob/main/bookoo_ultra_scale/protocols.md
+double? parseBookooDose(List<int> packet) {
+  if (packet.length != 20 || packet[0] != 0x03 || packet[1] != 0x0F) {
+    return null;
+  }
+  if (bookooChecksum(packet.take(19)) != packet[19] || packet[2] != 0x2B) {
+    return null;
+  }
+  final centigrams = (packet[3] << 16) | (packet[4] << 8) | packet[5];
+  return centigrams > 0 ? centigrams / 100 : null;
+}
+
 /// The six bytes that ask the scale for [command], checksum included. The
 /// maker documents more commands (calibration, beeps, auto-off, shutdown)
 /// that the app leaves alone.

@@ -176,6 +176,18 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('scale-to-dose')));
     await tester.pump();
     expect(await text('Dose (g)'), '18.2');
+    scale.emitDose(20.1);
+    await tester.pump();
+    expect(await text('Dose (g)'), '20.1');
+    final dose = find.widgetWithText(TextFormField, 'Dose (g)');
+    await reveal(dose);
+    await tester.enterText(dose, '19');
+    expect(await text('Dose (g)'), '19');
+    // The existing action still copies the live weight after a saved dose.
+    await reveal(find.byKey(const ValueKey('scale-to-dose')));
+    await tester.tap(find.byKey(const ValueKey('scale-to-dose')));
+    await tester.pump();
+    expect(await text('Dose (g)'), '18.2');
     final water = find.widgetWithText(TextFormField, 'Water (g)');
     await reveal(water);
     await tester.enterText(water, '300');

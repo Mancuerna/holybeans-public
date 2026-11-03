@@ -16,6 +16,9 @@ abstract interface class Scale implements PairedDevice {
   /// Readings as they arrive.
   Stream<ScaleReading> get readings;
 
+  // Newly saved coffee doses in grams, where supported; no cached replay.
+  Stream<double> get doses;
+
   /// Asks the scale to [command]; false when it is not connected or the
   /// write failed.
   Future<bool> send(ScaleCommand command);
