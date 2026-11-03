@@ -461,7 +461,7 @@ class BrewFormModel extends ChangeNotifier {
           pourCount: pours.curvePourCount,
         )
         case final found?) {
-      pours.fillFromCurve(found, bloomTotal: draft.bloom);
+      pours.fillFromCurve(found, bloomTotal: draft.bloom, expandDetails: false);
     }
   }
 

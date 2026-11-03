@@ -110,6 +110,7 @@ class BrewPoursDraft extends ChangeNotifier {
     BrewPours pours, {
     TextEditingController? bloomTotal,
     bool replaceBloomTime = false,
+    bool expandDetails = true,
   }) {
     _plannedWaterBefore = {
       for (final entry in _phases.entries) entry.key: entry.value.waterFromPlan,
@@ -149,7 +150,7 @@ class BrewPoursDraft extends ChangeNotifier {
       phaseDraft(phase.kind, phase.number).fill(phase);
     }
     fromCurve = true;
-    detailsExpanded = true;
+    if (expandDetails) detailsExpanded = true;
     notifyListeners();
   }
 
