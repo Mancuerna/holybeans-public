@@ -622,10 +622,12 @@ class BrewResultSection extends StatelessWidget {
     required this.model,
     this.photos,
     this.previousYield,
+    this.finalWeightKey,
   });
 
   final BrewFormModel model;
   final PhotoStore? photos;
+  final Key? finalWeightKey;
 
   /// The repeated brew's yield, as a reference.
   final String? previousYield;
@@ -730,21 +732,30 @@ class BrewResultSection extends StatelessWidget {
       // Weighing the beverage in the selected recipient subtracts its tare.
       if (model.jugGrams case final jug?
           when model.shows(BrewParameter.beverage))
-        numberField(
-          context,
-          draft.jugTotal,
-          s.weightWithJug,
-          key: const ValueKey('brew-jug-total'),
-          validate: (total) =>
-              total != null && total <= jug ? s.recipientTooHeavy : null,
-          suffix: _scaleFill(model, draft.jugTotal, 'scale-to-jug-total'),
-          helperText: s.jugTare(
-            model.recipient?.name ?? s.jug,
-            NumberFormat('0.#', regionalLocale.toString()).format(jug),
+        KeyedSubtree(
+          key: finalWeightKey,
+          child: numberField(
+            context,
+            draft.jugTotal,
+            s.weightWithJug,
+            key: const ValueKey('brew-jug-total'),
+            validate: (total) =>
+                total != null && total <= jug ? s.recipientTooHeavy : null,
+            suffix: _scaleFill(model, draft.jugTotal, 'scale-to-jug-total'),
+            helperText: s.jugTare(
+              model.recipient?.name ?? s.jug,
+              NumberFormat('0.#', regionalLocale.toString()).format(jug),
+            ),
           ),
         ),
       if (beverage != null || tds != null)
-        FieldPair(beverage, tds, minimumRowWidth: 560),
+        FieldPair(
+          beverage != null && model.jugGrams == null
+              ? KeyedSubtree(key: finalWeightKey, child: beverage)
+              : beverage,
+          tds,
+          minimumRowWidth: 560,
+        ),
       if (espresso && ratio != null && model.shows(BrewParameter.ratio))
         Text('${s.ratio}: $ratio'),
       if (ey != null && model.shows(BrewParameter.ey))

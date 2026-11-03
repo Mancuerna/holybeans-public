@@ -60,6 +60,7 @@ void main() {
     final pours = model.draft.pours;
     expect((pours.bloomCount, pours.pourCount), (1, 1));
     expect(pours.fromCurve, isTrue);
+    expect(pours.detailsExpanded, isFalse);
     final bloom = pours.value.phases.first;
     expect(
       (bloom.waterGrams, bloom.durationSeconds, bloom.restSeconds),
@@ -72,6 +73,13 @@ void main() {
     expect((pours.bloomCount, pours.pourCount), (null, null));
     expect(pours.value.phases, isEmpty);
     expect(model.draft.bloom.text, isEmpty);
+  });
+
+  test('automatic detection preserves details opened by the user', () {
+    model.draft.pours.detailsExpanded = true;
+    model.fillPoursFromCurve(bloomAndPour());
+    expect(model.draft.pours.fromCurve, isTrue);
+    expect(model.draft.pours.detailsExpanded, isTrue);
   });
 
   for (final (blooms, count, expected) in <(int?, int, (int, int))>[

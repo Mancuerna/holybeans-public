@@ -26,6 +26,7 @@ import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/form_exit_guard.dart';
 import 'package:holybeans/ui/core/form_validation.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
+import 'package:holybeans/ui/core/motion.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/equipment/equipment_forms.dart';
 import 'package:holybeans/ui/equipment/method_tools_sheet.dart';
@@ -114,6 +115,8 @@ class BrewForm extends StatefulWidget {
 
 class _BrewFormState extends State<BrewForm> {
   final formKey = GlobalKey<FormState>();
+  final _finalWeightKey = GlobalKey();
+  bool _timerWasRunning = false;
   late final BrewFormModel model;
   late bool fullForm = !widget.adjust;
   bool _initialLoaded = false;
@@ -143,6 +146,7 @@ class _BrewFormState extends State<BrewForm> {
       refractometer: widget.refractometer,
     );
     changes = BrewFormChanges(model);
+    model.timer.addListener(_timerChanged);
     // Long brews must not lose the screen halfway.
     unawaited(const DeviceFeedback().keepScreenOn(true));
   }
@@ -150,8 +154,33 @@ class _BrewFormState extends State<BrewForm> {
   @override
   void dispose() {
     unawaited(const DeviceFeedback().keepScreenOn(false));
+    model.timer.removeListener(_timerChanged);
     model.dispose();
     super.dispose();
+  }
+
+  void _timerChanged() {
+    final stopped = _timerWasRunning && !model.timer.running;
+    _timerWasRunning = model.timer.running;
+    if (!stopped) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted ||
+          model.timer.running ||
+          model.isEspresso ||
+          model.scaleSession?.curve == null ||
+          (model.scaleSession?.restartsOnNextStart ?? false) ||
+          ModalRoute.of(context)?.isCurrent != true) {
+        return;
+      }
+      final target = _finalWeightKey.currentContext;
+      if (target == null) return;
+      Scrollable.ensureVisible(
+        target,
+        alignment: 0.2,
+        duration: motionDuration(target, const Duration(milliseconds: 300)),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   String? _previousBrewYieldReference(AppLocalizations strings) {
@@ -392,6 +421,7 @@ class _BrewFormState extends State<BrewForm> {
                       ),
                       BrewResultSection(
                         model: model,
+                        finalWeightKey: _finalWeightKey,
                         photos: widget.photos,
                         previousYield: _previousBrewYieldReference(s),
                       ),
@@ -420,6 +450,7 @@ class _BrewFormState extends State<BrewForm> {
                         ),
                         BrewResultSection(
                           model: model,
+                          finalWeightKey: _finalWeightKey,
                           photos: widget.photos,
                           previousYield: _previousBrewYieldReference(s),
                         ),
