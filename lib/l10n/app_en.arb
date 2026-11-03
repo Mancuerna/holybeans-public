@@ -2508,5 +2508,11 @@
         "type": "String"
       }
     }
-  }
+  },
+  "shareCopyText": "Copy text",
+  "shareCopyImage": "Copy image",
+  "shareTextCopied": "Text copied",
+  "shareImageCopied": "Image copied",
+  "shareCopyFailed": "Could not copy. Please try again.",
+  "shareImageCopyUnavailable": "Image copying is not available on this device."
 }

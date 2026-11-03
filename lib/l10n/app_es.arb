@@ -3305,5 +3305,11 @@
         "type": "String"
       }
     }
-  }
+  },
+  "shareCopyText": "Copiar texto",
+  "shareCopyImage": "Copiar imagen",
+  "shareTextCopied": "Texto copiado",
+  "shareImageCopied": "Imagen copiada",
+  "shareCopyFailed": "No se ha podido copiar. Inténtalo de nuevo.",
+  "shareImageCopyUnavailable": "No se pueden copiar imágenes en este dispositivo."
 }
