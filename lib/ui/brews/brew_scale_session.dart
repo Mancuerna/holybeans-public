@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:holybeans/data/services/scale.dart';
 import 'package:holybeans/domain/espresso_scale_guard.dart';
 import 'package:holybeans/domain/filter_brew_progress.dart';
+import 'package:holybeans/domain/flow_guide.dart';
 import 'package:holybeans/domain/scale_automation.dart';
 import 'package:holybeans/domain/scale_recording.dart';
 import 'package:holybeans/domain/shot_curve.dart';
@@ -23,8 +24,10 @@ class BrewScaleSession extends ChangeNotifier {
   BrewScaleSession(
     this.scale, {
     DateTime Function()? clock,
+    Stopwatch? stopwatch,
     @visibleForTesting ShotEndWatch Function()? shotEnd,
   }) : _clock = clock ?? DateTime.now,
+       _watch = stopwatch ?? Stopwatch(),
        _newShotEnd = shotEnd ?? ShotEndWatch.new {
     _readings = scale.readings.listen(_onReading);
     scale.addListener(_onScaleChanged);
@@ -50,6 +53,7 @@ class BrewScaleSession extends ChangeNotifier {
     if (connected != _wasConnected) {
       _wasConnected = connected;
       if (!connected) {
+        flowTrace.breakSegment();
         _scaleTimer.clear();
         _pendingTimerChange = false;
         _pendingReset = false;
@@ -75,7 +79,19 @@ class BrewScaleSession extends ChangeNotifier {
   final _recording = WeightRecording();
   final _espressoGuard = EspressoScaleGuard();
   bool _awaitingEspressoTare = false;
-  final _watch = Stopwatch();
+  final Stopwatch _watch;
+  final flowTrace = FlowTrace();
+  DateTime? _flowReadingAt;
+  int _flowOffsetMs = 0;
+
+  bool get hasRecentFlowReading =>
+      _flowReadingAt != null &&
+      _clock().difference(_flowReadingAt!) < FlowTrace.staleAfter;
+
+  double? get flowGramsPerSecond =>
+      recording && scale.connected && hasRecentFlowReading
+      ? flowTrace.current
+      : null;
   final _scaleTimer = ScaleTimerWatch();
   late final StreamSubscription<ScaleReading> _readings;
   ShotCurve? _poured;
@@ -203,8 +219,14 @@ class BrewScaleSession extends ChangeNotifier {
         ? _espressoGuard.add(_watch.elapsedMilliseconds, reading)
         : reading;
     if (_watch.isRunning) {
-      if (measured != null) {
-        _recording.add(_watch.elapsedMilliseconds, measured);
+      if (measured == null) {
+        flowTrace.breakSegment();
+      } else if (_recording.add(_watch.elapsedMilliseconds, measured)) {
+        flowTrace.add(
+          _flowOffsetMs + _watch.elapsedMilliseconds,
+          measured.grams,
+        );
+        _flowReadingAt = _clock();
       }
     }
     _followScaleTimer(reading);
@@ -293,6 +315,7 @@ class BrewScaleSession extends ChangeNotifier {
     _dripWatch = null;
     final fresh = fromSeconds == 0 && _watch.elapsedMilliseconds == 0;
     if (fresh) {
+      flowTrace.clear();
       _espressoGuard.clear();
       _awaitingEspressoTare = source == _Source.app;
       _poured = null;
@@ -314,6 +337,9 @@ class BrewScaleSession extends ChangeNotifier {
       case _Source.scaleButton || _Source.shotEnd:
         if (fresh) _recording.clear();
     }
+    _flowOffsetMs = fromSeconds * 1000 - _watch.elapsedMilliseconds;
+    _flowReadingAt = null;
+    flowTrace.breakSegment();
     _watch.start();
     notifyListeners();
   }
@@ -323,6 +349,7 @@ class BrewScaleSession extends ChangeNotifier {
     final source = _source;
     _source = _Source.app;
     _watch.stop();
+    flowTrace.breakSegment();
     _shotEnd?.reset();
     if (source != _Source.scaleButton) _send(ScaleCommand.stopTimer);
     notifyListeners();
@@ -338,6 +365,9 @@ class BrewScaleSession extends ChangeNotifier {
       ..stop()
       ..reset();
     _recording.clear();
+    flowTrace.clear();
+    _flowReadingAt = null;
+    _flowOffsetMs = 0;
     _espressoGuard.clear();
     _awaitingEspressoTare = false;
     _poured = null;

@@ -22,6 +22,7 @@ import 'package:holybeans/domain/coffee_suggestions.dart';
 import 'package:holybeans/domain/cupping.dart';
 import 'package:holybeans/domain/favorite_brews.dart';
 import 'package:holybeans/domain/flavor_notes.dart';
+import 'package:holybeans/domain/flow_guide.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
 import 'package:holybeans/domain/gaggimate/shot.dart';
 import 'package:holybeans/domain/pour_detection.dart';

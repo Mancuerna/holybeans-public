@@ -172,7 +172,15 @@ extension ImportOperations on JournalRepository {
   }
 
   /// Read-only pressure references, newest first; invalid curves are excluded.
-  Future<List<({Brew brew, PressureGuide guide})>> pressureReferences() async {
+  Future<List<({Brew brew, PressureGuide guide})>> pressureReferences() =>
+      _guideReferences(PressureGuide.fromCurve);
+
+  Future<List<({Brew brew, FlowGuide guide})>> flowReferences() =>
+      _guideReferences(FlowGuide.fromCurve);
+
+  Future<List<({Brew brew, T guide})>> _guideReferences<T>(
+    T? Function(ShotCurve) fromCurve,
+  ) async {
     final methods = {
       for (final method in await allMethods()) method.id: method,
     };
@@ -182,7 +190,7 @@ extension ImportOperations on JournalRepository {
         database.brewCurves.brewId.equalsExp(database.brews.id),
       ),
     ])..orderBy([OrderingTerm.desc(database.brews.brewedAtMs)]);
-    final result = <({Brew brew, PressureGuide guide})>[];
+    final result = <({Brew brew, T guide})>[];
     for (final row in await query.get()) {
       final brew = row.readTable(database.brews);
       if (!isEspressoMethod(
@@ -192,7 +200,7 @@ extension ImportOperations on JournalRepository {
         continue;
       }
       try {
-        final guide = PressureGuide.fromCurve(
+        final guide = fromCurve(
           ShotCurve.fromJson(row.readTable(database.brewCurves).samplesJson),
         );
         if (guide != null) result.add((brew: brew, guide: guide));

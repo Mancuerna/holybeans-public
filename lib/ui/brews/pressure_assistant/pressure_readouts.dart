@@ -7,9 +7,15 @@ class PressureReadouts extends StatelessWidget {
     super.key,
     required this.target,
     required this.actual,
+    this.unit = 'bar',
+    this.actualLabel,
+    this.keyPrefix = 'pressure',
   });
   final String target;
   final String actual;
+  final String unit;
+  final String? actualLabel;
+  final String keyPrefix;
 
   @override
   Widget build(BuildContext context) {
@@ -24,15 +30,17 @@ class PressureReadouts extends StatelessWidget {
           label: s.pressureGuideTarget,
           value: target,
           color: colors.primary,
-          valueKey: 'pressure-target',
+          valueKey: '$keyPrefix-target',
+          unit: unit,
           icon: Icons.circle_outlined,
           fillLabel: columns,
         );
         final measured = _Reading(
-          label: s.pressureGuideActual,
+          label: actualLabel ?? s.pressureGuideActual,
           value: actual,
           color: colors.tertiary,
-          valueKey: 'pressure-actual',
+          valueKey: '$keyPrefix-actual',
+          unit: unit,
           icon: Icons.diamond_outlined,
           fillLabel: columns,
         );
@@ -63,6 +71,7 @@ class _Reading extends StatelessWidget {
     required this.value,
     required this.color,
     required this.valueKey,
+    required this.unit,
     required this.icon,
     required this.fillLabel,
   });
@@ -70,6 +79,7 @@ class _Reading extends StatelessWidget {
   final String value;
   final Color color;
   final String valueKey;
+  final String unit;
   final IconData icon;
   final bool fillLabel;
 
@@ -99,7 +109,7 @@ class _Reading extends StatelessWidget {
               .copyWith(color: color),
         ),
         Text(
-          'bar',
+          unit,
           style: Theme.of(context).textTheme.titleMedium
               ?.copyWith(color: color),
         ),

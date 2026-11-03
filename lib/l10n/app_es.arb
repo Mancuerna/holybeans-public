@@ -3278,5 +3278,32 @@
   "releaseNotesCredits": "Reconocimiento a los proyectos originales en la pantalla del pistón y licencias de código abierto en Ajustes → Acerca de.",
   "releaseNotesTransparentSharing": "Comparte cafés y preparaciones como PNG con fondo transparente y elige texto claro u oscuro para colocarlos sobre tus fotos.",
   "releaseNotesD11Printers": "Añadidas Niimbot D11 y D11-H al catálogo experimental de impresoras. D11-H tiene una primera impresión confirmada; D11 sigue pendiente de prueba física.",
-  "releaseNotesEspressoRatios": "El mapa de espresso sugiere Ristretto, Normale o Lungo según el ratio bebida/dosis, con límites y redondeos más claros."
+  "releaseNotesEspressoRatios": "El mapa de espresso sugiere Ristretto, Normale o Lungo según el ratio bebida/dosis, con límites y redondeos más claros.",
+  "shotAssistant": "Asistente de extracción",
+  "flowAssistant": "Asistente de caudal",
+  "flowGuideActual": "Tu caudal",
+  "flowGuideInstructions": "Coloca la taza en la báscula. Inicia el cronómetro en el mismo momento que en el tiro original: al activar la máquina o al caer la primera gota. Ajusta la palanca o el control de flujo para seguir la referencia.",
+  "flowGuideConnect": "Conecta una báscula Bluetooth desde Ajustes para seguir el caudal en directo.",
+  "flowGuideWaiting": "Esperando lecturas estables de la báscula…",
+  "flowGuideStale": "Sin lecturas recientes de la báscula.",
+  "flowGuideMarkers": "Discontinua y círculo: referencia. Continua y rombo: tu caudal. Los huecos indican pausas o ausencia de lecturas.",
+  "flowGuideSmoothing": "Caudal calculado a partir del peso y suavizado durante aproximadamente un segundo.",
+  "flowGuideEmpty": "No hay tiros de espresso con una curva de peso utilizable para esta búsqueda. Graba un tiro con una báscula o importa uno con peso en taza.",
+  "flowGuideAbove": "Por encima del objetivo: {value} g/s",
+  "flowGuideBelow": "Por debajo del objetivo: {value} g/s",
+  "flowGuideOnTarget": "En el objetivo",
+  "@flowGuideAbove": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@flowGuideBelow": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  }
 }

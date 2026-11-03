@@ -77,16 +77,18 @@ class WeightRecording {
 
   /// Adds [reading], taken [elapsedMs] after the brew started. Readings
   /// too close to the previous one, or out of order, are skipped.
-  void add(int elapsedMs, ScaleReading reading) {
+  /// Returns whether this reading was accepted into the recording.
+  bool add(int elapsedMs, ScaleReading reading) {
     if (_awaitingTare) {
-      if (reading.grams.abs() > 1 && elapsedMs < tareWaitMs) return;
+      if (reading.grams.abs() > 1 && elapsedMs < tareWaitMs) return false;
       _awaitingTare = false;
     }
-    if (_times.isNotEmpty && elapsedMs - _times.last < minGapMs) return;
+    if (_times.isNotEmpty && elapsedMs - _times.last < minGapMs) return false;
     _times.add(elapsedMs);
     _weight.add(reading.grams);
     _flow.add(reading.flowGramsPerSecond);
     _curve = null;
+    return true;
   }
 
   void clear() {
