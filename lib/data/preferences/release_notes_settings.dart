@@ -9,7 +9,7 @@ class ReleaseNotesSettings {
     : _json = AtomicJsonFile(file);
 
   // Advance with the user-facing notes, independently of private APK numbers.
-  static const currentRevision = 9;
+  static const currentRevision = 10;
   final int revision;
   final AtomicJsonFile _json;
 

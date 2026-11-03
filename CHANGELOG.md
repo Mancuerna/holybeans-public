@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.0](https://github.com/Mancuerna/holybeans-public/compare/v1.2.1...v1.3.0) (2026-11-03)
+
+
+### Features
+
+* **brews:** add gravimetric flow guide ([6ce55ea](https://github.com/Mancuerna/holybeans-public/commit/6ce55ea131792394717b7544ac61ccd513de53a2))
+* **sharing:** copy brew text and images to clipboard ([543e21f](https://github.com/Mancuerna/holybeans-public/commit/543e21f295c66b5f2f44935e809f64a272a40563))
+
+
+### Bug Fixes
+
+* **brews:** reveal final weight after filter recording ([703250c](https://github.com/Mancuerna/holybeans-public/commit/703250c4a6ac62696cb837d52f911bbe2c508101))
+
 ## [1.2.1](https://github.com/Mancuerna/holybeans-public/compare/v1.2.0...v1.2.1) (2026-11-03)
 
 

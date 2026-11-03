@@ -71,8 +71,9 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.byKey(const ValueKey('release-notes')), findsOneWidget);
         final s = lookupAppLocalizations(Locale(language));
-        expect(find.text(s.releaseNotesTransparentSharing), findsOneWidget);
-        expect(find.text(s.releaseNotesD11Printers), findsOneWidget);
+        expect(find.text(s.releaseNotesFlowGuide), findsOneWidget);
+        expect(find.text(s.releaseNotesFilterFinish), findsOneWidget);
+        expect(find.text(s.releaseNotesClipboard), findsOneWidget);
         expect(tester.takeException(), isNull);
         await tester.tap(find.text(language == 'es' ? 'Entendido' : 'Got it'));
         await tester.pumpAndSettle();
