@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/Mancuerna/holybeans-public/compare/v1.2.0...v1.2.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* **android:** include QR scanner ProGuard rules in release builds ([242cfca](https://github.com/Mancuerna/holybeans-public/commit/242cfcaad405644329815df7768f4a48402ed47b))
+
 ## [1.2.0](https://github.com/Mancuerna/holybeans-public/compare/v1.1.19...v1.2.0) (2026-11-03)
 
 
