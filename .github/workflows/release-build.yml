@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: release-build-${{ github.ref }}
   cancel-in-progress: false
@@ -13,7 +14,7 @@ jobs:
     if: vars.RELEASE_AUTOMATION_ENABLED == 'true' && github.ref_type == 'tag' && (github.event_name == 'workflow_dispatch' || !github.event.release.prerelease)
     uses: ./.github/workflows/ci.yml
     with:
-      full: true
+      full: false
   bundle:
     needs: validate
     runs-on: ubuntu-latest

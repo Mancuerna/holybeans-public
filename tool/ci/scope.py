@@ -5,11 +5,13 @@ import subprocess
 
 
 def requires_flutter(paths):
-    def documentation(path):
-        return (path in {'README.md', 'README.es.md', 'CONTRIBUTING.md', 'CHANGELOG.md'}
-                or (path.startswith('docs/') and PurePosixPath(path).suffix in {'.md', '.png', '.jpg', '.svg'})
-                or path.startswith('.github/ISSUE_TEMPLATE/'))
     return not paths or any(not documentation(path) for path in paths)
+
+
+def documentation(path):
+    return (path in {'README.md', 'README.es.md', 'CONTRIBUTING.md', 'CHANGELOG.md'}
+            or (path.startswith('docs/') and PurePosixPath(path).suffix in {'.md', '.png', '.jpg', '.svg'})
+            or path.startswith('.github/ISSUE_TEMPLATE/'))
 
 
 def main():
