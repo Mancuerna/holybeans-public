@@ -19,8 +19,10 @@ Actions and bundletool are pinned to immutable revisions or checksums.
 1. Require pull requests and the `CI result` status from GitHub Actions on
    `main`, including administrators. Require an up-to-date branch; block force
    pushes and deletion. No second reviewer is mandatory for a sole maintainer.
-   Protect `v*` tags against updates/deletion and limit creation to GitHub
-   Actions and repository administrators.
+   Protect `v*` tags against updates/deletion with no bypass. Tag creation
+   requires repository write access, held by maintainers and the release job.
+   GitHub does not allow its built-in Actions integration as a bypass actor
+   for a separate tag-creation restriction in this repository.
 2. In Actions settings, enable **Allow GitHub Actions to create and approve pull
    requests**. Keep default workflow permissions read-only; the release proposal
    job requests the write permissions it needs. It uses `GITHUB_TOKEN`, with no
