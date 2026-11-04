@@ -3,6 +3,33 @@
 Use the pinned Flutter version in the README and keep `pubspec.lock` committed.
 A commit does not publish to Google Play.
 
+## Completing a change
+
+The default workflow for implementation tasks includes delivery to `main`,
+unless the user explicitly requests a draft, local-only work or a review.
+Passing local tests or opening a PR does not mean the task is complete.
+
+1. Inspect the working tree, branch, existing PR and current remote `main`.
+   Preserve unrelated work, use a feature branch and keep commits focused.
+2. Review the diff and run the applicable validation below. Commit the change
+   with an English Conventional Commit message and push the branch.
+3. Create or update its PR against `main`. Incorporate the latest `main` and
+   wait for the required `CI result` to pass on the current PR head. Resolve
+   failures and recheck after any new commit; an older green run is insufficient.
+4. Review the final diff and squash message, then merge through the PR while
+   respecting branch protection and required approvals. Do not bypass checks.
+5. Verify that GitHub reports the PR as merged and check the resulting `main`
+   commit's CI. Synchronize local references without overwriting unrelated work.
+6. Report the commit, PR and CI links, merge status and any remaining local
+   changes. Do not describe a change as delivered while it is only local,
+   unpushed, awaiting CI or unmerged.
+
+Continue through these steps without asking for confirmation at each routine
+step. If permissions, required approvals, failing checks or an explicit user
+constraint prevent completion, report the exact blocker and remaining action.
+Do not silently leave pending work or treat an inability to check CI as success.
+Release PRs and publication to Play follow the separate release procedure below.
+
 ## Commit messages
 
 All commit messages (subject, body and explanatory footers) and pull-request
