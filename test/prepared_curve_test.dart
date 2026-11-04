@@ -70,10 +70,10 @@ void main() {
       },
     );
     addTearDown(model.dispose);
-    final first = curve(600);
-    final latest = curve(602);
+    final first = curve(300);
+    final latest = curve(302);
     model.update(first, live: true);
-    model.update(curve(601), live: true);
+    model.update(curve(301), live: true);
     model.update(latest, live: true);
     expect(inputs, hasLength(1));
     pending.first.complete(prepareCurve(inputs.first));

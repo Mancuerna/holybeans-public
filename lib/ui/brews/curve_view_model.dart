@@ -30,7 +30,7 @@ class CurveViewModel extends ChangeNotifier {
     _live = live;
     _input = request;
     error = null;
-    if (curve.timesMs.length <= 500) {
+    if (curve.timesMs.length <= 200) {
       _generation++;
       _pending = null;
       value = prepareCurve(request);
