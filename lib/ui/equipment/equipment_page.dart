@@ -7,6 +7,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/cupping/cupping_sessions_page.dart';
+import 'package:holybeans/ui/equipment/equipment_delete.dart';
 import 'package:holybeans/ui/equipment/equipment_forms.dart';
 import 'package:holybeans/ui/equipment/method_tools_sheet.dart';
 import 'package:holybeans/ui/equipment/piston/piston_page.dart';
@@ -327,6 +328,12 @@ class _EquipmentSectionList extends StatelessWidget {
                 : null,
             onManageTools: () => onManageTools(method),
             onArchive: () => onArchiveMethod(method),
+            onDelete: () => deleteEquipmentAfterConfirming(
+              context,
+              name: method.name,
+              check: () => repository.methodDeletionBlockers(method.id),
+              delete: () => repository.deleteUnusedMethod(method.id),
+            ),
             onBrewWith: method.archivedAtMs == null && onBrewWithMethod != null
                 ? () => onBrewWithMethod!(method)
                 : null,
@@ -418,6 +425,7 @@ class _MethodCard extends StatelessWidget {
     required this.onManageTools,
     this.onPiston,
     required this.onArchive,
+    required this.onDelete,
     required this.onBrewWith,
     required this.onShowBrews,
   });
@@ -430,6 +438,7 @@ class _MethodCard extends StatelessWidget {
   final VoidCallback onManageTools;
   final VoidCallback? onPiston;
   final VoidCallback onArchive;
+  final VoidCallback onDelete;
   final VoidCallback? onBrewWith;
   final VoidCallback? onShowBrews;
 
@@ -474,6 +483,7 @@ class _MethodCard extends StatelessWidget {
                 'edit' => onEdit(),
                 'tools' => onManageTools(),
                 'piston' => onPiston?.call(),
+                'delete' => onDelete(),
                 _ => onArchive(),
               },
               itemBuilder: (context) => [
@@ -489,6 +499,7 @@ class _MethodCard extends StatelessWidget {
                         : s.restoreMethod,
                   ),
                 ),
+                PopupMenuItem(value: 'delete', child: Text(s.deleteMethod)),
               ],
             ),
           ),

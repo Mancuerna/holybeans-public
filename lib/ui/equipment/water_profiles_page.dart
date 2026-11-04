@@ -5,6 +5,7 @@ import 'package:holybeans/domain/water_chemistry.dart';
 import 'package:holybeans/domain/water_presets.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/error_report.dart';
+import 'package:holybeans/ui/equipment/equipment_delete.dart';
 import 'package:holybeans/ui/equipment/water_calculator_page.dart';
 import 'package:holybeans/ui/equipment/water_chart.dart';
 import 'package:holybeans/ui/equipment/water_profile_card.dart';
@@ -166,6 +167,14 @@ class _WaterProfilesListState extends State<WaterProfilesList> {
         profile: visible[index],
         onEdit: () => _edit(visible[index]),
         onArchive: () => _archive(visible[index]),
+        onDelete: () => deleteEquipmentAfterConfirming(
+          context,
+          name: visible[index].name,
+          check: () =>
+              widget.repository.waterProfileDeletionBlockers(visible[index].id),
+          delete: () =>
+              widget.repository.deleteUnusedWaterProfile(visible[index].id),
+        ),
         onCalculate: () => showWaterCalculator(
           context,
           widget.repository,

@@ -3318,5 +3318,39 @@
   "shareTextCopied": "Texto copiado",
   "shareImageCopied": "Imagen copiada",
   "shareCopyFailed": "No se ha podido copiar. Inténtalo de nuevo.",
-  "shareImageCopyUnavailable": "No se pueden copiar imágenes en este dispositivo."
+  "shareImageCopyUnavailable": "No se pueden copiar imágenes en este dispositivo.",
+  "deleteMethod": "Eliminar método",
+  "deleteWaterProfile": "Eliminar agua",
+  "deleteEquipmentTitle": "¿Eliminar «{name}»?",
+  "@deleteEquipmentTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteEquipmentDescription": "Este elemento no tiene relaciones y se eliminará permanentemente. Esta acción no se puede deshacer.",
+  "equipmentDeleted": "Se ha eliminado «{name}».",
+  "@equipmentDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteEquipmentFailed": "No se ha podido eliminar el elemento",
+  "equipmentInUseTitle": "No se puede eliminar «{name}»",
+  "@equipmentInUseTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "equipmentUsedByBrews": "Tiene preparaciones asociadas, incluidas las archivadas.",
+  "equipmentUsedByTools": "Tiene accesorios vinculados, incluidos los archivados o importados.",
+  "equipmentUsedByMachine": "Está vinculado al historial de una máquina.",
+  "equipmentUsedByRecipient": "Tiene un recipiente predeterminado asociado. Puedes quitar esa asociación al editar el método.",
+  "equipmentUsedByCupping": "Está seleccionado en una cata, que puede estar todavía en borrador.",
+  "equipmentArchiveInstead": "Puedes archivarlo para ocultarlo de las listas activas y conservar sus relaciones."
 }

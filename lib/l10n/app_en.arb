@@ -2521,5 +2521,39 @@
   "shareTextCopied": "Text copied",
   "shareImageCopied": "Image copied",
   "shareCopyFailed": "Could not copy. Please try again.",
-  "shareImageCopyUnavailable": "Image copying is not available on this device."
+  "shareImageCopyUnavailable": "Image copying is not available on this device.",
+  "deleteMethod": "Delete method",
+  "deleteWaterProfile": "Delete water profile",
+  "deleteEquipmentTitle": "Delete “{name}”?",
+  "@deleteEquipmentTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteEquipmentDescription": "This item has no links and will be permanently deleted. This cannot be undone.",
+  "equipmentDeleted": "“{name}” deleted.",
+  "@equipmentDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteEquipmentFailed": "Could not delete the item",
+  "equipmentInUseTitle": "Cannot delete “{name}”",
+  "@equipmentInUseTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "equipmentUsedByBrews": "It is used by brews, including archived ones.",
+  "equipmentUsedByTools": "It has linked accessories, including archived or imported ones.",
+  "equipmentUsedByMachine": "It is linked to a machine’s history.",
+  "equipmentUsedByRecipient": "It has a default vessel assigned. You can remove that link by editing the method.",
+  "equipmentUsedByCupping": "It is selected in a cupping session, which may still be a draft.",
+  "equipmentArchiveInstead": "You can archive it to hide it from active lists and keep its links."
 }

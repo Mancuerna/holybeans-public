@@ -13,6 +13,7 @@ class WaterProfileCard extends StatelessWidget {
     required this.onEdit,
     required this.onArchive,
     required this.onCalculate,
+    this.onDelete,
     this.onRecipe,
   });
 
@@ -20,6 +21,7 @@ class WaterProfileCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onArchive;
   final VoidCallback onCalculate;
+  final VoidCallback? onDelete;
   final VoidCallback? onRecipe;
 
   @override
@@ -83,6 +85,8 @@ class WaterProfileCard extends StatelessWidget {
           onCalculate();
         case 'recipe':
           onRecipe?.call();
+        case 'delete':
+          onDelete?.call();
         default:
           onArchive();
       }
@@ -100,6 +104,8 @@ class WaterProfileCard extends StatelessWidget {
               : strings.restoreWaterProfile,
         ),
       ),
+      if (onDelete != null)
+        PopupMenuItem(value: 'delete', child: Text(strings.deleteWaterProfile)),
     ],
   );
 }
