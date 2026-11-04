@@ -217,6 +217,9 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
               children: [
                 DetailHeader(
                   title: coffee?.name ?? '—',
+                  onTitleTap: coffee == null
+                      ? null
+                      : () => actions.showCoffeeDetails(coffee, widget.data),
                   subtitle: [
                     brew.methodName,
                     formatBrewTimestamp(brew, regionalLocale),

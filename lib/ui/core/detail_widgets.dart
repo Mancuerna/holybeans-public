@@ -181,11 +181,13 @@ class DetailHeader extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.actions = const [],
+    this.onTitleTap,
   });
 
   final String title;
   final String? subtitle;
   final List<Widget> actions;
+  final VoidCallback? onTitleTap;
 
   @override
   Widget build(BuildContext context) {
@@ -202,7 +204,29 @@ class DetailHeader extends StatelessWidget {
           ),
         Semantics(
           header: true,
-          child: Text(title, style: theme.textTheme.headlineSmall),
+          button: onTitleTap != null,
+          child: onTitleTap == null
+              ? Text(title, style: theme.textTheme.headlineSmall)
+              : InkWell(
+                  onTap: onTitleTap,
+                  borderRadius: BorderRadius.circular(8),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 48),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            title,
+                            style: theme.textTheme.headlineSmall,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.chevron_right_rounded, size: 24),
+                      ],
+                    ),
+                  ),
+                ),
         ),
         if (subtitle != null && subtitle!.isNotEmpty) ...[
           const SizedBox(height: 4),
