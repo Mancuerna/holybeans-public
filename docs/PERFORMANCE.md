@@ -64,7 +64,8 @@ remain available to exports and callers that explicitly need them.
   It prefetches near the end, reloads evicted pages when scrolling back, and
   invalidates cursors after a write. Searches preserve the same normalized
   substring/cross-field semantics, reading at most 64 candidates with notes at
-  a time; obsolete searches stop between batches. Cached rows omit notes and
+  a time; long-note batches share one worker per page and obsolete searches
+  stop between batches. Small bounded text batches avoid worker startup. Cached rows omit notes and
   pour JSON. Editing, rating, sharing, comparing and viewing details fetch the
   complete record by ID first.
 - Equipment, recipient and roaster cards use complete aggregates. Statistics,
