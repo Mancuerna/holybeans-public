@@ -30,7 +30,7 @@ here; keep baseline observations separate from follow-up measurements.
   weight across series. Flow medians reuse candidate distribution evaluations
   and preordered segment bounds. Tests compare irregular sampling, signed flow,
   plateaus and the original numerical results; stored measurements are unchanged.
-  Curves over 500 points are prepared in a coalescing worker. Only the displayed
+  Curves over 200 points are prepared in a coalescing worker. Only the displayed
   polyline is reduced to at most 1,024 samples, retaining endpoints and each
   bucket's extrema across all series. Cursor readings, statistics, bounds and
   exports continue using full-resolution data. Live charts show each completed
@@ -52,7 +52,73 @@ an architectural follow-up for bounding initial memory independently of history
 size. The experimental paging index below is not installed on a production
 query that still reads the entire journal.
 
-## Findings: 2026-11-04
+## Follow-up measurements: implemented changes
+
+The same Galaxy A53 and profile configuration were used for the follow-up.
+Journal/UI/media/startup results use source `44b5179` and harness version 4;
+the final asynchronous chart results use `068cc5b` and harness version 5.
+Both instrumentation runs completed successfully. These are sequential exploratory
+runs, not randomized alternating trials or release performance guarantees.
+
+| Scenario | Baseline | Improved |
+| --- | ---: | ---: |
+| Update one rating and receive history, 5,000 × 2,048-character notes | 311.1 ms | 9.2 ms |
+| Same update, 10,000 × 2,048 | 660.3 ms | 14.2 ms |
+| Same update, 10,000 × 8,192 | 1,118.0 ms | 14.9 ms |
+| Search `citrico`, 5,000 × 2,048 | 1,575.4 ms | 27.2 ms |
+| Search `citrico`, 10,000 × 8,192 | 12,912.0 ms | 141.8 ms |
+| Missing search, 10,000 × 8,192 | 13,261.4 ms | 896.1 ms |
+| Search typing build p95, 5,000 × 2,048 | 1,575.0 ms | 11.5 ms |
+| Search typing build p95, 10,000 × 2,048 | 3,192.5 ms | 8.9 ms |
+| Live chart build p95, 10,000 initial points | 107.6 ms | 7.3 ms |
+| Reopen real main to loaded shell, 5,000 entries, subsequent median | 730.9 ms | 613.7 ms |
+
+Update/search timings are medians. The baseline search benchmark measures the
+old matching expression; the improved `history_query_*` records measure the
+production selection including filters and sorting. Neither is end-to-end
+worker dispatch or touch latency. The fixture's `citrico` match is near the start
+of notes; missing searches still scan their full text. UI frame records measure
+actual production search with background work and assert the final text/results.
+
+Nine rating changes now fetch nine brew rows instead of 45,000/90,000. There
+are 27 SELECTs/returned rows including revision checks, so this is less data
+transfer and decoding, not fewer SQL calls. Inserting one entry fetches one new
+brew row. The 5,000-entry post-update VM heap falls from 56.5 to 37.2 MiB; the
+10,000-entry long-note case falls from 205.7 to 108.4 MiB. These are retained
+post-GC checkpoints including the harness, not peak RSS or a leak diagnosis.
+Initial full-row loading still scales with history and note length.
+
+| Final live chart | Frames | Build p95 / max | Raster p95 / max | Builds / rasters over 16.7 ms |
+| ---: | ---: | ---: | ---: | ---: |
+| 300 initial points | 313 | 9.0 / 13.1 ms | 5.0 / 10.0 ms | 0 / 0 |
+| 3,000 initial points | 320 | 6.7 / 11.9 ms | 9.4 / 31.8 ms | 0 / 10 |
+| 10,000 initial points | 326 | 7.3 / 18.1 ms | 7.2 / 26.4 ms | 1 / 3 |
+
+The final chart harness waits until the readout contains all 100 added samples,
+including the last worker result. The 10,000-point case completes in 5.56 s
+versus 8.84 s at baseline. Coalescing can skip intermediate rendered snapshots;
+recorded samples are retained. Worker execution improves UI scheduling, but is
+not a promise of less total process CPU or battery use. The final 200-point
+worker threshold also removes over-budget builds from the 300-point case in
+this run; one build spike and several raster spikes remain in the large cases.
+
+Other limits remain visible: at 10,000 entries, statistics opening still has a
+285.8 ms maximum build and detail navigation a 201.6 ms maximum. Search typing
+has one 17.1 ms build and two over-budget raster frames at 10,000 entries;
+at 5,000, no builds but four raster frames exceed budget. Continuous history
+scrolling remains around 7 ms build/raster p95. These results support the search,
+update and long-curve changes; they do not establish that every screen is now
+free of frame spikes. Next priorities are bounded initial data loading and
+profiling the statistics/detail transition work, followed by another phone.
+
+Raw follow-up evidence is local under `artifacts/performance-improvements/`:
+`device-final.jsonl` for the nine access fixtures and UI/media/startup scenarios,
+and `device-chart-threshold.jsonl` for final chart results. Chart records in
+`device-final.jsonl` predate asynchronous preparation; `device-charts.jsonl`
+is an intermediate run with a 500-point worker threshold. Both are superseded
+by `device-chart-threshold.jsonl` for final chart conclusions.
+
+## Baseline findings: 2026-11-04
 
 Source: `28dd175` (1.4.0+161), Flutter 3.47.5, Dart 3.13.4. Measurements used a
 Samsung Galaxy A53 (SM-A536B), Android 15, a 60 Hz display, and profile mode,
@@ -117,13 +183,15 @@ Neither prototype is a complete search solution or a production change.
 
 ### Memory and images
 
-After loading the model and collecting garbage, main-isolate heap usage is
+After loading the model and collecting garbage, VM-reported heap usage is
 24.6 MiB at 100 entries with 2,048-character notes, 61.0 MiB at 10,000, and
 119.5 MiB at 10,000 with 8,192-character notes. These totals include the harness
-and model, and exclude other isolates/native memory. RSS is recorded separately.
+and model, and exclude native memory. The VM request targets the main isolate,
+but its isolate group can share the reported heap; it is not an exclusive
+accounting of main-isolate objects. RSS is recorded separately.
 Retaining every note makes memory scale with journal size.
 
-Ten real detail open/close cycles increase the post-GC main-isolate heap by only
+Ten real detail open/close cycles increase the post-GC VM heap by only
 4,096 bytes at 5,000 entries and 5,456 bytes at 10,000. This short scenario does
 not show accumulating detail-page retention, and does not rule out other leaks.
 The photo-scroll scenario keeps about 428 KiB in Flutter's image cache at
@@ -173,7 +241,7 @@ curve on updates. Incremental derived values and limiting displayed points are
 worth a separate experiment, while retaining full-resolution stored/exported
 data. The measurements do not attribute the entire frame cost to smoothing.
 
-### Recommended implementation order
+### Original recommendations from the baseline
 
 1. **Search:** stop normalizing every long note in the UI build. Design a
    normalized search representation/query that preserves accents, substring
@@ -287,8 +355,10 @@ index before measuring the existing model. This is an experiment, not a
 complete pagination implementation: filtering, concurrent changes, all sort
 directions, and timestamp ties still need production-level coverage.
 
-The search experiment mirrors the current matching expression and measures
-hits, accent-folded hits, and misses. Its alternative avoids splitting the
+The `search_*` experiment mirrors the baseline matching structure and measures
+hits, accent-folded hits, and misses, using the normalization at the tested
+revision. The `history_query_*` records exercise the production selection.
+The exploratory alternative avoids splitting the
 entire string into single-character strings. A separate equivalence test checks
 accent handling, whitespace, combining marks, emoji, and 1,000 deterministic
 combinations. Actual search rendering is also exercised on the device.
@@ -304,7 +374,9 @@ filtered by their monotonic vsync timestamps. `interactionAndSettleMs` includes
 test automation and settling; it is not a raw touch-to-photon latency.
 
 Memory checkpoints report process RSS and, when the VM service is available,
-the main Dart isolate's memory usage after requesting GC. RSS also includes
+VM memory usage requested through the main isolate after GC. The VM's
+[isolate groups share a heap](https://github.com/dart-lang/sdk/blob/main/runtime/docs/README.md),
+so this is not exclusive per-isolate ownership accounting. RSS also includes
 native allocations, other isolates, allocator capacity, and caches. It must not
 be described as the Dart heap or interpreted as a leak by itself. UI checkpoints
 before/after navigation, after unmount, and after image-cache clearing help
@@ -325,12 +397,23 @@ engine startup, and must not be advertised as a cold-launch measurement.
 
 The chart scenario renders the production live extraction chart with 300,
 3,000, and 10,000 initial points, then supplies 100 growing synthetic curves at
-50 ms intervals. This stresses chart rendering and includes fixture generation;
+50 ms intervals. Harness version 5 additionally waits for the final asynchronous
+readout to contain the entire input curve before ending the frame window.
+This stresses chart rendering and includes fixture generation;
 it does not measure Bluetooth transport or physical extraction accuracy.
 
 ## Audit record quality
 
-The full Flutter suite completed with **1,671 passed, seven skipped, and zero
+Implementation regressions cover incremental subscriptions and cancellation,
+transaction rollback, replacement imports, Unicode matching, stale worker
+results, retained tab state, full-resolution curve statistics and bounded
+polylines. Widget tests that open large curves use real asynchronous settling:
+the simulated clock in ordinary `pumpAndSettle` cannot complete worker-isolate
+futures. Both previously timing-out flows and a dedicated large-curve rendering
+test pass without removing their data assertions. The final validation status
+is recorded on [PR #16](https://github.com/Mancuerna/holybeans-public/pull/16).
+
+The baseline Flutter suite completed with **1,671 passed, seven skipped, and zero
 failed**. The seven skips require private real-backup fixtures that were not
 configured. Python tooling tests passed (31), as did native Android JVM tests
 (four). Final static analysis and documentation-link checks passed. The

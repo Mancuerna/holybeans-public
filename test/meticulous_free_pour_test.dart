@@ -13,6 +13,8 @@ import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_draft.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 
+import 'helpers/ui_test_support.dart';
+
 /// A synthetic record shaped like the machine's pour-over history: a bloom
 /// of 50 g, a 35 s rest and two pours, sampled every 200 ms.
 Map<String, Object?> _record({
@@ -181,9 +183,9 @@ void main() {
     await tester.pumpWidget(
       HolyBeansApp(database: database, initialLocale: const Locale('en')),
     );
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
     await tester.tap(find.text('Brew').last);
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
     final scrollable = find
         .descendant(
           of: find.byType(BrewForm),
@@ -197,11 +199,11 @@ void main() {
             widget.decoration.labelText == 'Choose a method',
       );
       await tester.scrollUntilVisible(selector, -200, scrollable: scrollable);
-      await tester.pumpAndSettle();
+      await settleWithWorkers(tester);
       await tester.tap(selector);
-      await tester.pumpAndSettle();
+      await settleWithWorkers(tester);
       await tester.tap(find.text(name).last);
-      await tester.pumpAndSettle();
+      await settleWithWorkers(tester);
     }
 
     await chooseMethod('Meticulous');
@@ -215,13 +217,13 @@ void main() {
     expect(find.byKey(const ValueKey('brew-meticulous')), findsNothing);
     final importButton = find.byKey(const ValueKey('brew-import-free-pour'));
     await tester.scrollUntilVisible(importButton, 200, scrollable: scrollable);
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
     await tester.tap(importButton);
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
     expect(machine.addresses, ['192.0.2.90']);
     expect(find.text('Already imported'), findsNothing);
     await tester.tap(find.byKey(const ValueKey('meticulous-free-pour-pour-1')));
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
     expect(find.text('Free pour from the Meticulous'), findsOneWidget);
 
     String field(String label) => tester
@@ -233,7 +235,7 @@ void main() {
     expect(field('Dose (g)'), '19');
     expect(field('Water (g)'), '299.1');
     await tester.tap(find.text('Save').last);
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
 
     final brew = await database.select(database.brews).getSingle();
     expect(

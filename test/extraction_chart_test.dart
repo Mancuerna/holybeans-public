@@ -4,6 +4,9 @@ import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/curve_legend_button.dart';
 import 'package:holybeans/ui/brews/extraction_chart.dart';
+import 'package:holybeans/ui/brews/extraction_readout.dart';
+
+import 'helpers/ui_test_support.dart';
 
 void main() {
   final curve = ShotCurve(
@@ -50,7 +53,7 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
   }
 
   String value(WidgetTester tester, String key) => tester
@@ -62,6 +65,26 @@ void main() {
       )
       .map((t) => t.data ?? '')
       .join(' ');
+
+  testWidgets(
+    'large curves finish real worker preparation and retain every readout sample',
+    (tester) async {
+      final recorded = ShotCurve(
+        timesMs: [for (var i = 0; i < 1500; i++) i * 100],
+        flow: [for (var i = 0; i < 1500; i++) 1.0],
+        weight: [for (var i = 0; i < 1500; i++) i * 0.1],
+      );
+      await show(tester, locale: 'en', drawn: recorded);
+      expect(find.byKey(const ValueKey('curve-preparing')), findsNothing);
+      final readout = tester.widget<ExtractionReadout>(
+        find.byType(ExtractionReadout),
+      );
+      expect(readout.curve.timesMs, recorded.timesMs);
+      expect(readout.shown.timesMs, recorded.timesMs);
+      expect(readout.curve.weight, recorded.weight);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('filter retains maximum and cursor but hides flow statistics', (
     tester,
