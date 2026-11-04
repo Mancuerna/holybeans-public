@@ -9,6 +9,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/form_exit_guard.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
+import 'package:holybeans/ui/labels/label_editor.dart';
 import 'package:holybeans/ui/labels/label_graphic_controller.dart';
 import 'package:holybeans/ui/labels/label_output_settings.dart';
 import 'package:holybeans/ui/labels/label_printer_controls.dart';
@@ -464,23 +465,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
                   onPaper: _changePaper,
                 ),
                 const SizedBox(height: 16),
-                _templateFields(s, unknown),
-                const SizedBox(height: 16),
-                Text(
-                  s.labelPreview,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 420),
-                    child: LabelPreview(
-                      key: const ValueKey('label-preview'),
-                      layout: layout,
-                      upsideDown: upsideDown,
-                    ),
-                  ),
-                ),
+                _templateFields(s, unknown, layout),
                 if (!layout.fitsPaper) _warning(s.labelOverflow),
                 if (missing.isNotEmpty)
                   _warning(s.shareTemplateMissing(missing.join(', '))),
@@ -634,7 +619,11 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
     ],
   );
 
-  Widget _templateFields(AppLocalizations s, Set<String> unknown) => Column(
+  Widget _templateFields(
+    AppLocalizations s,
+    Set<String> unknown,
+    LabelLayout layout,
+  ) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       DropdownButtonFormField<String>(
@@ -650,25 +639,17 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
         onChanged: _changeTemplate,
       ),
       const SizedBox(height: 12),
-      TextField(
-        key: const ValueKey('label-body'),
+      LabelEditor(
         controller: body,
-        minLines: 3,
-        maxLines: 8,
-        maxLength: 8000,
-        decoration: InputDecoration(
-          labelText: s.labelBody,
-          helperText: s.labelBodyHint,
-          helperMaxLines: 3,
-          errorText: unknown.isEmpty
-              ? null
-              : s.shareTemplateUnknown(unknown.join(', ')),
-          errorMaxLines: 3,
-        ),
+        layout: layout,
+        unknown: unknown,
+        upsideDown: upsideDown,
+        keyboardInset: MediaQuery.viewInsetsOf(context).bottom,
         onChanged: (_) => setState(() {
           feedback = null;
         }),
       ),
+      const SizedBox(height: 12),
       if (printer.model.supportsImages)
         LabelGraphicControls(
           graphic: graphic,
