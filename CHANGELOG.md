@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.0](https://github.com/Mancuerna/holybeans-public/compare/v1.3.0...v1.4.0) (2026-11-04)
+
+
+### Features
+
+* add brew scale reset and responsive label editing ([484e71a](https://github.com/Mancuerna/holybeans-public/commit/484e71a0d5a9453b0cf0b906e55deae13e457d3b))
+* **brews:** open coffee details from brew title ([4b29f0c](https://github.com/Mancuerna/holybeans-public/commit/4b29f0ce90a3f2d793131b7951b862aefd402e15))
+* **equipment:** allow deleting unused methods and water profiles ([#14](https://github.com/Mancuerna/holybeans-public/issues/14)) ([b15f2a8](https://github.com/Mancuerna/holybeans-public/commit/b15f2a87754276b91986cba29b21243a3db9b0aa))
+
+
+### Bug Fixes
+
+* **release-notes:** announce unused equipment deletion ([#15](https://github.com/Mancuerna/holybeans-public/issues/15)) ([f8c849e](https://github.com/Mancuerna/holybeans-public/commit/f8c849ed3f003de9a231c4435b62321907b74fb2))
+
 ## [1.3.0](https://github.com/Mancuerna/holybeans-public/compare/v1.2.1...v1.3.0) (2026-11-03)
 
 
