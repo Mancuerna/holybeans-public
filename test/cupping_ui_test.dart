@@ -1,5 +1,6 @@
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -9,6 +10,7 @@ import 'package:holybeans/ui/cupping/cupping_model.dart';
 import 'package:holybeans/ui/cupping/cupping_page.dart';
 import 'package:holybeans/ui/cupping/cupping_scores.dart';
 import 'package:holybeans/ui/cupping/cupping_sessions_page.dart';
+import 'package:holybeans/ui/cupping/cupping_setup.dart';
 
 void main() {
   late AppDatabase db;
@@ -43,6 +45,81 @@ void main() {
         ),
         home: page,
       );
+
+  testWidgets(
+    'cupping searches full coffee names and roasters on narrow screens',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 760);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      const name = 'Diego Barahona - Bourbon Elite Lavado selección especial';
+      final selected = await r.createCoffee(
+        name: name,
+        roaster: 'Tostador Único',
+        initialGrams: 250,
+      );
+      final other = await r.createCoffee(name: 'Other', roaster: 'Different');
+      final archived = await r.createCoffee(name: 'Finished', roaster: 'R');
+      await r.setCoffeeArchived(archived, archived: true);
+      final d = CuppingDraft();
+      final m = CuppingModel(r, await session(d), d);
+      await m.loadCatalogs();
+      await tester.pumpWidget(
+        app(
+          Scaffold(
+            body: ListenableBuilder(
+              listenable: m,
+              builder: (_, _) => SingleChildScrollView(
+                child: CuppingCupSetup(model: m, index: 0),
+              ),
+            ),
+          ),
+          scale: 1.5,
+        ),
+      );
+      await tester.pumpAndSettle();
+      final field = find.byKey(const ValueKey('cupping-coffee-0'));
+      await tester.tap(field);
+      await tester.pumpAndSettle();
+      expect(find.byKey(ValueKey('coffee-choice-$archived')), findsNothing);
+      await tester.enterText(
+        find.byKey(const ValueKey('brew-coffee-search')),
+        'tostador unico',
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(ValueKey('coffee-choice-$other')), findsNothing);
+      final title = find.descendant(
+        of: find.text(name),
+        matching: find.byType(RichText),
+      );
+      expect(
+        tester.renderObject<RenderParagraph>(title).didExceedMaxLines,
+        isFalse,
+      );
+      expect(find.text('Tostador Único'), findsOneWidget);
+      await tester.tap(find.byKey(ValueKey('coffee-choice-$selected')));
+      await tester.pumpAndSettle();
+      expect(d.cups.first.coffeeId, selected);
+      expect(d.cups.first.lotId, (await r.coffeeLots(selected)).single.id);
+      expect(
+        tester.renderObject<RenderParagraph>(title).didExceedMaxLines,
+        isFalse,
+      );
+      expect(tester.takeException(), isNull);
+      await m.flush();
+      expect(
+        CuppingDraft.fromJson((await r.cuppingSession(m.session.id))!.draftJson)
+            .cups
+            .first
+            .coffeeId,
+        selected,
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+      m.dispose();
+      await tester.pump(const Duration(milliseconds: 10));
+    },
+  );
 
   testWidgets(
     'setup rejects empty coffees, updates water and restores its draft',

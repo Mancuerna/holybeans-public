@@ -124,7 +124,7 @@ Future<void> checkBlindCupping(
     final field = find.byKey(ValueKey('cupping-coffee-$i'));
     await $.scrollUntilVisible(finder: field);
     await $.tap(field);
-    await $.tap(find.text('Blind Kenya (Fixture)').last);
+    await $.tap(find.text('Blind Kenya').last);
     if (i == 0) {
       expect(
         $.tester

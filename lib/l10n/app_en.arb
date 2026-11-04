@@ -2300,6 +2300,7 @@
   "ratingSaving": "Saving rating…",
   "ratingWaitingForDrive": "Waiting for restoration to finish…",
   "curveProcessingFailed": "Could not display this curve.",
+  "releaseNotesCuppingReminder": "Rating reminders now include a 5-minute option. Cupping uses the same searchable coffee picker as brewing, with full names and a separate roaster line.",
   "releaseNotesPerformance": "Large journals load in smaller pages, with notes loaded when needed. Statistics are calculated in the background, and live extraction curves reuse previous calculations.",
   "releaseNotesTitle": "What’s new in this version",
   "releaseNotesEquipmentDeletion": "In Equipment, you can delete trial methods and water profiles with no links, including archived ones. If they are in use, the app explains why they cannot be deleted and you can still archive them.",

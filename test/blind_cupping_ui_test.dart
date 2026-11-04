@@ -195,7 +195,7 @@ void main() {
         await scroll(tester, first);
         await tester.tap(first);
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Secret Kenya (R)').last);
+        await tester.tap(find.text('Secret Kenya').last);
         await tester.pumpAndSettle();
         expect(
           tester
@@ -216,7 +216,7 @@ void main() {
         await scroll(tester, second);
         await tester.tap(second);
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Secret Kenya (R)').last);
+        await tester.tap(find.text('Secret Kenya').last);
         await tester.pumpAndSettle();
         await tester.tap(find.byKey(const ValueKey('cupping-review-scores')));
         await tester.pumpAndSettle();

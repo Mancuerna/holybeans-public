@@ -44,6 +44,8 @@ class ReleaseNotesObserver extends NavigatorObserver {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(s.releaseNotesCuppingReminder),
+                const SizedBox(height: 16),
                 Text(s.releaseNotesPerformance),
                 const SizedBox(height: 16),
                 Text(s.releaseNotesEquipmentDeletion),

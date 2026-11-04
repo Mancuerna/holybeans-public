@@ -9,7 +9,8 @@ class RateReminderSettings {
 
   final AppDatabase database;
 
-  static const delays = [10, 20, 30, 60];
+  static const defaultMinutes = 20;
+  static const delays = [5, 10, 20, 30, 60];
 
   Stream<int?> watchMinutes() =>
       database.watchPreferences().map((row) => row?.rateReminderMinutes);
