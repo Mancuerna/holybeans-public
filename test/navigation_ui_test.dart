@@ -2,12 +2,16 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/beans/coffee_details_sheet.dart';
+import 'package:holybeans/ui/brews/brew_details_sheet.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/brew_share_text.dart';
+import 'package:holybeans/ui/core/detail_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -492,6 +496,100 @@ void main() {
     );
     expect(find.byKey(const ValueKey('brew-detail-edit')), findsOneWidget);
     expect(find.text('BREW DETAILS'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 10));
+  });
+
+  testWidgets('brew title opens its coffee and closing returns to the brew', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(database.close);
+    final repository = JournalRepository(database);
+    final coffeeId = await repository.createCoffee(
+      name: 'Linked coffee',
+      roaster: 'Linked roaster',
+    );
+    final brewId = await repository.createBrew(
+      coffeeId: coffeeId,
+      methodName: 'V60',
+      doseGrams: 15,
+      waterGrams: 250,
+      temperatureC: 93,
+      notes: List.filled(30, 'Brew tasting notes.').join('\n'),
+    );
+    await BrewParameterSettings(database)
+        .saveHidden({BrewParameter.temperature});
+    await tester.pumpWidget(
+      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+    );
+    await tester.pumpAndSettle();
+    await tapBottomDestination(tester, 2);
+    await tester.tap(find.text('Linked coffee').first);
+    await tester.pumpAndSettle();
+
+    final brewSheet = find.byType(BrewDetailsSheet);
+    final title = find.descendant(
+      of: find.descendant(of: brewSheet, matching: find.byType(DetailHeader)),
+      matching: find.text('Linked coffee'),
+    );
+    expect(find.text('Temperature'), findsNothing);
+    final reveal = find.byKey(const ValueKey('brew-detail-hidden'));
+    await tester.ensureVisible(reveal);
+    await tester.pumpAndSettle();
+    await tester.tap(reveal);
+    await tester.pumpAndSettle();
+    expect(find.text('Temperature'), findsOneWidget);
+    await tester.ensureVisible(title);
+    await tester.pumpAndSettle();
+    final scroll = tester.state<ScrollableState>(verticalScrollable(brewSheet));
+    final offset = scroll.position.pixels;
+    expect(offset, greaterThan(0));
+
+    for (final systemBack in [true, false]) {
+      await tester.tap(title);
+      await tester.pumpAndSettle();
+      final coffeeSheet = find.byType(CoffeeDetailsSheet);
+      expect(coffeeSheet, findsOneWidget);
+      expect(
+        tester.widget<CoffeeDetailsSheet>(coffeeSheet).coffee.id,
+        coffeeId,
+      );
+      if (systemBack) {
+        expect(await tester.binding.handlePopRoute(), isTrue);
+      } else {
+        // Drag from the handle, outside the coffee's scrollable content.
+        final sheet = find.byType(BottomSheet).last;
+        await tester.dragFrom(
+          tester.getTopLeft(sheet) + const Offset(180, 16),
+          const Offset(0, 800),
+        );
+      }
+      await tester.pumpAndSettle();
+      expect(coffeeSheet, findsNothing);
+      expect(brewSheet, findsOneWidget);
+      expect(tester.widget<BrewDetailsSheet>(brewSheet).brew.id, brewId);
+      expect(find.text('Temperature'), findsOneWidget);
+      expect(
+        tester
+            .state<ScrollableState>(verticalScrollable(brewSheet))
+            .position
+            .pixels,
+        offset,
+      );
+    }
+
+    expect(await tester.binding.handlePopRoute(), isTrue);
+    await tester.pumpAndSettle();
+    expect(brewSheet, findsNothing);
+    expect(
+      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+      2,
+    );
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(milliseconds: 10));
