@@ -47,6 +47,7 @@ part 'journal_repository/coffee_cards.dart';
 part 'journal_repository/coffee_profile.dart';
 part 'journal_repository/cupping.dart';
 part 'journal_repository/equipment.dart';
+part 'journal_repository/equipment_deletion.dart';
 part 'journal_repository/recipients.dart';
 part 'journal_repository/freezer.dart';
 part 'journal_repository/frozen_brews.dart';
