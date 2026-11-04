@@ -15,6 +15,7 @@ import 'package:holybeans/ui/brews/sensory_map_page.dart';
 import 'package:holybeans/ui/brews/stock_review_card.dart';
 import 'package:holybeans/ui/brews/tasting_widgets.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
+import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/photo_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -63,6 +64,39 @@ class BrewDetailsSheet extends StatefulWidget {
 }
 
 class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
+  bool loading = false;
+  Object? loadError;
+  @override
+  void initState() {
+    super.initState();
+    if (widget.data.reads != null) _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      loading = true;
+      loadError = null;
+    });
+    try {
+      final full = await widget.actions.repository.brew(widget.brew.id);
+      if (full == null) throw StateError('Brew no longer exists');
+      if (mounted) {
+        setState(() {
+          brew = full;
+          loading = false;
+        });
+      }
+    } catch (error, stack) {
+      reportError(error, stack);
+      if (mounted) {
+        setState(() {
+          loadError = error;
+          loading = false;
+        });
+      }
+    }
+  }
+
   bool reveal = false;
   late bool favorite = widget.brew.isFavorite;
 
@@ -184,6 +218,20 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
 
   @override
   Widget build(BuildContext context) {
+    if (loading || loadError != null) {
+      return SizedBox(
+        height: 200,
+        child: Center(
+          child: loading
+              ? const CircularProgressIndicator()
+              : TextButton(
+                  onPressed: _load,
+                  child: Text(AppLocalizations.of(context)!.dataError),
+                ),
+        ),
+      );
+    }
+
     final s = AppLocalizations.of(context)!;
     final coffee = widget.coffee;
     final method = actions.methods

@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/data/repositories/coffee_freshness.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/brew_stats.dart';
-import 'package:holybeans/domain/freshness.dart';
-import 'package:holybeans/domain/stats_comparison.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/stats/stats_brews_tab.dart';
 import 'package:holybeans/ui/stats/stats_costs_tab.dart';
-import 'package:holybeans/ui/stats/stats_data.dart';
 import 'package:holybeans/ui/stats/stats_tabs.dart';
+import 'package:holybeans/ui/stats/stats_view_model.dart';
 import 'package:holybeans/ui/year_review/year_review_page.dart';
 
 /// Brewing statistics over a chosen period, in four tabs: an overview,
@@ -56,42 +53,54 @@ class StatsPage extends StatefulWidget {
 
 class _StatsPageState extends State<StatsPage> {
   StatsRange range = StatsRange.all;
+  final model = StatsViewModel();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _prepare();
+  }
 
   @override
-  Widget build(BuildContext context) {
+  void didUpdateWidget(StatsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _prepare();
+  }
+
+  @override
+  void dispose() {
+    model.dispose();
+    super.dispose();
+  }
+
+  void _prepare() => model.update((
+    brews: widget.brews,
+    coffees: widget.coffees,
+    components: widget.components,
+    methods: widget.methods,
+    lots: widget.lots,
+    prices: widget.pricePerKg,
+    range: range,
+    now: widget.now ?? DateUtils.dateOnly(DateTime.now()),
+    language: AppLocalizations.of(context)!.localeName,
+    remaining: widget.remainingGrams,
+    frozen: widget.frozenGrams,
+  ));
+  void _setRange(StatsRange next) {
+    setState(() => range = next);
+    _prepare();
+  }
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: model,
+    builder: (context, _) => _build(context),
+  );
+
+  Widget _build(BuildContext context) {
     final s = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final now = widget.now ?? DateTime.now();
-    BrewStyle styleOf(Brew brew) => brewStyleOf(brew, widget.methods);
-    BrewStats statsFor(List<Brew> brews, DateTime at) => BrewStats.compute(
-      brews: brews,
-      coffees: widget.coffees,
-      components: widget.components,
-      styleOf: styleOf,
-      range: range,
-      now: at,
-      languageCode: s.localeName,
-      pricePerKg: widget.pricePerKg,
-    );
-    final before = previousPeriod(
-      widget.brews,
-      range,
-      now,
-      brewedAtMs: (brew) => brew.brewedAtMs,
-    );
-    final data = StatsData(
-      stats: statsFor(widget.brews, now),
-      previous: before == null ? null : statsFor(before.brews, before.now),
-      range: range,
-      now: now,
-      allBrews: widget.brews,
-      coffees: widget.coffees,
-      lots: widget.lots,
-      pricePerKg: widget.pricePerKg,
-      styleOf: styleOf,
-      remainingGrams: widget.remainingGrams,
-      frozenGrams: widget.frozenGrams,
-    );
+    final data = model.value;
     final rangeLabels = {
       StatsRange.week: (s.statsRangeWeekShort, s.statsRangeWeek),
       StatsRange.month: (s.statsRangeMonthShort, s.statsRangeMonth),
@@ -158,7 +167,7 @@ class _StatsPageState extends State<StatsPage> {
                             key: ValueKey('stats-range-${option.name}'),
                             label: Text(rangeLabels[option]!.$2),
                             selected: range == option,
-                            onSelected: (_) => setState(() => range = option),
+                            onSelected: (_) => _setRange(option),
                           ),
                       ],
                     )
@@ -185,8 +194,7 @@ class _StatsPageState extends State<StatsPage> {
                             ),
                         ],
                         selected: {range},
-                        onSelectionChanged: (value) =>
-                            setState(() => range = value.single),
+                        onSelectionChanged: (value) => _setRange(value.single),
                       ),
                     ),
                   const SizedBox(height: 4),
@@ -200,14 +208,22 @@ class _StatsPageState extends State<StatsPage> {
               ),
             ),
             Expanded(
-              child: TabBarView(
-                children: [
-                  StatsOverviewTab(data: data),
-                  StatsBeansTab(data: data),
-                  StatsBrewsTab(data: data),
-                  StatsCostsTab(data: data),
-                ],
-              ),
+              child: data == null
+                  ? Center(
+                      child: model.error == null
+                          ? const CircularProgressIndicator(
+                              key: ValueKey('stats-preparing'),
+                            )
+                          : Text(s.dataError),
+                    )
+                  : TabBarView(
+                      children: [
+                        StatsOverviewTab(data: data),
+                        StatsBeansTab(data: data),
+                        StatsBrewsTab(data: data),
+                        StatsCostsTab(data: data),
+                      ],
+                    ),
             ),
           ],
         ),

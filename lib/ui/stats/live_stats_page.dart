@@ -3,6 +3,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/stock.dart';
+import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
 import 'package:holybeans/ui/stats/stats_page.dart';
 
@@ -32,9 +33,7 @@ class _LiveStatsPageState extends State<LiveStatsPage> {
   late final _coffees = widget.actions.repository.watchCoffees(
     includeArchived: true,
   );
-  late final _brews = widget.actions.repository.watchBrews(
-    includeArchived: true,
-  );
+  late final _brews = widget.actions.repository.reads.watchAnalytics();
   late final _lots = widget.actions.repository.watchLots();
 
   /// Grams of the coffees still in use: a finished coffee's leftovers are
@@ -55,11 +54,22 @@ class _LiveStatsPageState extends State<LiveStatsPage> {
     initialData: widget.coffees,
     builder: (context, coffeeSnapshot) => StreamBuilder<List<Brew>>(
       stream: _brews,
-      initialData: widget.brews,
       builder: (context, brewSnapshot) => StreamBuilder<List<CoffeeLot>>(
         stream: _lots,
         initialData: widget.lots,
         builder: (context, lotSnapshot) {
+          if (!brewSnapshot.hasData || brewSnapshot.hasError) {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(AppLocalizations.of(context)!.statsTitle),
+              ),
+              body: Center(
+                child: brewSnapshot.hasError
+                    ? Text(AppLocalizations.of(context)!.dataError)
+                    : const CircularProgressIndicator(),
+              ),
+            );
+          }
           final coffees = coffeeSnapshot.data ?? widget.coffees;
           final lots = lotSnapshot.data ?? widget.lots;
           return StatsPage(
@@ -70,7 +80,7 @@ class _LiveStatsPageState extends State<LiveStatsPage> {
                 (await widget.actions.repository.coffeePhotos(brew.coffeeId))
                     .firstOrNull,
             coffees: coffees,
-            brews: brewSnapshot.data ?? widget.brews,
+            brews: brewSnapshot.data!,
             components: widget.components,
             methods: widget.actions.methods,
             lots: lots,

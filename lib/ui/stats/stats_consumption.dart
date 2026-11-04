@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/domain/grinder_consumption.dart';
-import 'package:holybeans/domain/stats_insights.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart' show formatGrams;
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -20,28 +19,10 @@ class StatsConsumption extends StatelessWidget {
     // Grams, like the coffee ground above and every bag.
     final grams = NumberFormat('0', regionalLocale.toString());
     final percent = NumberFormat.percentPattern(regionalLocale.toString());
-    final groups = consumptionByGrinder([
-      for (final brew in data.stats.brews)
-        (
-          grinderId: brew.grinderId,
-          grinderName: brew.grinderName,
-          isPreGround: brew.isPreGround,
-          grams: brew.doseGrams,
-          brewedAtMs: brew.brewedAtMs,
-        ),
-    ]);
+    final groups = data.consumption;
     final total = groups.fold(0.0, (sum, group) => sum + group.grams);
     final known = groups.fold(0, (sum, group) => sum + group.doseCount);
-    final periods = totalsPerPeriod(
-      [
-        for (final brew in data.stats.brews)
-          if (brew.doseGrams case final grams? when grams.isFinite && grams > 0)
-            (DateTime.fromMillisecondsSinceEpoch(brew.brewedAtMs), grams),
-      ],
-      data.period,
-      now: data.now,
-      from: data.from,
-    );
+    final periods = data.consumedPeriods;
     final title = s.statsConsumptionPerPeriod(data.period.name);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

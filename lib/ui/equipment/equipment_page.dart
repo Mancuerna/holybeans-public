@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/equipment_overview.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/domain/brew_stats.dart';
-import 'package:holybeans/domain/grinder_consumption.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -57,9 +56,7 @@ class _EquipmentPageState extends State<EquipmentPage>
 
   /// Archived brews count too: a method's history includes them, as Stats
   /// does.
-  late final Stream<List<Brew>> brews = widget.repository.watchBrews(
-    includeArchived: true,
-  );
+  late final brews = widget.repository.reads.watchEquipment();
   late final TabController tabs = TabController(
     length: EquipmentSection.values.length,
     initialIndex: widget.section.index,
@@ -206,28 +203,34 @@ class _EquipmentPageState extends State<EquipmentPage>
                       if (!methodSnapshot.hasData || !grinderSnapshot.hasData) {
                         return const Center(child: CircularProgressIndicator());
                       }
-                      return StreamBuilder<List<Brew>>(
+                      return StreamBuilder<EquipmentOverview>(
                         stream: brews,
                         builder: (context, brewSnapshot) =>
-                            _EquipmentSectionList(
-                              repository: widget.repository,
-                              section: widget.section,
-                              methods: methodSnapshot.data!,
-                              grinders: grinderSnapshot.data!,
-                              brews: brewSnapshot.data ?? const [],
-                              onShowMethodBrews: widget.onShowMethodBrews,
-                              onBrewWithMethod: widget.onBrewWithMethod,
-                              showArchived: showArchived,
-                              onEditMethod: _editMethod,
-                              onArchiveMethod: _archiveMethod,
-                              onEditGrinder: _editGrinder,
-                              onArchiveGrinder: _archiveGrinder,
-                              onManageTools: (method) => showMethodTools(
-                                context,
-                                widget.repository,
-                                method,
+                            brewSnapshot.hasError
+                            ? Center(child: Text(s.dataError))
+                            : !brewSnapshot.hasData
+                            ? const Center(child: CircularProgressIndicator())
+                            : _EquipmentSectionList(
+                                repository: widget.repository,
+                                section: widget.section,
+                                methods: methodSnapshot.data!,
+                                grinders: grinderSnapshot.data!,
+                                usage:
+                                    brewSnapshot.data ??
+                                    (methods: const {}, grinders: const {}),
+                                onShowMethodBrews: widget.onShowMethodBrews,
+                                onBrewWithMethod: widget.onBrewWithMethod,
+                                showArchived: showArchived,
+                                onEditMethod: _editMethod,
+                                onArchiveMethod: _archiveMethod,
+                                onEditGrinder: _editGrinder,
+                                onArchiveGrinder: _archiveGrinder,
+                                onManageTools: (method) => showMethodTools(
+                                  context,
+                                  widget.repository,
+                                  method,
+                                ),
                               ),
-                            ),
                       );
                     },
                   ),
@@ -245,7 +248,7 @@ class _EquipmentSectionList extends StatelessWidget {
     required this.section,
     required this.methods,
     required this.grinders,
-    required this.brews,
+    required this.usage,
     required this.showArchived,
     required this.onShowMethodBrews,
     required this.onBrewWithMethod,
@@ -260,7 +263,7 @@ class _EquipmentSectionList extends StatelessWidget {
   final EquipmentSection section;
   final List<BrewMethod> methods;
   final List<Grinder> grinders;
-  final List<Brew> brews;
+  final EquipmentOverview usage;
   final bool showArchived;
   final ValueChanged<BrewMethod>? onShowMethodBrews;
   final ValueChanged<BrewMethod>? onBrewWithMethod;
@@ -276,13 +279,10 @@ class _EquipmentSectionList extends StatelessWidget {
     if (section == EquipmentSection.methods) {
       // The methods in use first, by their last brew; unused ones after,
       // by name.
-      final lastUse = <String, int>{};
-      for (final brew in brews) {
-        final id = brew.methodId;
-        if (id != null && brew.brewedAtMs > (lastUse[id] ?? -1)) {
-          lastUse[id] = brew.brewedAtMs;
-        }
-      }
+      final lastUse = {
+        for (final entry in usage.methods.entries)
+          entry.key: entry.value.lastMs ?? -1,
+      };
       final visible =
           methods
               .where(
@@ -308,10 +308,9 @@ class _EquipmentSectionList extends StatelessWidget {
           final method = visible[index - 1];
           return _MethodCard(
             method: method,
-            brews: [
-              for (final brew in brews)
-                if (brew.methodId == method.id) brew,
-            ],
+            use:
+                usage.methods[method.id] ??
+                (count: 0, rating: null, lastMs: null),
             onEdit: () => onEditMethod(method),
             onPiston:
                 method.machine == 'meticulous' && method.machineAddress != null
@@ -355,15 +354,13 @@ class _EquipmentSectionList extends StatelessWidget {
       separatorBuilder: (context, index) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final grinder = visible[index];
-        final use = grinderUse([
-          for (final brew in brews)
-            if (brew.grinderId == grinder.id)
-              (
-                method: brew.methodName,
-                setting: brew.grindSetting,
-                brewedAtMs: brew.brewedAtMs,
-              ),
-        ]);
+        final use =
+            usage.grinders[grinder.id] ??
+            (
+              brewCount: 0,
+              lastBrewedAtMs: null,
+              usualSettings: const <({String method, String setting})>[],
+            );
         final details = <String>[
           if (use.brewCount > 0)
             [
@@ -420,7 +417,7 @@ class _EquipmentSectionList extends StatelessWidget {
 class _MethodCard extends StatelessWidget {
   const _MethodCard({
     required this.method,
-    required this.brews,
+    required this.use,
     required this.onEdit,
     required this.onManageTools,
     this.onPiston,
@@ -433,7 +430,7 @@ class _MethodCard extends StatelessWidget {
   final BrewMethod method;
 
   /// The method's brews.
-  final List<Brew> brews;
+  final MethodUse use;
   final VoidCallback onEdit;
   final VoidCallback onManageTools;
   final VoidCallback? onPiston;
@@ -453,12 +450,6 @@ class _MethodCard extends StatelessWidget {
         '${method.vesselName ?? s.methodJug} (${number.format(jug)} g)',
       if (method.archivedAtMs != null) s.archivedStatus,
     ];
-    final rated = brews.map((brew) => brew.rating).whereType<double>().toList();
-    final lastBrew = brews.fold<Brew?>(
-      null,
-      (latest, brew) =>
-          latest == null || brew.brewedAtMs > latest.brewedAtMs ? brew : latest,
-    );
     return Card(
       key: ValueKey('method-card-${method.id}'),
       child: Column(
@@ -520,11 +511,11 @@ class _MethodCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
             child: Text(
               [
-                s.brewsCount(brews.length),
-                if (meanRating(rated) case final average?)
+                s.brewsCount(use.count),
+                if (use.rating case final average?)
                   '${s.averageRating} ${number.format(average)}',
-                if (lastBrew != null)
-                  '${s.lastUsed} ${formatRegionalDate(DateTime.fromMillisecondsSinceEpoch(lastBrew.brewedAtMs), regionalLocale)}',
+                if (use.lastMs != null)
+                  '${s.lastUsed} ${formatRegionalDate(DateTime.fromMillisecondsSinceEpoch(use.lastMs!), regionalLocale)}',
               ].join(', '),
               key: ValueKey('method-stats-${method.id}'),
               style: theme.textTheme.bodySmall?.copyWith(
@@ -547,7 +538,7 @@ class _MethodCard extends StatelessWidget {
                     icon: const Icon(Icons.coffee_maker_outlined),
                     label: Text(s.actionBrew),
                   ),
-                if (onShowBrews case final onShowBrews? when brews.isNotEmpty)
+                if (onShowBrews case final onShowBrews? when use.count > 0)
                   TextButton.icon(
                     key: ValueKey('method-brews-${method.id}'),
                     onPressed: onShowBrews,

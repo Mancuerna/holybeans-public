@@ -39,7 +39,7 @@ class HomeTab extends StatelessWidget {
         .where((coffee) => coffee.archivedAtMs == null)
         .toList();
     final activeIds = {for (final coffee in active) coffee.id};
-    final activeBrews = brews
+    final activeBrews = (data.overview?.seeds.values.toList() ?? brews)
         .where((brew) => brew.archivedAtMs == null)
         .toList();
     final frozenByCoffee = frozenGramsByCoffee(lots, actions.portions);
@@ -47,13 +47,7 @@ class HomeTab extends StatelessWidget {
     double sumActive(Map<String, double> grams) => grams.entries
         .where((entry) => activeIds.contains(entry.key))
         .fold(0, (sum, entry) => sum + entry.value);
-    final lastBrewAt = <String, int>{};
-    for (final brew in brews) {
-      final previous = lastBrewAt[brew.coffeeId];
-      if (previous == null || brew.brewedAtMs > previous) {
-        lastBrewAt[brew.coffeeId] = brew.brewedAtMs;
-      }
-    }
+    final lastBrewAt = data.lastBrewAt;
     // Coffees at hand: not archived and with unfrozen coffee (or unknown
     // stock), most recently brewed first, then the newest unbrewed ones.
     final atHand =
@@ -81,12 +75,13 @@ class HomeTab extends StatelessWidget {
     );
     return JournalPage(
       children: [
-        if (seasonalCoffeeYear(
-              yearJournalDates(brews, lots),
-              now ?? DateTime.now(),
-            )
+        if (seasonalCoffeeYear([
+              ...?data.overview?.yearDates,
+              ...yearJournalDates(brews, lots),
+            ], now ?? DateTime.now())
             case final year?) ...[
           YearReviewEntry(
+            loadBrews: data.reads?.analytics,
             lots: lots,
             brews: brews,
             coffees: coffees,
@@ -132,15 +127,16 @@ class HomeTab extends StatelessWidget {
                 StatItem(
                   s.homeWeekTile,
                   s.brewsCount(
-                    brews
-                        .where(
-                          (brew) =>
-                              brew.brewedAtMs >=
-                              (now ?? DateTime.now())
-                                  .subtract(const Duration(days: 7))
-                                  .millisecondsSinceEpoch,
-                        )
-                        .length,
+                    data.overview?.weekCountAt(now ?? DateTime.now()) ??
+                        brews
+                            .where(
+                              (brew) =>
+                                  brew.brewedAtMs >=
+                                  (now ?? DateTime.now())
+                                      .subtract(const Duration(days: 7))
+                                      .millisecondsSinceEpoch,
+                            )
+                            .length,
                   ),
                   key: const ValueKey('home-week-brews'),
                 ),
@@ -150,6 +146,7 @@ class HomeTab extends StatelessWidget {
         ],
         BackupReminders(
           center: actions.backupCenter,
+          firstBrewCreatedMs: data.overview?.firstCreatedMs,
           coffees: coffees,
           brews: brews,
           onExport: actions.exportBackup,
@@ -157,6 +154,7 @@ class HomeTab extends StatelessWidget {
           onChooseFolder: actions.chooseBackupFolder,
         ),
         if (lowStock(
+              typicalDoses: data.overview?.doses,
               coffees: coffees,
               brews: brews,
               freshGrams: freshByCoffee,
@@ -187,6 +185,7 @@ class HomeTab extends StatelessWidget {
             freshGrams: freshByCoffee,
             low: {
               for (final item in lowStock(
+                typicalDoses: data.overview?.doses,
                 coffees: coffees,
                 brews: brews,
                 freshGrams: freshByCoffee,

@@ -6,6 +6,16 @@ List<RoasterProfile> roasterProfiles(
   List<RoasterCafeDrink> cafeDrinks = const [],
 }) => RoasterProfile.fromJournal(
   cafeDrinks: cafeDrinks,
+  brewTotals: data.overview == null
+      ? null
+      : {
+          for (final entry in data.overview!.byCoffee.entries)
+            entry.key: (
+              count: entry.value.count,
+              rated: entry.value.rated,
+              ratingSum: entry.value.ratingSum,
+            ),
+        },
   coffees: [
     for (final coffee in data.coffees)
       (

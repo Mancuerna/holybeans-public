@@ -43,13 +43,14 @@ List<LowStock> lowStock({
   required List<Brew> brews,
   required Map<String, double> freshGrams,
   required Map<String, double> frozenGrams,
+  Map<String, double>? typicalDoses,
 }) {
   final low = <LowStock>[];
   for (final coffee in coffees) {
     if (coffee.archivedAtMs != null) continue;
     final fresh = freshGrams[coffee.id];
     if (fresh == null || fresh <= 0) continue;
-    final dose = typicalDose(coffee.id, brews);
+    final dose = typicalDoses?[coffee.id] ?? typicalDose(coffee.id, brews);
     if (fresh >= 2 * dose) continue;
     low.add(
       LowStock(

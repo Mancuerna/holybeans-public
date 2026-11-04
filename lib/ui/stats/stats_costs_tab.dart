@@ -26,28 +26,17 @@ class StatsCostsTab extends StatelessWidget {
     final stats = data.stats;
     final euros = euroNumberFormat(regionalLocale.toString());
     final number = NumberFormat('0.#', regionalLocale.toString());
-    final from = data.from;
-    final bought = purchases(data.lots, data.pricePerKg, from: from);
+    final bought = data.bought;
     final spent = bought.fold<double>(0, (sum, bag) => sum + bag.price);
     final boughtGrams = bought.fold<double>(0, (sum, bag) => sum + bag.grams);
-    final values = coffeeValues(stats.brews, data.coffees, data.pricePerKg);
+    final values = data.values;
     final rated = [
       for (final value in values)
         if (value.costPerCup != null && value.averageRating != null) value,
     ];
     final best = bestValue(values);
-    final roasters = pricePerKgByRoaster(
-      data.coffees,
-      data.lots,
-      data.pricePerKg,
-      from: from,
-    );
-    final spending = totalsPerPeriod(
-      [for (final bag in bought) (bag.date, bag.price)],
-      data.period,
-      now: data.now,
-      from: from,
-    );
+    final roasters = data.roasterPrices;
+    final spending = data.spending;
     final periodName = data.period.name;
     String perCup(double? cost) => s.statsCupCost(euros.format(cost ?? 0));
     if (data.pricePerKg.isEmpty) {

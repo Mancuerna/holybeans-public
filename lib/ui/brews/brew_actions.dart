@@ -66,6 +66,17 @@ class BrewActions {
     bool repeat = false,
     bool adjust = false,
   }) async {
+    try {
+      if (existing != null) {
+        existing = await repository.brew(existing.id) ?? existing;
+      }
+      if (seed != null) seed = await repository.brew(seed.id) ?? seed;
+    } catch (error, stack) {
+      reportError(error, stack);
+      if (context.mounted) message(AppLocalizations.of(context)!.dataError);
+      return;
+    }
+    if (!context.mounted) return;
     final s = AppLocalizations.of(context)!;
     final available = coffees
         .where(
@@ -148,18 +159,28 @@ class BrewActions {
     Brew brew,
     Coffee coffee,
     List<CoffeeComponent> components,
-  ) => shareBrewFlow(
-    context,
-    photos: photos,
-    repository: repository,
-    settings: parameterSettings,
-    templateSettings: templateSettings,
-    brew: brew,
-    coffee: coffee,
-    components: components,
-    method: methods().where((row) => row.id == brew.methodId).firstOrNull,
-    message: message,
-  );
+  ) async {
+    try {
+      brew = await repository.brew(brew.id) ?? brew;
+    } catch (error, stack) {
+      reportError(error, stack);
+      if (context.mounted) message(AppLocalizations.of(context)!.dataError);
+      return;
+    }
+    if (!context.mounted) return;
+    await shareBrewFlow(
+      context,
+      photos: photos,
+      repository: repository,
+      settings: parameterSettings,
+      templateSettings: templateSettings,
+      brew: brew,
+      coffee: coffee,
+      components: components,
+      method: methods().where((row) => row.id == brew.methodId).firstOrNull,
+      message: message,
+    );
+  }
 
   Future<void> _scheduleRateReminder(
     String brewId,
@@ -210,6 +231,14 @@ class BrewActions {
   }
 
   Future<void> rateBrew(Brew brew, Coffee? coffee) async {
+    try {
+      brew = await repository.brew(brew.id) ?? brew;
+    } catch (error, stack) {
+      reportError(error, stack);
+      if (context.mounted) message(AppLocalizations.of(context)!.dataError);
+      return;
+    }
+    if (!context.mounted) return;
     final saved = await showRateBrewSheet(
       context,
       repository,

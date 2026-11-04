@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/equipment_overview.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/error_report.dart';
@@ -115,7 +116,7 @@ class RecipientsList extends StatefulWidget {
 
 class _RecipientsListState extends State<RecipientsList> {
   late final rows = widget.repository.watchRecipients(includeArchived: true);
-  late final brews = widget.repository.watchBrews(includeArchived: true);
+  late final brews = widget.repository.reads.watchRecipientUses();
   Future<void> archive(Recipient row) async {
     try {
       await widget.repository.setRecipientArchived(
@@ -150,15 +151,11 @@ class _RecipientsListState extends State<RecipientsList> {
         if (visible.isEmpty) return Center(child: Text(s.recipientsEmpty));
         // Cards like the other equipment: name, empty weight and use, with
         // the actions in a menu.
-        return StreamBuilder<List<Brew>>(
+        return StreamBuilder<Map<String, int>>(
           stream: brews,
           builder: (context, brewSnapshot) {
-            final uses = <String, int>{};
-            for (final brew in brewSnapshot.data ?? const <Brew>[]) {
-              if (brew.recipientId case final id?) {
-                uses[id] = (uses[id] ?? 0) + 1;
-              }
-            }
+            if (brewSnapshot.hasError) return Center(child: Text(s.dataError));
+            final uses = brewSnapshot.data ?? const <String, int>{};
             final grams = NumberFormat('0.#', regionalLocale.toString());
             return ListView.separated(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 96),

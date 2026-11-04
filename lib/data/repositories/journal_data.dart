@@ -1,8 +1,12 @@
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/brew_overview.dart';
+import 'package:holybeans/data/repositories/journal_read_queries.dart';
 
 /// The journal's live data, as the shell receives it from the database.
 class JournalData {
   JournalData({
+    this.overview,
+    this.reads,
     required List<Coffee> coffees,
     required List<Brew> brews,
     required List<CoffeeLot> lots,
@@ -16,7 +20,34 @@ class JournalData {
        covers = Map.unmodifiable(covers),
        adjustments = List.unmodifiable(adjustments);
 
-  /// All coffees and brews, archived ones included.
+  final BrewOverview? overview;
+  final JournalReadQueries? reads;
+
+  int brewCount(String coffeeId) =>
+      overview?.byCoffee[coffeeId]?.count ??
+      (overview == null
+          ? brews.where((brew) => brew.coffeeId == coffeeId).length
+          : 0);
+
+  Map<String, int> get lastBrewAt {
+    if (overview case final summary?) {
+      return {
+        for (final entry in summary.byCoffee.entries)
+          entry.key: entry.value.lastMs,
+      };
+    }
+    final result = <String, int>{};
+    for (final brew in brews) {
+      final previous = result[brew.coffeeId];
+      if (previous == null || brew.brewedAtMs > previous) {
+        result[brew.coffeeId] = brew.brewedAtMs;
+      }
+    }
+    return result;
+  }
+
+  /// All coffees and a bounded set of brew previews in the live shell.
+  /// Standalone snapshots can still supply a complete list.
   final List<Coffee> coffees;
   final List<Brew> brews;
   final List<CoffeeLot> lots;

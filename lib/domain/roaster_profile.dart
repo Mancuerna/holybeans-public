@@ -13,6 +13,8 @@ typedef RoasterPurchase = ({
   double? grams,
   String? purchaseDate,
 });
+typedef RoasterBrewTotals = ({int count, int rated, double ratingSum});
+
 typedef RoasterBrew = ({String coffeeId, double? rating});
 typedef RoasterCafeDrink = ({
   String id,
@@ -37,6 +39,7 @@ class RoasterProfile {
     required List<RoasterCoffee> coffees,
     required List<RoasterPurchase> purchases,
     required List<RoasterBrew> brews,
+    Map<String, RoasterBrewTotals>? brewTotals,
     required List<RoasterOrigin> origins,
   }) {
     final names = <String, int>{};
@@ -111,8 +114,25 @@ class RoasterProfile {
       brewsByCoffee.update(brew.coffeeId, (n) => n + 1, ifAbsent: () => 1);
       if (_validRating(brew.rating)) brewRatings.add(brew.rating!);
     }
-    brewRatingCount = brewRatings.length;
-    brewRating = _average(brewRatings);
+    if (brewTotals == null) {
+      brewRatingCount = brewRatings.length;
+      brewRating = _average(brewRatings);
+    } else {
+      brewCount = 0;
+      brewsByCoffee.clear();
+      var rated = 0;
+      var sum = 0.0;
+      for (final id in ids) {
+        final totals = brewTotals[id];
+        if (totals == null) continue;
+        brewCount += totals.count;
+        if (totals.count > 0) brewsByCoffee[id] = totals.count;
+        rated += totals.rated;
+        sum += totals.ratingSum;
+      }
+      brewRatingCount = rated;
+      brewRating = rated == 0 ? null : sum / rated;
+    }
     final originCoffees = <String>{};
     final countries = <String, String>{};
     for (final origin in origins.where(
@@ -179,6 +199,7 @@ class RoasterProfile {
     required List<RoasterCoffee> coffees,
     required List<RoasterPurchase> purchases,
     required List<RoasterBrew> brews,
+    Map<String, RoasterBrewTotals>? brewTotals,
     required List<RoasterOrigin> origins,
     List<RoasterCafeDrink> cafeDrinks = const [],
   }) {
@@ -201,6 +222,7 @@ class RoasterProfile {
           coffees: entry.value,
           purchases: purchases,
           brews: brews,
+          brewTotals: brewTotals,
           origins: origins,
         ),
     ]..sort((a, b) => a.key.compareTo(b.key));

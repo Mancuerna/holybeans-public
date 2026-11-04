@@ -5,6 +5,15 @@ import 'package:holybeans/data/database/app_database.dart';
 Future<void> reconstructLegacySchema(AppDatabase db, int version) async {
   await db.customStatement('PRAGMA foreign_keys = OFF');
   await db.transaction(() async {
+    // Current access indexes may refer to columns absent from old fixtures.
+    for (final name in [
+      'brew_history',
+      'brew_active_history',
+      'brew_coffee_history',
+      'brew_coffee_recipe',
+    ]) {
+      await db.customStatement('DROP INDEX IF EXISTS $name');
+    }
     if (version < 37) {
       for (final table in [
         'piston_method_links',

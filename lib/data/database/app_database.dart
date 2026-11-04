@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:holybeans/data/database/brew_changes.dart';
+import 'package:holybeans/data/database/journal_indexes.dart';
 import 'package:holybeans/data/database/schema_steps.g.dart' as schemas;
 import 'package:holybeans/data/services/journal_write_gate.dart';
 import 'package:holybeans/domain/beanconqueror/bq_values.dart';
@@ -16,10 +17,10 @@ import 'package:uuid/uuid.dart';
 part 'app_database.g.dart';
 part 'cafe_tables.dart';
 part 'cupping_tables.dart';
+part 'piston_tables.dart';
 part 'recipient_migration.dart';
 part 'roaster_registry.dart';
 part 'stock_tables.dart';
-part 'piston_tables.dart';
 
 class Coffees extends Table {
   TextColumn get id => text()();
@@ -671,6 +672,7 @@ class AppDatabase extends _$AppDatabase {
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
       await installBrewChanges(this);
+      await installJournalIndexes(this);
     },
   );
 

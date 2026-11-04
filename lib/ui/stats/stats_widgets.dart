@@ -57,10 +57,16 @@ class StatsSection extends StatelessWidget {
 /// GitHub-style calendar of brews per day for the last weeks that fit, with
 /// the current and longest streaks.
 class ActivityCalendar extends StatelessWidget {
-  const ActivityCalendar({super.key, required this.brews, required this.today});
+  const ActivityCalendar({
+    super.key,
+    required this.brews,
+    required this.today,
+    this.preparedCounts,
+  });
 
   final List<Brew> brews;
   final DateTime today;
+  final Map<DateTime, int>? preparedCounts;
 
   static const _cell = 14.0;
   static const _gap = 3.0;
@@ -70,7 +76,7 @@ class ActivityCalendar extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final counts = brewsPerDay(brews);
+    final counts = preparedCounts ?? brewsPerDay(brews);
     final day = statsDay(today);
     final firstWeekday = MaterialLocalizations.of(context).firstDayOfWeekIndex;
     // Row of today's weekday, with Sunday as 0 like firstDayOfWeekIndex.

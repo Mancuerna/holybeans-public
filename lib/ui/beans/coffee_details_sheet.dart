@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/data/repositories/coffee_freshness.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/altitude.dart';
@@ -12,7 +11,7 @@ import 'package:holybeans/domain/stock.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/coffee_details_header.dart';
 import 'package:holybeans/ui/beans/freezer_widgets.dart';
-import 'package:holybeans/ui/beans/freshness_widgets.dart';
+import 'package:holybeans/ui/beans/live_freshness_section.dart';
 import 'package:holybeans/ui/beans/stock_adjustment_section.dart';
 import 'package:holybeans/ui/brews/brew_card.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
@@ -106,16 +105,6 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
           final brews =
               data.brews.where((brew) => brew.coffeeId == coffee.id).toList()
                 ..sort((a, b) => b.brewedAtMs.compareTo(a.brewedAtMs));
-          final freshness = coffeeFreshness(
-            coffee: coffee,
-            lots: lots,
-            coffees: data.coffees,
-            brews: data.brews,
-            allLots: lotSnapshot.data ?? lots,
-            components: data.components,
-            methods: actions.methods,
-            frozenOnlyAge: stock.frozenOnlyAge,
-          );
           final components = data.componentsOf(coffee.id);
           final notes = coffee.notes?.trim() ?? '';
           return DetailSheetContent(
@@ -138,7 +127,7 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
                     AppLocalizations.of(context)!,
                     coffee,
                     stock,
-                    brewCount: brews.length,
+                    brewCount: data.brewCount(coffee.id),
                   ),
                 ),
                 StockAdjustmentSection(
@@ -149,10 +138,14 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
                       .where((r) => r.coffeeId == coffee.id)
                       .toList(),
                 ),
-                if (freshness != null) ...[
-                  const SizedBox(height: 20),
-                  FreshnessSection(freshness: freshness),
-                ],
+                LiveFreshnessSection(
+                  data: data,
+                  coffee: coffee,
+                  lots: lots,
+                  allLots: lotSnapshot.data ?? data.lots,
+                  methods: actions.methods,
+                  frozenAge: stock.frozenOnlyAge,
+                ),
                 _FreezerSection(
                   actions: actions,
                   coffee: coffee,
@@ -686,7 +679,7 @@ class _RecentBrews extends StatelessWidget {
               onTap: () => actions.showBrewDetails(brew, coffee, data),
             ),
           ),
-        if (brews.length > 3)
+        if (data.brewCount(coffee.id) > 3)
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: TextButton(
@@ -695,7 +688,7 @@ class _RecentBrews extends StatelessWidget {
                 Navigator.pop(context);
                 actions.showBrewsOfCoffee(coffee);
               },
-              child: Text(s.seeAllBrews(brews.length)),
+              child: Text(s.seeAllBrews(data.brewCount(coffee.id))),
             ),
           ),
       ],

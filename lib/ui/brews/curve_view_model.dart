@@ -3,15 +3,18 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:holybeans/domain/prepared_curve.dart';
 import 'package:holybeans/domain/shot_curve.dart';
+import 'package:holybeans/ui/brews/curve_worker.dart';
 import 'package:holybeans/ui/core/error_report.dart';
 
 /// Large curves are prepared off the UI isolate. During live updates each
 /// completed coherent snapshot is shown, with at most one newer input queued.
 class CurveViewModel extends ChangeNotifier {
-  CurveViewModel({Future<PreparedCurve> Function(CurveRequest)? prepare})
-    : _prepare = prepare ?? _inBackground;
+  CurveViewModel({
+    this._prepare,
+  }); // Injectable asynchronous preparation for lifecycle tests.
 
-  final Future<PreparedCurve> Function(CurveRequest) _prepare;
+  final Future<PreparedCurve> Function(CurveRequest)? _prepare;
+  final _worker = CurveWorker();
   CurveRequest? _input;
   CurveRequest? _pending;
   PreparedCurve? value;
@@ -20,9 +23,6 @@ class CurveViewModel extends ChangeNotifier {
   bool _disposed = false;
   int _generation = 0;
   bool _live = false;
-
-  static Future<PreparedCurve> _inBackground(CurveRequest request) =>
-      compute(prepareCurve, request, debugLabel: 'extraction-curve');
 
   void update(ShotCurve curve, {int? firstDripMs, bool live = false}) {
     final request = (curve: curve, firstDripMs: firstDripMs);
@@ -53,7 +53,7 @@ class CurveViewModel extends ChangeNotifier {
         final generation = _generation;
         _pending = null;
         try {
-          final prepared = await _prepare(request);
+          final prepared = await (_prepare ?? _worker.prepare)(request);
           if (_disposed ||
               generation != _generation ||
               (!_live && request != _input)) {
@@ -81,6 +81,7 @@ class CurveViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _worker.dispose();
     _pending = _input = null;
     value = null;
     super.dispose();
