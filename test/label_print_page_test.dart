@@ -9,6 +9,7 @@ import 'package:holybeans/data/preferences/label_output_preferences.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/domain/label_template.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
+import 'package:holybeans/ui/labels/label_editor.dart';
 import 'package:holybeans/ui/labels/label_print_page.dart';
 import 'package:holybeans/ui/labels/label_renderer.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -93,6 +94,88 @@ void main() {
     );
     await tester.pumpAndSettle();
   }
+
+  testWidgets('mobile preview sits immediately above the taller editor', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await mount(tester);
+    await reveal(tester, 'label-preview');
+    final preview = tester.getRect(find.byType(LabelPreview));
+    final editor = tester.getRect(find.byKey(const ValueKey('label-body')));
+    expect(editor.top - preview.bottom, closeTo(12, 0.1));
+    expect(editor.height, greaterThan(180));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'resizing keeps the draft, selection and focus beside its preview',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await mount(tester);
+      await reveal(tester, 'label-body');
+      final body = find.byKey(const ValueKey('label-body'));
+      await tester.enterText(body, 'My coffee');
+      final controller = tester.widget<TextField>(body).controller!;
+      controller.selection = const TextSelection.collapsed(offset: 3);
+      tester.view.physicalSize = const Size(1100, 844);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byType(LabelEditor));
+      await tester.pumpAndSettle();
+      final preview = tester.getRect(find.byType(LabelPreview));
+      final editor = tester.getRect(body);
+      expect(preview.right, lessThan(editor.left));
+      expect(
+        preview.overlaps(Rect.fromLTRB(0, editor.top, 1100, editor.bottom)),
+        isTrue,
+      );
+      expect(controller.text, 'My coffee');
+      expect(controller.selection.baseOffset, 3);
+      expect(
+        tester
+            .widget<EditableText>(find.byType(EditableText))
+            .focusNode
+            .hasFocus,
+        isTrue,
+      );
+      expect(
+        tester.widget<LabelPreview>(find.byType(LabelPreview)).layout.markdown,
+        'My coffee',
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'preview and text remain visible when the mobile keyboard opens',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.view.resetViewInsets);
+      await mount(tester);
+      await reveal(tester, 'label-body');
+      await tester.enterText(
+        find.byKey(const ValueKey('label-body')),
+        'My coffee',
+      );
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      await tester.pumpAndSettle();
+      final preview = tester.getRect(find.byType(LabelPreview));
+      final editable = tester.getRect(find.byType(EditableText));
+      expect(preview.top, greaterThanOrEqualTo(kToolbarHeight));
+      expect(preview.bottom, lessThan(editable.top));
+      expect(editable.bottom, lessThanOrEqualTo(544));
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   for (final model in LabelPrinterModel.values.where(
     (m) => m != LabelPrinterModel.d110,

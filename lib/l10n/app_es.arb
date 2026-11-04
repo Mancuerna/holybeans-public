@@ -1128,6 +1128,10 @@
       }
     }
   },
+  "scaleReset": "Reiniciar peso y tiempo",
+  "scaleResetConfirm": "Se detendrá la extracción y se descartará su registro. El peso y el tiempo volverán a cero.",
+  "scaleResetAction": "Reiniciar",
+  "scaleResetFailed": "No se pudo completar el reinicio de la báscula. Comprueba la conexión y vuelve a intentarlo.",
   "scaleTare": "Tara",
   "scaleRecording": "Grabando el peso",
   "scaleCurveRecorded": "Curva de peso grabada: {seconds} s",

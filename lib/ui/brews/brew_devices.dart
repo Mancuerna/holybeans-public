@@ -34,10 +34,12 @@ class BrewDevices {
            : BrewPressureSession(pressureSensor!) {
     // Waits only for a scale that is connecting, so its curve is not lost;
     // with the scale off, flat or out of range the timer runs on its own.
-    timer.allowStart = () => switch (this.scale?.scale.status) {
-      DeviceStatus.connecting || DeviceStatus.searching => false,
-      _ => true,
-    };
+    timer.allowStart = () =>
+        !(this.scale?.resetting ?? false) &&
+        switch (this.scale?.scale.status) {
+          DeviceStatus.connecting || DeviceStatus.searching => false,
+          _ => true,
+        };
     timer.restartOnStart = () => this.scale?.restartsOnNextStart ?? false;
     this.scale
       ?..requestStart = (() => timer.running ? null : timer.toggle())
