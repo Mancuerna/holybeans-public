@@ -10,6 +10,7 @@ import 'package:holybeans/ui/backup/backup_center.dart';
 class BackupReminders extends StatelessWidget {
   const BackupReminders({
     super.key,
+    this.firstBrewCreatedMs,
     required this.center,
     required this.coffees,
     required this.brews,
@@ -18,12 +19,21 @@ class BackupReminders extends StatelessWidget {
     required this.onChooseFolder,
   });
 
+  final int? firstBrewCreatedMs;
   final BackupCenter center;
   final List<Coffee> coffees;
   final List<Brew> brews;
   final VoidCallback onExport;
   final VoidCallback onSaveToFolder;
   final VoidCallback onChooseFolder;
+
+  DateTime? _firstUse() {
+    final known = journalFirstUse(coffees, brews);
+    final first = firstBrewCreatedMs;
+    if (first == null) return known;
+    final date = DateTime.fromMillisecondsSinceEpoch(first);
+    return known == null || date.isBefore(known) ? date : known;
+  }
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -59,7 +69,7 @@ class BackupReminders extends StatelessWidget {
       } else if (center.monthlyReminderOpen &&
           backupDue(
             lastBackup: center.lastBackup,
-            firstUse: journalFirstUse(coffees, brews),
+            firstUse: _firstUse(),
             now: DateTime.now(),
           )) {
         final last = center.lastBackup;

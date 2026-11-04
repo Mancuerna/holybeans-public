@@ -1,11 +1,11 @@
 # Performance audit
 
 The performance suite measures how HolyBeans behaves as its journal grows.
-It uses synthetic data and temporary databases. Experiments and the measurement harness live under `benchmark/`. The baseline
+It uses synthetic data and temporary databases. The reusable measurement harness lives under `benchmark/`. The baseline
 findings below describe version 1.4.0 before the production improvements listed
 here; keep baseline observations separate from follow-up measurements.
 
-## Implemented improvements
+## First implementation (PR #16)
 
 - `foldSuggestion` writes normalized UTF-16 units into a single bounded buffer,
   avoiding one short string per character. A streaming substring matcher stops
@@ -45,14 +45,158 @@ and Drift's [stream invalidation rules](https://drift.simonbinder.eu/dart_api/st
 As with the previous Drift streams, writes through unrelated connections need
 explicit invalidation; this change does not introduce cross-process watching.
 
-The initial journal still loads complete brew rows for the existing statistics,
-recipe and inventory consumers. This iteration removes repeated decoding and
-copies during edits; a paginated projection with notes loaded on demand remains
-an architectural follow-up for bounding initial memory independently of history
-size. The experimental paging index below is not installed on a production
-query that still reads the entire journal.
+That first iteration retained complete initial brew rows. The bounded read
+architecture below replaces that shell subscription; full-row subscriptions
+remain available to exports and callers that explicitly need them.
 
-## Follow-up measurements: implemented changes
+## Bounded journal and incremental curves
+
+- The shell subscribes to SQL aggregates and at most three note-free previews
+  per coffee, plus one favorite recipe and one latest active recipe per coffee.
+  Counts, ratings, last use, years and typical doses cover the complete journal.
+  A connection-local dirty-coffee ledger refreshes only affected summaries,
+  including both owners of moved/replaced brews; unchanged previews are reused.
+  Weekly counts expire entries as time passes without needing a new write.
+  Four composite indexes support history, per-coffee and favorite lookups. They
+  are installed on existing databases without rewriting rows or changing backup
+  formats; historical schema reconstruction drops these current access indexes.
+- History uses keyset pages of 50 matches and an LRU of six pages (300 previews).
+  It prefetches near the end, reloads evicted pages when scrolling back, and
+  invalidates cursors after a write. Searches preserve the same normalized
+  substring/cross-field semantics, reading at most 64 candidates with notes at
+  a time; long-note batches share one worker per page and obsolete searches
+  stop between batches. Small bounded text batches avoid worker startup. Cached rows omit notes and
+  pour JSON. Editing, rating, sharing, comparing and viewing details fetch the
+  complete record by ID first.
+- Equipment, recipient and roaster cards use complete aggregates. Statistics,
+  year review and comparison request note-free analytics only when opened.
+  Freshness detail requests all rated observations, preserving evidence from
+  older brews and other coffees. Large statistics and freshness calculations
+  run off the UI isolate; statistics lists construct visible sections lazily.
+  Analytics still scale with the number of observations while those screens
+  are open; this is not a constant-memory database engine.
+- Each large chart reuses one worker. Append-only updates smooth the affected
+  tail, update ranked sample values and add elapsed-time distribution events
+  to an AVL tree. Corrections, truncations, series changes and first-drip changes
+  rebuild the state. Median/mean/peak equivalence tests cover irregular sampling,
+  signed flow, pauses, near-flat numerical cancellation and future first-drip
+  markers. Sub-nanounit flow segments use a midpoint mass for stable median
+  evaluation (at most 5e-10 flow-unit quantile error); raw data, mean and maximum
+  are unchanged. Display reduction remains
+  bounded at 1,024 points; raw samples, cursor values and exports retain their
+  original resolution. Snapshot transfer and display decimation still scan
+  samples; the implementation does not claim every operation is constant time.
+- Removed the discarded search prototype and its standalone test. Retained the
+  production regression tests, reusable access/UI/media/chart/startup benchmarks,
+  this report and historical findings. Raw logs, JSONL, APKs and transient output
+  remain ignored under `artifacts/`.
+
+### Regression budgets
+
+Structural limits run in ordinary CI: page/cache bounds, complete aggregates,
+notes excluded from previews, stable pagination, cancellation, and incremental
+curve equivalence/work counters. Device timings use a separate comparison:
+
+```sh
+python3 -m tool.performance snapshot artifacts/performance-phase2/device-confirmed.jsonl benchmark/device-baseline.json
+python3 -m tool.performance compare artifacts/performance-phase2/device-repeat.jsonl benchmark/device-baseline.json
+```
+
+The snapshot contains only context, scenario identities and selected metrics,
+not sample arrays or logs. Comparisons require the same OS/build context and
+harness version, a complete successful audit, and every baseline scenario and
+metric. Limits are baseline × 1.25 + 5 ms for elapsed time, × 1.25 + 2 ms for
+median time, × 1.20 + 2 ms for build/raster p95, × 1.50 + 5 ms for
+build/raster maxima, × 1.25 + 5 ms for startup first/subsequent median times,
+× 1.25 + 10 CPU ticks, and
+× 1.20 + 4 MiB for post-GC main-isolate heap, plus × 1.20 + 16 MiB for
+process RSS (which includes workers and native memory). These are provisional regression
+allowances, not universal product promises. A failure requires investigation
+and repeated controlled runs; do not refresh a baseline merely to make it pass.
+Separate baselines are required for another phone. The available physical
+validation device remains the Galaxy A53; a second lower-memory phone has not
+been measured.
+
+Harness version 6 measures production paginated/aggregate paths. Its
+`history_first_page_*` operations return up to 50 matches and must not be
+compared as if they were the old full-history search operations. Likewise,
+`rate_one_and_receive_overview` waits for the shell aggregate, whereas the old
+operation waited for a full-row stream. UI and chart scenarios retain their
+user interactions. See the recorded measurements for actual changes.
+
+### Final measurements on the available phone
+
+The complete harness-v6 `phase2-confirmed` profile run passed on the Galaxy
+A53 (Android 15, 60 Hz), using application source `cd36c82`. It includes all nine
+access fixtures, three UI journal sizes, media/backup round trips, startup and
+three live-curve sizes. The phone was USB powered; battery temperature was
+observed at 32 °C during the run. Raw evidence and the source manifest remain
+ignored under `artifacts/performance-phase2/`.
+
+| Scenario | First implementation | Bounded/incremental implementation |
+|---|---:|---:|
+| Loaded shell, 5,000 × 2,048-character notes | 586.1 ms | 251.1 ms |
+| Loaded shell, 10,000 × 2,048-character notes | 863.3 ms | 282.8 ms |
+| Loaded-shell Dart heap, 10,000 × 2,048-character notes | 67.9 MiB | 31.8 MiB |
+| Retained model Dart heap, 10,000 × 8,192-character notes | 108.4 MiB | 25.6 MiB |
+| Statistics maximum build, 10,000 × 2,048-character notes | 285.8 ms | 74.1 ms |
+| Detail cycles maximum build, 10,000 × 2,048-character notes | 201.6 ms | 32.5 ms |
+| Search typing build p95, 10,000 × 2,048-character notes | 8.9 ms | 10.9 ms |
+| 10,000-point live curve process CPU | 1232.0 ticks | 560.0 ticks |
+| 10,000-point live curve build p95 | 7.3 ms | 9.8 ms |
+| 10,000-point live curve maximum build | 18.1 ms | 10.7 ms |
+
+The retained-model heap measurement is the main Dart isolate after GC, not total
+RAM. For the 10,000 × 8,192-character notes fixture, process RSS at model load changed from
+420.7 to 330.5 MiB. Shell timing excludes OS/engine launch. Curve
+CPU includes the same synthetic producer and 100 paced updates, with full final
+samples verified. These are observed runs, not statistically established speedup
+guarantees across devices.
+
+The 10,000 × 8,192-character notes journal now returns its first 50 `citrico` matches in
+10.6 ms median. A no-match query still scans all notes and takes
+1789.3 ms; it remains cancellable and runs without retaining the complete
+notes collection. This is not equivalent to the older resident-memory search
+microbenchmark, which excluded database access. Rating and receiving the complete
+shell summary takes 16.0 ms median for this fixture. The intermediate
+all-coffee refresh cost 93.6 ms at 5,000 × 2,048-character notes; refreshing only dirty coffees
+reduced that to 17.4 ms in the final run.
+
+Not every frame metric improves: asynchronous loading adds short frames and
+transitions, and isolated build/raster spikes remain. The strict comparator
+flagged nine budget exceedances between two intermediate complete runs (including
+first-load and GPU-frame variability). They are investigation signals, not proof
+that a source change caused every spike. Budgets remain provisional; they are
+not an unconditional timing gate in ordinary CI. The [compact device reference](../benchmark/device-baseline.json)
+contains 158 scenario records without raw sample arrays or logs. Use repeated
+controlled measurements and a separate reference on a second, lower-memory
+physical phone before treating these allowances as stable device-wide targets.
+
+The independent `phase2-repeat` run also passed all functional assertions and
+completed Android instrumentation successfully. Repository revision `b17eaf4`
+contains the same application source as `cd36c82`. Its 158 measured scenarios
+triggered 12 metric-budget exceedances: initial loading (one), search (three),
+insertion (two), full-row reading (two), UI frames (three) and backup export
+(one). Examples include the 1,000-entry `citrico` search median, 48.6 → 72.1 ms;
+the 10,000-entry statistics raster p95, 8.1 → 15.7 ms; and backup export median,
+75.8 → 105.5 ms. The comparator exits unsuccessfully for these alerts; neither
+the reference nor allowances were changed to conceal them. Two runs cannot
+establish stable timing limits or isolate the source of device variability.
+The principal improvements persisted: the 10,000-entry shell loaded in
+277.8 ms, retained long-note model heap was 25.6 MiB, and the 10,000-point
+curve again used 560 process CPU ticks. Raw repeat records, its source manifest
+and comparison output remain in the ignored evidence directory.
+
+The [complete final-source CI](https://github.com/Mancuerna/holybeans-public/actions/runs/41911404458)
+passed **1,713 Flutter tests, with seven private-backup fixture skips**, native
+Android tests, 37 Python tooling tests, formatting, static analysis and
+documentation checks. Pagination/cancellation, complete summaries, replacement
+imports, rollback, old-schema migrations and incremental curve equivalence have
+regression coverage. The [implementation PR](https://github.com/Mancuerna/holybeans-public/pull/18)
+records delivery status; subsequent report-only changes preserve that validated
+application source.
+
+## First implementation measurements (PR #16)
 
 The same Galaxy A53 and profile configuration were used for the follow-up.
 Journal/UI/media/startup results use source `44b5179` and harness version 4;
@@ -111,7 +255,7 @@ has one 17.1 ms build and two over-budget raster frames at 10,000 entries;
 at 5,000, no builds but four raster frames exceed budget. Continuous history
 scrolling remains around 7 ms build/raster p95. These results support the search,
 update and long-curve changes; they do not establish that every screen is now
-free of frame spikes. Next priorities are bounded initial data loading and
+free of frame spikes. At that point the next priorities were bounded initial data loading and
 profiling the statistics/detail transition work, followed by another phone.
 
 The repeated media/backup scenarios still pass their data and photo round-trip
@@ -311,7 +455,7 @@ HOLYBEANS_PATROL_BUILD_TYPE=profile patrol test --profile \
 
 Optional Dart defines select a subset: `AUDIT_SECTION=data,ui,media,startup,charts`
 (default `all`), `AUDIT_FIXTURE=5000x2048` for access benchmarks,
-`AUDIT_UI_FIXTURE=5000x2048` for UI scenarios, `AUDIT_PROTOTYPES=false` to omit exploratory alternatives, and `AUDIT_RUN=label`
+`AUDIT_UI_FIXTURE=5000x2048` for UI scenarios and `AUDIT_RUN=label`
 for records.
 Use the CLI's `--dart-define=NAME=value` option for each. The November audit used
 an offline Gradle invocation of the generated Patrol bundle because the CLI's
@@ -415,7 +559,7 @@ it does not measure Bluetooth transport or physical extraction accuracy.
 
 ## Audit record quality
 
-The final implementation CI on `be92bad` completed with **1,698 Flutter tests
+The first implementation CI on `be92bad` completed with **1,698 Flutter tests
 passed, seven skipped and zero failed**, plus successful native Android tests,
 Python tooling checks, formatting and static analysis. The seven skips still
 require private backup fixtures. See the

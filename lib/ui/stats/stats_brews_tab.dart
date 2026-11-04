@@ -30,11 +30,11 @@ class StatsBrewsTab extends StatelessWidget {
     final s = AppLocalizations.of(context)!;
     final stats = data.stats;
     final number = NumberFormat('0.#', regionalLocale.toString());
-    final averages = styleAverages(stats.brews, data.styleOf);
+    final averages = data.averages;
     final espresso = averages[BrewStyle.espresso];
     final filter = averages[BrewStyle.filter];
-    final curve = learningCurve(data.allBrews, stats.brews);
-    final byTemperature = ratingByTemperature(stats.brews);
+    final curve = data.learning;
+    final byTemperature = data.temperatures;
     String rated(String label, RatedGroup group) =>
         '$label: ${number.format(group.averageRating)} / 10, '
         '${s.statsRatedCount(group.count)}';

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/freshness.dart';
+import 'package:holybeans/domain/grinder_consumption.dart';
 import 'package:holybeans/domain/stats_insights.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -10,7 +11,7 @@ import 'package:intl/intl.dart';
 /// What every stats tab reads: the period's figures and the journal they
 /// come from.
 class StatsData {
-  const StatsData({
+  StatsData({
     required this.stats,
     required this.range,
     required this.now,
@@ -41,6 +42,71 @@ class StatsData {
   final BrewStyle Function(Brew brew) styleOf;
   final double remainingGrams;
   final double frozenGrams;
+
+  late final perPeriod = totalsPerPeriod(
+    [
+      for (final brew in stats.brews)
+        (DateTime.fromMillisecondsSinceEpoch(brew.brewedAtMs), 1.0),
+    ],
+    period,
+    now: now,
+    from: from,
+  );
+  late final activity = brewsPerDay(allBrews);
+  late final firstCup = medianDaysToFirstBrew(allBrews, stats.brews, lots);
+  late final averages = styleAverages(stats.brews, styleOf);
+  late final learning = learningCurve(allBrews, stats.brews);
+  late final temperatures = ratingByTemperature(stats.brews);
+  late final bought = purchases(lots, pricePerKg, from: from);
+  late final values = coffeeValues(stats.brews, coffees, pricePerKg);
+  late final roasterPrices = pricePerKgByRoaster(
+    coffees,
+    lots,
+    pricePerKg,
+    from: from,
+  );
+  late final spending = totalsPerPeriod(
+    [for (final bag in bought) (bag.date, bag.price)],
+    period,
+    now: now,
+    from: from,
+  );
+  late final consumption = consumptionByGrinder([
+    for (final brew in stats.brews)
+      (
+        grinderId: brew.grinderId,
+        grinderName: brew.grinderName,
+        isPreGround: brew.isPreGround,
+        grams: brew.doseGrams,
+        brewedAtMs: brew.brewedAtMs,
+      ),
+  ]);
+  late final consumedPeriods = totalsPerPeriod(
+    [
+      for (final brew in stats.brews)
+        if (brew.doseGrams case final grams? when grams.isFinite && grams > 0)
+          (DateTime.fromMillisecondsSinceEpoch(brew.brewedAtMs), grams),
+    ],
+    period,
+    now: now,
+    from: from,
+  );
+
+  /// Force lazy calculations on the worker before publishing the snapshot.
+  List<Object?> prepareInsights() => [
+    perPeriod,
+    activity,
+    firstCup,
+    averages,
+    learning,
+    temperatures,
+    bought,
+    values,
+    roasterPrices,
+    spending,
+    consumption,
+    consumedPeriods,
+  ];
 
   StatsPeriod get period => periodFor(range);
 
@@ -80,8 +146,9 @@ class StatsTabList extends StatelessWidget {
   final List<Widget> children;
 
   @override
-  Widget build(BuildContext context) => ListView(
+  Widget build(BuildContext context) => ListView.builder(
+    itemCount: children.length,
+    itemBuilder: (_, index) => children[index],
     padding: const EdgeInsets.fromLTRB(20, 4, 20, 40),
-    children: children,
   );
 }

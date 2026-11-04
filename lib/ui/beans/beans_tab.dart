@@ -103,18 +103,11 @@ class _BeansTabState extends State<BeansTab> {
   @override
   Widget build(BuildContext context) {
     final coffees = widget.data.coffees;
-    final brews = widget.data.brews;
     final lots = widget.data.lots;
     final components = widget.data.components;
     final s = AppLocalizations.of(context)!;
     final query = foldSuggestion(search.text);
-    final mostRecentBrewByCoffee = <String, int>{};
-    for (final brew in brews) {
-      final previous = mostRecentBrewByCoffee[brew.coffeeId];
-      if (previous == null || brew.brewedAtMs > previous) {
-        mostRecentBrewByCoffee[brew.coffeeId] = brew.brewedAtMs;
-      }
-    }
+    final mostRecentBrewByCoffee = widget.data.lastBrewAt;
     final latestRoastDateByCoffee = <String, DateTime>{};
     for (final lot in lots) {
       final roastDate = lot.roastDate == null

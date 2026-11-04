@@ -7,6 +7,7 @@ import 'package:holybeans/ui/brews/brew_card.dart';
 import 'package:holybeans/ui/brews/history_filter_chips.dart';
 import 'package:holybeans/ui/brews/history_filters.dart';
 import 'package:holybeans/ui/brews/history_view_model.dart';
+import 'package:holybeans/ui/brews/paged_history_view_model.dart';
 import 'package:holybeans/ui/core/journal_search_toolbar.dart';
 import 'package:holybeans/ui/core/page_layout.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -38,7 +39,9 @@ class HistoryTab extends StatefulWidget {
 
 class _HistoryTabState extends State<HistoryTab> {
   final search = TextEditingController();
-  final model = HistoryViewModel();
+  late final HistoryViewModel model = widget.data.reads == null
+      ? HistoryViewModel()
+      : PagedHistoryViewModel(widget.data.reads!);
   late int navigationRevision = filters.navigationRevision;
 
   HistoryFilters get filters => widget.filters;
@@ -125,7 +128,6 @@ class _HistoryTabState extends State<HistoryTab> {
     final s = AppLocalizations.of(context)!;
     final query = _query.text;
     final activeFilterCount = filters.activeCount;
-    final visible = model.visible;
     return JournalListPage(
       header: Column(
         mainAxisSize: MainAxisSize.min,
@@ -198,11 +200,16 @@ class _HistoryTabState extends State<HistoryTab> {
             HistoryFilterChips(filters: filters, coffees: coffees),
           ],
           const SizedBox(height: 12),
+          if (model.error != null && model is PagedHistoryViewModel)
+            TextButton(
+              onPressed: (model as PagedHistoryViewModel).retry,
+              child: Text(s.dataError),
+            ),
           if (model.busy)
             const LinearProgressIndicator(
               key: ValueKey('history-search-progress'),
             ),
-          if (!model.busy && visible.isEmpty)
+          if (!model.busy && model.length == 0)
             EmptyMessage(
               model.error != null
                   ? s.dataError
@@ -212,17 +219,31 @@ class _HistoryTabState extends State<HistoryTab> {
             ),
         ],
       ),
-      itemCount: visible.length,
+      itemCount: model.length,
       itemBuilder: (context, index) {
-        final brew = visible[index];
+        final brew = model.brewAt(index);
+        if (brew == null) {
+          return SizedBox(
+            height: 120,
+            child: Center(
+              child: model.error != null && model is PagedHistoryViewModel
+                  ? TextButton(
+                      onPressed: (model as PagedHistoryViewModel).retry,
+                      child: Text(s.dataError),
+                    )
+                  : const CircularProgressIndicator(),
+            ),
+          );
+        }
         final card = BrewCard(
           brew: brew,
           data: widget.data,
           actions: widget.actions,
           showDate: false,
         );
-        if (index > 0 &&
-            _sameLocalDay(visible[index - 1].brewedAtMs, brew.brewedAtMs)) {
+        final previous = model.brewAt(index - 1);
+        if (previous != null &&
+            _sameLocalDay(previous.brewedAtMs, brew.brewedAtMs)) {
           return card;
         }
         return Column(

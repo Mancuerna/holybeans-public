@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/list_options_settings.dart';
+import 'package:holybeans/data/repositories/brew_overview.dart';
 import 'package:holybeans/data/repositories/coffee_freshness.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
@@ -26,7 +27,7 @@ class JournalViewModel extends ChangeNotifier {
   }) {
     _subscriptions.addAll([
       _watch(_coffees, repository.watchCoffees(includeArchived: true)),
-      _watch(_brews, repository.watchBrews(includeArchived: true)),
+      _watch(_overview, repository.reads.watchOverview()),
       _watch(_lots, repository.watchLots()),
       _watch(_adjustments, repository.watchStockAdjustments()),
       _watch(_components, repository.watchComponents()),
@@ -45,7 +46,7 @@ class JournalViewModel extends ChangeNotifier {
   var _disposed = false;
 
   final _coffees = _Live<List<Coffee>>(const []);
-  final _brews = _Live<List<Brew>>(const []);
+  final _overview = _Live<BrewOverview>(const BrewOverview());
   final _adjustments = _Live<List<StockAdjustment>>(const []);
   final _lots = _Live<List<CoffeeLot>>(const []);
   final _components = _Live<List<CoffeeComponent>>(const []);
@@ -66,8 +67,10 @@ class JournalViewModel extends ChangeNotifier {
   /// Coffees, brews, lots, origins and covers as they are now, archived
   /// ones included. Reused until one of these collections changes.
   JournalData get data => _data ??= JournalData(
+    reads: repository.reads,
+    overview: _overview.value,
     coffees: _coffees.value,
-    brews: _brews.value,
+    brews: _overview.value.previews,
     lots: _lots.value,
     adjustments: _adjustments.value,
     components: _components.value,
@@ -90,7 +93,7 @@ class JournalViewModel extends ChangeNotifier {
   /// Covers and hidden parameters do not count: the tabs work without them.
   bool get loading => [
     _coffees,
-    _brews,
+    _overview,
     _lots,
     _adjustments,
     _components,
@@ -102,7 +105,7 @@ class JournalViewModel extends ChangeNotifier {
   /// leaves the freezer empty.
   bool get hasError => [
     _coffees,
-    _brews,
+    _overview,
     _lots,
     _adjustments,
     _components,
@@ -120,7 +123,7 @@ class JournalViewModel extends ChangeNotifier {
       for (final coffee in _coffees.value)
         if (coffee.archivedAtMs == null) coffee.id,
     };
-    return _brews.value
+    return _overview.value.latestActive
         .where(
           (brew) => brew.archivedAtMs == null && active.contains(brew.coffeeId),
         )
@@ -154,7 +157,7 @@ class JournalViewModel extends ChangeNotifier {
   BrewStyle _lastStyleOf(String coffeeId) {
     if (_lastStyles == null) {
       final latest = <String, Brew>{};
-      for (final brew in _brews.value) {
+      for (final brew in _overview.value.previews) {
         final previous = latest[brew.coffeeId];
         if (previous == null || brew.brewedAtMs > previous.brewedAtMs) {
           latest[brew.coffeeId] = brew;
@@ -200,7 +203,7 @@ class JournalViewModel extends ChangeNotifier {
             ..loaded = true
             ..error = null;
           if (live != _hidden && live != _covers) _phases.clear();
-          if (live == _brews || live == _methods) _lastStyles = null;
+          if (live == _overview || live == _methods) _lastStyles = null;
           if (live != _hidden && live != _methods && live != _portions) {
             _data = null;
           }

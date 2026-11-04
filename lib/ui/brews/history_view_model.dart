@@ -24,6 +24,10 @@ class HistoryViewModel extends ChangeNotifier {
   List<String> methods = const [];
   bool _large = false;
 
+  int get length => visible.length;
+  Brew? brewAt(int index) =>
+      index < 0 || index >= visible.length ? null : visible[index];
+
   static Future<List<int>> _inBackground(HistoryRequest request) =>
       compute(selectHistory, request, debugLabel: 'history-search');
 

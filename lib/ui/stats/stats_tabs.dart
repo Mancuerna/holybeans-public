@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/domain/stats_comparison.dart';
-import 'package:holybeans/domain/stats_insights.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -24,15 +23,7 @@ class StatsOverviewTab extends StatelessWidget {
     final stats = data.stats;
     final number = NumberFormat('0.#', regionalLocale.toString());
     final hasBrews = stats.count > 0;
-    final perPeriod = totalsPerPeriod(
-      [
-        for (final brew in stats.brews)
-          (DateTime.fromMillisecondsSinceEpoch(brew.brewedAtMs), 1.0),
-      ],
-      data.period,
-      now: data.now,
-      from: data.from,
-    );
+    final perPeriod = data.perPeriod;
     final periodName = data.period.name;
     return StatsTabList(
       key: const ValueKey('stats-list'),
@@ -128,7 +119,11 @@ class StatsOverviewTab extends StatelessWidget {
         StatsSection(
           title: s.statsActivity,
           subtitle: s.statsActivityHint,
-          child: ActivityCalendar(brews: data.allBrews, today: data.now),
+          child: ActivityCalendar(
+            brews: data.allBrews,
+            today: data.now,
+            preparedCounts: data.activity,
+          ),
         ),
       ],
     );
@@ -147,11 +142,7 @@ class StatsBeansTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context)!;
     final stats = data.stats;
-    final firstCup = medianDaysToFirstBrew(
-      data.allBrews,
-      stats.brews,
-      data.lots,
-    );
+    final firstCup = data.firstCup;
     return StatsTabList(
       key: const ValueKey('stats-list-beans'),
       children: [

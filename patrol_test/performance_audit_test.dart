@@ -25,10 +25,6 @@ void main() {
     const fixtureName = String.fromEnvironment('AUDIT_FIXTURE');
     const uiFixtureName = String.fromEnvironment('AUDIT_UI_FIXTURE');
     const run = String.fromEnvironment('AUDIT_RUN', defaultValue: 'baseline');
-    const prototypes = bool.fromEnvironment(
-      'AUDIT_PROTOTYPES',
-      defaultValue: true,
-    );
     final sections = section.split(',').toSet();
     expect(
       sections,
@@ -52,7 +48,7 @@ void main() {
       final line = jsonEncode({
         'environment': 'Android profile; file-backed background SQLite',
         'os': Platform.operatingSystemVersion,
-        'harnessVersion': 5,
+        'harnessVersion': 6,
         'run': run,
         ...value,
       });
@@ -66,14 +62,7 @@ void main() {
       if (includes('data')) {
         for (final fixture in auditFixtures) {
           if (fixtureName.isNotEmpty && fixture.name != fixtureName) continue;
-          await runJournalAudit(
-            fixture,
-            record,
-            memory: memory,
-            // Device builds can override the compile-time default.
-            // ignore: avoid_redundant_argument_values
-            prototypes: prototypes,
-          );
+          await runJournalAudit(fixture, record, memory: memory);
         }
       }
       if (includes('ui')) {

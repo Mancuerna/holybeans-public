@@ -6,6 +6,7 @@ import 'package:holybeans/data/repositories/brew_recipe_context.dart';
 import 'package:holybeans/data/repositories/brew_recipe_queries.dart';
 import 'package:holybeans/data/repositories/cafe_repository.dart';
 import 'package:holybeans/data/repositories/cupping_share.dart';
+import 'package:holybeans/data/repositories/journal_read_queries.dart';
 import 'package:holybeans/data/repositories/live_brews.dart';
 import 'package:holybeans/data/repositories/piston_repository.dart';
 import 'package:holybeans/data/services/gaggimate_client.dart';
@@ -41,19 +42,19 @@ part 'journal_repository/beanconqueror.dart';
 part 'journal_repository/bq_writer.dart';
 part 'journal_repository/brew_save.dart';
 part 'journal_repository/brews.dart';
-part 'journal_repository/stock_review.dart';
-part 'journal_repository/stock_adjustments.dart';
-part 'journal_repository/coffees.dart';
 part 'journal_repository/coffee_cards.dart';
 part 'journal_repository/coffee_profile.dart';
+part 'journal_repository/coffees.dart';
 part 'journal_repository/cupping.dart';
 part 'journal_repository/equipment.dart';
 part 'journal_repository/equipment_deletion.dart';
-part 'journal_repository/recipients.dart';
 part 'journal_repository/freezer.dart';
 part 'journal_repository/frozen_brews.dart';
 part 'journal_repository/imports.dart';
 part 'journal_repository/photos.dart';
+part 'journal_repository/recipients.dart';
+part 'journal_repository/stock_adjustments.dart';
+part 'journal_repository/stock_review.dart';
 part 'journal_repository/tools.dart';
 
 class BrewStockReviewRequiredException implements Exception {
@@ -299,6 +300,8 @@ class JournalRepository {
     required String? coffeeId,
     required String methodId,
   }) => _recipeQueries.methodMemory(coffeeId: coffeeId, methodId: methodId);
+
+  late final reads = JournalReadQueries(database);
 
   final Uuid _uuid = const Uuid();
 

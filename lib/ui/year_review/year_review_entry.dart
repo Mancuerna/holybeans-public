@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
+import 'package:holybeans/ui/core/brew_rows_loader.dart';
 import 'package:holybeans/ui/year_review/year_review_page.dart';
 import 'package:holybeans/ui/year_review/year_review_style.dart';
 
@@ -12,6 +13,7 @@ class YearReviewEntry extends StatelessWidget {
     required this.coffees,
     required this.components,
     required this.methods,
+    this.loadBrews,
     this.year,
     this.lots = const [],
     this.now,
@@ -20,6 +22,7 @@ class YearReviewEntry extends StatelessWidget {
   });
   final List<CoffeeLot> lots;
   final List<Brew> brews;
+  final Future<List<Brew>> Function()? loadBrews;
   final List<Coffee> coffees;
   final List<CoffeeComponent> components;
   final List<BrewMethod> methods;
@@ -52,20 +55,24 @@ class YearReviewEntry extends StatelessWidget {
         trailing: const Icon(Icons.arrow_forward_rounded, color: yearWine),
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute<void>(
-            builder: (_) => YearReviewPage(
-              lots: lots,
-              brews: brews,
-              coffees: coffees,
-              components: components,
-              methods: methods,
-              initialYear: year,
-              now: now,
-              photos: photos,
-              photoOf: photoOf,
-            ),
+            builder: (_) => loadBrews == null
+                ? _page(brews)
+                : BrewRowsLoader(load: loadBrews!, builder: _page),
           ),
         ),
       ),
     );
   }
+
+  Widget _page(List<Brew> rows) => YearReviewPage(
+    lots: lots,
+    brews: rows,
+    coffees: coffees,
+    components: components,
+    methods: methods,
+    initialYear: year,
+    now: now,
+    photos: photos,
+    photoOf: photoOf,
+  );
 }

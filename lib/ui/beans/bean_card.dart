@@ -69,15 +69,12 @@ class _BeanFacts {
         portions: portions,
         adjustments: data.adjustments,
       ),
-      brews = [
-        for (final brew in data.brews)
-          if (brew.coffeeId == coffee.id) brew,
-      ];
+      brewCount = data.brewCount(coffee.id);
 
   final Coffee coffee;
   final List<CoffeeComponent> components;
   final CoffeeStock stock;
-  final List<Brew> brews;
+  final int brewCount;
 
   String get flags => components
       .map((component) => coffeeCountryFor(component.country)?.flag)
@@ -185,7 +182,7 @@ class _CompactBeanCard extends StatelessWidget {
               if (coffee.rating case final rating?) _CoffeeRating(rating),
               BeanMenu(
                 coffee: coffee,
-                hasBrews: facts.brews.isNotEmpty,
+                hasBrews: facts.brewCount > 0,
                 actions: actions,
               ),
             ],
@@ -385,7 +382,7 @@ class _Heading extends StatelessWidget {
         ],
         BeanMenu(
           coffee: coffee,
-          hasBrews: facts.brews.isNotEmpty,
+          hasBrews: facts.brewCount > 0,
           actions: actions,
         ),
       ],
@@ -448,7 +445,7 @@ class _BeanFactChips extends StatelessWidget {
       else if (roastDate != null)
         formatRegionalDate(roastDate, regionalLocale),
     ].join(', ');
-    final brewCount = facts.brews.length;
+    final brewCount = facts.brewCount;
     final consumed = switch (stock.consumedGrams) {
       final grams? when grams > 0 => formatGrams(
         grams,
