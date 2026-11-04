@@ -9,6 +9,7 @@ import 'package:holybeans/ui/brews/brew_form_fields.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
 import 'package:holybeans/ui/brews/brew_ratio_slider.dart';
+import 'package:holybeans/ui/brews/brew_scale_reset_button.dart';
 import 'package:holybeans/ui/brews/brew_water_plan.dart';
 import 'package:holybeans/ui/brews/brew_weight_chart.dart';
 import 'package:holybeans/ui/brews/coffee_picker.dart';
@@ -580,9 +581,11 @@ class BrewTimingSection extends StatelessWidget {
           controller: draft.firstDrip,
           label: s.firstDripSeconds,
         ),
-      if (scale != null && (espresso || !scale.scale.connected))
+      if (scale != null)
         ScaleStatusRow(
           scale: scale.scale,
+          busy: scale.resetting,
+          resetAction: BrewScaleResetButton(session: scale, timer: model.timer),
           footer: scale.waitingForDrip
               ? s.scaleWaitingDrip
               : scale.recording

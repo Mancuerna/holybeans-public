@@ -176,10 +176,18 @@ Widget _connecting(String label) => TextButton(
 /// The paired scale in the brew form: name, live weight and battery, with
 /// "Tare" when connected and "Connect" when not.
 class ScaleStatusRow extends StatelessWidget {
-  const ScaleStatusRow({super.key, required this.scale, this.footer});
+  const ScaleStatusRow({
+    super.key,
+    required this.scale,
+    this.footer,
+    this.resetAction,
+    this.busy = false,
+  });
 
   final Scale scale;
   final String? footer;
+  final Widget? resetAction;
+  final bool busy;
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -204,10 +212,18 @@ class ScaleStatusRow extends StatelessWidget {
         },
         footer: footer,
         action: reading != null
-            ? TextButton(
-                key: const ValueKey('scale-tare'),
-                onPressed: () => scale.send(ScaleCommand.tare),
-                child: Text(s.scaleTare),
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton(
+                    key: const ValueKey('scale-tare'),
+                    onPressed: busy
+                        ? null
+                        : () => scale.send(ScaleCommand.tare),
+                    child: Text(s.scaleTare),
+                  ),
+                  ?resetAction,
+                ],
               )
             : scale.status == DeviceStatus.connecting
             ? _connecting(s.scaleConnect)

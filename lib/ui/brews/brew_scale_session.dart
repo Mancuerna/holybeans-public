@@ -41,6 +41,8 @@ class BrewScaleSession extends ChangeNotifier {
   bool _wasConnected = false;
   bool _disposed = false;
   bool startFailed = false;
+  bool resetting = false;
+  Future<bool> _resetCommand = Future.value(false);
   bool get restartsOnNextStart => _restartOnStart;
   bool _restartOnStart = false;
   bool _pendingTimerChange = false;
@@ -70,7 +72,7 @@ class BrewScaleSession extends ChangeNotifier {
   void _resetDialOnce() {
     if (_dialReset || !scale.connected || recording) return;
     _dialReset = true;
-    _send(ScaleCommand.resetTimer);
+    unawaited(_send(ScaleCommand.resetTimer));
   }
 
   final Scale scale;
@@ -139,7 +141,7 @@ class BrewScaleSession extends ChangeNotifier {
       recordedWaterGrams(_poured) ?? _recording.peakGrams;
 
   /// Sends [command], then [then] once it is written.
-  void _send(
+  Future<bool> _send(
     ScaleCommand command, [
     ScaleCommand? then,
     bool stopOnFailure = false,
@@ -147,7 +149,7 @@ class BrewScaleSession extends ChangeNotifier {
     final run = _runId;
     _commandsInFlight++;
     _commandsSettleAt = _clock().add(const Duration(seconds: 2));
-    unawaited(() async {
+    return () async {
       var success = false;
       try {
         success = await scale.send(command);
@@ -167,13 +169,14 @@ class BrewScaleSession extends ChangeNotifier {
           }
         }
       }
-    }());
+      return success;
+    }();
   }
 
   /// Tares and waits for the first drop to start the timer.
   void waitForDrip() {
-    if (recording) return;
-    _send(ScaleCommand.tare);
+    if (recording || resetting) return;
+    unawaited(_send(ScaleCommand.tare));
     _dripWatch = FirstDripWatch();
     notifyListeners();
   }
@@ -197,6 +200,10 @@ class BrewScaleSession extends ChangeNotifier {
   static int _seconds(int ms) => (ms / 1000).round().clamp(1, 1 << 30);
 
   void _onReading(ScaleReading reading) {
+    if (resetting) {
+      _scaleTimer.clear();
+      return;
+    }
     if (waitingForDrip) {
       // Waiting is owned by the app: automatic timer activity is not a press.
       _scaleTimer.clear();
@@ -329,11 +336,13 @@ class BrewScaleSession extends ChangeNotifier {
         _recording.restartAfterTare();
         // A dial with time on it does not tare and start in one go.
         _pendingTimerChange = true;
-        _send(ScaleCommand.resetTimer, ScaleCommand.tareAndStartTimer, true);
+        unawaited(
+          _send(ScaleCommand.resetTimer, ScaleCommand.tareAndStartTimer, true),
+        );
       case _Source.app || _Source.firstDrip:
         if (fresh) _recording.clear();
         _pendingTimerChange = true;
-        _send(ScaleCommand.startTimer, null, true);
+        unawaited(_send(ScaleCommand.startTimer, null, true));
       case _Source.scaleButton || _Source.shotEnd:
         if (fresh) _recording.clear();
     }
@@ -351,7 +360,9 @@ class BrewScaleSession extends ChangeNotifier {
     _watch.stop();
     flowTrace.breakSegment();
     _shotEnd?.reset();
-    if (source != _Source.scaleButton) _send(ScaleCommand.stopTimer);
+    if (source != _Source.scaleButton) {
+      unawaited(_send(ScaleCommand.stopTimer));
+    }
     notifyListeners();
   }
 
@@ -373,8 +384,34 @@ class BrewScaleSession extends ChangeNotifier {
     _poured = null;
     _dripWatch = null;
     _espressoDrip = null;
-    _send(ScaleCommand.resetTimer);
+    startFailed = false;
+    _source = _Source.app;
+    _resetCommand = _send(ScaleCommand.resetTimer);
     notifyListeners();
+  }
+
+  Future<bool> resetWeightAndTimer(VoidCallback resetAppTimer) async {
+    if (_disposed || resetting || !scale.connected) return false;
+    resetting = true;
+    notifyListeners();
+    try {
+      // Use the normal reset path to clear the app timer, curve and sensors
+      // without committing the discarded extraction as a finished brew.
+      resetAppTimer();
+      final run = _runId;
+      final device = scale.activeScaleId;
+      if (!await _resetCommand ||
+          _disposed ||
+          run != _runId ||
+          !scale.connected ||
+          scale.activeScaleId != device) {
+        return false;
+      }
+      return await _send(ScaleCommand.tare);
+    } finally {
+      resetting = false;
+      if (!_disposed) notifyListeners();
+    }
   }
 
   /// Keeps the curve recorded by the pour assistant.

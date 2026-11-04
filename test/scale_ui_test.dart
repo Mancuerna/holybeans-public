@@ -170,8 +170,17 @@ void main() {
     await tester.scrollUntilVisible(readout, 200, scrollable: scrollable);
     await tester.ensureVisible(readout);
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('scale-readout')), findsNothing);
-    expect(find.byKey(const ValueKey('scale-tare')), findsNothing);
+    expect(find.byKey(const ValueKey('scale-readout')), findsOneWidget);
+    expect(find.byKey(const ValueKey('scale-tare')), findsOneWidget);
+    final resetScale = find.byKey(const ValueKey('scale-reset'));
+    await reveal(resetScale);
+    await tester.tap(resetScale);
+    await tester.pumpAndSettle();
+    expect(scale.commands, [
+      ScaleCommand.resetTimer,
+      ScaleCommand.resetTimer,
+      ScaleCommand.tare,
+    ]);
     await reveal(find.byKey(const ValueKey('scale-to-dose')));
     await tester.tap(find.byKey(const ValueKey('scale-to-dose')));
     await tester.pump();
@@ -224,9 +233,11 @@ void main() {
     );
     final view = tester.getRect(scrollable);
     expect((chart.center.dy - view.center.dy).abs(), lessThan(view.height / 4));
-    // The dial is reset on opening and again before taring and starting.
+    // Opening, manual reset, and a fresh start all reach the scale.
     expect(scale.commands, [
       ScaleCommand.resetTimer,
+      ScaleCommand.resetTimer,
+      ScaleCommand.tare,
       ScaleCommand.resetTimer,
       ScaleCommand.tareAndStartTimer,
     ]);
@@ -283,7 +294,7 @@ void main() {
     expect(find.byKey(const ValueKey('scale-readout')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('scale-connect')));
     await tester.pump();
-    expect(find.byKey(const ValueKey('scale-readout')), findsNothing);
+    expect(find.byKey(const ValueKey('scale-readout')), findsOneWidget);
 
     scale.emit(212);
     await tester.pump();
