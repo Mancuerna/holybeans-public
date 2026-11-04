@@ -76,6 +76,12 @@ reliably enforce. App translations remain in English and Spanish.
 Keep files focused (roughly below 800 lines). User-visible text belongs in both
 ARB files. Keep comments, fixtures and issue reports free of personal data.
 
+Include user-visible changes in the in-app release notes in
+`lib/ui/core/release_notes.dart`, with English and Spanish ARB text. Advance
+`ReleaseNotesSettings.currentRevision` when updating those notes so existing
+installations see them. The in-app notes are maintained separately from the
+automated `CHANGELOG.md` and Play release notes in `docs/releases/`.
+
 ## Validation
 
 Format only the Dart files you changed and run the tests for affected behaviours.

@@ -2300,6 +2300,7 @@
   "ratingSaving": "Saving rating…",
   "ratingWaitingForDrive": "Waiting for restoration to finish…",
   "releaseNotesTitle": "What’s new in this version",
+  "releaseNotesEquipmentDeletion": "In Equipment, you can delete trial methods and water profiles with no links, including archived ones. If they are in use, the app explains why they cannot be deleted and you can still archive them.",
   "releaseNotesTimer": "The timer respects Stop and Reset when using an Acaia scale.",
   "releaseNotesRating": "Rating a freshly saved brew is smoother, with clear messages if you need to wait.",
   "releaseNotesPours": "Bloom and pour details are filled from the curve, respecting the counts you choose.",
