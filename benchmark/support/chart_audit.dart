@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/extraction_chart.dart';
+import 'package:holybeans/ui/brews/extraction_readout.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 
 import 'audit_metrics.dart';
@@ -54,6 +55,20 @@ Future<void> runChartAudit(
         await Future<void>.delayed(const Duration(milliseconds: 50));
       }
       await tester.pumpAndSettle();
+      // Worker completion may arrive after the last scheduled UI frame. Wait
+      // for the actual readout's final snapshot, not only the input widget.
+      final completion = Stopwatch()..start();
+      while (tester
+              .widget<ExtractionReadout>(find.byType(ExtractionReadout))
+              .curve
+              .timesMs
+              .length !=
+          points + 100) {
+        expect(completion.elapsed, lessThan(const Duration(seconds: 30)));
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        await tester.pump();
+      }
+      await tester.pumpAndSettle();
       final end = developer.Timeline.now;
       final cpuEnd = processCpuTicks();
       await Future<void>.delayed(const Duration(milliseconds: 1200));
@@ -73,6 +88,7 @@ Future<void> runChartAudit(
         'operation': 'live_chart',
         'initialPoints': points,
         'updates': 100,
+        'finalRenderedPoints': points + 100,
         'pacingMs': 50,
         'elapsedMs': (end - start) / 1000,
         'refreshHz': hz,

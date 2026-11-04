@@ -3096,6 +3096,7 @@
   "ratingSaveFailed": "No se pudo guardar la valoración. Tus cambios siguen aquí; vuelve a intentarlo.",
   "ratingSaving": "Guardando valoración…",
   "ratingWaitingForDrive": "Esperando a que termine la restauración…",
+  "curveProcessingFailed": "No se ha podido mostrar esta curva.",
   "releaseNotesPerformance": "La búsqueda responde mejor en diarios grandes. Al editar una preparación se actualizan solo las entradas modificadas, y las curvas de extracción largas requieren menos procesamiento.",
   "releaseNotesTitle": "Novedades de esta versión",
   "releaseNotesEquipmentDeletion": "En Equipo puedes eliminar métodos y aguas de prueba que no tengan relaciones, también si están archivados. Si están en uso, la app explica por qué no se pueden eliminar y puedes seguir archivándolos.",

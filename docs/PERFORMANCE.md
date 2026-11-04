@@ -30,6 +30,12 @@ here; keep baseline observations separate from follow-up measurements.
   weight across series. Flow medians reuse candidate distribution evaluations
   and preordered segment bounds. Tests compare irregular sampling, signed flow,
   plateaus and the original numerical results; stored measurements are unchanged.
+  Curves over 500 points are prepared in a coalescing worker. Only the displayed
+  polyline is reduced to at most 1,024 samples, retaining endpoints and each
+  bucket's extrema across all series. Cursor readings, statistics, bounds and
+  exports continue using full-resolution data. Live charts show each completed
+  coherent snapshot while keeping only the newest pending input; static charts
+  discard obsolete results.
 
 The connection-local change ledger is an implementation detail, not persisted
 journal data: the database/backup versions stay compatible. It stores at most

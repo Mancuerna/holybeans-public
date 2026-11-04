@@ -2299,6 +2299,7 @@
   "ratingSaveFailed": "Could not save your rating. Your changes are still here; please try again.",
   "ratingSaving": "Saving rating…",
   "ratingWaitingForDrive": "Waiting for restoration to finish…",
+  "curveProcessingFailed": "Could not display this curve.",
   "releaseNotesPerformance": "Search stays responsive in large journals. Editing a brew refreshes only changed entries, and long extraction curves use less processing.",
   "releaseNotesTitle": "What’s new in this version",
   "releaseNotesEquipmentDeletion": "In Equipment, you can delete trial methods and water profiles with no links, including archived ones. If they are in use, the app explains why they cannot be deleted and you can still archive them.",

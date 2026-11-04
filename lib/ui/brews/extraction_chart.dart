@@ -2,10 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:holybeans/domain/axis_ticks.dart';
-import 'package:holybeans/domain/curve_flow_stats.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/curve_legend_button.dart';
+import 'package:holybeans/ui/brews/curve_view_model.dart';
 import 'package:holybeans/ui/brews/extraction_readout.dart';
 import 'package:holybeans/ui/brews/weight_targets.dart';
 import 'package:holybeans/ui/core/formatters.dart';
@@ -94,19 +94,25 @@ class _ExtractionChartState extends State<ExtractionChart>
     with SingleTickerProviderStateMixin {
   late final visible = {...widget.curve.series};
 
-  /// What is drawn and read under the cursor; peaks and the final weight
-  /// come from the recorded curve.
-  late ShotCurve shown = widget.curve.smoothed();
-  late CurveFlowStats? flowStats = _flowStats();
+  final model = CurveViewModel();
 
-  CurveFlowStats? _flowStats() =>
-      CurveFlowStats.fromCurve(widget.curve, firstDripMs: widget.firstDripMs);
+  @override
+  void initState() {
+    super.initState();
+    model.update(
+      widget.curve,
+      firstDripMs: widget.firstDripMs,
+      live: widget.live,
+    );
+    model.addListener(_prepared);
+  }
+
+  void _prepared() => setState(() {});
 
   @override
   void didUpdateWidget(ExtractionChart oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.curve != widget.curve) {
-      shown = widget.curve.smoothed();
       final added = widget.curve.series.toSet().difference(
         oldWidget.curve.series.toSet(),
       );
@@ -114,8 +120,13 @@ class _ExtractionChartState extends State<ExtractionChart>
       visible.removeWhere((s) => !widget.curve.series.contains(s));
     }
     if (oldWidget.curve != widget.curve ||
-        oldWidget.firstDripMs != widget.firstDripMs) {
-      flowStats = _flowStats();
+        oldWidget.firstDripMs != widget.firstDripMs ||
+        oldWidget.live != widget.live) {
+      model.update(
+        widget.curve,
+        firstDripMs: widget.firstDripMs,
+        live: widget.live,
+      );
     }
   }
 
@@ -136,6 +147,8 @@ class _ExtractionChartState extends State<ExtractionChart>
 
   @override
   void dispose() {
+    model.removeListener(_prepared);
+    model.dispose();
     replay.dispose();
     super.dispose();
   }
@@ -235,12 +248,30 @@ class _ExtractionChartState extends State<ExtractionChart>
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final curve = widget.curve;
+    final prepared = model.value;
+    if (prepared == null) {
+      return SizedBox(
+        height: widget.height ?? (widget.compact ? 72 : 220),
+        child: Center(
+          child: model.error == null
+              ? const CircularProgressIndicator(
+                  key: ValueKey('curve-preparing'),
+                )
+              : Text(s.curveProcessingFailed),
+        ),
+      );
+    }
+    final curve = prepared.recorded;
+    final shown = prepared.shown;
     final number = NumberFormat('0.0', regionalLocale.toString());
-    final drawn = widget.compact ? {...curve.series} : visible;
+    final drawn = widget.compact
+        ? {...curve.series}
+        : visible.intersection(curve.series.toSet());
     final height = widget.height ?? (widget.compact ? 72 : 220);
     final painter = _ChartPainter(
       curve: shown,
+      display: prepared.display,
+      peaks: prepared.peaks,
       recorded: curve,
       visible: drawn,
       tickFormat: NumberFormat('0.#', regionalLocale.toString()),
@@ -314,10 +345,11 @@ class _ExtractionChartState extends State<ExtractionChart>
             ExtractionReadout(
               curve: curve,
               shown: shown,
-              visible: visible,
+              visible: drawn,
               flowUnit: widget.flowUnit,
               cursorMs: cursorMs,
-              flowStats: flowStats,
+              flowStats: prepared.flowStats,
+              peaks: prepared.peaks,
               showFlowStatistics: widget.showFlowStatistics,
               showTotals: widget.live,
             ),
@@ -331,6 +363,8 @@ class _ExtractionChartState extends State<ExtractionChart>
 class _ChartPainter extends CustomPainter {
   _ChartPainter({
     required this.curve,
+    required this.display,
+    required this.peaks,
     required this.recorded,
     required this.visible,
     required this.tickFormat,
@@ -351,6 +385,8 @@ class _ChartPainter extends CustomPainter {
 
   final ShotCurve curve;
   final ShotCurve recorded;
+  final ShotCurve display;
+  final Map<CurveSeries, double> peaks;
   final Set<CurveSeries> visible;
   final NumberFormat tickFormat;
   final Map<CurveSeries, Color> colors;
@@ -388,9 +424,7 @@ class _ChartPainter extends CustomPainter {
         if (visible.contains(series) && _isLiquid(series) == liquid)
           // A knock on the scale would squash the brew under its spike;
           // pressure keeps its real peak, which is labelled.
-          series == CurveSeries.pressure
-              ? recorded.maxOf(series)
-              : recorded.peakOf(series),
+          peaks[series] ?? 0,
     ].fold(0.0, math.max);
     final ticks = axisTicks(max);
     return ticks.isEmpty ? 1 : ticks.last;
@@ -469,11 +503,11 @@ class _ChartPainter extends CustomPainter {
     }
     for (final series in CurveSeries.values) {
       if (!visible.contains(series)) continue;
-      final values = curve.values(series);
+      final values = display.values(series);
       final path = Path()
-        ..moveTo(x(curve.timesMs.first), y(series, values.first));
+        ..moveTo(x(display.timesMs.first), y(series, values.first));
       for (var i = 1; i < values.length; i++) {
-        path.lineTo(x(curve.timesMs[i]), y(series, values[i]));
+        path.lineTo(x(display.timesMs[i]), y(series, values[i]));
       }
       canvas.drawPath(
         path,

@@ -17,6 +17,7 @@ class ExtractionReadout extends StatelessWidget {
     required this.flowUnit,
     required this.cursorMs,
     required this.flowStats,
+    this.peaks,
     this.showTotals = false,
     this.showFlowStatistics = true,
   });
@@ -27,6 +28,7 @@ class ExtractionReadout extends StatelessWidget {
   final String flowUnit;
   final int? cursorMs;
   final CurveFlowStats? flowStats;
+  final Map<CurveSeries, double>? peaks;
   final bool showTotals;
   final bool showFlowStatistics;
 
@@ -35,14 +37,17 @@ class ExtractionReadout extends StatelessWidget {
     final s = AppLocalizations.of(context)!;
     final number = NumberFormat('0.0', regionalLocale.toString());
     final index = curve.indexAt(cursorMs ?? curve.durationMs);
+    double peakOf(CurveSeries series) =>
+        peaks?[series] ??
+        (series == CurveSeries.pressure
+            ? curve.maxOf(series)
+            : curve.peakOf(series));
     String value(CurveSeries series, String unit) {
       if (index < 0 || curve.values(series).isEmpty) return '—';
       // Without a cursor every series shows its peak: a filter brew's last
       // weight drops when the brewer is lifted off the scale.
       if (cursorMs == null) {
-        final peak = series == CurveSeries.pressure
-            ? curve.maxOf(series)
-            : curve.peakOf(series);
+        final peak = peakOf(series);
         return s.curvePeak('${number.format(peak)} $unit');
       }
       // Pressure remains an actual measurement, including a brief peak.
@@ -107,7 +112,7 @@ class ExtractionReadout extends StatelessWidget {
                   flow(
                     cursorMs == null
                         ? (showFlowStatistics ? stats?.max : null) ??
-                              curve.peakOf(CurveSeries.flow)
+                              peakOf(CurveSeries.flow)
                         : (index < 0 ? null : shown.flow[index]),
                   ),
                   'curve-flow-value',

@@ -52,7 +52,7 @@ void main() {
       final line = jsonEncode({
         'environment': 'Android profile; file-backed background SQLite',
         'os': Platform.operatingSystemVersion,
-        'harnessVersion': 4,
+        'harnessVersion': 5,
         'run': run,
         ...value,
       });
