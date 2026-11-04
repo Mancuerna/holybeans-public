@@ -13,12 +13,16 @@ class CoffeePicker extends StatefulWidget {
     required this.coffees,
     required this.value,
     required this.onChanged,
+    this.label,
+    this.includeArchived = true,
   });
 
   final JournalRepository repository;
   final List<Coffee> coffees;
   final String? value;
   final ValueChanged<String> onChanged;
+  final String? label;
+  final bool includeArchived;
 
   @override
   State<CoffeePicker> createState() => _CoffeePickerState();
@@ -64,7 +68,12 @@ class _CoffeePickerState extends State<CoffeePicker> {
                   showDragHandle: true,
                   useSafeArea: true,
                   builder: (_) => CoffeeSelectionSheet(
-                    coffees: widget.coffees,
+                    coffees: [
+                      for (final coffee in widget.coffees)
+                        if (widget.includeArchived ||
+                            coffee.archivedAtMs == null)
+                          coffee,
+                    ],
                     selected: widget.value,
                     trailing: badge,
                   ),
@@ -75,9 +84,9 @@ class _CoffeePickerState extends State<CoffeePicker> {
                 widget.onChanged(picked);
               },
               child: InputDecorator(
-                isEmpty: chosen == null,
+                isEmpty: widget.value == null,
                 decoration: InputDecoration(
-                  labelText: s.chooseBean,
+                  labelText: widget.label ?? s.chooseBean,
                   errorText: field.errorText,
                   suffixIcon: const Icon(Icons.arrow_drop_down),
                 ),
@@ -85,9 +94,8 @@ class _CoffeePickerState extends State<CoffeePicker> {
                   children: [
                     Expanded(
                       child: Text(
-                        chosen?.name ?? '',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        chosen?.name ??
+                            (widget.value == null ? '' : s.archivedStatus),
                       ),
                     ),
                     if (chosen != null) badge(chosen),

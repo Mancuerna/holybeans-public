@@ -3097,6 +3097,7 @@
   "ratingSaving": "Guardando valoración…",
   "ratingWaitingForDrive": "Esperando a que termine la restauración…",
   "curveProcessingFailed": "No se ha podido mostrar esta curva.",
+  "releaseNotesCuppingReminder": "El aviso para valorar incluye una opción de 5 minutos. Las catas usan el mismo buscador de cafés que las preparaciones, con nombres completos y el tostador en otra línea.",
   "releaseNotesPerformance": "Los diarios grandes se cargan por páginas y las notas se leen cuando hacen falta. Las estadísticas se calculan en segundo plano y las curvas de extracción en directo reutilizan los cálculos anteriores.",
   "releaseNotesTitle": "Novedades de esta versión",
   "releaseNotesEquipmentDeletion": "En Equipo puedes eliminar métodos y aguas de prueba que no tengan relaciones, también si están archivados. Si están en uso, la app explica por qué no se pueden eliminar y puedes seguir archivándolos.",

@@ -71,6 +71,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.byKey(const ValueKey('release-notes')), findsOneWidget);
         final s = lookupAppLocalizations(Locale(language));
+        expect(find.text(s.releaseNotesCuppingReminder), findsOneWidget);
         expect(find.text(s.releaseNotesEquipmentDeletion), findsOneWidget);
         expect(find.text(s.releaseNotesFlowGuide), findsOneWidget);
         expect(find.text(s.releaseNotesFilterFinish), findsOneWidget);

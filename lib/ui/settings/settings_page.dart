@@ -357,8 +357,9 @@ class _ReminderOptions extends StatelessWidget {
               value: minutes != null,
               onChanged: snapshot.connectionState == ConnectionState.waiting
                   ? null
-                  : (on) =>
-                        onChanged(on ? RateReminderSettings.delays[1] : null),
+                  : (on) => onChanged(
+                      on ? RateReminderSettings.defaultMinutes : null,
+                    ),
             ),
             if (minutes != null)
               Padding(

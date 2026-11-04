@@ -82,9 +82,10 @@ void main() {
     reminders.permission = true;
     await tester.tap(toggle);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('30 min'));
+    expect(await RateReminderSettings(database).loadMinutes(), 20);
+    await tester.tap(find.text('5 min'));
     await tester.pumpAndSettle();
-    expect(await RateReminderSettings(database).loadMinutes(), 30);
+    expect(await RateReminderSettings(database).loadMinutes(), 5);
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
 
@@ -117,7 +118,7 @@ void main() {
     expect(reminders.scheduled, [
       (
         brew.id,
-        const Duration(minutes: 30),
+        const Duration(minutes: 5),
         'Remind me: note down how the cup turned out',
       ),
     ]);

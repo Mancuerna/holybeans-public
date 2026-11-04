@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/domain/cupping.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
+import 'package:holybeans/ui/brews/coffee_picker.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/cupping/cupping_model.dart';
@@ -306,16 +307,13 @@ class CuppingCupSetup extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             if (!model.draft.blind || identifying)
-              CuppingChoice(
+              CoffeePicker(
                 key: ValueKey('cupping-coffee-$index'),
+                repository: model.repository,
+                coffees: model.coffees,
+                includeArchived: false,
                 label: s.beanName,
                 value: c.coffeeId,
-                choices: {
-                  for (final coffee in model.coffees)
-                    if (coffee.archivedAtMs == null)
-                      coffee.id:
-                          '${coffee.name}${coffee.roaster.isEmpty ? "" : " (${coffee.roaster})"}',
-                },
                 onChanged: (v) => model.chooseCoffee(c, v),
               ),
             if ((!model.draft.blind || identifying) && sources.isNotEmpty) ...[

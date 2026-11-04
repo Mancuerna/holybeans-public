@@ -56,7 +56,7 @@ class _CoffeeSelectionSheetState extends State<CoffeeSelectionSheet> {
       ),
       selected: coffee.id == widget.selected,
       trailing: widget.trailing?.call(coffee),
-      title: Text(coffee.name, maxLines: 2, overflow: TextOverflow.ellipsis),
+      title: Text(coffee.name),
       subtitle: coffee.roaster.trim().isEmpty ? null : Text(coffee.roaster),
       onTap: () => Navigator.pop(context, coffee.id),
     );

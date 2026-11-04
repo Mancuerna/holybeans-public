@@ -53,7 +53,7 @@ Future<void> checkCupping(
     final field = find.byKey(ValueKey('cupping-coffee-$i'));
     await $.scrollUntilVisible(finder: field);
     await $.tap(field);
-    await $.tap(find.text('Patrol cupping (Fixture)').last);
+    await $.tap(find.text('Patrol cupping').last);
   }
   await $.takeNativeScreenshot('cupping-cup-stock-setup');
   await $.tap(find.byKey(const ValueKey('cupping-pour')));
