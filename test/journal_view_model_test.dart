@@ -89,6 +89,21 @@ void main() {
     expect(journal.latestUsableBrew, isNull);
   });
 
+  test('reuses snapshots until journal rows change', () async {
+    final journal = open();
+    addTearDown(journal.dispose);
+    await settle(journal);
+    final before = journal.data;
+    expect(journal.data, same(before));
+    journal.changeListOptions(const ListOptions(brewsCompact: true));
+    expect(journal.data, same(before));
+    await repository.createCoffee(name: 'New', roaster: 'Test');
+    await settle(journal, () => journal.coffees.isNotEmpty);
+    expect(journal.data, isNot(same(before)));
+    expect(before.coffees, isEmpty);
+    expect(journal.data, same(journal.data));
+  });
+
   test('keeps the list options for the next launch', () async {
     final journal = open();
     addTearDown(journal.dispose);

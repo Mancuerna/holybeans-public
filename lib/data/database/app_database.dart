@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:holybeans/data/database/brew_changes.dart';
 import 'package:holybeans/data/database/schema_steps.g.dart' as schemas;
 import 'package:holybeans/data/services/journal_write_gate.dart';
 import 'package:holybeans/domain/beanconqueror/bq_values.dart';
@@ -669,6 +670,7 @@ class AppDatabase extends _$AppDatabase {
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
+      await installBrewChanges(this);
     },
   );
 

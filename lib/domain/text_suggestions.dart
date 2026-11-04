@@ -1,17 +1,97 @@
+import 'dart:typed_data';
+
 /// Lowercase, accent-free text for matching suggestions without rewriting data.
 String foldSuggestion(String text) {
-  const from = 'áàäâãéèëêíìïîóòöôõúùüûñç';
-  const to = 'aaaaaeeeeiiiiooooouuuunc';
-  final buffer = StringBuffer();
-  for (final char in text.trim().toLowerCase().split('')) {
-    final index = from.indexOf(char);
-    buffer.write(index < 0 ? char : to[index]);
+  final lower = text.trim().toLowerCase();
+  final buffer = Uint16List(lower.length);
+  var length = 0;
+  var space = false;
+  for (var i = 0; i < lower.length; i++) {
+    final code = lower.codeUnitAt(i);
+    if (code >= 0x0300 && code <= 0x036f) continue;
+    if (_whiteSpace(code)) {
+      if (!space) buffer[length++] = 32;
+      space = true;
+      continue;
+    }
+    space = false;
+    buffer[length++] = _foldUnit(code);
   }
-  return buffer
-      .toString()
-      .replaceAll(RegExp(r'[\u0300-\u036f]'), '')
-      .replaceAll(RegExp(r'\s+'), ' ');
+  return String.fromCharCodes(buffer, 0, length);
 }
+
+int _foldUnit(int code) => switch (code) {
+  0xe0 || 0xe1 || 0xe2 || 0xe3 || 0xe4 => 97,
+  0xe8 || 0xe9 || 0xea || 0xeb => 101,
+  0xec || 0xed || 0xee || 0xef => 105,
+  0xf2 || 0xf3 || 0xf4 || 0xf5 || 0xf6 => 111,
+  0xf9 || 0xfa || 0xfb || 0xfc => 117,
+  0xf1 => 110,
+  0xe7 => 99,
+  _ => code,
+};
+
+/// Substring matching with [foldSuggestion]'s exact normalization, stopping at
+/// the first match without allocating a complete normalized copy of each note.
+/// The constructor's query must already be folded. Prefix fallback keeps misses
+/// linear even for patterns such as `aaaaab` in a long repeated note.
+class FoldedTextMatcher {
+  FoldedTextMatcher(String foldedQuery)
+    : _query = foldedQuery.codeUnits,
+      _fallback = List.filled(foldedQuery.length, 0) {
+    var matched = 0;
+    for (var i = 1; i < _query.length; i++) {
+      while (matched > 0 && _query[i] != _query[matched]) {
+        matched = _fallback[matched - 1];
+      }
+      if (_query[i] == _query[matched]) matched++;
+      _fallback[i] = matched;
+    }
+  }
+
+  final List<int> _query;
+  final List<int> _fallback;
+
+  bool matches(String text) {
+    if (_query.isEmpty) return true;
+    final lower = text.trim().toLowerCase();
+    var matched = 0;
+    var space = false;
+    for (var i = 0; i < lower.length; i++) {
+      var code = lower.codeUnitAt(i);
+      if (code >= 0x0300 && code <= 0x036f) continue;
+      if (_whiteSpace(code)) {
+        if (space) continue;
+        space = true;
+        code = 32;
+      } else {
+        space = false;
+        code = _foldUnit(code);
+      }
+      while (matched > 0 && code != _query[matched]) {
+        matched = _fallback[matched - 1];
+      }
+      if (code == _query[matched]) matched++;
+      if (matched == _query.length) return true;
+    }
+    return false;
+  }
+}
+
+// ECMAScript RegExp \s, matching the original folding contract. trim() above
+// deliberately precedes removing combining marks, including at the boundaries.
+bool _whiteSpace(int code) =>
+    (code >= 9 && code <= 13) ||
+    code == 32 ||
+    code == 0xa0 ||
+    code == 0x1680 ||
+    (code >= 0x2000 && code <= 0x200a) ||
+    code == 0x2028 ||
+    code == 0x2029 ||
+    code == 0x202f ||
+    code == 0x205f ||
+    code == 0x3000 ||
+    code == 0xfeff;
 
 /// Existing spellings, trimmed, deduplicated for display and sorted by name.
 List<String> uniqueSuggestions(Iterable<String?> values) {

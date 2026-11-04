@@ -12,6 +12,8 @@ import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_pours_draft.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
 
+import 'helpers/ui_test_support.dart';
+
 /// A bloom of 50 g, a 25 s rest and a pour of 200 g, every 100 ms.
 ShotCurve bloomAndPour() {
   final times = <int>[];
@@ -208,10 +210,10 @@ void main() {
         ],
       ),
     );
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
     expect(find.text('Filled in from the scale curve.'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('pours-from-curve-undo')));
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
     expect(find.byKey(const ValueKey('pours-from-curve')), findsNothing);
     expect(draft.pourCount, isNull);
   });
@@ -351,11 +353,11 @@ void main() {
     await tester.pumpWidget(
       HolyBeansApp(database: database, initialLocale: const Locale('en')),
     );
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
     await tester.tap(find.text('Brews').last);
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
     await tester.tap(find.byKey(ValueKey('brew-card-$first')));
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
     final card = find.byKey(const ValueKey('brew-detail-pours-from-curve'));
     await settle(card);
     expect(find.text('The curve shows 1 bloom and 1 pour.'), findsOneWidget);
@@ -364,19 +366,19 @@ void main() {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
     );
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
     expect(card, findsNothing);
     final saved = (await tester.runAsync(() => repository.brew(first)))!;
     expect((saved.bloomCount, saved.pourCount), (1, 1));
     Navigator.of(tester.element(find.byType(BottomSheet))).pop();
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
 
     await tester.tap(find.byTooltip('Settings'));
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
     final tile = find.byKey(const ValueKey('pours-from-curves'));
     await tester.scrollUntilVisible(tile, 300);
     await tester.ensureVisible(tile);
-    await tester.pumpAndSettle();
+    await settleWithWorkers(tester);
     await tester.tap(tile);
     final fill = find.byKey(const ValueKey('pours-from-curves-fill'));
     await settle(fill);

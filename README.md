@@ -103,6 +103,8 @@ migration tests. Localization sources are in `lib/l10n/`.
 Read [CONTRIBUTING.md](CONTRIBUTING.md) for architecture, tests, Android integration
 checks and device restrictions. Tests requiring an external real backup are
 explicitly skipped when it is absent; CI never uploads personal journals.
+See the [performance audit](docs/PERFORMANCE.md) for device measurements,
+implemented optimizations and reproducible stress scenarios.
 
 ## Releases
 

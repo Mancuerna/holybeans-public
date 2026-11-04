@@ -46,26 +46,34 @@ class CurveFlowStats {
       final a = values[i - 1];
       final b = values[i];
       integral += (a + b) / 2 * ms;
-      segments.add((a: a, b: b, ms: ms));
+      segments.add((a: math.min(a, b), b: math.max(a, b), ms: ms));
     }
     final duration = times.last - times.first;
     final lowest = values.reduce(math.min);
     final highest = values.reduce(math.max);
+    // The lower and upper searches normally visit identical candidates.
+    // Evaluate the time distribution once per candidate, with segment bounds
+    // already ordered. Keep the original arithmetic and plateau convention.
+    final distribution = <double, double>{};
+    double below(double value) => distribution.putIfAbsent(value, () {
+      var durationBelow = 0.0;
+      for (final segment in segments) {
+        if (value >= segment.b) {
+          durationBelow += segment.ms;
+        } else if (value > segment.a) {
+          durationBelow +=
+              (value - segment.a) / (segment.b - segment.a) * segment.ms;
+        }
+      }
+      return durationBelow;
+    });
     double quantile({required bool upper}) {
       var low = lowest;
       var high = highest;
       for (var n = 0; n < 48; n++) {
         final value = (low + high) / 2;
-        var below = 0.0;
-        for (final segment in segments) {
-          final a = math.min(segment.a, segment.b);
-          final b = math.max(segment.a, segment.b);
-          final fraction = a == b
-              ? (value >= a ? 1.0 : 0.0)
-              : ((value - a) / (b - a)).clamp(0.0, 1.0);
-          below += fraction * segment.ms;
-        }
-        if (upper ? below <= duration / 2 : below < duration / 2) {
+        final elapsed = below(value);
+        if (upper ? elapsed <= duration / 2 : elapsed < duration / 2) {
           low = value;
         } else {
           high = value;

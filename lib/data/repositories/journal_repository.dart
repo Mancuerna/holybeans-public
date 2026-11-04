@@ -6,6 +6,7 @@ import 'package:holybeans/data/repositories/brew_recipe_context.dart';
 import 'package:holybeans/data/repositories/brew_recipe_queries.dart';
 import 'package:holybeans/data/repositories/cafe_repository.dart';
 import 'package:holybeans/data/repositories/cupping_share.dart';
+import 'package:holybeans/data/repositories/live_brews.dart';
 import 'package:holybeans/data/repositories/piston_repository.dart';
 import 'package:holybeans/data/services/gaggimate_client.dart';
 import 'package:holybeans/data/services/meticulous_client.dart';
@@ -264,6 +265,7 @@ class JournalRepository {
   late final CafeRepository cafes = CafeRepository(database);
 
   final AppDatabase database;
+  late final _liveBrews = LiveBrewStore(database);
   late final PistonRepository piston = PistonRepository(database);
   late final _recipeQueries = BrewRecipeQueries(
     database,
@@ -309,18 +311,8 @@ class JournalRepository {
     return query.watch();
   }
 
-  Stream<List<Brew>> watchBrews({bool includeArchived = false}) {
-    final query = database.select(database.brews);
-    if (!includeArchived) {
-      query.where((brew) => brew.archivedAtMs.isNull());
-    }
-    query.orderBy([
-      (brew) => OrderingTerm.desc(brew.brewedAtMs),
-      (brew) => OrderingTerm.desc(brew.createdAtMs),
-      (brew) => OrderingTerm.asc(brew.id),
-    ]);
-    return query.watch();
-  }
+  Stream<List<Brew>> watchBrews({bool includeArchived = false}) =>
+      _liveBrews.watch(includeArchived: includeArchived);
 
   /// Everything the journal holds, archived records included, read once
   /// (for exports).
