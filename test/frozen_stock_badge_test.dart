@@ -80,6 +80,11 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('brew-coffee-picker')));
       await tester.pumpAndSettle();
+      // Full names at large text can put later rows below the sheet viewport.
+      await tester.ensureVisible(
+        find.byKey(ValueKey('coffee-frozen-${partial.id}')),
+      );
+      await tester.pumpAndSettle();
       expect(
         find
             .byTooltip(
@@ -90,6 +95,10 @@ void main() {
             .hitTestable(),
         findsOneWidget,
       );
+      await tester.ensureVisible(
+        find.byKey(ValueKey('coffee-frozen-${all.id}')),
+      );
+      await tester.pumpAndSettle();
       expect(
         find
             .byTooltip(
