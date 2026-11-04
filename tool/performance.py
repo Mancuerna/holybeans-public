@@ -70,6 +70,15 @@ def snapshot(rows):
 
 
 def compare(baseline, current):
+    reference = baseline.get('records')
+    if not reference or len({identity(row) for row in reference}) != len(reference):
+        raise ValueError('Empty or duplicate baseline scenarios')
+    for row in reference:
+        metrics = row.get('metrics')
+        if not metrics or any(key not in LIMITS or not isinstance(number, (int, float))
+                              or not math.isfinite(number) or number < 0
+                              for key, number in metrics.items()):
+            raise ValueError('Invalid baseline metrics')
     if any(baseline.get(key) != current.get(key) for key in CONTEXT):
         raise ValueError('Compare the same device OS, build mode and harness version')
     actual = {identity(row): row for row in current['records']}

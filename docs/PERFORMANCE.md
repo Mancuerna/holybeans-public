@@ -98,7 +98,7 @@ notes excluded from previews, stable pagination, cancellation, and incremental
 curve equivalence/work counters. Device timings use a separate comparison:
 
 ```sh
-python3 -m tool.performance snapshot artifacts/performance-phase2/device.jsonl benchmark/device-baseline.json
+python3 -m tool.performance snapshot artifacts/performance-phase2/device-confirmed.jsonl benchmark/device-baseline.json
 python3 -m tool.performance compare artifacts/performance-phase2/repeat.jsonl benchmark/device-baseline.json
 ```
 
@@ -124,7 +124,55 @@ compared as if they were the old full-history search operations. Likewise,
 operation waited for a full-row stream. UI and chart scenarios retain their
 user interactions. See the recorded measurements for actual changes.
 
-## Follow-up measurements: implemented changes
+### Final measurements on the available phone
+
+The complete harness-v6 `phase2-confirmed` profile run passed on the Galaxy
+A53 (Android 15, 60 Hz), using application source `cd36c82`. It includes all nine
+access fixtures, three UI journal sizes, media/backup round trips, startup and
+three live-curve sizes. The phone was USB powered; battery temperature was
+observed at 32 °C during the run. Raw evidence and the source manifest remain
+ignored under `artifacts/performance-phase2/`.
+
+| Scenario | First implementation | Bounded/incremental implementation |
+|---|---:|---:|
+| Loaded shell, 5,000 × 2,048-character notes | 586.1 ms | 251.1 ms |
+| Loaded shell, 10,000 × 2,048-character notes | 863.3 ms | 282.8 ms |
+| Loaded-shell Dart heap, 10,000 × 2,048-character notes | 67.9 MiB | 31.8 MiB |
+| Retained model Dart heap, 10,000 × 8,192-character notes | 108.4 MiB | 25.6 MiB |
+| Statistics maximum build, 10,000 × 2,048-character notes | 285.8 ms | 74.1 ms |
+| Detail cycles maximum build, 10,000 × 2,048-character notes | 201.6 ms | 32.5 ms |
+| Search typing build p95, 10,000 × 2,048-character notes | 8.9 ms | 10.9 ms |
+| 10,000-point live curve process CPU | 1232.0 ticks | 560.0 ticks |
+| 10,000-point live curve build p95 | 7.3 ms | 9.8 ms |
+| 10,000-point live curve maximum build | 18.1 ms | 10.7 ms |
+
+The retained-model heap measurement is the main Dart isolate after GC, not total
+RAM. For the 10,000 × 8,192-character notes fixture, process RSS at model load changed from
+420.7 to 330.5 MiB. Shell timing excludes OS/engine launch. Curve
+CPU includes the same synthetic producer and 100 paced updates, with full final
+samples verified. These are observed runs, not statistically established speedup
+guarantees across devices.
+
+The 10,000 × 8,192-character notes journal now returns its first 50 `citrico` matches in
+10.6 ms median. A no-match query still scans all notes and takes
+1789.3 ms; it remains cancellable and runs without retaining the complete
+notes collection. This is not equivalent to the older resident-memory search
+microbenchmark, which excluded database access. Rating and receiving the complete
+shell summary takes 16.0 ms median for this fixture. The intermediate
+all-coffee refresh cost 93.6 ms at 5,000 × 2,048-character notes; refreshing only dirty coffees
+reduced that to 17.4 ms in the final run.
+
+Not every frame metric improves: asynchronous loading adds short frames and
+transitions, and isolated build/raster spikes remain. The strict comparator
+flagged nine budget exceedances between two intermediate complete runs (including
+first-load and GPU-frame variability). They are investigation signals, not proof
+that a source change caused every spike. Budgets remain provisional; they are
+not an unconditional timing gate in ordinary CI. The [compact device reference](../benchmark/device-baseline.json)
+contains 158 scenario records without raw sample arrays or logs. Use repeated
+controlled measurements and a separate reference on a second, lower-memory
+physical phone before treating these allowances as stable device-wide targets.
+
+## First implementation measurements (PR #16)
 
 The same Galaxy A53 and profile configuration were used for the follow-up.
 Journal/UI/media/startup results use source `44b5179` and harness version 4;
@@ -183,7 +231,7 @@ has one 17.1 ms build and two over-budget raster frames at 10,000 entries;
 at 5,000, no builds but four raster frames exceed budget. Continuous history
 scrolling remains around 7 ms build/raster p95. These results support the search,
 update and long-curve changes; they do not establish that every screen is now
-free of frame spikes. Next priorities are bounded initial data loading and
+free of frame spikes. At that point the next priorities were bounded initial data loading and
 profiling the statistics/detail transition work, followed by another phone.
 
 The repeated media/backup scenarios still pass their data and photo round-trip

@@ -22,6 +22,16 @@ class PerformanceTests(unittest.TestCase):
         after['records'][0]['metrics']['build.p95Ms'] = 15
         self.assertEqual(len(compare(before, after)), 1)
 
+    def test_empty_or_nonfinite_baseline_cannot_pass(self):
+        current = snapshot(self.rows)
+        empty = {**current, 'records': []}
+        with self.assertRaises(ValueError):
+            compare(empty, current)
+        invalid = copy.deepcopy(current)
+        invalid['records'][0]['metrics']['elapsedMs'] = float('nan')
+        with self.assertRaises(ValueError):
+            compare(invalid, current)
+
     def test_startup_sizes_have_distinct_budgets(self):
         rows = [{**self.rows[0], 'operation': 'real_main_to_loaded_shell', 'brews': n, 'firstMs': 200, 'subsequent': {'medianMs': 150}} for n in [0, 5000]]
         result = snapshot(rows)
