@@ -8,6 +8,10 @@ from pathlib import Path
 # failing on changes of microseconds. These are regression limits, not SLAs.
 LIMITS = {
     'elapsedMs': (1.25, 5),
+    'firstMs': (1.25, 5),
+    'subsequent.medianMs': (1.25, 5),
+    'build.maxMs': (1.50, 5),
+    'raster.maxMs': (1.50, 5),
     'medianMs': (1.25, 2),
     'build.p95Ms': (1.20, 2),
     'raster.p95Ms': (1.20, 2),
@@ -16,7 +20,7 @@ LIMITS = {
     'mainIsolateAfterGc.heapUsage': (1.20, 4 * 1024 * 1024),
 }
 CONTEXT = ('environment', 'os', 'harnessVersion')
-IDENTITY = ('operation', 'fixture', 'initialPoints')
+IDENTITY = ('operation', 'fixture', 'initialPoints', 'brews')
 
 
 def value(row, path):

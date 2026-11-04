@@ -22,6 +22,14 @@ class PerformanceTests(unittest.TestCase):
         after['records'][0]['metrics']['build.p95Ms'] = 15
         self.assertEqual(len(compare(before, after)), 1)
 
+    def test_startup_sizes_have_distinct_budgets(self):
+        rows = [{**self.rows[0], 'operation': 'real_main_to_loaded_shell', 'brews': n, 'firstMs': 200, 'subsequent': {'medianMs': 150}} for n in [0, 5000]]
+        result = snapshot(rows)
+        self.assertEqual(len(result['records']), 2)
+        changed = copy.deepcopy(result)
+        changed['records'][1]['metrics']['subsequent.medianMs'] = 300
+        self.assertEqual(len(compare(result, changed)), 1)
+
     def test_missing_scenarios_and_metrics_fail(self):
         before = snapshot(self.rows)
         after = copy.deepcopy(before)

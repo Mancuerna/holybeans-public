@@ -102,7 +102,9 @@ The snapshot contains only context, scenario identities and selected metrics,
 not sample arrays or logs. Comparisons require the same OS/build context and
 harness version, a complete successful audit, and every baseline scenario and
 metric. Limits are baseline × 1.25 + 5 ms for elapsed time, × 1.25 + 2 ms for
-median time, × 1.20 + 2 ms for build/raster p95, × 1.25 + 10 CPU ticks, and
+median time, × 1.20 + 2 ms for build/raster p95, × 1.50 + 5 ms for
+build/raster maxima, × 1.25 + 5 ms for startup first/subsequent median times,
+× 1.25 + 10 CPU ticks, and
 × 1.20 + 4 MiB for post-GC main-isolate heap, plus × 1.20 + 16 MiB for
 process RSS (which includes workers and native memory). These are provisional regression
 allowances, not universal product promises. A failure requires investigation
