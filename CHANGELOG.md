@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.1](https://github.com/Mancuerna/holybeans-public/compare/v1.4.0...v1.4.1) (2026-11-04)
+
+
+### Bug Fixes
+
+* add five-minute reminders and searchable cupping coffees ([0421d1c](https://github.com/Mancuerna/holybeans-public/commit/0421d1cb7bbba0b785225df485d387a21c877a88))
+
+
+### Performance Improvements
+
+* bound journal reads and incrementally prepare live curves ([c55c571](https://github.com/Mancuerna/holybeans-public/commit/c55c571bc78c92c344ef3119d22b1702c6a344a3))
+* **journal:** keep large journals responsive ([#16](https://github.com/Mancuerna/holybeans-public/issues/16)) ([19a5225](https://github.com/Mancuerna/holybeans-public/commit/19a5225491e21f61ce7c4223a97966bb97aca5d7))
+
 ## [1.4.0](https://github.com/Mancuerna/holybeans-public/compare/v1.3.0...v1.4.0) (2026-11-04)
 
 
