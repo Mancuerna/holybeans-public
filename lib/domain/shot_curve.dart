@@ -112,33 +112,53 @@ class ShotCurve {
     if (timesMs.length < 3 || sigmaMs <= 0) return this;
     final reach = 3 * sigmaMs;
     final twoSigmaSquared = 2.0 * sigmaMs * sigmaMs;
-    List<double> smooth(List<double> values) {
-      final result = List<double>.filled(values.length, 0);
-      var first = 0;
-      for (var i = 0; i < values.length; i++) {
-        final time = timesMs[i];
-        while (timesMs[first] < time - reach) {
-          first++;
-        }
-        var sum = 0.0;
-        var total = 0.0;
-        for (var j = first; j < values.length; j++) {
-          final distance = timesMs[j] - time;
-          if (distance > reach) break;
-          final weight = math.exp(-distance * distance / twoSigmaSquared);
-          sum += values[j] * weight;
-          total += weight;
-        }
-        result[i] = sum / total;
+    // Regular device sampling repeats the same small set of distances.
+    // Reuse those weights across points and series without retaining a cache
+    // on the recorded curve. Irregular timestamps keep the exact Gaussian.
+    final step = timesMs[1] - timesMs[0];
+    var regular = step > 0;
+    for (var i = 2; regular && i < timesMs.length; i++) {
+      regular = timesMs[i] - timesMs[i - 1] == step;
+    }
+    final weights = regular ? <int, double>{} : null;
+    final input = [pressure, flow, weight];
+    final output = [
+      for (final values in input) List<double>.filled(values.length, 0),
+    ];
+    var first = 0;
+    for (var i = 0; i < timesMs.length; i++) {
+      final time = timesMs[i];
+      while (timesMs[first] < time - reach) {
+        first++;
       }
-      return result;
+      var pressureSum = 0.0;
+      var flowSum = 0.0;
+      var weightSum = 0.0;
+      var total = 0.0;
+      for (var j = first; j < timesMs.length; j++) {
+        final distance = timesMs[j] - time;
+        if (distance > reach) break;
+        final factor = weights == null
+            ? math.exp(-distance * distance / twoSigmaSquared)
+            : weights.putIfAbsent(
+                distance,
+                () => math.exp(-distance * distance / twoSigmaSquared),
+              );
+        if (pressure.isNotEmpty) pressureSum += pressure[j] * factor;
+        if (flow.isNotEmpty) flowSum += flow[j] * factor;
+        if (weight.isNotEmpty) weightSum += weight[j] * factor;
+        total += factor;
+      }
+      if (pressure.isNotEmpty) output[0][i] = pressureSum / total;
+      if (flow.isNotEmpty) output[1][i] = flowSum / total;
+      if (weight.isNotEmpty) output[2][i] = weightSum / total;
     }
 
     return ShotCurve(
       timesMs: timesMs,
-      pressure: smooth(pressure),
-      flow: smooth(flow),
-      weight: smooth(weight),
+      pressure: output[0],
+      flow: output[1],
+      weight: output[2],
     );
   }
 

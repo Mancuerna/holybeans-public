@@ -60,9 +60,12 @@ class JournalViewModel extends ChangeNotifier {
   final _phases = <(String, BrewStyle?), FreshnessToday?>{};
   DateTime? _phasesDay;
 
+  JournalData? _data;
+  Map<String, BrewStyle>? _lastStyles;
+
   /// Coffees, brews, lots, origins and covers as they are now, archived
-  /// ones included.
-  JournalData get data => JournalData(
+  /// ones included. Reused until one of these collections changes.
+  JournalData get data => _data ??= JournalData(
     coffees: _coffees.value,
     brews: _brews.value,
     lots: _lots.value,
@@ -142,10 +145,27 @@ class JournalViewModel extends ChangeNotifier {
         data: data,
         methods: methods,
         portions: portions,
-        style: style,
+        style: style ?? _lastStyleOf(coffee.id),
         now: now,
       ),
     );
+  }
+
+  BrewStyle _lastStyleOf(String coffeeId) {
+    if (_lastStyles == null) {
+      final latest = <String, Brew>{};
+      for (final brew in _brews.value) {
+        final previous = latest[brew.coffeeId];
+        if (previous == null || brew.brewedAtMs > previous.brewedAtMs) {
+          latest[brew.coffeeId] = brew;
+        }
+      }
+      _lastStyles = {
+        for (final entry in latest.entries)
+          entry.key: brewStyleOf(entry.value, methods),
+      };
+    }
+    return _lastStyles![coffeeId] ?? BrewStyle.filter;
   }
 
   /// Loads saved list options without replacing newer user choices.
@@ -179,7 +199,11 @@ class JournalViewModel extends ChangeNotifier {
             ..value = value
             ..loaded = true
             ..error = null;
-          _phases.clear();
+          if (live != _hidden && live != _covers) _phases.clear();
+          if (live == _brews || live == _methods) _lastStyles = null;
+          if (live != _hidden && live != _methods && live != _portions) {
+            _data = null;
+          }
           if (!_disposed) notifyListeners();
         },
         onError: (Object error, StackTrace stack) {

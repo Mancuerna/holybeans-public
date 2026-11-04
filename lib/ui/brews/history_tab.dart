@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/data/repositories/history_query.dart';
 import 'package:holybeans/domain/list_options.dart';
 import 'package:holybeans/domain/text_suggestions.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_card.dart';
 import 'package:holybeans/ui/brews/history_filter_chips.dart';
 import 'package:holybeans/ui/brews/history_filters.dart';
+import 'package:holybeans/ui/brews/history_view_model.dart';
 import 'package:holybeans/ui/core/journal_search_toolbar.dart';
 import 'package:holybeans/ui/core/page_layout.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -36,6 +38,7 @@ class HistoryTab extends StatefulWidget {
 
 class _HistoryTabState extends State<HistoryTab> {
   final search = TextEditingController();
+  final model = HistoryViewModel();
   late int navigationRevision = filters.navigationRevision;
 
   HistoryFilters get filters => widget.filters;
@@ -56,6 +59,7 @@ class _HistoryTabState extends State<HistoryTab> {
     super.initState();
     search.addListener(_refresh);
     filters.addListener(_refresh);
+    _updateSearch();
   }
 
   @override
@@ -65,12 +69,14 @@ class _HistoryTabState extends State<HistoryTab> {
       oldWidget.filters.removeListener(_refresh);
       widget.filters.addListener(_refresh);
     }
+    _updateSearch();
   }
 
   @override
   void dispose() {
     filters.removeListener(_refresh);
     search.dispose();
+    model.dispose();
     super.dispose();
   }
 
@@ -79,77 +85,47 @@ class _HistoryTabState extends State<HistoryTab> {
       navigationRevision = filters.navigationRevision;
       search.clear();
     }
+    _updateSearch();
     setState(() {});
   }
 
+  HistoryQuery get _query {
+    final range = filters.dateRange;
+    return (
+      text: foldSuggestion(search.text),
+      archived: filters.showArchived,
+      ascending: ascending,
+      coffeeId: filters.coffeeId,
+      methodId: filters.methodId,
+      methodName: filters.methodName,
+      startMs: range == null
+          ? null
+          : DateTime(
+              range.start.year,
+              range.start.month,
+              range.start.day,
+            ).millisecondsSinceEpoch,
+      endMs: range == null
+          ? null
+          : nextLocalDayStart(range.end).millisecondsSinceEpoch,
+      minimumRating: filters.minimumRating,
+    );
+  }
+
+  void _updateSearch() => model.update(widget.data, _query);
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: model,
+    builder: (context, _) => _buildList(context),
+  );
+
+  Widget _buildList(BuildContext context) {
     final coffees = widget.data.coffees;
-    final brews = widget.data.brews;
     final s = AppLocalizations.of(context)!;
-    final query = foldSuggestion(search.text);
-    final coffeeById = {for (final coffee in coffees) coffee.id: coffee};
-    final coffeeOptions = coffees.toList()
-      ..sort(
-        (first, second) =>
-            first.name.toLowerCase().compareTo(second.name.toLowerCase()),
-      );
-    final methodsInHistory =
-        {...brews.map((brew) => brew.methodName), ?filters.methodName}.toList()
-          ..sort(
-            (first, second) =>
-                first.toLowerCase().compareTo(second.toLowerCase()),
-          );
+    final query = _query.text;
     final activeFilterCount = filters.activeCount;
-    final visible =
-        brews.where((brew) {
-          if (!filters.showArchived && brew.archivedAtMs != null) return false;
-          if (query.isNotEmpty &&
-              !foldSuggestion(
-                '${coffeeById[brew.coffeeId]?.name ?? ''} ${coffeeById[brew.coffeeId]?.roaster ?? ''} ${brew.methodName} ${brew.grinderName ?? ''} ${brew.notes ?? ''}',
-              ).contains(query)) {
-            return false;
-          }
-          if (filters.coffeeId != null && brew.coffeeId != filters.coffeeId) {
-            return false;
-          }
-          if (filters.methodId case final methodId?) {
-            if (brew.methodId != null) {
-              if (brew.methodId != methodId) return false;
-            } else if (filters.methodName != brew.methodName) {
-              return false;
-            }
-          } else if (filters.methodName != null &&
-              brew.methodName != filters.methodName) {
-            return false;
-          }
-          final dateRange = filters.dateRange;
-          if (dateRange != null) {
-            final brewedAt = DateTime.fromMillisecondsSinceEpoch(
-              brew.brewedAtMs,
-            );
-            final start = DateTime(
-              dateRange.start.year,
-              dateRange.start.month,
-              dateRange.start.day,
-            );
-            final endExclusive = nextLocalDayStart(dateRange.end);
-            if (brewedAt.isBefore(start) || !brewedAt.isBefore(endExclusive)) {
-              return false;
-            }
-          }
-          final minimumRating = filters.minimumRating;
-          if (minimumRating != null &&
-              (brew.rating == null || brew.rating! < minimumRating)) {
-            return false;
-          }
-          return true;
-        }).toList()..sort((a, b) {
-          final byTime = a.brewedAtMs.compareTo(b.brewedAtMs);
-          if (byTime != 0) return ascending ? byTime : -byTime;
-          final byCreated = b.createdAtMs.compareTo(a.createdAtMs);
-          return byCreated != 0 ? byCreated : a.id.compareTo(b.id);
-        });
+    final visible = model.visible;
     return JournalListPage(
       header: Column(
         mainAxisSize: MainAxisSize.min,
@@ -165,8 +141,11 @@ class _HistoryTabState extends State<HistoryTab> {
                 onPressed: () => showHistoryFilters(
                   context,
                   filters,
-                  coffees: coffeeOptions,
-                  methods: methodsInHistory,
+                  coffees: model.coffeeOptions,
+                  methods: {...model.methods, ?filters.methodName}.toList()
+                    ..sort(
+                      (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
+                    ),
                 ),
                 icon: Badge(
                   isLabelVisible: activeFilterCount > 0,
@@ -219,9 +198,15 @@ class _HistoryTabState extends State<HistoryTab> {
             HistoryFilterChips(filters: filters, coffees: coffees),
           ],
           const SizedBox(height: 12),
-          if (visible.isEmpty)
+          if (model.busy)
+            const LinearProgressIndicator(
+              key: ValueKey('history-search-progress'),
+            ),
+          if (!model.busy && visible.isEmpty)
             EmptyMessage(
-              query.isEmpty && activeFilterCount == 0
+              model.error != null
+                  ? s.dataError
+                  : query.isEmpty && activeFilterCount == 0
                   ? s.noBrews
                   : s.noMatchingBrews,
             ),

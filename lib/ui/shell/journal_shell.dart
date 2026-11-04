@@ -46,6 +46,7 @@ import 'package:holybeans/ui/brews/share_templates_page.dart';
 import 'package:holybeans/ui/cafes/cafes_page.dart';
 import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
+import 'package:holybeans/ui/core/lazy_indexed_stack.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/core/smooth_floating_button.dart';
 import 'package:holybeans/ui/equipment/equipment_forms.dart';
@@ -626,7 +627,7 @@ class _JournalShellState extends State<JournalShell>
   void showRoasters({String? roaster}) =>
       openRoasters(context, journal, this, roaster: roaster);
 
-  Widget _tabs(JournalData data) => IndexedStack(
+  Widget _tabs(JournalData data) => LazyIndexedStack(
     index: tab,
     children: [
       HomeTab(data: data, actions: this),
