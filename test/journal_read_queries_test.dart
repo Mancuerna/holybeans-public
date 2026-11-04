@@ -165,6 +165,77 @@ void main() {
     },
   );
 
+  test('replacement writes refresh the displaced coffee and rollback stays invisible', () async {
+    final other = await repo.createCoffee(name: 'Other', roaster: 'South');
+    final previous = await repo.reads.overview();
+    final revision = await repo.reads.revision();
+    final brew = (await repo.brew('brew-159'))!.copyWith(coffeeId: other);
+    await db.into(db.brews).insert(brew, mode: InsertMode.insertOrReplace);
+    final replaced = await repo.reads.overview(
+      previous: previous,
+      sinceRevision: revision,
+    );
+    expect(replaced.byCoffee[coffee]!.count, 159);
+    expect(replaced.byCoffee[other]!.count, 1);
+    final beforeRollback = await repo.reads.revision();
+    await expectLater(
+      db.transaction(() async {
+        await (db.delete(
+          db.brews,
+        )..where((row) => row.coffeeId.equals(other))).go();
+        throw StateError('rollback');
+      }),
+      throwsStateError,
+    );
+    expect(await repo.reads.revision(), beforeRollback);
+    expect((await repo.reads.overview()).byCoffee, replaced.byCoffee);
+  });
+
+  test('incremental overview refreshes both old and new coffee after moves and deletes', () async {
+    final other = await repo.createCoffee(name: 'Other', roaster: 'South');
+    await repo.createBrew(
+      coffeeId: other,
+      methodName: 'Espresso',
+      brewedAt: DateTime.fromMillisecondsSinceEpoch(200),
+    );
+    final before = await repo.reads.overview();
+    final revision = await repo.reads.revision();
+    await (db.update(db.brews)..where((row) => row.id.equals('brew-000')))
+        .write(const BrewsCompanion(rating: Value(3)));
+    final rated = await repo.reads.overview(
+      previous: before,
+      sinceRevision: revision,
+    );
+    expect(rated.count, before.count);
+    expect(rated.byCoffee[coffee]!.ratingSum, 1275);
+    expect(identical(rated.seeds[other], before.seeds[other]), isTrue);
+    final nextRevision = await repo.reads.revision();
+    await (db.update(db.brews)..where((row) => row.id.equals('brew-159')))
+        .write(BrewsCompanion(coffeeId: Value(other)));
+    final moved = await repo.reads.overview(
+      previous: rated,
+      sinceRevision: nextRevision,
+    );
+    final complete = await repo.reads.overview();
+    expect(moved.byCoffee, complete.byCoffee);
+    expect(moved.previews, complete.previews);
+    expect(moved.seeds, complete.seeds);
+    expect(moved.latestActive, complete.latestActive);
+    expect(moved.yearDates, complete.yearDates);
+    final deleteRevision = await repo.reads.revision();
+    await (db.delete(
+      db.brews,
+    )..where((row) => row.coffeeId.equals(other))).go();
+    final deleted = await repo.reads.overview(
+      previous: moved,
+      sinceRevision: deleteRevision,
+    );
+    expect(deleted.byCoffee.containsKey(other), isFalse);
+    expect(deleted.seeds.containsKey(other), isFalse);
+    expect(deleted.previews.any((row) => row.coffeeId == other), isFalse);
+    expect(deleted.count, 159);
+  });
+
   test(
     'a mutation invalidates a cursor revision instead of mixing snapshots',
     () async {

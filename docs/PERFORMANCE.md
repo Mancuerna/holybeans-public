@@ -54,6 +54,9 @@ remain available to exports and callers that explicitly need them.
 - The shell subscribes to SQL aggregates and at most three note-free previews
   per coffee, plus one favorite recipe and one latest active recipe per coffee.
   Counts, ratings, last use, years and typical doses cover the complete journal.
+  A connection-local dirty-coffee ledger refreshes only affected summaries,
+  including both owners of moved/replaced brews; unchanged previews are reused.
+  Weekly counts expire entries as time passes without needing a new write.
   Four composite indexes support history, per-coffee and favorite lookups. They
   are installed on existing databases without rewriting rows or changing backup
   formats; historical schema reconstruction drops these current access indexes.

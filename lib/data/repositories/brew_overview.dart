@@ -5,6 +5,7 @@ typedef CoffeeBrewTotals = ({
   int rated,
   double ratingSum,
   int lastMs,
+  int firstCreatedMs,
 });
 
 /// Small, complete journal aggregates plus a bounded set of recipe previews.
@@ -19,6 +20,8 @@ class BrewOverview {
     this.yearDates = const [],
     this.weekCount = 0,
     this.recentDates = const {},
+    this.yearsByCoffee = const {},
+    this.recentDatesByCoffee = const {},
     this.firstCreatedMs,
   });
 
@@ -30,6 +33,8 @@ class BrewOverview {
   final List<int> yearDates;
   final int weekCount;
   final Map<int, int> recentDates;
+  final Map<String, List<int>> yearsByCoffee;
+  final Map<String, Map<int, int>> recentDatesByCoffee;
 
   /// Expire old entries even when no write has refreshed the SQL overview.
   int weekCountAt(DateTime now) {
