@@ -99,7 +99,7 @@ curve equivalence/work counters. Device timings use a separate comparison:
 
 ```sh
 python3 -m tool.performance snapshot artifacts/performance-phase2/device-confirmed.jsonl benchmark/device-baseline.json
-python3 -m tool.performance compare artifacts/performance-phase2/repeat.jsonl benchmark/device-baseline.json
+python3 -m tool.performance compare artifacts/performance-phase2/device-repeat.jsonl benchmark/device-baseline.json
 ```
 
 The snapshot contains only context, scenario identities and selected metrics,
@@ -171,6 +171,30 @@ not an unconditional timing gate in ordinary CI. The [compact device reference](
 contains 158 scenario records without raw sample arrays or logs. Use repeated
 controlled measurements and a separate reference on a second, lower-memory
 physical phone before treating these allowances as stable device-wide targets.
+
+The independent `phase2-repeat` run also passed all functional assertions and
+completed Android instrumentation successfully. Repository revision `b17eaf4`
+contains the same application source as `cd36c82`. Its 158 measured scenarios
+triggered 12 metric-budget exceedances: initial loading (one), search (three),
+insertion (two), full-row reading (two), UI frames (three) and backup export
+(one). Examples include the 1,000-entry `citrico` search median, 48.6 → 72.1 ms;
+the 10,000-entry statistics raster p95, 8.1 → 15.7 ms; and backup export median,
+75.8 → 105.5 ms. The comparator exits unsuccessfully for these alerts; neither
+the reference nor allowances were changed to conceal them. Two runs cannot
+establish stable timing limits or isolate the source of device variability.
+The principal improvements persisted: the 10,000-entry shell loaded in
+277.8 ms, retained long-note model heap was 25.6 MiB, and the 10,000-point
+curve again used 560 process CPU ticks. Raw repeat records, its source manifest
+and comparison output remain in the ignored evidence directory.
+
+The [complete final-source CI](https://github.com/Mancuerna/holybeans-public/actions/runs/41911404458)
+passed **1,713 Flutter tests, with seven private-backup fixture skips**, native
+Android tests, 37 Python tooling tests, formatting, static analysis and
+documentation checks. Pagination/cancellation, complete summaries, replacement
+imports, rollback, old-schema migrations and incremental curve equivalence have
+regression coverage. The [implementation PR](https://github.com/Mancuerna/holybeans-public/pull/18)
+records delivery status; subsequent report-only changes preserve that validated
+application source.
 
 ## First implementation measurements (PR #16)
 
