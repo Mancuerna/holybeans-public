@@ -98,7 +98,10 @@ The final chart harness waits until the readout contains all 100 added samples,
 including the last worker result. The 10,000-point case completes in 5.56 s
 versus 8.84 s at baseline. Coalescing can skip intermediate rendered snapshots;
 recorded samples are retained. Worker execution improves UI scheduling, but is
-not a promise of less total process CPU or battery use. The final 200-point
+not a promise of less total process CPU or battery use: the 10,000-point
+scenario records 1,232 process CPU ticks versus 1,001 at baseline, while
+rendering 326 frames instead of 107. This includes the harness and worker
+overhead and is not an isolated kernel comparison. The final 200-point
 worker threshold also removes over-budget builds from the 300-point case in
 this run; one build spike and several raster spikes remain in the large cases.
 
@@ -110,6 +113,14 @@ scrolling remains around 7 ms build/raster p95. These results support the search
 update and long-curve changes; they do not establish that every screen is now
 free of frame spikes. Next priorities are bounded initial data loading and
 profiling the statistics/detail transition work, followed by another phone.
+
+The repeated media/backup scenarios still pass their data and photo round-trip
+assertions. Median export/ZIP/restore timings are 78.2/128.9/448.7 ms versus
+81.0/138.2/410.9 ms at baseline. Restoration is slower in this run, and the
+eight-photo batch is 4.65 s versus 4.39 s. Individual 1.9/12 MP resizes are
+782.6/848.0 ms versus 817.3/953.3 ms. These small sequential sample sets do not
+establish that each difference comes from the code changes; no photo/backup
+speedup or battery improvement is claimed.
 
 Raw follow-up evidence is local under `artifacts/performance-improvements/`:
 `device-final.jsonl` for the nine access fixtures and UI/media/startup scenarios,
@@ -403,6 +414,13 @@ This stresses chart rendering and includes fixture generation;
 it does not measure Bluetooth transport or physical extraction accuracy.
 
 ## Audit record quality
+
+The final implementation CI on `be92bad` completed with **1,698 Flutter tests
+passed, seven skipped and zero failed**, plus successful native Android tests,
+Python tooling checks, formatting and static analysis. The seven skips still
+require private backup fixtures. See the
+[complete validation run](https://github.com/Mancuerna/holybeans-public/actions/runs/41897984725).
+Subsequent documentation-only commits retain the same source fingerprint.
 
 Implementation regressions cover incremental subscriptions and cancellation,
 transaction rollback, replacement imports, Unicode matching, stale worker
