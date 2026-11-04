@@ -100,13 +100,31 @@ class HistoryPages {
       final rows = batch
           .map((row) => database.brews.map(row.data))
           .toList(growable: false);
+      final request = (brews: rows, coffees: coffees, query: query);
+      // Small bounded batches finish faster than starting an isolate. Long
+      // notes and metadata stay off the UI thread even in a small journal.
+      final textSize =
+          rows.fold<int>(
+            0,
+            (sum, brew) =>
+                sum +
+                (brew.notes?.length ?? 0) +
+                brew.methodName.length +
+                (brew.grinderName?.length ?? 0),
+          ) +
+          coffees.fold<int>(
+            0,
+            (sum, coffee) => sum + coffee.name.length + coffee.roaster.length,
+          );
       final matches = query.text.isEmpty
           ? [for (var i = 0; i < rows.length; i++) i]
-          : await compute(_matchingIndices, (
-              brews: rows,
-              coffees: coffees,
-              query: query,
-            ), debugLabel: 'history-page-search');
+          : textSize <= 16384
+          ? _matchingIndices(request)
+          : await compute(
+              _matchingIndices,
+              request,
+              debugLabel: 'history-page-search',
+            );
       final matching = matches.toSet();
       for (var i = 0; i < rows.length; i++) {
         final row = rows[i];

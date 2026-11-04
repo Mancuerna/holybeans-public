@@ -109,8 +109,11 @@ class CurveAccumulator {
         final high = math.max(a, b);
         _low = math.min(_low, low);
         _high = math.max(_high, high);
-        if (low == high) {
-          _distribution.add(low, offset: duration.toDouble());
+        // Nearly flat segments would create enormous cancelling slopes.
+        // A midpoint mass changes a quantile by at most 5e-10 flow units;
+        // recorded values, mean and maximum remain untouched.
+        if (high - low <= 1e-9) {
+          _distribution.add((low + high) / 2, offset: duration.toDouble());
         } else {
           final slope = duration / (high - low);
           _distribution.add(low, slope: slope, offset: -low * slope);

@@ -78,7 +78,10 @@ remain available to exports and callers that explicitly need them.
   tail, update ranked sample values and add elapsed-time distribution events
   to an AVL tree. Corrections, truncations, series changes and first-drip changes
   rebuild the state. Median/mean/peak equivalence tests cover irregular sampling,
-  signed flow, pauses and future first-drip markers. Display reduction remains
+  signed flow, pauses, near-flat numerical cancellation and future first-drip
+  markers. Sub-nanounit flow segments use a midpoint mass for stable median
+  evaluation (at most 5e-10 flow-unit quantile error); raw data, mean and maximum
+  are unchanged. Display reduction remains
   bounded at 1,024 points; raw samples, cursor values and exports retain their
   original resolution. Snapshot transfer and display decimation still scan
   samples; the implementation does not claim every operation is constant time.

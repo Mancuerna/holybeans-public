@@ -107,6 +107,18 @@ void main() {
       }
     }
   });
+  test('nearly flat segments preserve median between separated plateaus', () {
+    final curve = ShotCurve(
+      timesMs: [for (var i = 0; i < 1000; i++) i * 100],
+      flow: [
+        for (var i = 0; i < 1000; i++) (i < 500 ? 1.0 : 10.0) + (i % 3) * 1e-12,
+      ],
+      weight: const [],
+    );
+    final request = (curve: curve, firstDripMs: 0);
+    equivalent(CurveAccumulator().prepare(request), prepareCurve(request));
+  });
+
   test('persistent worker returns coherent snapshots and closes', () async {
     final worker = CurveWorker();
     addTearDown(worker.dispose);
