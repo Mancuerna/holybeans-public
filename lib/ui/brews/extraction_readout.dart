@@ -12,7 +12,6 @@ class ExtractionReadout extends StatelessWidget {
   const ExtractionReadout({
     super.key,
     required this.curve,
-    required this.shown,
     required this.visible,
     required this.flowUnit,
     required this.cursorMs,
@@ -23,7 +22,6 @@ class ExtractionReadout extends StatelessWidget {
   });
 
   final ShotCurve curve;
-  final ShotCurve shown;
   final Set<CurveSeries> visible;
   final String flowUnit;
   final int? cursorMs;
@@ -50,10 +48,8 @@ class ExtractionReadout extends StatelessWidget {
         final peak = peakOf(series);
         return s.curvePeak('${number.format(peak)} $unit');
       }
-      // Pressure remains an actual measurement, including a brief peak.
-      final values = cursorMs == null || series == CurveSeries.pressure
-          ? curve.values(series)
-          : shown.values(series);
+      // Numerical readouts always use recorded measurements.
+      final values = curve.values(series);
       return '${number.format(values[index])} $unit';
     }
 
@@ -113,7 +109,7 @@ class ExtractionReadout extends StatelessWidget {
                     cursorMs == null
                         ? (showFlowStatistics ? stats?.max : null) ??
                               peakOf(CurveSeries.flow)
-                        : (index < 0 ? null : shown.flow[index]),
+                        : (index < 0 ? null : curve.flow[index]),
                   ),
                   'curve-flow-value',
                 ),

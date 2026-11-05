@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/domain/axis_ticks.dart';
+import 'package:holybeans/domain/pressure_recording.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 
 void main() {
@@ -10,27 +11,90 @@ void main() {
     weight: values,
   );
 
-  test('smoothing removes steps and one-sample dips but keeps the shape', () {
-    // A slow ramp reported in 0.1 steps, as stored before.
-    final steps = [for (var i = 0; i < 60; i++) 1.2 + (i ~/ 15) * 0.1];
-    final smooth = curve(steps).smoothed().flow;
-    expect(smooth, hasLength(steps.length));
-    for (var i = 1; i < smooth.length; i++) {
-      expect(smooth[i], greaterThanOrEqualTo(smooth[i - 1] - 1e-9));
+  test('display keeps narrow pressure peaks and all weight measurements', () {
+    final original = curve([0, 0, 6.6, 0, 0], stepMs: 50);
+    final saved = original.toJson();
+    final shown = original.smoothed();
+    expect(shown.pressure, same(original.pressure));
+    expect(shown.weight, same(original.weight));
+    expect(shown.timesMs, same(original.timesMs));
+    expect(shown.maxOf(CurveSeries.pressure), 6.6);
+    expect(original.toJson(), saved);
+  });
+
+  test(
+    'short flow window retains at least 95 percent of a two-second peak',
+    () {
+      final original = curve([
+        for (var i = 0; i <= 200; i++) 6.6 * (1 - (i - 100).abs() / 100),
+      ], stepMs: 10);
+      final shown = original.smoothed();
+      expect(shown.maxOf(CurveSeries.flow), closeTo(6.27, 1e-10));
+      expect(shown.flow.indexOf(shown.maxOf(CurveSeries.flow)), 100);
+      expect(shown.maxOf(CurveSeries.pressure), 6.6);
+    },
+  );
+
+  test(
+    'flow filtering has bounded reach and keeps endpoints and linear ramps',
+    () {
+      final ramp = curve([for (var i = 0; i <= 60; i++) i / 10], stepMs: 10);
+      final shown = ramp.smoothed();
+      for (var i = 0; i < ramp.flow.length; i++) {
+        expect(shown.flow[i], closeTo(ramp.flow[i], 1e-10));
+      }
+      final step = curve([
+        for (var i = 0; i <= 60; i++) i < 30 ? 0 : 6,
+      ], stepMs: 10);
+      final filtered = step.smoothed();
+      expect(filtered.flow.take(20), everyElement(0));
+      for (final value in filtered.flow.skip(40)) {
+        expect(value, closeTo(6, 1e-10));
+      }
+      expect(filtered.flow.first, step.flow.first);
+      expect(filtered.flow.last, step.flow.last);
+      expect(filtered.flow[30], greaterThan(0));
+      expect(filtered.flow[30], lessThan(6));
+      expect(filtered.pressure, step.pressure);
+    },
+  );
+
+  test('adding pressure timestamps cannot change filtered scale values', () {
+    final original = ShotCurve(
+      timesMs: [for (var t = 0; t <= 4000; t += 100) t],
+      flow: [
+        for (var t = 0; t <= 4000; t += 100)
+          t <= 2000 ? t / 500 : (4000 - t) / 500,
+      ],
+      weight: [for (var t = 0; t <= 4000; t += 100) t / 500],
+    );
+    final pressure = PressureRecording();
+    for (var t = 1901; t < 2100; t++) {
+      pressure.add(t, 5);
     }
-    // Around a step the change is spread over several samples.
-    expect(smooth[15] - smooth[14], lessThan(0.05));
+    final combined = pressure.addTo(original).smoothed();
+    final shown = original.smoothed();
+    for (var i = 0; i < original.timesMs.length; i++) {
+      final j = combined.indexAt(original.timesMs[i]);
+      expect(combined.flow[j], closeTo(shown.flow[i], 1e-10));
+      expect(combined.weight[j], original.weight[i]);
+    }
+  });
 
-    // A one-sample dip on a plateau almost disappears.
-    final plateau = [for (var i = 0; i < 40; i++) i == 20 ? 5.9 : 6.0];
-    final flat = curve(plateau).smoothed().pressure;
-    expect(flat[20], greaterThan(5.98));
-    expect(flat.first, closeTo(6.0, 1e-9));
-
-    // Values stay within the original range and times are untouched.
-    final shot = curve([0, 0, 9, 9, 9, 0, 0]).smoothed();
-    expect(shot.timesMs, [0, 133, 266, 399, 532, 665, 798]);
-    expect(shot.pressure.every((value) => value >= 0 && value <= 9), isTrue);
+  test('missing flow and pressure series remain absent', () {
+    final pressureOnly = ShotCurve(
+      timesMs: [0, 50, 100],
+      pressure: [0, 6.6, 0],
+      flow: [],
+      weight: [],
+    );
+    expect(pressureOnly.smoothed(), same(pressureOnly));
+    final scale = ShotCurve(
+      timesMs: [0, 50, 100],
+      flow: [0, 6, 0],
+      weight: [0, 1, 2],
+    );
+    expect(scale.smoothed().pressure, isEmpty);
   });
 
   test('short curves are left as they are', () {

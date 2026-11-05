@@ -32,7 +32,7 @@ String curveSeriesLabel(AppLocalizations s, CurveSeries series) =>
       CurveSeries.pressure => s.curvePressure,
     };
 
-/// A brew's pressure, flow and weight over time, smoothed for drawing; a
+/// A brew's recorded pressure and weight, with lightly filtered flow; a
 /// scale's curve has no pressure. Pressure and flow share the left axis
 /// (bar · ml/s), the weight has its own on the right, and time runs along
 /// the bottom. Touching or dragging reads the values at that moment, the
@@ -344,7 +344,6 @@ class _ExtractionChartState extends State<ExtractionChart>
             const SizedBox(height: 8),
             ExtractionReadout(
               curve: curve,
-              shown: shown,
               visible: drawn,
               flowUnit: widget.flowUnit,
               cursorMs: cursorMs,

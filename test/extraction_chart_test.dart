@@ -97,6 +97,27 @@ void main() {
     expect(value(tester, 'curve-pressure-value'), contains('7.2 bar'));
   });
 
+  testWidgets('cursor readouts retain recorded flow peaks and weight', (
+    tester,
+  ) async {
+    final recorded = ShotCurve(
+      timesMs: [0, 1000, 1100, 1200, 2000],
+      pressure: [0, 1, 6.6, 1, 0],
+      flow: [0, 1, 6.6, 1, 0],
+      weight: [0, 10, 11, 12, 20],
+    );
+    await show(tester, locale: 'en', drawn: recorded);
+    final rect = tester.getRect(plotFinder());
+    await tester.tapAt(
+      rect.topLeft + Offset(32 + (rect.width - 64) * 1100 / 2000, 100),
+    );
+    await tester.pump();
+    expect(value(tester, 'curve-flow-value'), contains('6.6'));
+    expect(value(tester, 'curve-pressure-value'), contains('6.6 bar'));
+    expect(value(tester, 'curve-weight-value'), contains('11.0 g'));
+    paintChart(tester).expectMarkersOnLines();
+  });
+
   testWidgets('cursor markers follow segments between irregular samples', (
     tester,
   ) async {
@@ -144,7 +165,6 @@ void main() {
         find.byType(ExtractionReadout),
       );
       expect(readout.curve.timesMs, recorded.timesMs);
-      expect(readout.shown.timesMs, recorded.timesMs);
       expect(readout.curve.weight, recorded.weight);
       expect(tester.takeException(), isNull);
     },
