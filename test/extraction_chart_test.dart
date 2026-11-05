@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/domain/shot_curve.dart';
@@ -22,6 +24,7 @@ void main() {
     double width = 320,
     ShotCurve? drawn,
     bool showFlowStatistics = true,
+    bool interactive = true,
   }) async {
     tester.view.physicalSize = const Size(1100, 1000);
     tester.view.devicePixelRatio = 1;
@@ -41,6 +44,7 @@ void main() {
                 child: SingleChildScrollView(
                   child: ExtractionChart(
                     curve: drawn ?? curve,
+                    interactive: interactive,
                     flowUnit: 'g/s',
                     firstDripMs: 4000,
                     showFlowStatistics: showFlowStatistics,
@@ -65,6 +69,66 @@ void main() {
       )
       .map((t) => t.data ?? '')
       .join(' ');
+
+  Finder plotFinder() => find
+      .descendant(
+        of: find.byKey(const ValueKey('extraction-chart')),
+        matching: find.byType(CustomPaint),
+      )
+      .last;
+
+  _MarkerCanvas paintChart(WidgetTester tester) {
+    final plot = plotFinder();
+    final canvas = _MarkerCanvas();
+    tester
+        .widget<CustomPaint>(plot)
+        .painter!
+        .paint(canvas, tester.getSize(plot));
+    return canvas;
+  }
+
+  testWidgets('shared peak marker sits on the curve and retains recorded max', (
+    tester,
+  ) async {
+    await show(tester, locale: 'en', interactive: false);
+    final canvas = paintChart(tester);
+    expect(canvas.markers, hasLength(1));
+    canvas.expectMarkersOnLines();
+    expect(value(tester, 'curve-pressure-value'), contains('7.2 bar'));
+  });
+
+  testWidgets('cursor markers follow segments between irregular samples', (
+    tester,
+  ) async {
+    await show(tester, locale: 'en');
+    final rect = tester.getRect(plotFinder());
+    // Well between recorded samples, rather than exactly on a timestamp.
+    await tester.tapAt(rect.topLeft + const Offset(160, 100));
+    await tester.pump();
+    final canvas = paintChart(tester);
+    expect(canvas.markers, hasLength(4));
+    canvas.expectMarkersOnLines();
+  });
+
+  testWidgets('markers follow the reduced display curve for large recordings', (
+    tester,
+  ) async {
+    final recorded = ShotCurve(
+      timesMs: [for (var i = 0; i < 1500; i++) i * 100],
+      pressure: [for (var i = 0; i < 1500; i++) i == 750 ? 9.0 : 2.0],
+      flow: [for (var i = 0; i < 1500; i++) (i % 17).toDouble()],
+      weight: [for (var i = 0; i < 1500; i++) i * 0.1],
+    );
+    await show(tester, locale: 'en', drawn: recorded);
+    expect(value(tester, 'curve-pressure-value'), contains('9.0 bar'));
+    paintChart(tester).expectMarkersOnLines();
+    final rect = tester.getRect(plotFinder());
+    await tester.tapAt(rect.topLeft + const Offset(163, 100));
+    await tester.pump();
+    final canvas = paintChart(tester);
+    expect(canvas.markers, hasLength(4));
+    canvas.expectMarkersOnLines();
+  });
 
   testWidgets(
     'large curves finish real worker preparation and retain every readout sample',
@@ -221,4 +285,39 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+}
+
+class _MarkerCanvas extends Fake implements Canvas {
+  final paths = <Color, Path>{};
+  final markers = <({Color color, Offset center})>[];
+
+  @override
+  void drawPath(Path path, Paint paint) => paths[paint.color] = path;
+
+  @override
+  void drawCircle(Offset center, double radius, Paint paint) {
+    markers.add((color: paint.color, center: center));
+  }
+
+  @override
+  void drawLine(Offset p1, Offset p2, Paint paint) {}
+
+  @override
+  void drawParagraph(ui.Paragraph paragraph, Offset offset) {}
+
+  void expectMarkersOnLines() {
+    for (final marker in markers) {
+      // Inspect the actual painted path, independently of its data source.
+      final metrics = paths[marker.color]!.computeMetrics();
+      var distance = double.infinity;
+      for (final metric in metrics) {
+        for (var offset = 0.0; offset <= metric.length; offset += 0.1) {
+          final point = metric.getTangentForOffset(offset)!.position;
+          final candidate = (point - marker.center).distance;
+          if (candidate < distance) distance = candidate;
+        }
+      }
+      expect(distance, lessThan(0.2), reason: 'Marker must lie on its line');
+    }
+  }
 }
