@@ -4,6 +4,21 @@
 
 * Something is stirring between sips.
 
+## [1.5.0](https://github.com/Mancuerna/holybeans-public/compare/v1.4.1...v1.5.0) (2026-11-05)
+
+
+### Features
+
+* add a little stir between sips ([#24](https://github.com/Mancuerna/holybeans-public/issues/24)) ([f2af7d4](https://github.com/Mancuerna/holybeans-public/commit/f2af7d49d0933eb1ec08c351ca770b1b242b438f))
+
+
+### Bug Fixes
+
+* **charts:** align markers with the displayed extraction curve ([3e4a038](https://github.com/Mancuerna/holybeans-public/commit/3e4a03853112ba9b4372b2a0a9baf1a59c4e0f0d))
+* **charts:** preserve recorded curves and time-weight flow smoothing ([7953cd5](https://github.com/Mancuerna/holybeans-public/commit/7953cd5dd683cb8e1c7e0bd7f3a450b4f2478bee))
+* **release-notes:** generate in-app notes from the current release ([bdccbc5](https://github.com/Mancuerna/holybeans-public/commit/bdccbc560c563088a07a7b91ffcdd70ab98290ff))
+* **ui:** show brew details before the curve and simplify settings ([#22](https://github.com/Mancuerna/holybeans-public/issues/22)) ([dae8068](https://github.com/Mancuerna/holybeans-public/commit/dae8068b183041e8adf69e7403774c10b1b71419))
+
 ## [1.4.1](https://github.com/Mancuerna/holybeans-public/compare/v1.4.0...v1.4.1) (2026-11-04)
 
 
