@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:holybeans/data/preferences/current_release.g.dart';
 import 'package:holybeans/data/preferences/release_notes_settings.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/release_notes.dart';
@@ -19,20 +21,77 @@ void main() {
   tearDown(() => directory.delete(recursive: true));
 
   test(
-    'fresh install is silent; updates show once, skipped revisions work',
+    'fresh install is silent; updates show once, skipped versions work',
     () async {
+      settings = ReleaseNotesSettings(file, version: '1.0.0');
       expect(await settings.pending(existingInstallation: false), isFalse);
       expect(await settings.pending(existingInstallation: true), isFalse);
-      final update = ReleaseNotesSettings(
-        file,
-        revision: ReleaseNotesSettings.currentRevision + 1,
-      );
+      final update = ReleaseNotesSettings(file, version: '1.2.0');
       expect(await update.pending(existingInstallation: true), isTrue);
       await update.markSeen();
       expect(await update.pending(existingInstallation: true), isFalse);
       expect(await settings.pending(existingInstallation: true), isFalse);
+      expect(
+        await ReleaseNotesSettings(
+          file,
+          version: '1.2.0',
+        ).pending(existingInstallation: true),
+        isFalse,
+      );
     },
   );
+
+  test(
+    'version ordering is numeric across patches, minors and majors',
+    () async {
+      for (final versions in [
+        ('1.4.9', '1.4.10'),
+        ('1.9.9', '1.10.0'),
+        ('1.99.99', '2.0.0'),
+      ]) {
+        final older = ReleaseNotesSettings(file, version: versions.$1);
+        final newer = ReleaseNotesSettings(file, version: versions.$2);
+        await older.markSeen();
+        expect(await newer.pending(existingInstallation: true), isTrue);
+        await newer.markSeen();
+        expect(await older.pending(existingInstallation: true), isFalse);
+      }
+    },
+  );
+
+  test('legacy and malformed acknowledgements migrate once', () async {
+    for (final saved in [
+      {'seen': 14},
+      {'seenVersion': 'broken'},
+      {'seenVersion': 14},
+    ]) {
+      await file.writeAsString(jsonEncode(saved));
+      expect(await settings.pending(existingInstallation: true), isTrue);
+      await settings.markSeen();
+      expect(await settings.pending(existingInstallation: true), isFalse);
+      expect(jsonDecode(await file.readAsString()), {
+        'seenVersion': currentReleaseVersion,
+      });
+    }
+  });
+
+  test('generated notes match the current version and publication text', () {
+    final pubspec = File('pubspec.yaml').readAsStringSync();
+    final version = RegExp(
+      r'^version: (\d+\.\d+\.\d+)\+',
+      multiLine: true,
+    ).firstMatch(pubspec)!.group(1)!;
+    expect(currentReleaseVersion, version);
+    final source = File('docs/releases/$version.md').readAsStringSync();
+    for (final locale in {'es': 'es-ES', 'en': 'en-GB'}.entries) {
+      final expected = RegExp(
+        '<${locale.value}>\\s*(.*?)\\s*</${locale.value}>',
+        dotAll: true,
+      ).firstMatch(source)!.group(1)!.trim();
+      expect(currentReleaseNotes[locale.key], expected);
+    }
+    expect(currentReleaseNotes.keys, unorderedEquals(['es', 'en']));
+  });
 
   test(
     'first introduction and damaged preference on existing app show notes',
@@ -70,12 +129,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(find.byKey(const ValueKey('release-notes')), findsOneWidget);
-        final s = lookupAppLocalizations(Locale(language));
-        expect(find.text(s.releaseNotesCuppingReminder), findsOneWidget);
-        expect(find.text(s.releaseNotesEquipmentDeletion), findsOneWidget);
-        expect(find.text(s.releaseNotesFlowGuide), findsOneWidget);
-        expect(find.text(s.releaseNotesFilterFinish), findsOneWidget);
-        expect(find.text(s.releaseNotesClipboard), findsOneWidget);
+        expect(find.text(currentReleaseNotes[language]!), findsOneWidget);
         expect(tester.takeException(), isNull);
         await tester.tap(find.text(language == 'es' ? 'Entendido' : 'Got it'));
         await tester.pumpAndSettle();

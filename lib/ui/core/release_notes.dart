@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/data/preferences/current_release.g.dart';
 import 'package:holybeans/data/preferences/release_notes_settings.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/error_report.dart';
@@ -36,26 +37,13 @@ class ReleaseNotesObserver extends NavigatorObserver {
       context: context,
       builder: (context) {
         final s = AppLocalizations.of(context)!;
+        final language = Localizations.localeOf(context).languageCode;
         return AlertDialog(
           key: const ValueKey('release-notes'),
           title: Text(s.releaseNotesTitle),
           content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(s.releaseNotesCuppingReminder),
-                const SizedBox(height: 16),
-                Text(s.releaseNotesPerformance),
-                const SizedBox(height: 16),
-                Text(s.releaseNotesEquipmentDeletion),
-                const SizedBox(height: 16),
-                Text(s.releaseNotesFlowGuide),
-                const SizedBox(height: 16),
-                Text(s.releaseNotesFilterFinish),
-                const SizedBox(height: 16),
-                Text(s.releaseNotesClipboard),
-              ],
+            child: Text(
+              currentReleaseNotes[language] ?? currentReleaseNotes['en']!,
             ),
           ),
           actions: [

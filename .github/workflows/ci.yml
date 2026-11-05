@@ -51,6 +51,7 @@ jobs:
           FORCE_FULL: ${{ inputs.full }}
         run: python3 -m tool.ci.validation
       - run: python3 -m tool.ci.check_docs
+      - run: python3 -m tool.generate_release_notes
       - run: python3 -m unittest discover -s tool/tests
       - run: git diff --check
   flutter:
@@ -69,6 +70,7 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get --enforce-lockfile
+      - run: python3 -m tool.generate_release_notes
       - run: flutter gen-l10n
       - run: dart format --output=none --set-exit-if-changed lib test integration_test benchmark patrol_test test_driver
       - run: flutter analyze --no-pub
@@ -93,6 +95,7 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get --enforce-lockfile
+      - run: python3 -m tool.generate_release_notes
       - run: flutter gen-l10n
       - name: Android backup publication tests
         working-directory: android

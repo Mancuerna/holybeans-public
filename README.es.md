@@ -61,6 +61,7 @@ git clone https://github.com/Mancuerna/holybeans-public.git
 cd holybeans-public
 flutter doctor
 flutter pub get
+python3 -m tool.generate_release_notes
 flutter gen-l10n
 flutter run
 ```

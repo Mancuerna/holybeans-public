@@ -109,6 +109,13 @@ Before merging the release PR:
   </en-GB>
   ```
 
+These notes are also the in-app “What’s new” content. CI and release builds run
+`python3 -m tool.generate_release_notes` to select the exact `pubspec.yaml` version
+and generate both translations. Missing, empty or oversized translations stop
+the build; earlier versions are never appended. Run the same command before
+local builds or tests after changing the version or notes. Acknowledgement uses
+the version name, so rebuilding the same version does not show the dialog again.
+
 After merge, the release workflow verifies matching complete CI evidence (or
 runs the full suite if none is available), then builds one signed AAB. It checks
 the bundle's application ID, version,
