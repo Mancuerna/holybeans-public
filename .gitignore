@@ -6,6 +6,7 @@
 build/
 coverage/
 lib/l10n/app_localizations*.dart
+lib/data/preferences/current_release.g.dart
 **/test_bundle.dart
 *.log
 *.pyc

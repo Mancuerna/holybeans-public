@@ -74,13 +74,17 @@ reliably enforce. App translations remain in English and Spanish.
 - `patrol_test/`: Android integration flows using an isolated app package.
 
 Keep files focused (roughly below 800 lines). User-visible text belongs in both
-ARB files. Keep comments, fixtures and issue reports free of personal data.
+ARB files, except release notes, which use the versioned source below. Keep
+comments, fixtures and issue reports free of personal data.
 
-Include user-visible changes in the in-app release notes in
-`lib/ui/core/release_notes.dart`, with English and Spanish ARB text. Advance
-`ReleaseNotesSettings.currentRevision` when updating those notes so existing
-installations see them. The in-app notes are maintained separately from the
-automated `CHANGELOG.md` and Play release notes in `docs/releases/`.
+Maintain release notes only in `docs/releases/<version>.md`, matching the version
+in `pubspec.yaml`, with `es-ES` and `en-GB` sections (at most 500 characters each).
+Run `python3 -m tool.generate_release_notes` before local builds or tests and
+after changing the version or its notes. CI and release builds run it automatically.
+The generated Dart file is ignored; do not edit it or duplicate notes in ARB files.
+The app shows only that version’s notes and remembers the last version seen,
+independently of APK build numbers. Existing numeric acknowledgement preferences
+migrate by showing the current notes once. `CHANGELOG.md` remains the full history.
 
 ## Validation
 
