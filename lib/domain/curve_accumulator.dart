@@ -195,8 +195,15 @@ class CurveAccumulator {
       return low;
     }
 
-    final start = lowerBound(curve.timesMs[before] - 1200);
-    final input = lowerBound(curve.timesMs[start] - 1200);
+    // Appending after a gap can still change the old endpoint's window.
+    final start = lowerBound(
+      curve.timesMs[before - 1] - ShotCurve.flowSmoothingRadiusMs,
+    );
+    // Include the segment crossing the window's left boundary.
+    final input = math.max(
+      0,
+      lowerBound(curve.timesMs[start] - ShotCurve.flowSmoothingRadiusMs) - 1,
+    );
     List<double> tail(List<double> values) =>
         values.isEmpty ? const [] : values.sublist(input);
     final tailCurve = ShotCurve(
@@ -214,9 +221,9 @@ class CurveAccumulator {
           ];
     return ShotCurve(
       timesMs: curve.timesMs,
-      pressure: join(CurveSeries.pressure),
+      pressure: curve.pressure,
       flow: join(CurveSeries.flow),
-      weight: join(CurveSeries.weight),
+      weight: curve.weight,
     );
   }
 }

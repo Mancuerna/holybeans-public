@@ -85,6 +85,29 @@ void main() {
       },
     );
   }
+  test(
+    'append after a gap revisits the old endpoint and preserves raw series',
+    () {
+      final engine = CurveAccumulator();
+      final times = [0, 50, 100, 150, 200, 500, 510, 550];
+      final values = <double>[0, 1, 8, 0, 2, 0, 3, 1];
+      for (var n = 3; n <= times.length; n++) {
+        final shot = ShotCurve(
+          timesMs: times.take(n).toList(),
+          pressure: values.take(n).toList(),
+          flow: values.take(n).toList(),
+          weight: values.take(n).toList(),
+        );
+        final request = (curve: shot, firstDripMs: 0);
+        final result = engine.prepare(request);
+        equivalent(result, prepareCurve(request));
+        expect(result.shown.pressure, shot.pressure);
+        expect(result.shown.weight, shot.weight);
+        expect(result.shown.flow.last, shot.flow.last);
+      }
+    },
+  );
+
   test('plateaus, signed flow, missing weight and a future first drip', () {
     for (final flow in <List<double>>[
       [-2.0, -2, 2, 2],

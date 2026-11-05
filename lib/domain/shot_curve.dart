@@ -103,62 +103,50 @@ class ShotCurve {
     return low;
   }
 
-  /// The same shot with each series smoothed by a Gaussian over time
-  /// ([sigmaMs] wide), for drawing. Machines report values in small steps
-  /// and with sample-to-sample jitter; this keeps the shape (ramps, the
-  /// pressure plateau, the drop at the end) without the staircase. Weights
-  /// beyond three sigmas are ignored, and samples need not be evenly spaced.
-  ShotCurve smoothed({int sigmaMs = 400}) {
-    if (timesMs.length < 3 || sigmaMs <= 0) return this;
-    final reach = 3 * sigmaMs;
-    final twoSigmaSquared = 2.0 * sigmaMs * sigmaMs;
-    // Regular device sampling repeats the same small set of distances.
-    // Reuse those weights across points and series without retaining a cache
-    // on the recorded curve. Irregular timestamps keep the exact Gaussian.
-    final step = timesMs[1] - timesMs[0];
-    var regular = step > 0;
-    for (var i = 2; regular && i < timesMs.length; i++) {
-      regular = timesMs[i] - timesMs[i - 1] == step;
-    }
-    final weights = regular ? <int, double>{} : null;
-    final input = [pressure, flow, weight];
-    final output = [
-      for (final values in input) List<double>.filled(values.length, 0),
-    ];
+  /// Half-width of the short, time-weighted flow display window.
+  static const flowSmoothingRadiusMs = 100;
+
+  /// Keeps recorded pressure and weight, filtering only flow for display.
+  /// Integrating linear segments makes the result independent of additional
+  /// interpolated samples. The symmetric window shrinks at the endpoints,
+  /// preserving their readings and linear ramps even during live recording.
+  ShotCurve smoothed() {
+    if (timesMs.length < 3 || flow.isEmpty) return this;
+    final output = <double>[];
     var first = 0;
     for (var i = 0; i < timesMs.length; i++) {
       final time = timesMs[i];
-      while (timesMs[first] < time - reach) {
+      final radius = math.min(
+        flowSmoothingRadiusMs,
+        math.min(time - timesMs.first, timesMs.last - time),
+      );
+      if (radius <= 0) {
+        output.add(flow[i]);
+        continue;
+      }
+      final left = time - radius;
+      final right = time + radius;
+      while (first + 1 < timesMs.length && timesMs[first + 1] <= left) {
         first++;
       }
-      var pressureSum = 0.0;
-      var flowSum = 0.0;
-      var weightSum = 0.0;
-      var total = 0.0;
-      for (var j = first; j < timesMs.length; j++) {
-        final distance = timesMs[j] - time;
-        if (distance > reach) break;
-        final factor = weights == null
-            ? math.exp(-distance * distance / twoSigmaSquared)
-            : weights.putIfAbsent(
-                distance,
-                () => math.exp(-distance * distance / twoSigmaSquared),
-              );
-        if (pressure.isNotEmpty) pressureSum += pressure[j] * factor;
-        if (flow.isNotEmpty) flowSum += flow[j] * factor;
-        if (weight.isNotEmpty) weightSum += weight[j] * factor;
-        total += factor;
+      var area = 0.0;
+      for (var j = first; j + 1 < timesMs.length && timesMs[j] < right; j++) {
+        final duration = timesMs[j + 1] - timesMs[j];
+        if (duration <= 0) continue;
+        final from = math.max(left, timesMs[j]);
+        final to = math.min(right, timesMs[j + 1]);
+        final slope = (flow[j + 1] - flow[j]) / duration;
+        final a = flow[j] + slope * (from - timesMs[j]);
+        final b = flow[j] + slope * (to - timesMs[j]);
+        area += (a + b) / 2 * (to - from);
       }
-      if (pressure.isNotEmpty) output[0][i] = pressureSum / total;
-      if (flow.isNotEmpty) output[1][i] = flowSum / total;
-      if (weight.isNotEmpty) output[2][i] = weightSum / total;
+      output.add(area / (2 * radius));
     }
-
     return ShotCurve(
       timesMs: timesMs,
-      pressure: output[0],
-      flow: output[1],
-      weight: output[2],
+      pressure: pressure,
+      flow: output,
+      weight: weight,
     );
   }
 
