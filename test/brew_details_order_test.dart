@@ -6,6 +6,7 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/brews/brew_details_sheet.dart';
 
 import 'helpers/ui_test_support.dart';
 
@@ -67,11 +68,15 @@ void main() {
           name: 'Custom method',
           category: category,
         );
+        final water = await repository.createWaterProfile(name: 'Detail water');
         final brew = await repository.createBrew(
           coffeeId: coffee,
           methodId: method,
           methodName: 'Custom method',
           doseGrams: 18,
+          grinderName: 'Detail grinder',
+          waterProfileId: water,
+          notes: 'Detail notes',
         );
         await repository.saveScaleCurve(
           brew,
@@ -82,6 +87,24 @@ void main() {
           ),
         );
         await openBrew(tester, database);
+        final curveHeading = find.text('Extraction curve');
+        for (final value in [
+          'Detail grinder',
+          'Detail water',
+          'Detail notes',
+        ]) {
+          expect(
+            tester
+                .getBottomLeft(
+                  find.descendant(
+                    of: find.byType(BrewDetailsSheet),
+                    matching: find.text(value),
+                  ),
+                )
+                .dy,
+            lessThan(tester.getTopLeft(curveHeading).dy),
+          );
+        }
         await tester.ensureVisible(find.byKey(const ValueKey('curve-readout')));
         await tester.pumpAndSettle();
         expect(find.byKey(const ValueKey('curve-flow-value')), findsOneWidget);

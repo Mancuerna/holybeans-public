@@ -1,5 +1,4 @@
 import 'package:drift/native.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -83,14 +82,19 @@ void main() {
     );
 
     testWidgets(
-      'About opens bundled author licences without version metadata: $language',
+      'settings omit licences while author notices stay bundled: $language',
       (tester) async {
         final licences = await tester.runAsync(
           () => bundledAppLicenses().toList(),
         );
-        LicenseRegistry.reset();
-        LicenseRegistry.addLicense(() => Stream.fromIterable(licences!));
-        addTearDown(LicenseRegistry.reset);
+        final pistonLicence = licences!.singleWhere(
+          (entry) => entry.packages.contains('Meticulous piston analysis'),
+        );
+        final notice = pistonLicence.paragraphs
+            .map((paragraph) => paragraph.text)
+            .join('\n');
+        expect(notice, contains('Copyright (c) 2026 hessius'));
+        expect(notice, contains('Copyright (c) 2026 Chris Borchert'));
         final db = AppDatabase.forTesting(NativeDatabase.memory());
         addTearDown(db.close);
         final s = lookupAppLocalizations(Locale(language));
@@ -111,27 +115,13 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        final entry = find.byKey(const ValueKey('app-licenses'));
-        await tester.scrollUntilVisible(entry, 400);
+        await tester.scrollUntilVisible(find.text(s.settingsAbout), 400);
         expect(find.text(s.settingsAbout), findsOneWidget);
-        await tester.tap(entry);
-        await tester.pumpAndSettle();
-        expect(find.byType(LicensePage), findsOneWidget);
-        final project = find.text('Meticulous piston analysis');
-        await tester.scrollUntilVisible(project, 300);
-        await tester.tap(project);
-        await tester.pumpAndSettle();
         expect(
-          find.textContaining('Copyright (c) 2026 hessius', findRichText: true),
-          findsWidgets,
+          find.byKey(const ValueKey('app-licenses'), skipOffstage: false),
+          findsNothing,
         );
-        await tester.scrollUntilVisible(
-          find.textContaining(
-            'Copyright (c) 2026 Chris Borchert',
-            findRichText: true,
-          ),
-          500,
-        );
+        expect(find.text(s.openSourceLicenses), findsNothing);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
       },

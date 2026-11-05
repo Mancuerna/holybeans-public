@@ -334,6 +334,13 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                       setState(() => brew = saved);
                     },
                   ),
+                if (_extractionMap(context, method) case final map?) ...[
+                  const SizedBox(height: 8),
+                  Align(alignment: Alignment.centerLeft, child: map),
+                ],
+                _TastingSection(brew: brew),
+                const SizedBox(height: 12),
+                _EquipmentRows(brew: brew, shows: shows),
                 _CurveSection(
                   espresso: isEspressoMethod(
                     category: method?.category,
@@ -344,13 +351,6 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                       ? null
                       : brew.firstDripSeconds! * 1000,
                 ),
-                if (_extractionMap(context, method) case final map?) ...[
-                  const SizedBox(height: 8),
-                  Align(alignment: Alignment.centerLeft, child: map),
-                ],
-                _TastingSection(brew: brew),
-                const SizedBox(height: 12),
-                _EquipmentRows(brew: brew, shows: shows),
               ],
             ),
           ),
