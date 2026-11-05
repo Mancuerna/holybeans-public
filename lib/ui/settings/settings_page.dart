@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/rate_reminder_settings.dart';
@@ -9,6 +11,7 @@ import 'package:holybeans/data/services/refractometer.dart';
 import 'package:holybeans/data/services/scale.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/share_templates_page.dart';
+import 'package:holybeans/ui/coffee_maze/coffee_maze_page.dart';
 import 'package:holybeans/ui/scale/scale_readout.dart';
 import 'package:holybeans/ui/settings/brew_parameters_page.dart';
 import 'package:holybeans/ui/settings/pressure_sensor_section.dart';
@@ -77,6 +80,35 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   late final _version = const DeviceFeedback().appVersion();
+  Timer? _versionTapTimer;
+  int _versionTaps = 0;
+  bool _gameOpen = false;
+
+  void _tapVersion() {
+    if (_gameOpen) return;
+    _versionTapTimer?.cancel();
+    _versionTaps++;
+    if (_versionTaps < 5) {
+      _versionTapTimer = Timer(
+        const Duration(milliseconds: 900),
+        () => _versionTaps = 0,
+      );
+      return;
+    }
+    _versionTaps = 0;
+    _gameOpen = true;
+    unawaited(
+      Navigator.of(context)
+          .push<void>(MaterialPageRoute(builder: (_) => const CoffeeMazePage()))
+          .whenComplete(() => _gameOpen = false),
+    );
+  }
+
+  @override
+  void dispose() {
+    _versionTapTimer?.cancel();
+    super.dispose();
+  }
 
   late String? languageCode = widget.locale?.languageCode;
   late final Stream<int?>? reminderMinutes = widget.reminderSettings
@@ -242,6 +274,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     leading: const Icon(Icons.info_outline_rounded),
                     title: Text(s.appVersionLabel),
                     subtitle: Text(version),
+                    onTap: _tapVersion,
                   ),
                 ],
               ),

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Something is stirring between sips.
+
 ## [1.4.1](https://github.com/Mancuerna/holybeans-public/compare/v1.4.0...v1.4.1) (2026-11-04)
 
 

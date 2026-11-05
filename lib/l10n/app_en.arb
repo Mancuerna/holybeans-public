@@ -2535,5 +2535,50 @@
   "equipmentUsedByMachine": "It is linked to a machine’s history.",
   "equipmentUsedByRecipient": "It has a default vessel assigned. You can remove that link by editing the method.",
   "equipmentUsedByCupping": "It is selected in a cupping session, which may still be a draft.",
-  "equipmentArchiveInstead": "You can archive it to hide it from active lists and keep its links."
+  "equipmentArchiveInstead": "You can archive it to hide it from active lists and keep its links.",
+  "mazeTitle": "Holy Munch",
+  "mazeScore": "SCORE",
+  "mazeBest": "BEST",
+  "mazeRound": "ROUND",
+  "mazeLives": "{count} lives left",
+  "@mazeLives": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mazeRush": "CAFFEINE · {seconds}s",
+  "@mazeRush": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "mazeCoffeeBreak": "COFFEE BREAK",
+  "mazeRecordUnavailable": "Record saving is unavailable.",
+  "mazePause": "Pause",
+  "mazeResume": "Continue",
+  "mazePaused": "Take a sip.",
+  "mazeCaught": "Too much steam!",
+  "mazeCleared": "A perfect roast.",
+  "mazeGameOver": "One more coffee?",
+  "mazePlay": "Let’s brew",
+  "mazeAgain": "Another cup",
+  "mazeNext": "Next roast",
+  "mazeInstructions": "Collect the beans. Dodge the steam. A double espresso lets you chase it!\n\nSwipe, use the arrows or W A S D to turn. Space pauses.",
+  "mazeBonus": "Every bean collected. +500 points!",
+  "mazeScoreValue": "{score} points",
+  "@mazeScoreValue": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "mazeUp": "Up",
+  "mazeDown": "Down",
+  "mazeLeft": "Left",
+  "mazeRight": "Right"
 }

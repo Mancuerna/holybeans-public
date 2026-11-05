@@ -3332,5 +3332,50 @@
   "equipmentUsedByMachine": "Está vinculado al historial de una máquina.",
   "equipmentUsedByRecipient": "Tiene un recipiente predeterminado asociado. Puedes quitar esa asociación al editar el método.",
   "equipmentUsedByCupping": "Está seleccionado en una cata, que puede estar todavía en borrador.",
-  "equipmentArchiveInstead": "Puedes archivarlo para ocultarlo de las listas activas y conservar sus relaciones."
+  "equipmentArchiveInstead": "Puedes archivarlo para ocultarlo de las listas activas y conservar sus relaciones.",
+  "mazeTitle": "Holy Munch",
+  "mazeScore": "PUNTOS",
+  "mazeBest": "RÉCORD",
+  "mazeRound": "RONDA",
+  "mazeLives": "{count} vidas restantes",
+  "@mazeLives": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mazeRush": "CAFEÍNA · {seconds}s",
+  "@mazeRush": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "mazeCoffeeBreak": "PAUSA PARA CAFÉ",
+  "mazeRecordUnavailable": "No se puede guardar el récord.",
+  "mazePause": "Pausar",
+  "mazeResume": "Continuar",
+  "mazePaused": "Tómate un sorbo.",
+  "mazeCaught": "¡Demasiado vapor!",
+  "mazeCleared": "Un tueste perfecto.",
+  "mazeGameOver": "¿Otro café?",
+  "mazePlay": "A por los granos",
+  "mazeAgain": "Otra taza",
+  "mazeNext": "Siguiente tueste",
+  "mazeInstructions": "Recoge los granos y esquiva el vapor. ¡Con un espresso doble podrás perseguirlo!\n\nDesliza, usa las flechas o W A S D para girar. Espacio pausa.",
+  "mazeBonus": "Todos los granos recogidos. ¡+500 puntos!",
+  "mazeScoreValue": "{score} puntos",
+  "@mazeScoreValue": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "mazeUp": "Arriba",
+  "mazeDown": "Abajo",
+  "mazeLeft": "Izquierda",
+  "mazeRight": "Derecha"
 }
