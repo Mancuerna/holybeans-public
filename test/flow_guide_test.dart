@@ -20,9 +20,17 @@ void main() {
       expect(guide.targetAt(1250), 2);
       expect(guide.targetAt(2000), 2);
       expect(guide.targetAt(2001), isNull);
+      expect(guide.weightAt(0), 0);
+      expect(guide.weightAt(1250), 2.5);
+      expect(guide.weightAt(2000), 4);
+      expect(guide.weightAt(-1), isNull);
+      expect(guide.weightAt(2001), isNull);
+      expect(guide.finalWeightGrams, 4);
       expect(source.toJson(), original);
       source.weight[2] = 80;
       expect(guide.targetAt(1250), 2);
+      expect(guide.weightAt(1250), 2.5);
+      expect(guide.finalWeightGrams, 4);
       expect(guide.points.clear, throwsUnsupportedError);
     },
   );
@@ -45,7 +53,27 @@ void main() {
     expect(guide.targetAt(3999), isNull);
     expect(guide.targetAt(4000), 2);
     expect(guide.points[2].breakBefore, isTrue);
+    expect(guide.weightAt(2000), isNull);
+    expect(guide.weightAt(3750), 7.5);
   });
+
+  test(
+    'weight reference rejects invalid readings and load discontinuities',
+    () {
+      for (final load in [-50.0, 80.0, double.nan, double.infinity]) {
+        final guide = FlowGuide.fromCurve(
+          curve([0, 500, 1000, 1500, 2000], [0, 1, 2, load, 4]),
+        )!;
+        expect(guide.weightAt(1250), isNull);
+        expect(guide.weightAt(1750), isNull);
+      }
+      final guide = FlowGuide.fromCurve(
+        curve([0, 500, 1000, 1500, 2000], [0, 1, 2, 3, -50]),
+      )!;
+      expect(guide.finalWeightGrams, 3);
+      expect(guide.weightAt(2000), isNull);
+    },
+  );
 
   test('rejects absent weight, flat, unordered and unusable references', () {
     for (final source in [

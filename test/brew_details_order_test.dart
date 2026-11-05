@@ -140,12 +140,13 @@ void main() {
       name: 'V60',
       category: 'filter',
     );
-    await repository.createBrew(
+    final brewId = await repository.createBrew(
       coffeeId: coffee,
       methodName: 'V60',
       methodId: method,
       doseGrams: 15,
       grindSetting: '22',
+      grinderName: 'Visible grinder',
       waterGrams: 250,
       beverageGrams: 210,
       timeSeconds: 180,
@@ -155,7 +156,24 @@ void main() {
       tdsPercent: 1.35,
       rating: 8,
     );
+    await repository.rateBrew(
+      brewId,
+      rating: 8,
+      notes: null,
+      tasting: const BrewTasting(balance: 0, strength: 0),
+    );
     await openBrew(tester, database);
+    final grinder = find.descendant(
+      of: find.byType(BrewDetailsSheet),
+      matching: find.text('Visible grinder'),
+    );
+    expect(grinder.hitTestable(), findsOneWidget);
+    for (final label in ['Grind setting', 'Blooms', 'Pours', 'Tasting']) {
+      expect(
+        tester.getBottomLeft(grinder).dy,
+        lessThan(tester.getTopLeft(find.text(label).first).dy),
+      );
+    }
     expect(tileLabels(tester, labels), [
       'Dose',
       'Grind setting',

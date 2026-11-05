@@ -204,6 +204,8 @@ class _PressureReferencePageState extends State<PressureReferencePage> {
                                       title: title,
                                       timer: widget.model.timer,
                                       session: widget.model.scaleSession,
+                                      targetWeightGrams:
+                                          item.brew.beverageGrams,
                                     )
                                   : PressureGuidePage(
                                       guide: item.pressure!,

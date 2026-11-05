@@ -94,6 +94,18 @@ class BrewScaleSession extends ChangeNotifier {
       recording && scale.connected && hasRecentFlowReading
       ? flowTrace.current
       : null;
+
+  double? get guideWeightGrams {
+    final weight = recording
+        ? (scale.connected && hasRecentFlowReading
+              ? _recording.lastGrams
+              : null)
+        : beverageGrams;
+    return weight != null && weight.isFinite && weight >= -0.3
+        ? (weight < 0 ? 0 : weight)
+        : null;
+  }
+
   final _scaleTimer = ScaleTimerWatch();
   late final StreamSubscription<ScaleReading> _readings;
   ShotCurve? _poured;

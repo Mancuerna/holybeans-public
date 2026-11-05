@@ -16,12 +16,14 @@ class FlowGuidePage extends StatefulWidget {
     required this.title,
     required this.timer,
     this.session,
+    this.targetWeightGrams,
   });
 
   final FlowGuide guide;
   final String title;
   final BrewTimer timer;
   final BrewScaleSession? session;
+  final double? targetWeightGrams;
 
   @override
   State<FlowGuidePage> createState() => _FlowGuidePageState();
@@ -79,6 +81,16 @@ class _FlowGuidePageState extends State<FlowGuidePage> {
       Localizations.localeOf(context).toString(),
     );
     String value(double? flow) => flow == null ? '—' : number.format(flow);
+    final weight = widget.session?.guideWeightGrams;
+    final savedTarget = widget.targetWeightGrams;
+    final finalWeight =
+        savedTarget != null && savedTarget.isFinite && savedTarget > 0
+        ? savedTarget
+        : widget.guide.finalWeightGrams;
+    final referenceWeight = widget.guide.weightAt(elapsed);
+    final weightDifference = weight == null || referenceWeight == null
+        ? null
+        : weight - referenceWeight;
     final difference = target == null || actual == null
         ? null
         : actual - target;
@@ -94,6 +106,22 @@ class _FlowGuidePageState extends State<FlowGuidePage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                Text(
+                  s.flowGuideWeightLabel,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                Text(
+                  '${value(weight)} / ${value(finalWeight)} g',
+                  key: const ValueKey('flow-guide-weight'),
+                  semanticsLabel: s.flowGuideWeightProgress(
+                    value(weight),
+                    value(finalWeight),
+                  ),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 4),
                 Text(
                   '${(elapsed / 1000).toStringAsFixed(1)} s',
                   style: Theme.of(context).textTheme.headlineMedium,
@@ -163,6 +191,22 @@ class _FlowGuidePageState extends State<FlowGuidePage> {
                         ? s.flowGuideAbove(number.format(difference))
                         : s.flowGuideBelow(number.format(-difference)),
                     key: const ValueKey('flow-guide-difference'),
+                  ),
+                const SizedBox(height: 8),
+                Text(
+                  s.flowGuideExpectedWeight(value(referenceWeight)),
+                  key: const ValueKey('flow-guide-expected-weight'),
+                ),
+                if (weightDifference != null)
+                  Text(
+                    s.flowGuideWeightDifference(
+                      '${weightDifference.abs() < 0.05
+                          ? ''
+                          : weightDifference > 0
+                          ? '+'
+                          : '−'}${number.format(weightDifference.abs())}',
+                    ),
+                    key: const ValueKey('flow-guide-weight-difference'),
                   ),
                 ShotGuideChart(
                   reference: widget.guide.points,
