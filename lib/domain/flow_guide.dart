@@ -71,7 +71,7 @@ class FlowTrace {
 /// A reference derived from cup weight, retaining its original timer origin
 /// and gaps. It neither extrapolates nor interpolates across missing readings.
 class FlowGuide {
-  FlowGuide._(this.points);
+  FlowGuide._(this.points, this._times, this._weights);
 
   static FlowGuide? fromCurve(ShotCurve curve) {
     final times = curve.timesMs;
@@ -85,11 +85,46 @@ class FlowGuide {
     if (points.length < 2 || !points.any((point) => point.value > 0)) {
       return null;
     }
-    return FlowGuide._(points);
+    return FlowGuide._(points, List.of(times), List.of(curve.weight));
   }
 
   final List<GuidePoint> points;
+  final List<int> _times;
+  final List<double> _weights;
   int get endMs => points.last.elapsedMs;
+
+  late final double finalWeightGrams = _weights
+      .where((weight) => weight.isFinite && weight >= 0)
+      .reduce(math.max);
+
+  double? weightAt(int ms) {
+    if (ms < _times.first || ms > _times.last) return null;
+    var low = 0;
+    var high = _times.length - 1;
+    while (low < high) {
+      final middle = (low + high) ~/ 2;
+      if (_times[middle] < ms) {
+        low = middle + 1;
+      } else {
+        high = middle;
+      }
+    }
+    final next = _weights[low];
+    if (!next.isFinite || next < -0.3) return null;
+    if (_times[low] == ms) return math.max(0, next);
+    final previous = _weights[low - 1];
+    final gap = _times[low] - _times[low - 1];
+    final change = next - previous;
+    if (!previous.isFinite ||
+        previous < -0.3 ||
+        gap >= FlowTrace.staleAfter.inMilliseconds ||
+        change < -1 ||
+        change > 1 + 20 * gap / 1000) {
+      return null;
+    }
+    final fraction = (ms - _times[low - 1]) / gap;
+    return math.max(0, previous + change * fraction);
+  }
 
   double? targetAt(int ms) {
     if (ms < points.first.elapsedMs || ms > endMs) return null;

@@ -284,23 +284,7 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                     },
                   ),
                 if (favorite) _FavoriteNote(methodName: brew.methodName),
-                if (actions.photos case final store?
-                    when shows(BrewParameter.photos))
-                  StreamBuilder<List<String>>(
-                    stream: photos,
-                    builder: (context, snapshot) =>
-                        switch (snapshot.data ?? const []) {
-                          [] => const SizedBox.shrink(),
-                          final files => Padding(
-                            padding: const EdgeInsets.only(top: 16),
-                            child: DetailPhotos(
-                              store: store,
-                              files: files,
-                              label: s.brewPhoto,
-                            ),
-                          ),
-                        },
-                  ),
+                _EquipmentRows(brew: brew, shows: shows),
                 const SizedBox(height: 16),
                 StatGrid(
                   minimumTileWidth: 140,
@@ -339,8 +323,26 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                   Align(alignment: Alignment.centerLeft, child: map),
                 ],
                 _TastingSection(brew: brew),
-                const SizedBox(height: 12),
-                _EquipmentRows(brew: brew, shows: shows),
+                if (brew.notes?.trim() case final notes?
+                    when notes.isNotEmpty && shows(BrewParameter.notes))
+                  DetailRow(s.notes, notes, stacked: true),
+                if (actions.photos case final store?
+                    when shows(BrewParameter.photos))
+                  StreamBuilder<List<String>>(
+                    stream: photos,
+                    builder: (context, snapshot) =>
+                        switch (snapshot.data ?? const []) {
+                          [] => const SizedBox.shrink(),
+                          final files => Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: DetailPhotos(
+                              store: store,
+                              files: files,
+                              label: s.brewPhoto,
+                            ),
+                          ),
+                        },
+                  ),
                 _CurveSection(
                   espresso: isEspressoMethod(
                     category: method?.category,
@@ -735,8 +737,8 @@ class _TastingSection extends StatelessWidget {
   }
 }
 
-/// Grinder, machine and water profiles, and notes, each shown only when
-/// recorded and not hidden. The grind setting is one of the figures.
+/// Grinder, machine and water profiles, each shown only when
+/// recorded and not hidden. The grind setting follows in the figures.
 class _EquipmentRows extends StatelessWidget {
   const _EquipmentRows({required this.brew, required this.shows});
 
@@ -747,7 +749,6 @@ class _EquipmentRows extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context)!;
     final grinderName = brew.grinderName?.trim() ?? '';
-    final notes = brew.notes?.trim() ?? '';
     final grinder = [
       if (grinderName.isNotEmpty && shows(BrewParameter.grinder)) grinderName,
       if (brew.grindRpm != null && shows(BrewParameter.grindRpm))
@@ -761,7 +762,7 @@ class _EquipmentRows extends StatelessWidget {
         if (brew.isPreGround) ...[
           if (shows(BrewParameter.grinder)) DetailRow(s.grinder, s.preGround),
         ] else if (grinder.isNotEmpty)
-          // The grind setting is already one of the figures above.
+          // The grind setting follows in the recipe figures.
           DetailRow(s.grinder, grinder.join(', ')),
         if (brew.profileName case final profile?
             when shows(BrewParameter.profile))
@@ -776,10 +777,6 @@ class _EquipmentRows extends StatelessWidget {
         if (brew.waterProfileName case final water?
             when shows(BrewParameter.waterProfile))
           DetailRow(s.waterProfile, water),
-        if (notes.isNotEmpty && shows(BrewParameter.notes)) ...[
-          const SizedBox(height: 4),
-          DetailRow(s.notes, notes, stacked: true),
-        ],
       ],
     );
   }

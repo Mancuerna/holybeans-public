@@ -3377,5 +3377,12 @@
   "mazeUp": "Arriba",
   "mazeDown": "Abajo",
   "mazeLeft": "Izquierda",
-  "mazeRight": "Derecha"
+  "mazeRight": "Derecha",
+  "flowGuideWeightLabel": "Peso / objetivo final",
+  "flowGuideWeightProgress": "Peso: {actual} g · Objetivo final: {target} g",
+  "@flowGuideWeightProgress": {"placeholders": {"actual": {"type": "String"}, "target": {"type": "String"}}},
+  "flowGuideExpectedWeight": "Peso de referencia ahora: {weight} g",
+  "@flowGuideExpectedWeight": {"placeholders": {"weight": {"type": "String"}}},
+  "flowGuideWeightDifference": "Diferencia de peso: {difference} g",
+  "@flowGuideWeightDifference": {"placeholders": {"difference": {"type": "String"}}}
 }

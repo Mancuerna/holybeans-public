@@ -79,6 +79,7 @@ void main() {
                         title: 'Reference',
                         timer: timer,
                         session: session,
+                        targetWeightGrams: 10,
                       ),
                     ),
                   ),
@@ -93,6 +94,13 @@ void main() {
         await tester.tap(find.text('Open'));
         await tester.pumpAndSettle();
         final toggle = find.byKey(const ValueKey('flow-guide-toggle'));
+        final weight = find.byKey(const ValueKey('flow-guide-weight'));
+        final weightDifference = find.byKey(
+          const ValueKey('flow-guide-weight-difference'),
+        );
+        String weightText() => tester.widget<Text>(weight).data!;
+        expect(weightText(), contains(language == 'en' ? '10.0' : '10,0'));
+        expect(weightText(), contains('—'));
         await tester.tap(toggle);
         await tester.pump();
         void emit(int ms, double grams) {
@@ -127,9 +135,32 @@ void main() {
           3,
         );
         expect(tester.takeException(), isNull);
+        expect(weightText(), contains(language == 'en' ? '3.0' : '3,0'));
+        expect(
+          tester.widget<Text>(weightDifference).data,
+          contains(language == 'en' ? '+1.0' : '+1,0'),
+        );
+        expect(
+          tester
+              .widget<Text>(
+                find.byKey(const ValueKey('flow-guide-expected-weight')),
+              )
+              .data,
+          contains(language == 'en' ? '2.0' : '2,0'),
+        );
+        final fixedPosition = tester.getTopLeft(weight);
+        await tester.drag(
+          find.byType(SingleChildScrollView),
+          const Offset(0, -300),
+        );
+        await tester.pump();
+        expect(tester.getTopLeft(weight), fixedPosition);
+        expect(weight.hitTestable(), findsOneWidget);
         now = now.add(const Duration(seconds: 2));
         await tester.pump(const Duration(seconds: 2));
         expect(tester.widget<Text>(actual).data, '—');
+        expect(weightText(), contains('—'));
+        expect(weightDifference, findsNothing);
         expect(
           find.byKey(const ValueKey('flow-guide-difference')),
           findsNothing,
@@ -144,6 +175,7 @@ void main() {
         await scale.disconnect();
         await tester.pump();
         expect(timer.running, isFalse);
+        expect(weightText(), contains(language == 'en' ? '3.0' : '3,0'));
         expect(tester.widget<Text>(actual).data, '—');
         expect(session.flowTrace.points, trace);
         expect(tester.widget<FilledButton>(toggle).onPressed, isNull);
@@ -159,6 +191,7 @@ void main() {
         await tester.pump();
         expect(session.flowTrace.points, isEmpty);
         expect(session.curve, isNull);
+        expect(weightText(), contains('—'));
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox());
         timer.dispose();
@@ -169,6 +202,39 @@ void main() {
       },
     );
   }
+
+  testWidgets('weight target stays visible on a small screen with large text', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final minutes = TextEditingController();
+    final seconds = TextEditingController();
+    final timer = BrewTimer(minutes: minutes, seconds: seconds);
+    for (final target in [null, 0.0, double.nan, double.infinity]) {
+      await tester.pumpWidget(
+        app(
+          FlowGuidePage(
+            guide: FlowGuide.fromCurve(reference())!,
+            title: 'Reference',
+            timer: timer,
+            targetWeightGrams: target,
+          ),
+          language: 'es',
+          textScale: 2,
+        ),
+      );
+      final weight = find.byKey(const ValueKey('flow-guide-weight'));
+      expect(tester.widget<Text>(weight).data, contains('8,0'));
+      expect(weight.hitTestable(), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    }
+    await tester.pumpWidget(const SizedBox());
+    timer.dispose();
+    minutes.dispose();
+    seconds.dispose();
+  });
 
   testWidgets(
     'reference picker defaults to flow without a sensor and keeps pressure available',
@@ -191,6 +257,7 @@ void main() {
           methodId: methodId,
           methodName: methodId == method ? 'Lever' : 'V60',
           doseGrams: 18,
+          beverageGrams: 12,
         );
         await repo.saveScaleCurve(id, curve);
         return id;
@@ -227,6 +294,12 @@ void main() {
       await tester.tap(flow);
       await tester.pumpAndSettle();
       expect(find.byType(FlowGuidePage), findsOneWidget);
+      expect(
+        tester
+            .widget<Text>(find.byKey(const ValueKey('flow-guide-weight')))
+            .data,
+        contains('12.0'),
+      );
       expect(
         tester
             .widget<FilledButton>(
