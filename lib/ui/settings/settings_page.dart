@@ -248,14 +248,6 @@ class _SettingsPageState extends State<SettingsPage> {
               null => const SizedBox.shrink(),
             },
           ),
-          ListTile(
-            key: const ValueKey('app-licenses'),
-            leading: const Icon(Icons.description_outlined),
-            title: Text(s.openSourceLicenses),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () =>
-                showLicensePage(context: context, applicationName: 'HolyBeans'),
-          ),
         ],
       ),
     );
