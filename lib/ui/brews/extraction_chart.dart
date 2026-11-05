@@ -457,6 +457,22 @@ class _ChartPainter extends CustomPainter {
               1.0,
             );
 
+    // Interpolate the actual painted segment, including axis clipping and
+    // display downsampling. Readouts keep their original recorded values.
+    Offset pointOnLine(CurveSeries series, int ms) {
+      final times = display.timesMs;
+      final values = display.values(series);
+      final nearest = display.indexAt(ms);
+      Offset point(int i) => Offset(x(times[i]), y(series, values[i]));
+      if (ms <= times.first) return point(0);
+      if (ms >= times.last) return point(times.length - 1);
+      if (times[nearest] == ms) return point(nearest);
+      final left = times[nearest] < ms ? nearest : nearest - 1;
+      final right = left + 1;
+      final fraction = (ms - times[left]) / (times[right] - times[left]);
+      return Offset.lerp(point(left), point(right), fraction)!;
+    }
+
     final grid = Paint()
       ..color = gridColor
       ..strokeWidth = 1;
@@ -525,10 +541,7 @@ class _ChartPainter extends CustomPainter {
         recorded.pressure.isNotEmpty) {
       final peak = recorded.maxOf(CurveSeries.pressure);
       final index = recorded.pressure.indexOf(peak);
-      final point = Offset(
-        x(recorded.timesMs[index]),
-        y(CurveSeries.pressure, peak),
-      );
+      final point = pointOnLine(CurveSeries.pressure, recorded.timesMs[index]);
       final color = colors[CurveSeries.pressure]!;
       canvas.drawCircle(point, 3.5, Paint()..color = color);
       final label = _label('${tickFormat.format(peak)} bar', color);
@@ -556,19 +569,10 @@ class _ChartPainter extends CustomPainter {
           ..color = labelStyle.color!
           ..strokeWidth = 1.2,
       );
-      final index = curve.indexAt(ms);
       for (final series in CurveSeries.values) {
         if (!visible.contains(series)) continue;
         canvas.drawCircle(
-          Offset(
-            cx,
-            y(
-              series,
-              (series == CurveSeries.pressure ? recorded : curve).values(
-                series,
-              )[index],
-            ),
-          ),
+          pointOnLine(series, ms),
           4,
           Paint()..color = colors[series]!,
         );
