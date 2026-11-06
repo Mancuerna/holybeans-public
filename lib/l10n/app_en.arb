@@ -245,7 +245,7 @@
   "scoreAftertaste": "Aftertaste",
   "brewRated": "Rating saved",
   "restDays": "Recommended rest (days)",
-  "restDaysHint": "From the roaster; sets the pace of the degassing curve",
+  "restDaysHint": "Sets the start of Filter’s prime phase; Espresso is estimated from that rest",
   "freshness": "Freshness",
   "phaseDegassing": "Degassing",
   "phasePrime": "Prime",
@@ -256,7 +256,7 @@
   "freshnessDay": "Estimated age: {day} days",
   "daysLeft": "{days, plural, =1{1 day left} other{{days} days left}}",
   "freshnessBasisRoast": "Based on roast level",
-  "freshnessBasisRest": "Based on the roaster's rest ({days} days)",
+  "freshnessBasisRest": "Roaster’s recommended rest: {days} days",
   "freshnessPaused": "{days, plural, =1{1 day in the freezer not counted} other{{days} days in the freezer not counted}}",
   "sweetSpot": "Your sweet spot",
   "sweetSpotValue": "{style}, days {start}–{end}: around {rating} across {count} brews",
@@ -2587,5 +2587,10 @@
   "flowGuideExpectedWeight": "Reference weight now: {weight} g",
   "@flowGuideExpectedWeight": {"placeholders": {"weight": {"type": "String"}}},
   "flowGuideWeightDifference": "Weight difference: {difference} g",
-  "@flowGuideWeightDifference": {"placeholders": {"difference": {"type": "String"}}}
+  "@flowGuideWeightDifference": {"placeholders": {"difference": {"type": "String"}}},
+  "freshnessRestExplanation": "Applied to Filter · Espresso estimated by the app",
+  "freshnessReadyIn": "{days, plural, =1{In its prime in 1 day} other{In its prime in {days} days}}",
+  "freshnessPrimeRemaining": "{days, plural, =1{1 day left in its prime} other{{days} days left in its prime}}",
+  "freshnessGoodRemaining": "{days, plural, =1{1 day left in good condition} other{{days} days left in good condition}}",
+  "freshnessStaleIn": "{days, plural, =1{1 day until stale} other{{days} days until stale}}"
 }

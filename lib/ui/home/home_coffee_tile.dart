@@ -155,11 +155,8 @@ class _Freshness extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final left = freshness.window.daysLeftInPhase(freshness.day);
-    final label = [
-      freshnessPhaseLabel(s, freshness.phase),
-      if (left != null) s.daysLeft(left),
-    ].join(', ');
+    final timing = freshnessTimeLabel(s, freshness.window, freshness.day);
+    final label = [freshnessPhaseLabel(s, freshness.phase), ?timing].join(', ');
     return Semantics(
       label: label,
       excludeSemantics: true,
@@ -174,9 +171,9 @@ class _Freshness extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 FreshnessPhaseChip(phase: freshness.phase),
-                if (left != null)
+                if (timing != null)
                   Text(
-                    s.daysLeft(left),
+                    timing,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
