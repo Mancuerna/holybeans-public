@@ -2853,6 +2853,16 @@
       }
     }
   },
+  "sharePhotoOverlay": "Texto sobre foto",
+  "sharePhotoOverlayHint": "Añade una foto para colocar encima los datos o tu plantilla y compartirlo todo en una sola imagen.",
+  "shareOverlayPosition": "Posición del texto",
+  "shareOverlaySize": "Tamaño del texto",
+  "shareOverlayTopLeft": "Arriba a la izquierda",
+  "shareOverlayTopRight": "Arriba a la derecha",
+  "shareOverlayCenterLeft": "Centro a la izquierda",
+  "shareOverlayCenterRight": "Centro a la derecha",
+  "shareOverlayBottomLeft": "Abajo a la izquierda",
+  "shareOverlayBottomRight": "Abajo a la derecha",
   "sharePhotoCaption": "Foto y texto",
   "sharePhotoCaptionHint": "El texto se adjunta a la imagen. Podrás revisarlo en la aplicación de destino antes de enviar.",
   "freezeSplit": "Dividir en porciones",

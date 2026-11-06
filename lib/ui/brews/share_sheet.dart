@@ -21,6 +21,7 @@ import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/core/share_image.dart';
 import 'package:holybeans/ui/core/share_image_appearance.dart';
 import 'package:holybeans/ui/core/share_photo_card.dart';
+import 'package:holybeans/ui/core/share_photo_overlay.dart';
 
 /// What the share sheet returns: the chosen fields and, in image mode, the
 /// rendered PNG.
@@ -86,6 +87,10 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
   bool transparent = false;
   bool lightText = true;
   bool photoCaption = false;
+  bool photoOverlay = false;
+  Alignment overlayAlignment = Alignment.bottomLeft;
+  double overlayWidth = 0.65;
+  bool get needsPhoto => asImage && photoOverlay && photo == null;
   late Uint8List? photo = widget.initialPhoto;
   bool pickingPhoto = false;
   bool copying = false;
@@ -184,9 +189,10 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
       final bytes = await (widget.imageRenderer ?? renderShareImage)(
         context,
         cardKey,
-        photo: photoCaption ? photo : null,
+        photo: photoCaption || photoOverlay ? photo : null,
       );
       if (!mounted) return;
+      if (bytes == null) throw StateError('Image capture failed');
       Navigator.pop(
         context,
         ShareBrewResult(
@@ -219,7 +225,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
         final bytes = await (widget.imageRenderer ?? renderShareImage)(
           context,
           cardKey,
-          photo: photoCaption ? photo : null,
+          photo: photoCaption || photoOverlay ? photo : null,
         );
         if (!mounted) return;
         if (bytes == null) throw StateError('Image capture failed');
@@ -276,21 +282,30 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
         ],
       );
     }
+    final card = BrewShareCard(
+      title: widget.coffee.name,
+      sections: sections,
+      customText: markdown,
+      charts: BrewShareCharts(
+        data: chartData,
+        includeCurve: includeCurve,
+        includeMap: includeMap,
+      ),
+    );
+    if (photoOverlay && photo == null) return Text(s.sharePhotoOverlayHint);
     return Center(
       child: ShareImagePreview(
         captureKey: cardKey,
-        transparent: transparent,
+        transparent: transparent || photoOverlay,
         lightText: lightText,
-        child: BrewShareCard(
-          title: widget.coffee.name,
-          sections: sections,
-          customText: markdown,
-          charts: BrewShareCharts(
-            data: chartData,
-            includeCurve: includeCurve,
-            includeMap: includeMap,
-          ),
-        ),
+        child: photoOverlay
+            ? SharePhotoOverlay(
+                photo: photo!,
+                alignment: overlayAlignment,
+                widthFraction: overlayWidth,
+                child: card,
+              )
+            : card,
       ),
     );
   }
@@ -380,15 +395,41 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
                         ),
                       ),
                     if (asImage) ...[
-                      ShareImageOptions(
-                        transparent: transparent,
-                        lightText: lightText,
-                        enabled: !busy,
-                        onTransparentChanged: (value) =>
-                            setState(() => transparent = value),
-                        onLightTextChanged: (value) =>
-                            setState(() => lightText = value),
+                      if (!photoOverlay)
+                        ShareImageOptions(
+                          transparent: transparent,
+                          lightText: lightText,
+                          enabled: !busy,
+                          onTransparentChanged: (value) =>
+                              setState(() => transparent = value),
+                          onLightTextChanged: (value) =>
+                              setState(() => lightText = value),
+                        ),
+                      SwitchListTile(
+                        key: const ValueKey('share-photo-overlay'),
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(s.sharePhotoOverlay),
+                        value: photoOverlay,
+                        onChanged: busy
+                            ? null
+                            : (value) => setState(() {
+                                photoOverlay = value;
+                                if (value) photoCaption = false;
+                              }),
                       ),
+                      if (photoOverlay)
+                        SharePhotoOverlayOptions(
+                          alignment: overlayAlignment,
+                          widthFraction: overlayWidth,
+                          lightText: lightText,
+                          enabled: !busy,
+                          onAlignmentChanged: (value) =>
+                              setState(() => overlayAlignment = value),
+                          onWidthChanged: (value) =>
+                              setState(() => overlayWidth = value),
+                          onLightTextChanged: (value) =>
+                              setState(() => lightText = value),
+                        ),
                       SwitchListTile(
                         key: const ValueKey('share-photo-caption'),
                         contentPadding: EdgeInsets.zero,
@@ -396,9 +437,12 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
                         value: photoCaption,
                         onChanged: busy
                             ? null
-                            : (value) => setState(() => photoCaption = value),
+                            : (value) => setState(() {
+                                photoCaption = value;
+                                if (value) photoOverlay = false;
+                              }),
                       ),
-                      if (photoCaption)
+                      if (photoCaption || photoOverlay)
                         Wrap(
                           spacing: 8,
                           children: [
@@ -461,9 +505,12 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
             ),
             _ShareActions(
               busy: busy,
-              onShare: source.isEmpty || busy ? null : () => _share(source),
+              onShare: source.isEmpty || busy || needsPhoto
+                  ? null
+                  : () => _share(source),
               onCopy:
                   source.isEmpty ||
+                      needsPhoto ||
                       busy ||
                       (asImage && !widget.clipboard.supportsImages)
                   ? null
