@@ -31,10 +31,9 @@ Future<void> shareBrewFlow(
 }) async {
   final s = AppLocalizations.of(context)!;
   try {
-    final cost = brewCost(
-      brew,
-      pricePerKgByCoffee([coffee], await repository.watchLots().first),
-    );
+    final lots = await repository.watchLots().first;
+    final lot = lots.where((lot) => lot.id == brew.lotId).firstOrNull;
+    final cost = brewCost(brew, pricePerKgByCoffee([coffee], lots));
     Uint8List? initialPhoto;
     if (photos != null) {
       final names = [
@@ -64,6 +63,7 @@ Future<void> shareBrewFlow(
       ShareBrewSheet(
         initialPhoto: initialPhoto,
         cost: cost,
+        lot: lot,
         coffee: coffee,
         brew: brew,
         components: components,

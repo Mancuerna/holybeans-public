@@ -18,6 +18,7 @@ const coffeeLabelTags = {
   'producer',
   'flavor_notes',
   'roast_date',
+  'days_from_roast',
 };
 const frozenLabelTags = {
   ...coffeeLabelTags,

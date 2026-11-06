@@ -217,7 +217,9 @@ class _ShareTemplateEditorState extends State<ShareTemplateEditor> {
                         key: ValueKey('template-tag-${entry.key}'),
                         tooltip: entry.key == 'country_flag'
                             ? s.shareTemplateCountryFlag
-                            : entry.value.label(s),
+                            : entry.key == 'days_from_roast'
+                            ? s.daysFromRoast
+                            : entry.value!.label(s),
                         label: Text('<${entry.key}>'),
                         onPressed: saving ? null : () => _insert(entry.key),
                       ),

@@ -1,6 +1,7 @@
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/domain/coffee_countries.dart';
+import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/domain/share_template.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_share_text.dart';
@@ -10,26 +11,44 @@ Map<String, String> shareTemplateValues({
   required Coffee coffee,
   required Brew brew,
   required List<CoffeeComponent> components,
+  CoffeeLot? lot,
   double? cost,
   BrewMethod? method,
   List<String> toolNames = const [],
   String? dateLocaleName,
-}) => {
-  for (final entry in shareTemplateTags.entries)
-    entry.key: entry.key == 'country_flag'
-        ? shareTemplateCountryFlags(components.map((c) => c.country))
-        : BrewShareText.buildSections(
-            strings: strings,
-            coffee: coffee,
-            components: components,
-            brew: brew,
-            cost: cost,
-            method: method,
-            toolNames: toolNames,
-            fields: {entry.value},
-            dateLocaleName: dateLocaleName,
-          ).expand((rows) => rows).map((row) => row.$2).join(', '),
-};
+}) {
+  final roastDate =
+      lot != null &&
+          lot.id == brew.lotId &&
+          lot.coffeeId == coffee.id &&
+          brew.coffeeId == coffee.id
+      ? DateTime.tryParse(lot.roastDate ?? '')
+      : null;
+  final roastDays = roastDate == null
+      ? null
+      : daysSinceRoast(
+          roastDate,
+          DateTime.fromMillisecondsSinceEpoch(brew.brewedAtMs),
+        );
+  return {
+    for (final entry in shareTemplateTags.entries)
+      entry.key: entry.key == 'days_from_roast'
+          ? roastDays?.toString() ?? ''
+          : entry.key == 'country_flag'
+          ? shareTemplateCountryFlags(components.map((c) => c.country))
+          : BrewShareText.buildSections(
+              strings: strings,
+              coffee: coffee,
+              components: components,
+              brew: brew,
+              cost: cost,
+              method: method,
+              toolNames: toolNames,
+              fields: {entry.value!},
+              dateLocaleName: dateLocaleName,
+            ).expand((rows) => rows).map((row) => row.$2).join(', '),
+  };
+}
 
 /// Values for showing a template filled in before any brew is chosen: an
 /// example brew of [style] with every field a brew of that style records,
@@ -40,6 +59,15 @@ Map<String, String> sampleShareTemplateValues(
 ) {
   final espresso = style == ShareTemplateStyle.espresso;
   final now = DateTime.now().millisecondsSinceEpoch;
+  final brewDate = DateTime.fromMillisecondsSinceEpoch(now);
+  final roastDate = DateTime(brewDate.year, brewDate.month, brewDate.day - 14);
+  final lot = CoffeeLot(
+    id: 'sample-lot',
+    coffeeId: 'sample',
+    roastDate: roastDate.toIso8601String().split('T').first,
+    createdAtMs: now,
+    updatedAtMs: now,
+  );
   final coffee = Coffee(
     id: 'sample',
     name: s.shareTemplateSampleCoffee,
@@ -93,6 +121,7 @@ Map<String, String> sampleShareTemplateValues(
   final brew = Brew(
     id: 'sample',
     coffeeId: 'sample',
+    lotId: lot.id,
     isPreGround: false,
     methodName: espresso ? s.styleEspresso : 'V60',
     grinderName: s.shareTemplateSampleGrinder,
@@ -125,6 +154,7 @@ Map<String, String> sampleShareTemplateValues(
     strings: s,
     coffee: coffee,
     brew: brew,
+    lot: lot,
     components: [component],
     cost: espresso ? 0.9 : 0.85,
     toolNames: [

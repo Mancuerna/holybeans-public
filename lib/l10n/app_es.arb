@@ -19,6 +19,7 @@
   "statsTitle": "Datos",
   "archived": "Archivados",
   "roastDate": "Fecha de tueste",
+  "daysFromRoast": "Días desde el tueste",
   "roastLevel": "Nivel de tueste",
   "roastDark": "Oscuro",
   "roastMedium": "Medio",
