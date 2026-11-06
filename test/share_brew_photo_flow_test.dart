@@ -37,9 +37,16 @@ void main() {
         );
         // Different file bytes let the assertion distinguish the selected source.
         final coffeeBytes = [...bytes, 0];
-        final coffeeId = await repo.createCoffee(name: 'Coffee', roaster: 'R');
+        final coffeeId = await repo.createCoffee(
+          name: 'Coffee',
+          roaster: 'R',
+          roastDate: '2024-02-28',
+        );
+        final lot = (await repo.coffeeLots(coffeeId)).single;
         final brewId = await repo.createBrew(
           coffeeId: coffeeId,
+          lotId: lot.id,
+          brewedAt: DateTime(2024, 3),
           methodName: 'V60',
         );
         await tester.runAsync(() async {
@@ -93,6 +100,10 @@ void main() {
           }
         });
         await tester.pumpAndSettle();
+        expect(
+          tester.widget<ShareBrewSheet>(find.byType(ShareBrewSheet)).lot?.id,
+          lot.id,
+        );
         final initial = tester
             .widget<ShareBrewSheet>(find.byType(ShareBrewSheet))
             .initialPhoto;

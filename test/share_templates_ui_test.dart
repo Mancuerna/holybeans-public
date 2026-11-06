@@ -216,9 +216,16 @@ void main() {
       final db = AppDatabase.forTesting(NativeDatabase.memory());
       addTearDown(db.close);
       final repo = JournalRepository(db);
-      final id = await repo.createCoffee(name: 'Share coffee', roaster: 'R');
+      final id = await repo.createCoffee(
+        name: 'Share coffee',
+        roaster: 'R',
+        roastDate: '2024-02-28',
+      );
+      final lot = (await repo.coffeeLots(id)).single;
       await repo.createBrew(
         coffeeId: id,
+        lotId: lot.id,
+        brewedAt: DateTime(2024, 3),
         methodName: 'Espresso',
         doseGrams: 18,
         beverageGrams: 36,
@@ -230,7 +237,7 @@ void main() {
         id: 't',
         name: 'Story',
         style: ShareTemplateStyle.espresso,
-        body: 'My brew <time> at <ratio>\nTDS <tds> / <cost> / <farm>',
+        body: 'My brew <time> at <ratio>\nTDS <tds> / <cost> / <farm>\nRest <days_from_roast>',
       );
       ShareBrewResult? result;
       await tester.pumpWidget(
@@ -252,6 +259,7 @@ void main() {
                       context,
                       ShareBrewSheet(
                         cost: 0.9,
+                        lot: lot,
                         coffee: coffee,
                         brew: brew,
                         components: const [],
@@ -272,20 +280,20 @@ void main() {
       await tester.tap(find.text('Open'));
       await tester.pumpAndSettle();
       expect(
-        find.text('My brew 0:28 at 1:2\nTDS — / €0.90 / —'),
+        find.text('My brew 0:28 at 1:2\nTDS — / €0.90 / —\nRest 2'),
         findsOneWidget,
       );
       await tester.tap(find.text('Image'));
       await tester.pumpAndSettle();
       expect(
         tester.widget<BrewShareCard>(find.byType(BrewShareCard)).customText,
-        'My brew 0:28 at 1:2\nTDS — / €0.90 / —',
+        'My brew 0:28 at 1:2\nTDS — / €0.90 / —\nRest 2',
       );
       await tester.tap(find.text('Text'));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('share-confirm')));
       await tester.pumpAndSettle();
-      expect(result?.text, 'My brew 0:28 at 1:2\nTDS — / €0.90 / —');
+      expect(result?.text, 'My brew 0:28 at 1:2\nTDS — / €0.90 / —\nRest 2');
       expect(result?.fields, {BrewParameter.notes});
       expect(result?.rememberFields, isFalse);
       expect(tester.takeException(), isNull);

@@ -1,4 +1,5 @@
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/domain/label_template.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
@@ -10,12 +11,17 @@ Map<String, String> coffeeLabelValues({
   required List<CoffeeComponent> components,
   CoffeeLot? lot,
   FrozenPortion? portion,
+  DateTime? now,
 }) {
   if (lot != null && lot.coffeeId != coffee.id ||
       portion != null && (lot == null || portion.lotId != lot.id)) {
     throw ArgumentError('Label sources do not belong together');
   }
   final locale = regionalLocale.toString();
+  final roastDate = DateTime.tryParse(lot?.roastDate ?? '');
+  final roastDays = roastDate == null
+      ? null
+      : daysSinceRoast(roastDate, now ?? DateTime.now());
   String date(String? iso) {
     final value = iso == null ? null : DateTime.tryParse(iso);
     return value == null ? '' : DateFormat.yMd(locale).format(value);
@@ -38,6 +44,7 @@ Map<String, String> coffeeLabelValues({
     'process': parts((c) => c.process),
     'flavor_notes': coffee.flavorProfile ?? '',
     'roast_date': date(lot?.roastDate),
+    'days_from_roast': roastDays?.toString() ?? '',
     'freeze_date': date(portion?.frozenDate),
     // A portion's label describes the amount originally packaged, even when
     // some of it has subsequently been consumed.
@@ -59,6 +66,7 @@ Map<String, String> labelTagNames(AppLocalizations s, LabelKind kind) => {
   'producer': s.producer,
   'flavor_notes': s.flavorProfile,
   'roast_date': s.labelRoastDate,
+  'days_from_roast': s.daysFromRoast,
   if (kind == LabelKind.frozen) ...{
     'freeze_date': s.labelFreezeDate,
     'portion_weight': s.labelPortionWeight,

@@ -19,6 +19,7 @@
   "statsTitle": "Stats",
   "archived": "Archived",
   "roastDate": "Roast date",
+  "daysFromRoast": "Days from roast",
   "roastLevel": "Roast level",
   "roastDark": "Dark",
   "roastMedium": "Medium",

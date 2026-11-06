@@ -48,6 +48,7 @@ class ShareBrewSheet extends StatefulWidget {
     required this.initialFields,
     this.initialPhoto,
     this.cost,
+    this.lot,
     this.method,
     this.recording,
     this.templateSettings,
@@ -59,6 +60,7 @@ class ShareBrewSheet extends StatefulWidget {
 
   final Uint8List? initialPhoto;
   final double? cost;
+  final CoffeeLot? lot;
   final Coffee coffee;
   final Brew brew;
   final List<CoffeeComponent> components;
@@ -330,6 +332,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
       dateLocaleName: regionalLocale.toString(),
     );
     final values = shareTemplateValues(
+      lot: widget.lot,
       strings: s,
       cost: widget.cost,
       coffee: widget.coffee,

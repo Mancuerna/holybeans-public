@@ -4,7 +4,8 @@ import 'package:holybeans/domain/share_markdown.dart';
 
 enum ShareTemplateStyle { espresso, filter }
 
-const shareTemplateTags = <String, BrewParameter>{
+// A null parameter denotes a tag calculated from the brew's lot.
+const shareTemplateTags = <String, BrewParameter?>{
   'coffee': BrewParameter.coffee,
   'roaster': BrewParameter.roaster,
   'country': BrewParameter.country,
@@ -17,6 +18,7 @@ const shareTemplateTags = <String, BrewParameter>{
   'altitude': BrewParameter.altitude,
   'harvest': BrewParameter.harvest,
   'roast_level': BrewParameter.roastLevel,
+  'days_from_roast': null,
   'flavor_notes': BrewParameter.flavorNotes,
   'cost': BrewParameter.cost,
   'date': BrewParameter.date,
