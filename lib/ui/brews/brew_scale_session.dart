@@ -80,7 +80,7 @@ class BrewScaleSession extends ChangeNotifier {
   final ShotEndWatch Function() _newShotEnd;
   final _recording = WeightRecording();
   final _espressoGuard = EspressoScaleGuard();
-  bool _awaitingEspressoTare = false;
+  bool _awaitingTare = false;
   final Stopwatch _watch;
   final flowTrace = FlowTrace();
   DateTime? _flowReadingAt;
@@ -228,11 +228,16 @@ class BrewScaleSession extends ChangeNotifier {
       }
       return;
     }
-    if (_awaitingEspressoTare &&
-        (reading.grams.abs() <= 1 || _watch.elapsedMilliseconds >= 1500)) {
-      _awaitingEspressoTare = false;
+    // A zero in the notification that starts the timer already confirms tare.
+    // During a running brew, keep recording the final sample before stopping.
+    final wasRecording = recording;
+    if (!wasRecording) _followScaleTimer(reading);
+    if (_awaitingTare && reading.grams.abs() <= 1) {
+      _awaitingTare = false;
     }
-    final measured = recording && isEspresso() && _awaitingEspressoTare
+    // A button on the weighing platform can hold a large load for several
+    // seconds. Wait for zero before seeding either the recording or its guard.
+    final measured = recording && _awaitingTare
         ? null
         : recording && isEspresso()
         ? _espressoGuard.add(_watch.elapsedMilliseconds, reading)
@@ -248,7 +253,7 @@ class BrewScaleSession extends ChangeNotifier {
         _flowReadingAt = _clock();
       }
     }
-    _followScaleTimer(reading);
+    if (wasRecording) _followScaleTimer(reading);
     if (!recording || !isEspresso() || measured == null) return;
     final elapsedMs = _watch.elapsedMilliseconds;
     if (_espressoDrip?.add(elapsedMs, measured.grams) case final dripMs?) {
@@ -316,10 +321,12 @@ class BrewScaleSession extends ChangeNotifier {
     }
   }
 
-  /// The brew timer started at [fromSeconds]. Started from the app at zero,
-  /// the scale is tared and its timer restarted; from the first drop it
-  /// only starts its timer (the cup is already tared); from the scale's
-  /// own button it is told nothing.
+  /// Starts or resumes recording at [fromSeconds].
+  ///
+  /// A fresh start from either button clears the recording and waits for zero.
+  /// The app tares and restarts the scale; the scale's own button needs no
+  /// repeated command. Starting on the first drop keeps the already tared
+  /// weight, and resuming preserves the recording.
   void timerStarted(int fromSeconds) {
     final source = _source;
     _source = _Source.app;
@@ -336,7 +343,8 @@ class BrewScaleSession extends ChangeNotifier {
     if (fresh) {
       flowTrace.clear();
       _espressoGuard.clear();
-      _awaitingEspressoTare = source == _Source.app;
+      _awaitingTare = source == _Source.app || source == _Source.scaleButton;
+      _recording.clear();
       _poured = null;
       // A shot started by its first drop has no first drip to note.
       _espressoDrip = source == _Source.firstDrip ? null : FirstDripWatch();
@@ -345,18 +353,16 @@ class BrewScaleSession extends ChangeNotifier {
     }
     switch (source) {
       case _Source.app when fresh:
-        _recording.restartAfterTare();
         // A dial with time on it does not tare and start in one go.
         _pendingTimerChange = true;
         unawaited(
           _send(ScaleCommand.resetTimer, ScaleCommand.tareAndStartTimer, true),
         );
       case _Source.app || _Source.firstDrip:
-        if (fresh) _recording.clear();
         _pendingTimerChange = true;
         unawaited(_send(ScaleCommand.startTimer, null, true));
       case _Source.scaleButton || _Source.shotEnd:
-        if (fresh) _recording.clear();
+        break;
     }
     _flowOffsetMs = fromSeconds * 1000 - _watch.elapsedMilliseconds;
     _flowReadingAt = null;
@@ -392,7 +398,7 @@ class BrewScaleSession extends ChangeNotifier {
     _flowReadingAt = null;
     _flowOffsetMs = 0;
     _espressoGuard.clear();
-    _awaitingEspressoTare = false;
+    _awaitingTare = false;
     _poured = null;
     _dripWatch = null;
     _espressoDrip = null;
