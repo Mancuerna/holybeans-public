@@ -41,10 +41,9 @@ class ReleaseNotesObserver extends NavigatorObserver {
         return AlertDialog(
           key: const ValueKey('release-notes'),
           title: Text(s.releaseNotesTitle),
-          content: SingleChildScrollView(
-            child: Text(
-              currentReleaseNotes[language] ?? currentReleaseNotes['en']!,
-            ),
+          scrollable: true,
+          content: _ReleaseNotesBody(
+            currentReleaseNotes[language] ?? currentReleaseNotes['en']!,
           ),
           actions: [
             TextButton(
@@ -60,5 +59,38 @@ class ReleaseNotesObserver extends NavigatorObserver {
     } catch (error, stack) {
       reportError(error, stack);
     }
+  }
+}
+
+class _ReleaseNotesBody extends StatelessWidget {
+  const _ReleaseNotesBody(this.notes);
+
+  final String notes;
+
+  @override
+  Widget build(BuildContext context) {
+    final lines = notes
+        .split('\n')
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 12,
+      children: [
+        for (final line in lines)
+          if (line.startsWith('- '))
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const ExcludeSemantics(child: Text('•')),
+                const SizedBox(width: 8),
+                Expanded(child: Text(line.substring(2))),
+              ],
+            )
+          else
+            Text(line),
+      ],
+    );
   }
 }
