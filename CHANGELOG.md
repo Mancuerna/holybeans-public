@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.6.0](https://github.com/Mancuerna/holybeans-public/compare/v1.5.0...v1.6.0) (2026-11-06)
+
+
+### Features
+
+* **sharing:** overlay brew details on coffee photos ([db7e51d](https://github.com/Mancuerna/holybeans-public/commit/db7e51dceb467d978635e72c458526b78a978c97))
+
+
+### Bug Fixes
+
+* **brews:** show flow guide weights and prioritize equipment details ([#26](https://github.com/Mancuerna/holybeans-public/issues/26)) ([de5cc8d](https://github.com/Mancuerna/holybeans-public/commit/de5cc8db39dd820799210fb7a63809fa0d4d161f))
+* complete scale recording and release notes improvements ([#29](https://github.com/Mancuerna/holybeans-public/issues/29)) ([61838c0](https://github.com/Mancuerna/holybeans-public/commit/61838c08e26d552872b89575034996e1715458f4))
+* **freshness:** clarify roaster rest and improve phase contrast ([#28](https://github.com/Mancuerna/holybeans-public/issues/28)) ([1b52d7c](https://github.com/Mancuerna/holybeans-public/commit/1b52d7c3fe744729f869a02728540965f04df62c))
+
 ## [1.5.0](https://github.com/Mancuerna/holybeans-public/compare/v1.4.1...v1.5.0) (2026-11-05)
 
 
