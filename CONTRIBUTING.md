@@ -79,6 +79,8 @@ comments, fixtures and issue reports free of personal data.
 
 Maintain release notes only in `docs/releases/<version>.md`, matching the version
 in `pubspec.yaml`, with `es-ES` and `en-GB` sections (at most 500 characters each).
+Write each improvement on its own line prefixed with `- `; the app displays
+these as spaced bullet points with aligned continuation lines.
 Run `python3 -m tool.generate_release_notes` before local builds or tests and
 after changing the version or its notes. CI and release builds run it automatically.
 The generated Dart file is ignored; do not edit it or duplicate notes in ARB files.

@@ -102,13 +102,17 @@ Before merging the release PR:
 
   ```text
   <es-ES>
-  Descripción de los cambios para quienes usan la app.
+  - Primera mejora para quienes usan la app.
+  - Otra mejora o corrección.
   </es-ES>
   <en-GB>
-  Description of the changes for people using the app.
+  - First improvement for people using the app.
+  - Another improvement or fix.
   </en-GB>
   ```
 
+Keep each improvement on its own line prefixed with `- ` so the app can show
+separate, spaced bullet points.
 These notes are also the in-app “What’s new” content. CI and release builds run
 `python3 -m tool.generate_release_notes` to select the exact `pubspec.yaml` version
 and generate both translations. Missing, empty or oversized translations stop

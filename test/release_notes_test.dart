@@ -129,7 +129,24 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(find.byKey(const ValueKey('release-notes')), findsOneWidget);
-        expect(find.text(currentReleaseNotes[language]!), findsOneWidget);
+        final improvements = currentReleaseNotes[language]!
+            .split('\n')
+            .where((line) => line.startsWith('- '))
+            .map((line) => line.substring(2))
+            .toList();
+        expect(improvements, isNotEmpty);
+        for (final improvement in improvements) {
+          expect(find.text(improvement), findsOneWidget);
+        }
+        for (var i = 1; i < improvements.length; i++) {
+          final previous = tester.getRect(find.text(improvements[i - 1]));
+          final current = tester.getRect(find.text(improvements[i]));
+          expect(current.top - previous.bottom, greaterThanOrEqualTo(12));
+          expect(current.left, previous.left);
+        }
+        await tester.ensureVisible(find.text(improvements.last));
+        await tester.pumpAndSettle();
+        expect(find.text(improvements.last).hitTestable(), findsOneWidget);
         expect(tester.takeException(), isNull);
         await tester.tap(find.text(language == 'es' ? 'Entendido' : 'Got it'));
         await tester.pumpAndSettle();
