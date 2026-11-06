@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/Mancuerna/holybeans-public/compare/v1.6.0...v1.7.0) (2026-11-06)
+
+
+### Features
+
+* **templates:** add days from roast tag ([#31](https://github.com/Mancuerna/holybeans-public/issues/31)) ([c1c1373](https://github.com/Mancuerna/holybeans-public/commit/c1c1373587575e8bbcda70531034cd613f2bb1f0))
+
 ## [1.6.0](https://github.com/Mancuerna/holybeans-public/compare/v1.5.0...v1.6.0) (2026-11-06)
 
 
