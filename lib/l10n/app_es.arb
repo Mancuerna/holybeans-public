@@ -304,7 +304,7 @@
   "scoreAftertaste": "Retrogusto",
   "brewRated": "Valoración guardada",
   "restDays": "Reposo recomendado (días)",
-  "restDaysHint": "Lo que indica el tostador; marca el ritmo de desgasificación",
+  "restDaysHint": "Se aplica al inicio de «En su punto» en filtro; espresso se estima a partir de ese reposo",
   "freshness": "Frescura",
   "phaseDegassing": "Desgasificando",
   "phasePrime": "En su punto",
@@ -315,7 +315,7 @@
   "freshnessDay": "Edad estimada: {day} días",
   "daysLeft": "{days, plural, =1{Queda 1 día} other{Quedan {days} días}}",
   "freshnessBasisRoast": "Según el nivel de tueste",
-  "freshnessBasisRest": "Según el reposo del tostador ({days} días)",
+  "freshnessBasisRest": "Reposo del tostador: {days} días",
   "freshnessPaused": "{days, plural, =1{Descontado 1 día en el congelador} other{Descontados {days} días en el congelador}}",
   "sweetSpot": "Tu punto óptimo",
   "sweetSpotValue": "{style}, días {start}–{end}: en torno a {rating} en {count} preparaciones",
@@ -3384,5 +3384,14 @@
   "flowGuideExpectedWeight": "Peso de referencia ahora: {weight} g",
   "@flowGuideExpectedWeight": {"placeholders": {"weight": {"type": "String"}}},
   "flowGuideWeightDifference": "Diferencia de peso: {difference} g",
-  "@flowGuideWeightDifference": {"placeholders": {"difference": {"type": "String"}}}
+  "@flowGuideWeightDifference": {"placeholders": {"difference": {"type": "String"}}},
+  "freshnessRestExplanation": "Aplicado a filtro · Espresso estimado por la app",
+  "freshnessReadyIn": "{days, plural, =1{En su punto dentro de 1 día} other{En su punto dentro de {days} días}}",
+  "@freshnessReadyIn": {"placeholders": {"days": {"type": "int"}}},
+  "freshnessPrimeRemaining": "{days, plural, =1{1 día restante en su punto} other{{days} días restantes en su punto}}",
+  "@freshnessPrimeRemaining": {"placeholders": {"days": {"type": "int"}}},
+  "freshnessGoodRemaining": "{days, plural, =1{1 día restante en buen estado} other{{days} días restantes en buen estado}}",
+  "@freshnessGoodRemaining": {"placeholders": {"days": {"type": "int"}}},
+  "freshnessStaleIn": "{days, plural, =1{1 día hasta «Pasado»} other{{days} días hasta «Pasado»}}",
+  "@freshnessStaleIn": {"placeholders": {"days": {"type": "int"}}}
 }

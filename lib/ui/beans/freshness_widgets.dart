@@ -19,16 +19,34 @@ String brewStyleLabel(AppLocalizations s, BrewStyle style) =>
     style == BrewStyle.espresso ? s.styleEspresso : s.styleFilter;
 
 Color freshnessPhaseColor(BuildContext context, FreshnessPhase phase) {
-  final colors = Theme.of(context).colorScheme;
   final dark = Theme.of(context).brightness == Brightness.dark;
   return switch (phase) {
-    FreshnessPhase.degassing => colors.outline,
-    FreshnessPhase.prime => colors.tertiary,
-    // Fine to brew: no colour of its own, so green and amber stand out.
-    FreshnessPhase.good => colors.onSurface,
+    FreshnessPhase.degassing =>
+      dark ? const Color(0xFFCDB2EB) : const Color(0xFF6D4C91),
+    FreshnessPhase.prime =>
+      dark ? const Color(0xFFA9D18E) : const Color(0xFF38622F),
+    FreshnessPhase.good =>
+      dark ? const Color(0xFF8CCFC0) : const Color(0xFF216359),
     FreshnessPhase.aging =>
-      dark ? const Color(0xFFFFB074) : const Color(0xFFB54708),
-    FreshnessPhase.stale => colors.onSurfaceVariant,
+      dark ? const Color(0xFFFFC078) : const Color(0xFF8A4700),
+    FreshnessPhase.stale =>
+      dark ? const Color(0xFFBBB5AE) : const Color(0xFF625D58),
+  };
+}
+
+String? freshnessTimeLabel(
+  AppLocalizations s,
+  FreshnessWindow window,
+  int day,
+) {
+  final days = window.daysLeftInPhase(day);
+  if (days == null) return null;
+  return switch (window.phaseAt(day)) {
+    FreshnessPhase.degassing => s.freshnessReadyIn(days),
+    FreshnessPhase.prime => s.freshnessPrimeRemaining(days),
+    FreshnessPhase.good => s.freshnessGoodRemaining(days),
+    FreshnessPhase.aging => s.freshnessStaleIn(days),
+    FreshnessPhase.stale => null,
   };
 }
 
@@ -73,18 +91,42 @@ class FreshnessSection extends StatelessWidget {
             ),
           ],
         ),
+        if (freshness.restDays case final days?)
+          Container(
+            key: const ValueKey('freshness-roaster-rest'),
+            width: double.infinity,
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  s.freshnessBasisRest(days),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(s.freshnessRestExplanation, style: muted),
+              ],
+            ),
+          ),
         for (final style in BrewStyle.values)
           _FreshnessRow(
             style: style,
             day: freshness.day,
             window: freshness.windows[style]!,
           ),
+        const _FreshnessLegend(),
+        const SizedBox(height: 12),
         Text(
           [
             s.freshnessDay(freshness.day),
-            freshness.restDays == null
-                ? s.freshnessBasisRoast
-                : s.freshnessBasisRest(freshness.restDays!),
+            if (freshness.restDays == null) s.freshnessBasisRoast,
             if (freshness.pausedDays > 0)
               s.freshnessPaused(freshness.pausedDays),
             if (freshness.openedDays case final days?) s.freshnessOpened(days),
@@ -155,11 +197,11 @@ class _FreshnessRow extends StatelessWidget {
     final s = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final phase = window.phaseAt(day);
-    final left = window.daysLeftInPhase(day);
+    final timing = freshnessTimeLabel(s, window, day);
     final label = [
       brewStyleLabel(s, style),
       freshnessPhaseLabel(s, phase),
-      if (left != null) s.daysLeft(left),
+      ?timing,
     ].join(', ');
     return Semantics(
       label: label,
@@ -195,9 +237,9 @@ class _FreshnessRow extends StatelessWidget {
                   ],
                 ),
                 FreshnessPhaseChip(phase: phase),
-                if (left != null)
+                if (timing != null)
                   Text(
-                    s.daysLeft(left),
+                    timing,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -205,7 +247,7 @@ class _FreshnessRow extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            FreshnessBar(day: day, window: window),
+            FreshnessBar(day: day, window: window, showToday: true),
           ],
         ),
       ),
@@ -213,7 +255,6 @@ class _FreshnessRow extends StatelessWidget {
   }
 }
 
-/// A brew style's freshness window as bands, today marked on it.
 /// A freshness phase as a tinted label in its colour.
 class FreshnessPhaseChip extends StatelessWidget {
   const FreshnessPhaseChip({super.key, required this.phase});
@@ -241,11 +282,50 @@ class FreshnessPhaseChip extends StatelessWidget {
   }
 }
 
+class _FreshnessLegend extends StatelessWidget {
+  const _FreshnessLegend();
+
+  @override
+  Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context)!;
+    return Wrap(
+      spacing: 12,
+      runSpacing: 6,
+      children: [
+        for (final phase in FreshnessPhase.values)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.circle,
+                size: 8,
+                color: freshnessPhaseColor(context, phase),
+              ),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  freshnessPhaseLabel(s, phase),
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
 class FreshnessBar extends StatelessWidget {
-  const FreshnessBar({super.key, required this.day, required this.window});
+  const FreshnessBar({
+    super.key,
+    required this.day,
+    required this.window,
+    this.showToday = false,
+  });
 
   final int day;
   final FreshnessWindow window;
+  final bool showToday;
 
   @override
   Widget build(BuildContext context) {
@@ -261,34 +341,29 @@ class FreshnessBar extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final marker = (day.clamp(0, total) / total * width).clamp(
-          6.0,
-          width - 6,
+        if (width < 14) return const SizedBox(height: 14);
+        final marker = ((day + 0.5).clamp(0, total) / total * width).clamp(
+          7.0,
+          width - 7,
         );
-        return SizedBox(
+        final bar = SizedBox(
           height: 14,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
               Positioned.fill(
-                top: 3,
-                bottom: 3,
                 child: Row(
                   children: [
                     for (final (index, (length, phase)) in segments.indexed)
                       Expanded(
                         flex: length < 1 ? 1 : length,
                         child: Container(
+                          height: phase == window.phaseAt(day) ? 10 : 6,
                           margin: EdgeInsets.only(
                             right: index == segments.length - 1 ? 0 : 2,
                           ),
                           decoration: BoxDecoration(
-                            color: freshnessPhaseColor(context, phase)
-                                .withValues(
-                                  alpha: phase == window.phaseAt(day)
-                                      ? 0.9
-                                      : 0.3,
-                                ),
+                            color: freshnessPhaseColor(context, phase),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -311,6 +386,21 @@ class FreshnessBar extends StatelessWidget {
               ),
             ],
           ),
+        );
+        if (!showToday) return bar;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Align(
+              alignment: Alignment(marker / width * 2 - 1, 0),
+              child: Text(
+                AppLocalizations.of(context)!.today,
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+            ),
+            const SizedBox(height: 2),
+            bar,
+          ],
         );
       },
     );
