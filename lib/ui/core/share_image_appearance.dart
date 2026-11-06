@@ -33,20 +33,40 @@ class ShareImageOptions extends StatelessWidget {
         if (transparent) ...[
           Text(s.shareTransparentHint),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            children: [
-              for (final light in [true, false])
-                ChoiceChip(
-                  key: ValueKey(light ? 'share-light-text' : 'share-dark-text'),
-                  label: Text(light ? s.shareLightText : s.shareDarkText),
-                  selected: lightText == light,
-                  onSelected: enabled ? (_) => onLightTextChanged(light) : null,
-                ),
-            ],
+          ShareTextColorOptions(
+            lightText: lightText,
+            onChanged: enabled ? onLightTextChanged : null,
           ),
           const SizedBox(height: 12),
         ],
+      ],
+    );
+  }
+}
+
+class ShareTextColorOptions extends StatelessWidget {
+  const ShareTextColorOptions({
+    super.key,
+    required this.lightText,
+    required this.onChanged,
+  });
+
+  final bool lightText;
+  final ValueChanged<bool>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context)!;
+    return Wrap(
+      spacing: 8,
+      children: [
+        for (final light in [true, false])
+          ChoiceChip(
+            key: ValueKey(light ? 'share-light-text' : 'share-dark-text'),
+            label: Text(light ? s.shareLightText : s.shareDarkText),
+            selected: lightText == light,
+            onSelected: onChanged == null ? null : (_) => onChanged!(light),
+          ),
       ],
     );
   }

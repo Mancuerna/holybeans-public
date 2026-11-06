@@ -2056,6 +2056,16 @@
       }
     }
   },
+  "sharePhotoOverlay": "Text over photo",
+  "sharePhotoOverlayHint": "Add a photo to overlay your brew details or template and share everything as one image.",
+  "shareOverlayPosition": "Text position",
+  "shareOverlaySize": "Text size",
+  "shareOverlayTopLeft": "Top left",
+  "shareOverlayTopRight": "Top right",
+  "shareOverlayCenterLeft": "Center left",
+  "shareOverlayCenterRight": "Center right",
+  "shareOverlayBottomLeft": "Bottom left",
+  "shareOverlayBottomRight": "Bottom right",
   "sharePhotoCaption": "Photo and text",
   "sharePhotoCaptionHint": "The text is attached to the image. You can review it in the receiving app before sending.",
   "freezeSplit": "Divide into portions",
