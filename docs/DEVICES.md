@@ -34,4 +34,19 @@ Printing always starts from a user action. Do not retry automatically after an
 uncertain result or issue calibration, firmware, power or unrelated settings
 commands. See [contribution boundaries](../CONTRIBUTING.md#hardware-boundaries).
 
-Timemore Dot support is not part of this production source snapshot.
+Timemore Dot TES017 supports weight in grams, tare and start/pause/reset of its
+timer. Weight and controls were confirmed with a physical v1.0.4 scale in Scale
+Lab; the production integration is covered by transport tests and a replay of
+the captured control sequence. Other firmware versions remain unverified.
+Close other apps connected to the scale and accept Bluetooth pairing if asked.
+Ounce readings are not converted or displayed as grams.
+
+The adapter checks the standard model/manufacturer identity before sending
+protocol commands. It accepts the reserved zero CRC trailer only for verified
+TES017 / TIMEMORE firmware v1.0.4; other firmware retains CRC validation.
+Startup reads units, battery and timer state without changing settings. Timer
+state follows notifications and acknowledged controls; an ACK's success byte
+is never interpreted as the requested timer action. Commands are serialized,
+and an uncertain command requires reconnection before another control is sent.
+The implementation uses the manufacturer's
+[BLE protocol](https://github.com/TIMEMORE-COFFEE/open-scale-protocol/blob/main/Timemore%20Black%20Mirror%20SCALE%20BLE%20Protocol.md).
