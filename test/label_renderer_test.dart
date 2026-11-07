@@ -114,6 +114,84 @@ void main() {
     },
   );
   test(
+    'image offsets move both axes and keep text clear on every printer',
+    () async {
+      final source = image.Image(width: 20, height: 10);
+      final codec = await ui.instantiateImageCodec(image.encodePng(source));
+      final graphic = (await codec.getNextFrame()).image;
+      addTearDown(graphic.dispose);
+      addTearDown(codec.dispose);
+      for (final model in LabelPrinterModel.values) {
+        for (final position in LabelImagePosition.values) {
+          LabelLayout layout(double x, double y, {String body = 'Coffee'}) =>
+              LabelLayout(
+                body,
+                model.defaultPaper,
+                graphic: graphic,
+                imageOptions: LabelImageOptions(
+                  position: position,
+                  size: 0.25,
+                  offsetX: x,
+                  offsetY: y,
+                ),
+              );
+          final start = layout(-1, -1);
+          final end = layout(1, 1);
+          expect(start.graphicBounds.left, lessThan(end.graphicBounds.left));
+          expect(start.graphicBounds.top, lessThan(end.graphicBounds.top));
+          for (final x in [-1.0, -0.4, 0.0, 0.6, 1.0]) {
+            for (final y in [-1.0, -0.4, 0.0, 0.6, 1.0]) {
+              for (final body in ['Coffee', '']) {
+                final shifted = layout(x, y, body: body);
+                final rect = shifted.graphicBounds;
+                final area = shifted.contentBounds.inflate(0.5 / shifted.scale);
+                expect(rect.left, greaterThanOrEqualTo(area.left));
+                expect(rect.top, greaterThanOrEqualTo(area.top));
+                expect(rect.right, lessThanOrEqualTo(area.right));
+                expect(rect.bottom, lessThanOrEqualTo(area.bottom));
+                expect(
+                  rect.width,
+                  closeTo(
+                    layout(0, 0, body: body).graphicBounds.width,
+                    1 / shifted.scale + 1e-9,
+                  ),
+                );
+                if (position == LabelImagePosition.top) {
+                  if (body.isNotEmpty) {
+                    expect(rect.overlaps(shifted.textBounds), isFalse);
+                  }
+                } else {
+                  for (final line in shifted.textLines) {
+                    expect(rect.overlaps(line.bounds), isFalse);
+                  }
+                }
+              }
+            }
+          }
+          final shifted = layout(-0.4, 0.6, body: '');
+          final preview = await shifted.previewBitmap;
+          expect(await shifted.rasterize(), same(preview));
+          expect(
+            preview.pixels,
+            isNot((await layout(0, 0, body: '').rasterize()).pixels),
+          );
+          expect(
+            (await shifted.rasterize(upsideDown: true)).pixels,
+            preview.pixels.reversed.toList(),
+          );
+        }
+      }
+      final overflowing = LabelLayout(
+        'Coffee',
+        LabelPaper.mm50x30,
+        graphic: graphic,
+        imageOptions: const LabelImageOptions(offsetY: 1),
+      );
+      expect(overflowing.fitsPaper, isFalse);
+      await expectLater(overflowing.rasterize(), throwsStateError);
+    },
+  );
+  test(
     'emoji clusters render directly in monochrome with distinct glyphs',
     () async {
       final rasters = <String>{};

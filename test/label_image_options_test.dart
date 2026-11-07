@@ -12,6 +12,8 @@ void main() {
       size: 0.25,
       mode: LabelImageMode.photo,
       contrast: 1.6,
+      offsetX: -0.35,
+      offsetY: 0.6,
     );
     const template = LabelTemplate(
       id: 'x',
@@ -24,6 +26,23 @@ void main() {
       LabelTemplate.fromJson(template.toJson()).effectiveImageOptions,
       options,
     );
+    final legacyOptions = Map<String, dynamic>.of(options.toJson())
+      ..remove('offsetX')
+      ..remove('offsetY');
+    expect(
+      LabelImageOptions.fromJson(legacyOptions),
+      options.copyWith(offsetX: 0, offsetY: 0),
+    );
+    for (final invalid in [double.nan, double.infinity, -1.01, 1.01]) {
+      expect(
+        () => options.copyWith(offsetX: invalid).validate(),
+        throwsFormatException,
+      );
+      expect(
+        () => options.copyWith(offsetY: invalid).validate(),
+        throwsFormatException,
+      );
+    }
     final old = Map<String, dynamic>.of(template.toJson())
       ..remove('imageOptions');
     expect(

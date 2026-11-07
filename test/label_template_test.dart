@@ -116,6 +116,8 @@ void main() {
               size: 0.3,
               mode: LabelImageMode.photo,
               contrast: 1.5,
+              offsetX: -0.35,
+              offsetY: 0.6,
             ),
             imagePng: LabelGraphic.prepare(
               img.encodePng(img.Image(width: 4, height: 4)),

@@ -107,7 +107,27 @@ class LabelLayout {
     final alignment = imageOptions.position == LabelImagePosition.top
         ? Alignment(offset, 0)
         : Alignment(0, offset);
-    final rect = alignment.inscribe(fitted.destination, graphicSlot);
+    final base = alignment.inscribe(fitted.destination, graphicSlot);
+    final area = contentBounds;
+    // Move from the preset toward each printable edge without cropping.
+    double shifted(double start, double min, double max, double offset) =>
+        start + (offset < 0 ? start - min : max - start) * offset;
+    final rect = Rect.fromLTWH(
+      shifted(
+        base.left,
+        area.left,
+        area.right - base.width,
+        imageOptions.offsetX,
+      ),
+      shifted(
+        base.top,
+        area.top,
+        area.bottom - base.height,
+        imageOptions.offsetY,
+      ),
+      base.width,
+      base.height,
+    );
     // Snap the image to printer dots, including on 300 dpi models.
     return Rect.fromLTRB(
       (rect.left * scale).round() / scale,
@@ -120,13 +140,15 @@ class LabelLayout {
   Rect get textBounds {
     final area = contentBounds;
     if (graphic == null || markdown.trim().isEmpty) return area;
-    final slot = graphicSlot;
+    final bottom = graphicBounds.bottom > graphicSlot.bottom
+        ? graphicBounds.bottom
+        : graphicSlot.bottom;
     return switch (imageOptions.position) {
       LabelImagePosition.top => Rect.fromLTWH(
         area.left,
-        slot.bottom + 4,
+        bottom + 4,
         area.width,
-        (area.bottom - slot.bottom - 4).clamp(0, area.height),
+        (area.bottom - bottom - 4).clamp(0, area.height),
       ),
       LabelImagePosition.left || LabelImagePosition.right => area,
     };

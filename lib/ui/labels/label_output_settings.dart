@@ -145,6 +145,27 @@ class LabelGraphicControls extends StatelessWidget {
             (value) => onOptions(options.copyWith(alignment: value)),
           ),
           const SizedBox(height: 12),
+          _offsetSlider(
+            'label-image-offset-x',
+            s.labelImageOffsetX,
+            options.offsetX,
+            (value) => onOptions(options.copyWith(offsetX: value)),
+          ),
+          _offsetSlider(
+            'label-image-offset-y',
+            s.labelImageOffsetY,
+            options.offsetY,
+            (value) => onOptions(options.copyWith(offsetY: value)),
+          ),
+          Text(s.labelImageOffsetHint),
+          TextButton.icon(
+            key: const ValueKey('label-image-offset-reset'),
+            onPressed: options.offsetX == 0 && options.offsetY == 0
+                ? null
+                : () => onOptions(options.copyWith(offsetX: 0, offsetY: 0)),
+            icon: const Icon(Icons.restart_alt),
+            label: Text(s.labelImageOffsetReset),
+          ),
           Text('${s.labelImageSize}: ${(options.size * 100).round()} %'),
           Slider(
             key: const ValueKey('label-image-size'),
@@ -197,6 +218,28 @@ class LabelGraphicControls extends StatelessWidget {
       ],
     );
   }
+
+  Widget _offsetSlider(
+    String key,
+    String label,
+    double value,
+    ValueChanged<double> onChanged,
+  ) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text('$label: ${(value * 100).round()} %'),
+      Slider(
+        key: ValueKey(key),
+        value: value,
+        min: -1,
+        divisions: 200,
+        label: '${(value * 100).round()} %',
+        semanticFormatterCallback: (value) =>
+            '$label: ${(value * 100).round()} %',
+        onChanged: onChanged,
+      ),
+    ],
+  );
 
   Widget _choice<T>(
     String key,

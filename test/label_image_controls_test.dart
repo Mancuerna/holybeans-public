@@ -65,6 +65,23 @@ void main() {
         }
         expect(options.size, isNot(0.4));
         expect(options.contrast, isNot(1));
+        for (final key in ['label-image-offset-x', 'label-image-offset-y']) {
+          final finder = find.byKey(ValueKey(key));
+          await tester.ensureVisible(finder);
+          await tester.drag(finder, const Offset(60, 0));
+          await tester.pumpAndSettle();
+        }
+        expect(options.offsetX, greaterThan(0));
+        expect(options.offsetY, greaterThan(0));
+        final reset = find.byKey(const ValueKey('label-image-offset-reset'));
+        await tester.ensureVisible(reset);
+        await tester.tap(reset);
+        await tester.pumpAndSettle();
+        expect(options.offsetX, 0);
+        expect(options.offsetY, 0);
+        expect(options.position, LabelImagePosition.left);
+        expect(options.alignment, LabelImageAlignment.end);
+        expect(options.size, isNot(0.4));
         expect(tester.takeException(), isNull);
       },
     );
