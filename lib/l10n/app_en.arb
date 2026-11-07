@@ -628,7 +628,7 @@
   "backupNow": "Back up now",
   "notNow": "Not now",
   "scaleSection": "Bluetooth scale",
-  "scaleHint": "Pair your scales once: HolyBeans connects to whichever is switched on while you use the app. If several are on, it prefers the last used scale and keeps an existing connection. Supports BOOKOO and DiFluid Microbalance (V300 or later) / Microbalance Ti (V010 or later). DiFluid support is experimental. Acaia Lunar, Pearl / Pearl S and Pyxis support is experimental and awaits testing on physical scales. Close other apps connected to the scale.",
+  "scaleHint": "Pair your scales once: HolyBeans connects to whichever is switched on while you use the app. If several are on, it prefers the last used scale and keeps an existing connection. Supports BOOKOO and DiFluid Microbalance (V300 or later) / Microbalance Ti (V010 or later). DiFluid support is experimental. Acaia Lunar, Pearl / Pearl S and Pyxis support is experimental and awaits testing on physical scales. Close other apps connected to the scale. Timemore Dot TES017 (v1.0.4) supports weight in grams, tare and timer controls.",
   "scaleRemembered": "Paired · automatic connection",
   "scaleFind": "Find scale",
   "scaleSearching": "Looking for scales…",

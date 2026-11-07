@@ -7,12 +7,13 @@ import 'package:holybeans/data/services/ble_link.dart';
 import 'package:holybeans/data/services/difluid_scale_connection.dart';
 import 'package:holybeans/data/services/scale.dart';
 import 'package:holybeans/data/services/scale_discovery.dart';
+import 'package:holybeans/data/services/timemore_dot_connection.dart';
 import 'package:holybeans/domain/acaia_protocol.dart';
 import 'package:holybeans/domain/bookoo_protocol.dart';
 import 'package:holybeans/domain/difluid_scale_protocol.dart';
 import 'package:universal_ble/universal_ble.dart';
 
-/// BOOKOO, DiFluid and Acaia scales, exposing the same readings and brew commands.
+/// Bluetooth scales exposing the same readings and brew commands.
 class BleScale extends BleLink<ScaleReading> implements Scale {
   BleScale(this.settings, {super.trace, ScaleDiscovery? discovery})
     : _discovery = discovery ?? ScaleDiscovery();
@@ -58,24 +59,28 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
 
   DifluidScaleConnection? _difluid;
   AcaiaScaleConnection? _acaia;
+  TimemoreDotConnection? _dot;
   Future<bool> _commands = Future.value(true);
   int _generation = 0;
   bool _bookooDoseNotify = false;
   StreamSubscription<Uint8List>? _bookooDoseNotifications;
 
   @override
-  String get service =>
-      _acaia?.service ?? _difluid?.service ?? BookooUuids.service;
+  String get service => _dot != null
+      ? DotUuids.service
+      : _acaia?.service ?? _difluid?.service ?? BookooUuids.service;
 
   @override
-  String get characteristic =>
-      _acaia?.notify ?? _difluid?.characteristic ?? BookooUuids.weight;
+  String get characteristic => _dot != null
+      ? DotUuids.notify
+      : _acaia?.notify ?? _difluid?.characteristic ?? BookooUuids.weight;
 
   @override
   bool matchesName(String? name) =>
       isBookooScaleName(name) ||
       isDifluidScaleName(name) ||
-      isAcaiaScaleName(name);
+      isAcaiaScaleName(name) ||
+      isTimemoreDotName(name);
 
   static bool _advertises(BleDevice device, String service) => device.services
       .any((uuid) => BleUuidParser.stringOrNull(uuid) == service);
@@ -84,11 +89,15 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
   bool matchesAdvertisement(BleDevice device) =>
       matchesName(device.name) ||
       _advertises(device, DifluidScaleUuids.microbalance) ||
-      _advertises(device, DifluidScaleUuids.microbalanceTi);
+      _advertises(device, DifluidScaleUuids.microbalanceTi) ||
+      (device.name?.trim().isNotEmpty != true &&
+          _advertises(device, DotUuids.service));
 
   @override
   String advertisedName(BleDevice device) => device.name?.isNotEmpty == true
       ? device.name!
+      : _advertises(device, DotUuids.service)
+      ? 'Timemore DOT?'
       : _advertises(device, DifluidScaleUuids.microbalanceTi)
       ? 'DiFluid Microbalance Ti'
       : 'DiFluid Microbalance';
@@ -97,6 +106,7 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
   void configureServices(FoundDevice device, List<BleService> services) {
     _difluid = null;
     _acaia = null;
+    _dot = null;
     _bookooDoseNotify = false;
     if (isAcaiaScaleName(device.name)) {
       for (final found in services) {
@@ -147,6 +157,35 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
                 c.uuid == BookooUuids.command &&
                 c.properties.contains(CharacteristicProperty.notify),
           );
+      return;
+    }
+    if (isTimemoreDotName(device.name)) {
+      final channel = services
+          .where((s) => s.uuid == DotUuids.service)
+          .firstOrNull;
+      final notify = channel?.characteristics
+          .where((c) => c.uuid == DotUuids.notify)
+          .firstOrNull;
+      final write = channel?.characteristics
+          .where((c) => c.uuid == DotUuids.write)
+          .firstOrNull;
+      if (notify == null ||
+          !notify.properties.contains(CharacteristicProperty.notify) ||
+          write == null ||
+          !write.properties.any(
+            (p) =>
+                p == CharacteristicProperty.write ||
+                p == CharacteristicProperty.writeWithoutResponse,
+          )) {
+        throw StateError('Missing Dot notification/write channel');
+      }
+      _dot = TimemoreDotConnection(
+        id: device.id,
+        withResponse: !write.properties.contains(
+          CharacteristicProperty.writeWithoutResponse,
+        ),
+        trace: trace,
+      );
       return;
     }
     for (final uuid in [
@@ -204,6 +243,7 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
     }
     await _difluid?.start();
     await _acaia?.start();
+    await _dot?.start();
   }
 
   @override
@@ -212,6 +252,8 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
     unawaited(_bookooDoseNotifications?.cancel());
     _bookooDoseNotifications = null;
     _bookooDoseNotify = false;
+    _dot?.close();
+    _dot = null;
     _acaia?.close();
     _acaia = null;
     _difluid?.close();
@@ -220,10 +262,13 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
 
   @override
   Iterable<ScaleReading> parseReadings(Uint8List packet) =>
-      _acaia?.parse(packet) ?? super.parseReadings(packet);
+      _dot?.parse(packet) ??
+      _acaia?.parse(packet) ??
+      super.parseReadings(packet);
 
   @override
   ScaleReading? parse(Uint8List packet) {
+    if (_dot case final dot?) return dot.parse(packet).lastOrNull;
     if (_acaia case final acaia?) return acaia.parse(packet).lastOrNull;
     if (_difluid == null) {
       if (_receiveBookooDose(packet)) return null;
@@ -283,9 +328,11 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
     final generation = _generation;
     final difluid = _difluid;
     final acaia = _acaia;
+    final dot = _dot;
     if (id == null) return Future.value(false);
     return _commands = _commands.then((_) async {
       if (connectedId != id || generation != _generation) return false;
+      if (dot != null) return dot.send(command);
       if (acaia != null) return acaia.send(command);
       if (difluid != null) return difluid.send(command);
       try {

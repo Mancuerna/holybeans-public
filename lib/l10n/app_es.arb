@@ -1107,7 +1107,7 @@
   "backupNow": "Hacer copia",
   "notNow": "Ahora no",
   "scaleSection": "Báscula Bluetooth",
-  "scaleHint": "Vincula tus básculas una vez: HolyBeans conectará con la que esté encendida mientras uses la app. Si hay varias encendidas, prioriza la última utilizada y mantiene la conexión actual. Compatible con BOOKOO y DiFluid Microbalance (V300 o posterior) / Microbalance Ti (V010 o posterior). Compatibilidad DiFluid en pruebas. La compatibilidad con Acaia Lunar, Pearl / Pearl S y Pyxis es experimental y está pendiente de pruebas con básculas físicas. Cierra otras apps conectadas a la báscula.",
+  "scaleHint": "Vincula tus básculas una vez: HolyBeans conectará con la que esté encendida mientras uses la app. Si hay varias encendidas, prioriza la última utilizada y mantiene la conexión actual. Compatible con BOOKOO y DiFluid Microbalance (V300 o posterior) / Microbalance Ti (V010 o posterior). Compatibilidad DiFluid en pruebas. La compatibilidad con Acaia Lunar, Pearl / Pearl S y Pyxis es experimental y está pendiente de pruebas con básculas físicas. Cierra otras apps conectadas a la báscula. Timemore Dot TES017 (v1.0.4) admite peso en gramos, tara y temporizador.",
   "scaleRemembered": "Vinculada · conexión automática",
   "scaleFind": "Buscar báscula",
   "scaleSearching": "Buscando básculas…",
