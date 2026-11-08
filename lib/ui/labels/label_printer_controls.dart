@@ -27,7 +27,9 @@ class LabelPrinterControls extends StatelessWidget {
           device: printer,
           keyPrefix: 'label-printer',
           texts: (
-            hint: s.labelPrinterHint,
+            hint: printer.model.continuousTape
+                ? s.labelMarklifePrinterHint
+                : s.labelPrinterHint,
             find: s.labelFindPrinter(printer.model.label),
             searching: s.labelSearching,
             noneFound: s.labelNoneFound(printer.model.label),
@@ -43,7 +45,7 @@ class LabelPrinterControls extends StatelessWidget {
             builder: (context, _) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(printer.name ?? 'Niimbot ${printer.model.label}'),
+                Text(printer.name ?? printer.model.displayName),
                 Text(statusLabel(printer.status)),
                 if (!printer.connected &&
                     printer.status != DeviceStatus.connecting)

@@ -30,6 +30,20 @@ and broader reliability still need validation. D11, B21 variants, B2 and other
 listed models without confirmed physical tests remain unverified. A selectable
 model is not a guarantee of compatibility.
 
+Pristar / Marklife P12 support is experimental. A user confirmed a legible
+40 mm test design on continuous 15 mm tape. The printable height is 12 mm;
+30, 40 (default) and 50 mm design lengths are available, followed by about
+12.5 mm of feed for manual cutting. Other firmware, gap labels and other
+Marklife models have not been validated. Disconnect Marklife before searching
+for the P12 in the coffee label editor. Templates, images and saved printer/size
+preferences use the same editor as Niimbot.
+
+The P12 uses the published [Marklife L11 protocol](https://thermal-label.github.io/marklife/protocol/l11),
+checks the advertised name and required GATT characteristics, and respects
+printer credits and negotiated MTU. Each copy requires a device acknowledgement
+before another starts; acknowledgement alone does not verify physical output.
+Connection diagnostics omit device addresses, names and label contents.
+
 Printing always starts from a user action. Do not retry automatically after an
 uncertain result or issue calibration, firmware, power or unrelated settings
 commands. See [contribution boundaries](../CONTRIBUTING.md#hardware-boundaries).

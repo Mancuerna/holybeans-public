@@ -1,3 +1,5 @@
+import 'package:holybeans/domain/marklife_protocol.dart';
+
 enum LabelPrinterModel {
   d110('D110', 96, 203, 2),
   b1('B1', 384, 203, 3),
@@ -6,7 +8,8 @@ enum LabelPrinterModel {
   b2('B2', 384, 203, 3),
   b2Pro('B2 Pro', 576, 300, 3),
   d11('D11', 96, 203, 2),
-  d11H('D11-H', 144, 300, 3);
+  d11H('D11-H', 144, 300, 3),
+  marklifeP12('P12', 96, 203, 2);
 
   const LabelPrinterModel(
     this.label,
@@ -21,11 +24,17 @@ enum LabelPrinterModel {
 
   // Keep the already verified 203 dpi geometry exactly as delivered.
   double get pixelsPerMm => dpi == 203 ? 8 : dpi / 25.4;
+  bool get isNiimbot => this != marklifeP12;
+  String get displayName =>
+      isNiimbot ? 'Niimbot $label' : 'Pristar / Marklife P12';
+  bool get continuousTape => this == marklifeP12;
   bool get supportsImages => true;
-  bool get rotateForFeed => this == d110 || this == d11 || this == d11H;
+  bool get rotateForFeed =>
+      this == d110 || this == d11 || this == d11H || this == marklifeP12;
   bool get needsProtocolVersion =>
       this == b1Pro || this == b2 || this == b2Pro || this == d11H;
   bool acceptsId(int id) => switch (this) {
+    marklifeP12 => false,
     d110 => id == 2304 || id == 2305,
     d11 => id == 512,
     d11H => id == 528,
@@ -36,8 +45,10 @@ enum LabelPrinterModel {
     b2Pro => id == 6912,
   };
   bool matchesName(String? name) {
+    if (this == marklifeP12) return MarklifeProtocol.matchesName(name);
     if (name == null) return false;
     final pattern = switch (this) {
+      marklifeP12 => throw StateError('Handled by Marklife protocol'),
       d110 => r'^D110(?:-|$)',
       d11 => r'^D11(?:-|$)',
       d11H => r'^D11(?:[_ -]?H)?(?:-|$)',
@@ -52,7 +63,12 @@ enum LabelPrinterModel {
     return RegExp(pattern, caseSensitive: false).hasMatch(name);
   }
 
-  List<LabelPaper> get papers => rotateForFeed
+  List<LabelPaper> get papers => continuousTape
+      ? [
+          for (final length in MarklifeProtocol.lengthsMm)
+            LabelPaper(15, length, this),
+        ]
+      : rotateForFeed
       ? [
           for (final (width, length) in const [
             (15, 30),
@@ -73,8 +89,11 @@ enum LabelPrinterModel {
           ])
             LabelPaper(width, length, this),
         ];
-  LabelPaper get defaultPaper =>
-      rotateForFeed ? LabelPaper(15, 30, this) : LabelPaper(50, 30, this);
+  LabelPaper get defaultPaper => continuousTape
+      ? LabelPaper(15, 40, this)
+      : rotateForFeed
+      ? LabelPaper(15, 30, this)
+      : LabelPaper(50, 30, this);
 }
 
 class LabelPaper {

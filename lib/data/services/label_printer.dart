@@ -24,7 +24,9 @@ abstract interface class LabelPrinter implements PairedDevice {
 class NiimbotLabelPrinter extends BleLink<NiimbotPacket>
     implements LabelPrinter {
   NiimbotLabelPrinter(this.store, {required this.model, super.trace})
-    : _diagnostics = NiimbotConnectionLog(model);
+    : _diagnostics = NiimbotConnectionLog(model) {
+    if (!model.isNiimbot) throw ArgumentError.value(model, 'model');
+  }
   final NiimbotConnectionLog _diagnostics;
   @override
   String get diagnosticReport => _diagnostics.report;

@@ -4,6 +4,7 @@ import 'package:holybeans/data/preferences/label_output_preferences.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/label_printer.dart';
+import 'package:holybeans/data/services/marklife_printer.dart';
 import 'package:holybeans/data/services/paired_device_file.dart';
 import 'package:holybeans/domain/label_printer_profile.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -16,7 +17,7 @@ Future<void> showCoffeeLabelPage(
   JournalActions actions,
   Coffee coffee,
 ) async {
-  final printers = <NiimbotLabelPrinter>[];
+  final printers = <LabelPrinter>[];
   final s = AppLocalizations.of(context)!;
   try {
     final repository = actions.repository;
@@ -35,6 +36,14 @@ Future<void> showCoffeeLabelPage(
         )
         .toList();
     for (final model in LabelPrinterModel.values) {
+      if (model == LabelPrinterModel.marklifeP12) {
+        final printer = MarklifePrinter(
+          await PairedDeviceFile.open('marklife_p12.json'),
+        );
+        printers.add(printer);
+        await printer.load();
+        continue;
+      }
       final printer = NiimbotLabelPrinter(
         await PairedDeviceFile.open('niimbot_${model.name}.json'),
         model: model,
