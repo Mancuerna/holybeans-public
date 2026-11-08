@@ -3410,5 +3410,20 @@
   "freshnessStaleIn": "{days, plural, =1{1 día hasta «Pasado»} other{{days} días hasta «Pasado»}}",
   "@freshnessStaleIn": {"placeholders": {"days": {"type": "int"}}},
   "labelContinuousPaperHint": "Cinta continua de 15 mm; altura imprimible de 12 mm. La longitud elegida es la del diseño; salen unos 12,5 mm adicionales para cortar a mano.",
-  "labelMarklifePrinterHint": "Enciende la P12 y desconéctala de Marklife antes de buscar."
+  "labelMarklifePrinterHint": "Enciende la P12 y desconéctala de Marklife antes de buscar.",
+  "portafilters": "Portafiltros",
+  "portafilter": "Portafiltro",
+  "addPortafilter": "Añadir portafiltro",
+  "editPortafilter": "Editar portafiltro",
+  "archivePortafilter": "Archivar portafiltro",
+  "portafilterName": "Nombre del portafiltro",
+  "portafilterEmptyWeight": "Peso vacío con cesta (g)",
+  "portafilterBasketHint": "Incluye la cesta al pesarlo. Puedes guardar cada combinación por separado.",
+  "portafiltersEmpty": "Añade un portafiltro para pesar la dosis de espresso.",
+  "defaultPortafilter": "Portafiltro habitual",
+  "noPortafilter": "Sin portafiltro",
+  "weighPortafilter": "Pesar con portafiltro",
+  "portafilterTotal": "Portafiltro con café (g)",
+  "useAsDose": "Usar como dosis",
+  "portafilterWeighHint": "Pon a cero la báscula vacía y coloca el portafiltro con el café."
 }

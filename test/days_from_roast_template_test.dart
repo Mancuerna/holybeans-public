@@ -29,6 +29,7 @@ const _lot = CoffeeLot(
   updatedAtMs: 0,
 );
 final _brew = Brew(
+  recipientIsPortafilter: false,
   id: 'brew',
   coffeeId: 'coffee',
   lotId: 'lot',

@@ -12,16 +12,22 @@ extension RecipientOperations on JournalRepository {
     String? id,
     required String name,
     required double emptyGrams,
+    bool isPortafilter = false,
   }) => database.transaction(() async {
     final row = Recipient(
       id: id ?? _uuid.v4(),
       name: _requireCatalogName(name, 'name'),
       emptyGrams: emptyGrams,
+      isPortafilter: isPortafilter,
     );
     _checkJug(row.name, row.emptyGrams);
     if (id == null) {
       await database.into(database.recipients).insert(row);
     } else {
+      final previous = await _recipient(id);
+      if (previous!.isPortafilter != isPortafilter) {
+        throw ArgumentError('Recipient use cannot change');
+      }
       final count =
           await (database.update(
             database.recipients,

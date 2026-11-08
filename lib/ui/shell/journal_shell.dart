@@ -603,6 +603,12 @@ class _JournalShellState extends State<JournalShell>
   /// The floating button's label and action on the tab shown.
   (String, VoidCallback) _floatingAction(AppLocalizations s) => switch (tab) {
     3 => switch (equipmentSection) {
+      EquipmentSection.portafilters => (
+        s.addPortafilter,
+        () async {
+          await showRecipientForm(context, repository, null, true);
+        },
+      ),
       EquipmentSection.recipients => (
         s.addRecipient,
         () async {

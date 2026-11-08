@@ -5,6 +5,7 @@ import 'package:holybeans/domain/brew_comparison.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 
 const a = Brew(
+  recipientIsPortafilter: false,
   isPreGround: false,
   isFavorite: false,
   updatedAtMs: 1,
@@ -27,6 +28,7 @@ void main() {
     'recipe differences and results are separated and missing is not zero',
     () {
       const b = Brew(
+        recipientIsPortafilter: false,
         isPreGround: false,
         isFavorite: false,
         updatedAtMs: 1,
@@ -69,6 +71,7 @@ void main() {
     'filter ratio belongs to recipe and mixed styles do not compare ratios',
     () {
       const b = Brew(
+        recipientIsPortafilter: false,
         isPreGround: false,
         isFavorite: false,
         updatedAtMs: 1,

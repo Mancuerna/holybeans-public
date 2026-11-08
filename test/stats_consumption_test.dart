@@ -13,6 +13,7 @@ Brew brew(
   bool preGround = false,
   bool archived = false,
 }) => Brew(
+  recipientIsPortafilter: false,
   id: id,
   coffeeId: 'coffee',
   isPreGround: preGround,

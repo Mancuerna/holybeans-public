@@ -18,6 +18,7 @@ import 'package:holybeans/ui/brews/extraction_timer.dart';
 import 'package:holybeans/ui/brews/gaggimate_shot_widgets.dart';
 import 'package:holybeans/ui/brews/meticulous_free_pour_widgets.dart';
 import 'package:holybeans/ui/brews/meticulous_shot_widgets.dart';
+import 'package:holybeans/ui/brews/portafilter_weighing.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/pressure_reference_page.dart';
 import 'package:holybeans/ui/brews/refractometer_button.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart' show formatGrams;
@@ -426,7 +427,9 @@ class BrewRecipeSection extends StatelessWidget {
       context,
       draft.dose,
       '${s.dose} (g)',
-      suffix: _scaleFill(model, draft.dose, 'scale-to-dose'),
+      suffix: model.isEspresso && model.recipient != null
+          ? null
+          : _scaleFill(model, draft.dose, 'scale-to-dose'),
     );
     // Espresso is set by its dose; the yield is a result. Filter and
     // immersion brews also set their water, with ratio shortcuts.
@@ -449,6 +452,7 @@ class BrewRecipeSection extends StatelessWidget {
               : null,
         ),
       ],
+      if (model.isEspresso) PortafilterWeighButton(model: model),
       if (model.shows(BrewParameter.ratio) &&
           (model.isEspresso || model.shows(BrewParameter.water)))
         brewRatioControl(model),

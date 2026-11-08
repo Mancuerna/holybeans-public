@@ -54,9 +54,6 @@ class _MethodFormState extends State<_MethodForm> {
   late String? recipientId = widget.existing?.defaultRecipientId;
   bool saving = false;
 
-  /// Filter and immersion methods can have a jug to weigh the coffee in.
-  bool get _takesJug => category != 'espresso';
-
   /// Result of the last connection test: null while untested.
   ({bool ok, String text})? connection;
   bool testing = false;
@@ -156,7 +153,7 @@ class _MethodFormState extends State<_MethodForm> {
               notes: notes.text,
               machine: machine,
               machineAddress: machine == null ? null : address.text,
-              defaultRecipientId: _takesJug ? recipientId : null,
+              defaultRecipientId: recipientId,
               useRecipientCatalog: true,
             )
           : existing.id;
@@ -169,7 +166,7 @@ class _MethodFormState extends State<_MethodForm> {
           notes: notes.text,
           machine: machine,
           machineAddress: machine == null ? null : address.text,
-          defaultRecipientId: _takesJug ? recipientId : null,
+          defaultRecipientId: recipientId,
           useRecipientCatalog: true,
         );
       }
@@ -184,7 +181,7 @@ class _MethodFormState extends State<_MethodForm> {
             notes: _trimOrNull(notes.text),
             machine: machine,
             machineAddress: machine == null ? null : _trimOrNull(address.text),
-            defaultRecipientId: _takesJug ? recipientId : null,
+            defaultRecipientId: recipientId,
             archivedAtMs: existing?.archivedAtMs,
           ),
         );
@@ -263,11 +260,12 @@ class _MethodFormState extends State<_MethodForm> {
     ),
   ];
 
-  List<Widget> _jugFields(AppLocalizations s) => [
+  List<Widget> _recipientFields(AppLocalizations s) => [
     RecipientPicker(
       repository: widget.repository,
       value: recipientId,
       isDefault: true,
+      isPortafilter: category == 'espresso',
       onChanged: (row) => setState(() => recipientId = row?.id),
     ),
   ];
@@ -301,9 +299,13 @@ class _MethodFormState extends State<_MethodForm> {
             DropdownMenuItem(value: 'pourover', child: Text(s.stylePourover)),
             DropdownMenuItem(value: 'immersion', child: Text(s.styleImmersion)),
           ],
-          onChanged: (value) => setState(
-            () => category = value == null || value.isEmpty ? null : value,
-          ),
+          onChanged: (value) => setState(() {
+            final next = value == null || value.isEmpty ? null : value;
+            if ((next == 'espresso') != (category == 'espresso')) {
+              recipientId = null;
+            }
+            category = next;
+          }),
           validator: (value) =>
               widget.existing == null && (value == null || value.isEmpty)
               ? s.requiredField
@@ -330,11 +332,14 @@ class _MethodFormState extends State<_MethodForm> {
             machine = value == null || value.isEmpty ? null : value;
             connection = null;
             // A Meticulous is an espresso machine.
-            if (machine != null) category ??= 'espresso';
+            if (machine != null && category == null) {
+              category = 'espresso';
+              recipientId = null;
+            }
           }),
         ),
         if (machine != null) ..._machineFields(s),
-        if (_takesJug) ..._jugFields(s),
+        ..._recipientFields(s),
         TextFormField(
           controller: notes,
           textCapitalization: TextCapitalization.sentences,

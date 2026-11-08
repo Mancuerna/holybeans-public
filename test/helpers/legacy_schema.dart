@@ -14,6 +14,14 @@ Future<void> reconstructLegacySchema(AppDatabase db, int version) async {
     ]) {
       await db.customStatement('DROP INDEX IF EXISTS $name');
     }
+    if (version < 38) {
+      await db.customStatement(
+        'ALTER TABLE recipients DROP COLUMN is_portafilter',
+      );
+      await db.customStatement(
+        'ALTER TABLE brews DROP COLUMN recipient_is_portafilter',
+      );
+    }
     if (version < 37) {
       for (final table in [
         'piston_method_links',

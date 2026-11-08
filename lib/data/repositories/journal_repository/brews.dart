@@ -157,9 +157,20 @@ extension BrewOperations on JournalRepository {
         input.waterProfileId,
         previous,
       );
-      await _recipient(input.recipient?.id);
+      final recipient = await _recipient(input.recipient?.id);
+      if (recipient != null &&
+          recipient.isPortafilter != input.recipient!.isPortafilter) {
+        throw ArgumentError('Recipient use does not match catalog');
+      }
       final lot = await _brewLot(input.lotId, input.coffeeId);
       final catalog = await _brewCatalog(input, previous);
+      if (recipient?.isPortafilter == true &&
+          !isEspressoMethod(
+            category: catalog.method.category,
+            methodName: catalog.method.name,
+          )) {
+        throw ArgumentError('A portafilter requires an espresso method');
+      }
       final source = await _saveBrewStock(
         previous,
         lotId: input.lotId,
@@ -184,6 +195,19 @@ extension BrewOperations on JournalRepository {
         curve: curve,
         photos: photos,
       );
+      if (previous == null &&
+          input.recipient?.isPortafilter == true &&
+          recipient?.archivedAtMs == null) {
+        await (database.update(
+          database.brewMethods,
+        )..where((m) => m.id.equals(catalog.methodId))).write(
+          BrewMethodsCompanion(
+            defaultRecipientId: Value(recipient!.id),
+            vesselName: Value(recipient.name),
+            vesselGrams: Value(recipient.emptyGrams),
+          ),
+        );
+      }
       return BrewSaveOutcome(
         id: row.id,
         coffeeId: input.coffeeId,

@@ -36,7 +36,7 @@ class JournalBackup {
   /// Fires after any write to the journal, so automatic copies know when
   /// there is something new to save.
   Stream<void> watchChanges() => database.tableUpdates().map((_) {});
-  static const version = 35;
+  static const version = 36;
 
   /// Name of the journal inside a ZIP backup; photos go under `photos/`.
   static const archiveJournal = 'holybeans-backup.json';
@@ -80,6 +80,7 @@ class JournalBackup {
     33,
     34,
     35,
+    36,
   };
   static const _collections = {
     'pistonMachines',

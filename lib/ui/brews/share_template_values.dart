@@ -119,6 +119,7 @@ Map<String, String> sampleShareTemplateValues(
     ],
   );
   final brew = Brew(
+    recipientIsPortafilter: false,
     id: 'sample',
     coffeeId: 'sample',
     lotId: lot.id,

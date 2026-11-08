@@ -16,13 +16,23 @@ Future<Recipient?> showRecipientForm(
   BuildContext context,
   JournalRepository repository, [
   Recipient? existing,
+  bool isPortafilter = false,
 ]) => showFormSheet(
   context,
-  _RecipientForm(repository: repository, existing: existing),
+  _RecipientForm(
+    repository: repository,
+    existing: existing,
+    isPortafilter: existing?.isPortafilter ?? isPortafilter,
+  ),
 );
 
 class _RecipientForm extends StatefulWidget {
-  const _RecipientForm({required this.repository, this.existing});
+  const _RecipientForm({
+    required this.repository,
+    this.existing,
+    required this.isPortafilter,
+  });
+  final bool isPortafilter;
   final JournalRepository repository;
   final Recipient? existing;
   @override
@@ -51,6 +61,7 @@ class _RecipientFormState extends State<_RecipientForm> {
         id: widget.existing?.id,
         name: name.text,
         emptyGrams: parseNumber(grams.text)!,
+        isPortafilter: widget.isPortafilter,
       );
       if (mounted) Navigator.pop(context, row);
     } catch (error, stack) {
@@ -71,7 +82,9 @@ class _RecipientFormState extends State<_RecipientForm> {
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context)!;
     return SheetFrame(
-      title: widget.existing == null ? s.addRecipient : s.editRecipient,
+      title: widget.isPortafilter
+          ? (widget.existing == null ? s.addPortafilter : s.editPortafilter)
+          : (widget.existing == null ? s.addRecipient : s.editRecipient),
       formKey: form,
       saving: saving,
       onSave: save,
@@ -80,7 +93,9 @@ class _RecipientFormState extends State<_RecipientForm> {
           key: const ValueKey('recipient-name'),
           controller: name,
           maxLength: 120,
-          decoration: InputDecoration(labelText: s.jugName),
+          decoration: InputDecoration(
+            labelText: widget.isPortafilter ? s.portafilterName : s.jugName,
+          ),
           validator: (v) =>
               v == null || v.trim().isEmpty ? s.requiredField : null,
         ),
@@ -89,7 +104,13 @@ class _RecipientFormState extends State<_RecipientForm> {
           controller: grams,
           inputFormatters: [decimalInputFormatter],
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: InputDecoration(labelText: s.jugEmptyWeight),
+          decoration: InputDecoration(
+            labelText: widget.isPortafilter
+                ? s.portafilterEmptyWeight
+                : s.jugEmptyWeight,
+            helperText: widget.isPortafilter ? s.portafilterBasketHint : null,
+            helperMaxLines: 3,
+          ),
           validator: (v) {
             final n = parseNumber(v ?? '');
             return n == null || !n.isFinite || n <= 0 || n > 10000
@@ -107,9 +128,11 @@ class RecipientsList extends StatefulWidget {
     super.key,
     required this.repository,
     required this.showArchived,
+    this.isPortafilter = false,
   });
   final JournalRepository repository;
   final bool showArchived;
+  final bool isPortafilter;
   @override
   State<RecipientsList> createState() => _RecipientsListState();
 }
@@ -146,9 +169,19 @@ class _RecipientsListState extends State<RecipientsList> {
           return const Center(child: CircularProgressIndicator());
         }
         final visible = snapshot.data!
-            .where((r) => widget.showArchived || r.archivedAtMs == null)
+            .where(
+              (r) =>
+                  r.isPortafilter == widget.isPortafilter &&
+                  (widget.showArchived || r.archivedAtMs == null),
+            )
             .toList();
-        if (visible.isEmpty) return Center(child: Text(s.recipientsEmpty));
+        if (visible.isEmpty) {
+          return Center(
+            child: Text(
+              widget.isPortafilter ? s.portafiltersEmpty : s.recipientsEmpty,
+            ),
+          );
+        }
         // Cards like the other equipment: name, empty weight and use, with
         // the actions in a menu.
         return StreamBuilder<Map<String, int>>(
@@ -189,13 +222,19 @@ class _RecipientsListState extends State<RecipientsList> {
                       itemBuilder: (_) => [
                         PopupMenuItem(
                           value: 'edit',
-                          child: Text(s.editRecipient),
+                          child: Text(
+                            widget.isPortafilter
+                                ? s.editPortafilter
+                                : s.editRecipient,
+                          ),
                         ),
                         PopupMenuItem(
                           value: 'archive',
                           child: Text(
                             row.archivedAtMs == null
-                                ? s.archiveRecipient
+                                ? (widget.isPortafilter
+                                      ? s.archivePortafilter
+                                      : s.archiveRecipient)
                                 : s.restore,
                           ),
                         ),
@@ -220,12 +259,14 @@ class RecipientPicker extends StatefulWidget {
     required this.onChanged,
     this.snapshot,
     this.isDefault = false,
+    this.isPortafilter = false,
   });
   final JournalRepository repository;
   final String? value;
   final Recipient? snapshot;
   final ValueChanged<Recipient?> onChanged;
   final bool isDefault;
+  final bool isPortafilter;
   @override
   State<RecipientPicker> createState() => _RecipientPickerState();
 }
@@ -240,9 +281,12 @@ class _RecipientPickerState extends State<RecipientPicker> {
       builder: (context, snapshot) {
         final options = [
           for (final r in snapshot.data ?? <Recipient>[])
-            if (r.archivedAtMs == null || r.id == widget.value) r,
+            if (r.isPortafilter == widget.isPortafilter &&
+                (r.archivedAtMs == null || r.id == widget.value))
+              r,
         ];
-        if (widget.snapshot case final saved?) {
+        if (widget.snapshot case final saved?
+            when saved.isPortafilter == widget.isPortafilter) {
           options.removeWhere((r) => r.id == saved.id);
           options.add(saved);
         }
@@ -255,17 +299,24 @@ class _RecipientPickerState extends State<RecipientPicker> {
             Expanded(
               child: DropdownButtonFormField<String>(
                 key: ValueKey(
-                  'recipient-picker:$value:${widget.snapshot?.emptyGrams}',
+                  'recipient-picker:${widget.isPortafilter}:$value:${widget.snapshot?.emptyGrams}',
                 ),
                 initialValue: value,
                 isExpanded: true,
                 decoration: InputDecoration(
-                  labelText: widget.isDefault
-                      ? s.defaultRecipient
-                      : s.recipient,
+                  labelText: widget.isPortafilter
+                      ? (widget.isDefault
+                            ? s.defaultPortafilter
+                            : s.portafilter)
+                      : (widget.isDefault ? s.defaultRecipient : s.recipient),
                 ),
                 items: [
-                  DropdownMenuItem(value: '', child: Text(s.noRecipient)),
+                  DropdownMenuItem(
+                    value: '',
+                    child: Text(
+                      widget.isPortafilter ? s.noPortafilter : s.noRecipient,
+                    ),
+                  ),
                   for (final row in options)
                     DropdownMenuItem(
                       value: row.id,
@@ -283,10 +334,15 @@ class _RecipientPickerState extends State<RecipientPicker> {
               ),
             ),
             IconButton(
-              tooltip: s.addRecipient,
+              tooltip: widget.isPortafilter ? s.addPortafilter : s.addRecipient,
               icon: const Icon(Icons.add_circle_outline_rounded),
               onPressed: () async {
-                final row = await showRecipientForm(context, widget.repository);
+                final row = await showRecipientForm(
+                  context,
+                  widget.repository,
+                  null,
+                  widget.isPortafilter,
+                );
                 if (row != null && mounted) widget.onChanged(row);
               },
             ),

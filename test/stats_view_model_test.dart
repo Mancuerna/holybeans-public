@@ -15,6 +15,7 @@ void main() {
         brews: [
           for (var i = 0; i < count; i++)
             Brew(
+              recipientIsPortafilter: false,
               id: 'b$i',
               coffeeId: 'coffee',
               methodName: 'V60',
