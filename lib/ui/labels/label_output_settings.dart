@@ -35,7 +35,7 @@ class LabelOutputSettings extends StatelessWidget {
               DropdownMenuItem(
                 value: item,
                 child: Text(
-                  'Niimbot ${item.model.label}',
+                  item.model.displayName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -67,7 +67,11 @@ class LabelOutputSettings extends StatelessWidget {
           },
         ),
         const SizedBox(height: 8),
-        Text(s.labelPaperHint),
+        Text(
+          printer.model.continuousTape
+              ? s.labelContinuousPaperHint
+              : s.labelPaperHint,
+        ),
         if (printer.model != LabelPrinterModel.d110)
           Text(s.labelModelTrial(printer.model.label)),
         if (printer.model == LabelPrinterModel.b21) Text(s.labelB21Variants),

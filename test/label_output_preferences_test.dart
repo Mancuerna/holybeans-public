@@ -66,6 +66,27 @@ void main() {
     expect(reopened.paperFor(LabelPrinterModel.b1), LabelPaper.mm50x30);
   });
 
+  test(
+    'P12 tape preference survives reopening independently of Niimbot',
+    () async {
+      final settings = LabelOutputPreferences(file);
+      await settings.remember(LabelPaper.mm12x40);
+      const tape = LabelPaper(15, 50, LabelPrinterModel.marklifeP12);
+      await settings.remember(tape);
+      final reopened = LabelOutputPreferences(file);
+      await reopened.load();
+      expect(reopened.model, LabelPrinterModel.marklifeP12);
+      expect(reopened.paperFor(LabelPrinterModel.marklifeP12), tape);
+      expect(reopened.paperFor(LabelPrinterModel.d110), LabelPaper.mm12x40);
+      await expectLater(
+        settings.remember(
+          const LabelPaper(12, 40, LabelPrinterModel.marklifeP12),
+        ),
+        throwsFormatException,
+      );
+    },
+  );
+
   test('D11 retains its own paper without changing the D110 choice', () async {
     final settings = LabelOutputPreferences(file);
     await settings.remember(LabelPaper.mm15x50);

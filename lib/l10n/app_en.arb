@@ -2607,5 +2607,7 @@
   "freshnessReadyIn": "{days, plural, =1{In its prime in 1 day} other{In its prime in {days} days}}",
   "freshnessPrimeRemaining": "{days, plural, =1{1 day left in its prime} other{{days} days left in its prime}}",
   "freshnessGoodRemaining": "{days, plural, =1{1 day left in good condition} other{{days} days left in good condition}}",
-  "freshnessStaleIn": "{days, plural, =1{1 day until stale} other{{days} days until stale}}"
+  "freshnessStaleIn": "{days, plural, =1{1 day until stale} other{{days} days until stale}}",
+  "labelContinuousPaperHint": "Continuous 15 mm tape; printable height 12 mm. The selected length is the design area; about 12.5 mm of extra tape feeds out for manual cutting.",
+  "labelMarklifePrinterHint": "Turn the P12 on and disconnect it from Marklife before searching."
 }

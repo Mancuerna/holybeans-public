@@ -201,7 +201,7 @@ void main() {
         );
         await tester.tap(find.byKey(const ValueKey(LabelPrinterModel.d110)));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Niimbot ${model.label}').last);
+        await tester.tap(find.text(model.displayName).last);
         await tester.pumpAndSettle();
         expect(printer.connected, isFalse);
         final b1Paper = tester.widget<DropdownButtonFormField<LabelPaper>>(
@@ -314,6 +314,59 @@ void main() {
     expect(b1.jobs, 0);
     expect(b1.connected, isFalse);
   });
+
+  for (final locale in ['en', 'es']) {
+    testWidgets(
+      'P12 selection, continuous tape and explicit printing in $locale',
+      (tester) async {
+        final p12 = FakeLabelPrinter(model: LabelPrinterModel.marklifeP12);
+        addTearDown(p12.dispose);
+        final preferences = _MemoryOutputPreferences();
+        await mount(
+          tester,
+          others: [p12],
+          locale: locale,
+          outputPreferences: preferences,
+        );
+        await tester.tap(find.byKey(const ValueKey(LabelPrinterModel.d110)));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Pristar / Marklife P12').last);
+        await tester.pumpAndSettle();
+        final strings = lookupAppLocalizations(Locale(locale));
+        expect(find.text(strings.labelContinuousPaperHint), findsOneWidget);
+        expect(find.text(strings.labelPaperHint), findsNothing);
+        expect(preferences.paperFor(p12.model), p12.model.defaultPaper);
+        expect(p12.jobs, 0);
+        await reveal(tester, 'label-body');
+        await tester.enterText(
+          find.byKey(const ValueKey('label-body')),
+          'P12 coffee',
+        );
+        await tester.pumpAndSettle();
+        await reveal(tester, 'label-preview');
+        final preview = tester.widget<LabelPreview>(find.byType(LabelPreview));
+        expect(preview.layout.paper.printableWidth, 320);
+        expect(preview.layout.paper.printableHeight, 96);
+        await p12.connect();
+        await tester.pumpAndSettle();
+        await reveal(tester, 'label-print');
+        expect(p12.jobs, 0);
+        await tester.tap(find.byKey(const ValueKey('label-print')));
+        for (var n = 0; n < 100 && p12.jobs == 0; n++) {
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 10)),
+          );
+          await tester.pump();
+        }
+        await tester.pumpAndSettle();
+        expect(p12.jobs, 1);
+        expect(p12.lastPaper, p12.model.defaultPaper);
+        expect(p12.lastPixels, hasLength(320 * 96));
+        expect(printer.jobs, 0);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   testWidgets('unavailable remembered model falls back to available printer', (
     tester,

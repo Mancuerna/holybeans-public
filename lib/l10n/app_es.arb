@@ -3408,5 +3408,7 @@
   "freshnessGoodRemaining": "{days, plural, =1{1 día restante en buen estado} other{{days} días restantes en buen estado}}",
   "@freshnessGoodRemaining": {"placeholders": {"days": {"type": "int"}}},
   "freshnessStaleIn": "{days, plural, =1{1 día hasta «Pasado»} other{{days} días hasta «Pasado»}}",
-  "@freshnessStaleIn": {"placeholders": {"days": {"type": "int"}}}
+  "@freshnessStaleIn": {"placeholders": {"days": {"type": "int"}}},
+  "labelContinuousPaperHint": "Cinta continua de 15 mm; altura imprimible de 12 mm. La longitud elegida es la del diseño; salen unos 12,5 mm adicionales para cortar a mano.",
+  "labelMarklifePrinterHint": "Enciende la P12 y desconéctala de Marklife antes de buscar."
 }
