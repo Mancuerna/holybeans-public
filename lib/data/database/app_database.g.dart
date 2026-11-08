@@ -368,6 +368,21 @@ class $RecipientsTable extends Recipients
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _isPortafilterMeta = const VerificationMeta(
+    'isPortafilter',
+  );
+  @override
+  late final GeneratedColumn<bool> isPortafilter = GeneratedColumn<bool>(
+    'is_portafilter',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_portafilter" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _archivedAtMsMeta = const VerificationMeta(
     'archivedAtMs',
   );
@@ -380,7 +395,13 @@ class $RecipientsTable extends Recipients
     requiredDuringInsert: false,
   );
   @override
-  List<GeneratedColumn> get $columns => [id, name, emptyGrams, archivedAtMs];
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    emptyGrams,
+    isPortafilter,
+    archivedAtMs,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -414,6 +435,15 @@ class $RecipientsTable extends Recipients
     } else if (isInserting) {
       context.missing(_emptyGramsMeta);
     }
+    if (data.containsKey('is_portafilter')) {
+      context.handle(
+        _isPortafilterMeta,
+        isPortafilter.isAcceptableOrUnknown(
+          data['is_portafilter']!,
+          _isPortafilterMeta,
+        ),
+      );
+    }
     if (data.containsKey('archived_at_ms')) {
       context.handle(
         _archivedAtMsMeta,
@@ -444,6 +474,10 @@ class $RecipientsTable extends Recipients
         DriftSqlType.double,
         data['${effectivePrefix}empty_grams'],
       )!,
+      isPortafilter: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_portafilter'],
+      )!,
       archivedAtMs: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}archived_at_ms'],
@@ -461,11 +495,13 @@ class Recipient extends DataClass implements Insertable<Recipient> {
   final String id;
   final String name;
   final double emptyGrams;
+  final bool isPortafilter;
   final int? archivedAtMs;
   const Recipient({
     required this.id,
     required this.name,
     required this.emptyGrams,
+    required this.isPortafilter,
     this.archivedAtMs,
   });
   @override
@@ -474,6 +510,7 @@ class Recipient extends DataClass implements Insertable<Recipient> {
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
     map['empty_grams'] = Variable<double>(emptyGrams);
+    map['is_portafilter'] = Variable<bool>(isPortafilter);
     if (!nullToAbsent || archivedAtMs != null) {
       map['archived_at_ms'] = Variable<int>(archivedAtMs);
     }
@@ -485,6 +522,7 @@ class Recipient extends DataClass implements Insertable<Recipient> {
       id: Value(id),
       name: Value(name),
       emptyGrams: Value(emptyGrams),
+      isPortafilter: Value(isPortafilter),
       archivedAtMs: archivedAtMs == null && nullToAbsent
           ? const Value.absent()
           : Value(archivedAtMs),
@@ -500,6 +538,7 @@ class Recipient extends DataClass implements Insertable<Recipient> {
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       emptyGrams: serializer.fromJson<double>(json['emptyGrams']),
+      isPortafilter: serializer.fromJson<bool>(json['isPortafilter']),
       archivedAtMs: serializer.fromJson<int?>(json['archivedAtMs']),
     );
   }
@@ -510,6 +549,7 @@ class Recipient extends DataClass implements Insertable<Recipient> {
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
       'emptyGrams': serializer.toJson<double>(emptyGrams),
+      'isPortafilter': serializer.toJson<bool>(isPortafilter),
       'archivedAtMs': serializer.toJson<int?>(archivedAtMs),
     };
   }
@@ -518,11 +558,13 @@ class Recipient extends DataClass implements Insertable<Recipient> {
     String? id,
     String? name,
     double? emptyGrams,
+    bool? isPortafilter,
     Value<int?> archivedAtMs = const Value.absent(),
   }) => Recipient(
     id: id ?? this.id,
     name: name ?? this.name,
     emptyGrams: emptyGrams ?? this.emptyGrams,
+    isPortafilter: isPortafilter ?? this.isPortafilter,
     archivedAtMs: archivedAtMs.present ? archivedAtMs.value : this.archivedAtMs,
   );
   Recipient copyWithCompanion(RecipientsCompanion data) {
@@ -532,6 +574,9 @@ class Recipient extends DataClass implements Insertable<Recipient> {
       emptyGrams: data.emptyGrams.present
           ? data.emptyGrams.value
           : this.emptyGrams,
+      isPortafilter: data.isPortafilter.present
+          ? data.isPortafilter.value
+          : this.isPortafilter,
       archivedAtMs: data.archivedAtMs.present
           ? data.archivedAtMs.value
           : this.archivedAtMs,
@@ -544,13 +589,15 @@ class Recipient extends DataClass implements Insertable<Recipient> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('emptyGrams: $emptyGrams, ')
+          ..write('isPortafilter: $isPortafilter, ')
           ..write('archivedAtMs: $archivedAtMs')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, emptyGrams, archivedAtMs);
+  int get hashCode =>
+      Object.hash(id, name, emptyGrams, isPortafilter, archivedAtMs);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -558,6 +605,7 @@ class Recipient extends DataClass implements Insertable<Recipient> {
           other.id == this.id &&
           other.name == this.name &&
           other.emptyGrams == this.emptyGrams &&
+          other.isPortafilter == this.isPortafilter &&
           other.archivedAtMs == this.archivedAtMs);
 }
 
@@ -565,12 +613,14 @@ class RecipientsCompanion extends UpdateCompanion<Recipient> {
   final Value<String> id;
   final Value<String> name;
   final Value<double> emptyGrams;
+  final Value<bool> isPortafilter;
   final Value<int?> archivedAtMs;
   final Value<int> rowid;
   const RecipientsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.emptyGrams = const Value.absent(),
+    this.isPortafilter = const Value.absent(),
     this.archivedAtMs = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -578,6 +628,7 @@ class RecipientsCompanion extends UpdateCompanion<Recipient> {
     required String id,
     required String name,
     required double emptyGrams,
+    this.isPortafilter = const Value.absent(),
     this.archivedAtMs = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -587,6 +638,7 @@ class RecipientsCompanion extends UpdateCompanion<Recipient> {
     Expression<String>? id,
     Expression<String>? name,
     Expression<double>? emptyGrams,
+    Expression<bool>? isPortafilter,
     Expression<int>? archivedAtMs,
     Expression<int>? rowid,
   }) {
@@ -594,6 +646,7 @@ class RecipientsCompanion extends UpdateCompanion<Recipient> {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (emptyGrams != null) 'empty_grams': emptyGrams,
+      if (isPortafilter != null) 'is_portafilter': isPortafilter,
       if (archivedAtMs != null) 'archived_at_ms': archivedAtMs,
       if (rowid != null) 'rowid': rowid,
     });
@@ -603,6 +656,7 @@ class RecipientsCompanion extends UpdateCompanion<Recipient> {
     Value<String>? id,
     Value<String>? name,
     Value<double>? emptyGrams,
+    Value<bool>? isPortafilter,
     Value<int?>? archivedAtMs,
     Value<int>? rowid,
   }) {
@@ -610,6 +664,7 @@ class RecipientsCompanion extends UpdateCompanion<Recipient> {
       id: id ?? this.id,
       name: name ?? this.name,
       emptyGrams: emptyGrams ?? this.emptyGrams,
+      isPortafilter: isPortafilter ?? this.isPortafilter,
       archivedAtMs: archivedAtMs ?? this.archivedAtMs,
       rowid: rowid ?? this.rowid,
     );
@@ -627,6 +682,9 @@ class RecipientsCompanion extends UpdateCompanion<Recipient> {
     if (emptyGrams.present) {
       map['empty_grams'] = Variable<double>(emptyGrams.value);
     }
+    if (isPortafilter.present) {
+      map['is_portafilter'] = Variable<bool>(isPortafilter.value);
+    }
     if (archivedAtMs.present) {
       map['archived_at_ms'] = Variable<int>(archivedAtMs.value);
     }
@@ -642,6 +700,7 @@ class RecipientsCompanion extends UpdateCompanion<Recipient> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('emptyGrams: $emptyGrams, ')
+          ..write('isPortafilter: $isPortafilter, ')
           ..write('archivedAtMs: $archivedAtMs, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -10073,6 +10132,21 @@ class $BrewsTable extends Brews with TableInfo<$BrewsTable, Brew> {
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _recipientIsPortafilterMeta =
+      const VerificationMeta('recipientIsPortafilter');
+  @override
+  late final GeneratedColumn<bool> recipientIsPortafilter =
+      GeneratedColumn<bool>(
+        'recipient_is_portafilter',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("recipient_is_portafilter" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
   static const VerificationMeta _timeSecondsMeta = const VerificationMeta(
     'timeSeconds',
   );
@@ -10435,6 +10509,7 @@ class $BrewsTable extends Brews with TableInfo<$BrewsTable, Brew> {
     recipientId,
     recipientName,
     recipientGrams,
+    recipientIsPortafilter,
     timeSeconds,
     temperatureC,
     brix,
@@ -10626,6 +10701,15 @@ class $BrewsTable extends Brews with TableInfo<$BrewsTable, Brew> {
         recipientGrams.isAcceptableOrUnknown(
           data['recipient_grams']!,
           _recipientGramsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('recipient_is_portafilter')) {
+      context.handle(
+        _recipientIsPortafilterMeta,
+        recipientIsPortafilter.isAcceptableOrUnknown(
+          data['recipient_is_portafilter']!,
+          _recipientIsPortafilterMeta,
         ),
       );
     }
@@ -10954,6 +11038,10 @@ class $BrewsTable extends Brews with TableInfo<$BrewsTable, Brew> {
         DriftSqlType.double,
         data['${effectivePrefix}recipient_grams'],
       ),
+      recipientIsPortafilter: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}recipient_is_portafilter'],
+      )!,
       timeSeconds: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}time_seconds'],
@@ -11111,6 +11199,7 @@ class Brew extends DataClass implements Insertable<Brew> {
   final String? recipientId;
   final String? recipientName;
   final double? recipientGrams;
+  final bool recipientIsPortafilter;
   final int? timeSeconds;
   final double? temperatureC;
   final double? brix;
@@ -11183,6 +11272,7 @@ class Brew extends DataClass implements Insertable<Brew> {
     this.recipientId,
     this.recipientName,
     this.recipientGrams,
+    required this.recipientIsPortafilter,
     this.timeSeconds,
     this.temperatureC,
     this.brix,
@@ -11267,6 +11357,7 @@ class Brew extends DataClass implements Insertable<Brew> {
     if (!nullToAbsent || recipientGrams != null) {
       map['recipient_grams'] = Variable<double>(recipientGrams);
     }
+    map['recipient_is_portafilter'] = Variable<bool>(recipientIsPortafilter);
     if (!nullToAbsent || timeSeconds != null) {
       map['time_seconds'] = Variable<int>(timeSeconds);
     }
@@ -11406,6 +11497,7 @@ class Brew extends DataClass implements Insertable<Brew> {
       recipientGrams: recipientGrams == null && nullToAbsent
           ? const Value.absent()
           : Value(recipientGrams),
+      recipientIsPortafilter: Value(recipientIsPortafilter),
       timeSeconds: timeSeconds == null && nullToAbsent
           ? const Value.absent()
           : Value(timeSeconds),
@@ -11515,6 +11607,9 @@ class Brew extends DataClass implements Insertable<Brew> {
       recipientId: serializer.fromJson<String?>(json['recipientId']),
       recipientName: serializer.fromJson<String?>(json['recipientName']),
       recipientGrams: serializer.fromJson<double?>(json['recipientGrams']),
+      recipientIsPortafilter: serializer.fromJson<bool>(
+        json['recipientIsPortafilter'],
+      ),
       timeSeconds: serializer.fromJson<int?>(json['timeSeconds']),
       temperatureC: serializer.fromJson<double?>(json['temperatureC']),
       brix: serializer.fromJson<double?>(json['brix']),
@@ -11573,6 +11668,7 @@ class Brew extends DataClass implements Insertable<Brew> {
       'recipientId': serializer.toJson<String?>(recipientId),
       'recipientName': serializer.toJson<String?>(recipientName),
       'recipientGrams': serializer.toJson<double?>(recipientGrams),
+      'recipientIsPortafilter': serializer.toJson<bool>(recipientIsPortafilter),
       'timeSeconds': serializer.toJson<int?>(timeSeconds),
       'temperatureC': serializer.toJson<double?>(temperatureC),
       'brix': serializer.toJson<double?>(brix),
@@ -11627,6 +11723,7 @@ class Brew extends DataClass implements Insertable<Brew> {
     Value<String?> recipientId = const Value.absent(),
     Value<String?> recipientName = const Value.absent(),
     Value<double?> recipientGrams = const Value.absent(),
+    bool? recipientIsPortafilter,
     Value<int?> timeSeconds = const Value.absent(),
     Value<double?> temperatureC = const Value.absent(),
     Value<double?> brix = const Value.absent(),
@@ -11692,6 +11789,8 @@ class Brew extends DataClass implements Insertable<Brew> {
     recipientGrams: recipientGrams.present
         ? recipientGrams.value
         : this.recipientGrams,
+    recipientIsPortafilter:
+        recipientIsPortafilter ?? this.recipientIsPortafilter,
     timeSeconds: timeSeconds.present ? timeSeconds.value : this.timeSeconds,
     temperatureC: temperatureC.present ? temperatureC.value : this.temperatureC,
     brix: brix.present ? brix.value : this.brix,
@@ -11783,6 +11882,9 @@ class Brew extends DataClass implements Insertable<Brew> {
       recipientGrams: data.recipientGrams.present
           ? data.recipientGrams.value
           : this.recipientGrams,
+      recipientIsPortafilter: data.recipientIsPortafilter.present
+          ? data.recipientIsPortafilter.value
+          : this.recipientIsPortafilter,
       timeSeconds: data.timeSeconds.present
           ? data.timeSeconds.value
           : this.timeSeconds,
@@ -11883,6 +11985,7 @@ class Brew extends DataClass implements Insertable<Brew> {
           ..write('recipientId: $recipientId, ')
           ..write('recipientName: $recipientName, ')
           ..write('recipientGrams: $recipientGrams, ')
+          ..write('recipientIsPortafilter: $recipientIsPortafilter, ')
           ..write('timeSeconds: $timeSeconds, ')
           ..write('temperatureC: $temperatureC, ')
           ..write('brix: $brix, ')
@@ -11939,6 +12042,7 @@ class Brew extends DataClass implements Insertable<Brew> {
     recipientId,
     recipientName,
     recipientGrams,
+    recipientIsPortafilter,
     timeSeconds,
     temperatureC,
     brix,
@@ -11994,6 +12098,7 @@ class Brew extends DataClass implements Insertable<Brew> {
           other.recipientId == this.recipientId &&
           other.recipientName == this.recipientName &&
           other.recipientGrams == this.recipientGrams &&
+          other.recipientIsPortafilter == this.recipientIsPortafilter &&
           other.timeSeconds == this.timeSeconds &&
           other.temperatureC == this.temperatureC &&
           other.brix == this.brix &&
@@ -12047,6 +12152,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
   final Value<String?> recipientId;
   final Value<String?> recipientName;
   final Value<double?> recipientGrams;
+  final Value<bool> recipientIsPortafilter;
   final Value<int?> timeSeconds;
   final Value<double?> temperatureC;
   final Value<double?> brix;
@@ -12099,6 +12205,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
     this.recipientId = const Value.absent(),
     this.recipientName = const Value.absent(),
     this.recipientGrams = const Value.absent(),
+    this.recipientIsPortafilter = const Value.absent(),
     this.timeSeconds = const Value.absent(),
     this.temperatureC = const Value.absent(),
     this.brix = const Value.absent(),
@@ -12152,6 +12259,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
     this.recipientId = const Value.absent(),
     this.recipientName = const Value.absent(),
     this.recipientGrams = const Value.absent(),
+    this.recipientIsPortafilter = const Value.absent(),
     this.timeSeconds = const Value.absent(),
     this.temperatureC = const Value.absent(),
     this.brix = const Value.absent(),
@@ -12210,6 +12318,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
     Expression<String>? recipientId,
     Expression<String>? recipientName,
     Expression<double>? recipientGrams,
+    Expression<bool>? recipientIsPortafilter,
     Expression<int>? timeSeconds,
     Expression<double>? temperatureC,
     Expression<double>? brix,
@@ -12263,6 +12372,8 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
       if (recipientId != null) 'recipient_id': recipientId,
       if (recipientName != null) 'recipient_name': recipientName,
       if (recipientGrams != null) 'recipient_grams': recipientGrams,
+      if (recipientIsPortafilter != null)
+        'recipient_is_portafilter': recipientIsPortafilter,
       if (timeSeconds != null) 'time_seconds': timeSeconds,
       if (temperatureC != null) 'temperature_c': temperatureC,
       if (brix != null) 'brix': brix,
@@ -12319,6 +12430,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
     Value<String?>? recipientId,
     Value<String?>? recipientName,
     Value<double?>? recipientGrams,
+    Value<bool>? recipientIsPortafilter,
     Value<int?>? timeSeconds,
     Value<double?>? temperatureC,
     Value<double?>? brix,
@@ -12372,6 +12484,8 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
       recipientId: recipientId ?? this.recipientId,
       recipientName: recipientName ?? this.recipientName,
       recipientGrams: recipientGrams ?? this.recipientGrams,
+      recipientIsPortafilter:
+          recipientIsPortafilter ?? this.recipientIsPortafilter,
       timeSeconds: timeSeconds ?? this.timeSeconds,
       temperatureC: temperatureC ?? this.temperatureC,
       brix: brix ?? this.brix,
@@ -12466,6 +12580,11 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
     }
     if (recipientGrams.present) {
       map['recipient_grams'] = Variable<double>(recipientGrams.value);
+    }
+    if (recipientIsPortafilter.present) {
+      map['recipient_is_portafilter'] = Variable<bool>(
+        recipientIsPortafilter.value,
+      );
     }
     if (timeSeconds.present) {
       map['time_seconds'] = Variable<int>(timeSeconds.value);
@@ -12588,6 +12707,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
           ..write('recipientId: $recipientId, ')
           ..write('recipientName: $recipientName, ')
           ..write('recipientGrams: $recipientGrams, ')
+          ..write('recipientIsPortafilter: $recipientIsPortafilter, ')
           ..write('timeSeconds: $timeSeconds, ')
           ..write('temperatureC: $temperatureC, ')
           ..write('brix: $brix, ')
@@ -17294,6 +17414,7 @@ typedef $$RecipientsTableCreateCompanionBuilder = RecipientsCompanion Function({
   required String id,
   required String name,
   required double emptyGrams,
+  Value<bool> isPortafilter,
   Value<int?> archivedAtMs,
   Value<int> rowid,
 });
@@ -17301,6 +17422,7 @@ typedef $$RecipientsTableUpdateCompanionBuilder = RecipientsCompanion Function({
   Value<String> id,
   Value<String> name,
   Value<double> emptyGrams,
+  Value<bool> isPortafilter,
   Value<int?> archivedAtMs,
   Value<int> rowid,
 });
@@ -17368,6 +17490,11 @@ class $$RecipientsTableFilterComposer
 
   ColumnFilters<double> get emptyGrams => $composableBuilder(
     column: $table.emptyGrams,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isPortafilter => $composableBuilder(
+    column: $table.isPortafilter,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -17451,6 +17578,11 @@ class $$RecipientsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isPortafilter => $composableBuilder(
+    column: $table.isPortafilter,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get archivedAtMs => $composableBuilder(
     column: $table.archivedAtMs,
     builder: (column) => ColumnOrderings(column),
@@ -17474,6 +17606,11 @@ class $$RecipientsTableAnnotationComposer
 
   GeneratedColumn<double> get emptyGrams => $composableBuilder(
     column: $table.emptyGrams,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isPortafilter => $composableBuilder(
+    column: $table.isPortafilter,
     builder: (column) => column,
   );
 
@@ -17564,12 +17701,14 @@ class $$RecipientsTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<double> emptyGrams = const Value.absent(),
+                Value<bool> isPortafilter = const Value.absent(),
                 Value<int?> archivedAtMs = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RecipientsCompanion(
                 id: id,
                 name: name,
                 emptyGrams: emptyGrams,
+                isPortafilter: isPortafilter,
                 archivedAtMs: archivedAtMs,
                 rowid: rowid,
               ),
@@ -17578,12 +17717,14 @@ class $$RecipientsTableTableManager
                 required String id,
                 required String name,
                 required double emptyGrams,
+                Value<bool> isPortafilter = const Value.absent(),
                 Value<int?> archivedAtMs = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RecipientsCompanion.insert(
                 id: id,
                 name: name,
                 emptyGrams: emptyGrams,
+                isPortafilter: isPortafilter,
                 archivedAtMs: archivedAtMs,
                 rowid: rowid,
               ),
@@ -26362,6 +26503,7 @@ typedef $$BrewsTableCreateCompanionBuilder = BrewsCompanion Function({
   Value<String?> recipientId,
   Value<String?> recipientName,
   Value<double?> recipientGrams,
+  Value<bool> recipientIsPortafilter,
   Value<int?> timeSeconds,
   Value<double?> temperatureC,
   Value<double?> brix,
@@ -26415,6 +26557,7 @@ typedef $$BrewsTableUpdateCompanionBuilder = BrewsCompanion Function({
   Value<String?> recipientId,
   Value<String?> recipientName,
   Value<double?> recipientGrams,
+  Value<bool> recipientIsPortafilter,
   Value<int?> timeSeconds,
   Value<double?> temperatureC,
   Value<double?> brix,
@@ -26718,6 +26861,11 @@ class $$BrewsTableFilterComposer extends Composer<_$AppDatabase, $BrewsTable> {
 
   ColumnFilters<double> get recipientGrams => $composableBuilder(
     column: $table.recipientGrams,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get recipientIsPortafilter => $composableBuilder(
+    column: $table.recipientIsPortafilter,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -27207,6 +27355,11 @@ class $$BrewsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get recipientIsPortafilter => $composableBuilder(
+    column: $table.recipientIsPortafilter,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get timeSeconds => $composableBuilder(
     column: $table.timeSeconds,
     builder: (column) => ColumnOrderings(column),
@@ -27586,6 +27739,11 @@ class $$BrewsTableAnnotationComposer
 
   GeneratedColumn<double> get recipientGrams => $composableBuilder(
     column: $table.recipientGrams,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get recipientIsPortafilter => $composableBuilder(
+    column: $table.recipientIsPortafilter,
     builder: (column) => column,
   );
 
@@ -28049,6 +28207,7 @@ class $$BrewsTableTableManager
                 Value<String?> recipientId = const Value.absent(),
                 Value<String?> recipientName = const Value.absent(),
                 Value<double?> recipientGrams = const Value.absent(),
+                Value<bool> recipientIsPortafilter = const Value.absent(),
                 Value<int?> timeSeconds = const Value.absent(),
                 Value<double?> temperatureC = const Value.absent(),
                 Value<double?> brix = const Value.absent(),
@@ -28101,6 +28260,7 @@ class $$BrewsTableTableManager
                 recipientId: recipientId,
                 recipientName: recipientName,
                 recipientGrams: recipientGrams,
+                recipientIsPortafilter: recipientIsPortafilter,
                 timeSeconds: timeSeconds,
                 temperatureC: temperatureC,
                 brix: brix,
@@ -28155,6 +28315,7 @@ class $$BrewsTableTableManager
                 Value<String?> recipientId = const Value.absent(),
                 Value<String?> recipientName = const Value.absent(),
                 Value<double?> recipientGrams = const Value.absent(),
+                Value<bool> recipientIsPortafilter = const Value.absent(),
                 Value<int?> timeSeconds = const Value.absent(),
                 Value<double?> temperatureC = const Value.absent(),
                 Value<double?> brix = const Value.absent(),
@@ -28207,6 +28368,7 @@ class $$BrewsTableTableManager
                 recipientId: recipientId,
                 recipientName: recipientName,
                 recipientGrams: recipientGrams,
+                recipientIsPortafilter: recipientIsPortafilter,
                 timeSeconds: timeSeconds,
                 temperatureC: temperatureC,
                 brix: brix,

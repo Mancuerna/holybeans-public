@@ -27,6 +27,7 @@ Brew yearBrew(
   double? rating,
   bool archived = false,
 }) => Brew(
+  recipientIsPortafilter: false,
   id: id,
   coffeeId: coffee,
   methodId: methodId,

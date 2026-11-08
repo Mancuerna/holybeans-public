@@ -7,6 +7,7 @@ import 'package:holybeans/ui/brews/brew_form_recipes.dart';
 
 BrewReferences references(String id) {
   final brew = Brew(
+    recipientIsPortafilter: false,
     id: id,
     coffeeId: id,
     methodName: 'V60',

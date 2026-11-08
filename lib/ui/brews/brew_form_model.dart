@@ -281,8 +281,11 @@ class BrewFormModel extends ChangeNotifier {
         id: recorded!.recipientId!,
         name: recorded.recipientName!,
         emptyGrams: recorded.recipientGrams!,
+        isPortafilter: recorded.recipientIsPortafilter,
       );
-      if (existing != null) draft.fillJugTotal(recipient!.emptyGrams);
+      if (existing != null && !recipient!.isPortafilter) {
+        draft.fillJugTotal(recipient!.emptyGrams);
+      }
     }
     methodId = existing?.methodId ?? initialMethodId ?? seed?.methodId;
     waterProfileId =
@@ -482,6 +485,7 @@ class BrewFormModel extends ChangeNotifier {
         .where(
           (r) =>
               r.id == selectedMethod?.defaultRecipientId &&
+              r.isPortafilter == isEspresso &&
               r.archivedAtMs == null,
         )
         .firstOrNull;
@@ -721,12 +725,13 @@ class BrewFormModel extends ChangeNotifier {
         grinder: grinder,
         grinderName: grinderName,
         waterProfileId: waterProfileId,
-        recipient: isEspresso || recipient == null
+        recipient: recipient == null
             ? null
             : RecipientSnapshot(
                 id: recipient!.id,
                 name: recipient!.name,
                 grams: recipient!.emptyGrams,
+                isPortafilter: recipient!.isPortafilter,
               ),
         isPreGround: isPreGround,
         toolIds: selectedToolIds.toList(),

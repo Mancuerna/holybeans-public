@@ -113,7 +113,12 @@ extension LegacyBrewRecipients on AppDatabase {
       return null;
     }
     final matches =
-        catalog.where((r) => r.name == label && r.emptyGrams == grams).toList()
+        catalog
+            .where(
+              (r) =>
+                  !r.isPortafilter && r.name == label && r.emptyGrams == grams,
+            )
+            .toList()
           ..sort((a, b) {
             int rank(Recipient r) => r.id == preferredId
                 ? 0
@@ -125,6 +130,7 @@ extension LegacyBrewRecipients on AppDatabase {
           });
     if (matches.isNotEmpty) return matches.first;
     final added = Recipient(
+      isPortafilter: false,
       id: const Uuid().v4(),
       name: label,
       emptyGrams: grams,

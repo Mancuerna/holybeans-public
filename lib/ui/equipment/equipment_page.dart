@@ -16,7 +16,14 @@ import 'package:holybeans/ui/equipment/water_profiles_page.dart';
 import 'package:holybeans/ui/sync/journal_write_feedback.dart';
 import 'package:intl/intl.dart';
 
-enum EquipmentSection { methods, grinders, tools, water, recipients }
+enum EquipmentSection {
+  methods,
+  grinders,
+  tools,
+  water,
+  recipients,
+  portafilters,
+}
 
 /// The equipment tab: brew methods, grinders and water profiles.
 class EquipmentPage extends StatefulWidget {
@@ -144,6 +151,7 @@ class _EquipmentPageState extends State<EquipmentPage>
       s.methodTools,
       s.waterTab,
       s.recipients,
+      s.portafilters,
     ];
     return Column(
       children: [
@@ -179,6 +187,12 @@ class _EquipmentPageState extends State<EquipmentPage>
         const SizedBox(height: 12),
         Expanded(
           child: switch (widget.section) {
+            EquipmentSection.portafilters => RecipientsList(
+              key: const ValueKey('portafilters-list'),
+              repository: widget.repository,
+              showArchived: showArchived,
+              isPortafilter: true,
+            ),
             EquipmentSection.recipients => RecipientsList(
               repository: widget.repository,
               showArchived: showArchived,

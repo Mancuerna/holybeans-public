@@ -199,6 +199,9 @@ extension _BrewSaveSteps on JournalRepository {
       recipientName: input.replaceRecipient || input.recipient != null
           ? input.recipient?.name
           : previous?.recipientName,
+      recipientIsPortafilter: input.replaceRecipient || input.recipient != null
+          ? input.recipient?.isPortafilter ?? false
+          : previous?.recipientIsPortafilter ?? false,
       recipientGrams: input.replaceRecipient || input.recipient != null
           ? input.recipient?.grams
           : previous?.recipientGrams,

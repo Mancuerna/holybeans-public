@@ -36,6 +36,7 @@ class BrewDevices {
     // with the scale off, flat or out of range the timer runs on its own.
     timer.allowStart = () =>
         !(this.scale?.resetting ?? false) &&
+        !(this.scale?.weighingDose ?? false) &&
         switch (this.scale?.scale.status) {
           DeviceStatus.connecting || DeviceStatus.searching => false,
           _ => true,
@@ -51,7 +52,9 @@ class BrewDevices {
       ..doseGrams = (() => parseNumber(draft.dose.text))
       ..onFirstDrip = _fillFirstDrip;
     _doses = this.scale?.scale.doses.listen((grams) {
-      if (!grams.isFinite || grams <= 0) return;
+      if (this.scale?.weighingDose == true || !grams.isFinite || grams <= 0) {
+        return;
+      }
       draft.dose.text = fieldNumber(grams, decimals: 1);
       onMeasurement?.call();
     });

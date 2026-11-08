@@ -65,7 +65,11 @@ class _RestoredJournal {
         : <FrozenPortion>[];
     var methods = _decode(data, 'methods', BrewMethod.fromJson);
     final recipients = data.containsKey('recipients')
-        ? _decode(data, 'recipients', Recipient.fromJson)
+        ? _decode(
+            data,
+            'recipients',
+            (json) => Recipient.fromJson({'isPortafilter': false, ...json}),
+          )
         : <Recipient>[];
     if (!data.containsKey('recipients')) {
       methods = [
@@ -81,6 +85,7 @@ class _RestoredJournal {
         if (method.vesselGrams case final grams?) {
           recipients.add(
             Recipient(
+              isPortafilter: false,
               id: method.defaultRecipientId!,
               name: method.vesselName?.trim().isNotEmpty == true
                   ? method.vesselName!
@@ -121,6 +126,7 @@ class _RestoredJournal {
       // Favourites arrived in v22.
       return Brew.fromJson({
         'isFavorite': false,
+        'recipientIsPortafilter': false,
         'stockReviewPending':
             json['archivedAtMs'] != null && json['archivedByCoffee'] != true,
         ...json,
@@ -496,7 +502,8 @@ class _RestoredJournal {
 
   void _checkEquipment() {
     _ensureUnique(recipients.map((r) => r.id), 'recipient IDs');
-    final ids = recipients.map((r) => r.id).toSet();
+    final recipientsById = {for (final r in recipients) r.id: r};
+    final ids = recipientsById.keys.toSet();
     try {
       for (final r in recipients) {
         RecipientSnapshot(
@@ -509,7 +516,9 @@ class _RestoredJournal {
         if (b.recipientId != null) {
           if (!ids.contains(b.recipientId) ||
               b.recipientName == null ||
-              b.recipientGrams == null) {
+              b.recipientGrams == null ||
+              recipientsById[b.recipientId]!.isPortafilter !=
+                  b.recipientIsPortafilter) {
             throw ArgumentError('Missing recipient');
           }
           RecipientSnapshot(
@@ -517,7 +526,9 @@ class _RestoredJournal {
             name: b.recipientName!,
             grams: b.recipientGrams!,
           ).validate();
-        } else if (b.recipientName != null || b.recipientGrams != null) {
+        } else if (b.recipientName != null ||
+            b.recipientGrams != null ||
+            b.recipientIsPortafilter) {
           throw ArgumentError('Incomplete recipient');
         }
       }

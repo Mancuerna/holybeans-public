@@ -41,6 +41,24 @@ class BrewScaleSession extends ChangeNotifier {
   bool _wasConnected = false;
   bool _disposed = false;
   bool startFailed = false;
+  bool weighingDose = false;
+  bool _ignoreWeighingTimer = false;
+
+  void beginDoseWeighing() {
+    weighingDose = true;
+    _ignoreWeighingTimer = true;
+    _dripWatch = null;
+    _scaleTimer.clear();
+    _pendingTimerChange = false;
+    _pendingReset = false;
+    notifyListeners();
+  }
+
+  void endDoseWeighing() {
+    weighingDose = false;
+    notifyListeners();
+  }
+
   bool resetting = false;
   Future<bool> _resetCommand = Future.value(false);
   bool get restartsOnNextStart => _restartOnStart;
@@ -212,8 +230,16 @@ class BrewScaleSession extends ChangeNotifier {
   static int _seconds(int ms) => (ms / 1000).round().clamp(1, 1 << 30);
 
   void _onReading(ScaleReading reading) {
-    if (resetting) {
+    if (resetting || weighingDose) {
       _scaleTimer.clear();
+      return;
+    }
+    if (_ignoreWeighingTimer) {
+      _scaleTimer.clear();
+      if (reading.timerRunning == false ||
+          (reading.timerRunning != true && reading.timerMs == 0)) {
+        _ignoreWeighingTimer = false;
+      }
       return;
     }
     if (waitingForDrip) {
@@ -328,6 +354,7 @@ class BrewScaleSession extends ChangeNotifier {
   /// repeated command. Starting on the first drop keeps the already tared
   /// weight, and resuming preserves the recording.
   void timerStarted(int fromSeconds) {
+    _ignoreWeighingTimer = false;
     final source = _source;
     _source = _Source.app;
     // Without the scale the app clock runs alone, with no curve.

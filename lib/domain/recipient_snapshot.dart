@@ -4,10 +4,12 @@ class RecipientSnapshot {
     required this.id,
     required this.name,
     required this.grams,
+    this.isPortafilter = false,
   });
   final String id;
   final String name;
   final double grams;
+  final bool isPortafilter;
 
   void validate() {
     if (id.isEmpty ||

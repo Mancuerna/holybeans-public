@@ -135,6 +135,7 @@ class _BqWriter {
               .into(_database.recipients)
               .insert(
                 Recipient(
+                  isPortafilter: false,
                   id: recipientId,
                   name: method.vesselName ?? method.name,
                   emptyGrams: method.vesselGrams!,

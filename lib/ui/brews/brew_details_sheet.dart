@@ -769,9 +769,9 @@ class _EquipmentRows extends StatelessWidget {
           DetailRow(s.profileName, profile),
         if (brew.recipientName != null &&
             brew.recipientGrams != null &&
-            shows(BrewParameter.beverage))
+            (brew.recipientIsPortafilter || shows(BrewParameter.beverage)))
           DetailRow(
-            s.recipient,
+            brew.recipientIsPortafilter ? s.portafilter : s.recipient,
             '${brew.recipientName} · ${NumberFormat('0.#', regionalLocale.toString()).format(brew.recipientGrams)} g',
           ),
         if (brew.waterProfileName case final water?

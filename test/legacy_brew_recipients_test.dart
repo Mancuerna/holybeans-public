@@ -22,10 +22,21 @@ Future<void> _seed(AppDatabase db) async {
       .createCoffee(name: 'Coffee', roaster: 'R');
   await db.batch((batch) {
     batch.insertAll(db.recipients, [
-      const Recipient(id: _kinto, name: 'Kinto SCS-S02', emptyGrams: 179.3),
-      const Recipient(id: 'manual', name: 'Glass', emptyGrams: 300),
+      const Recipient(
+        isPortafilter: false,
+        id: _kinto,
+        name: 'Kinto SCS-S02',
+        emptyGrams: 179.3,
+      ),
+      const Recipient(
+        isPortafilter: false,
+        id: 'manual',
+        name: 'Glass',
+        emptyGrams: 300,
+      ),
       // Only there so the migration has an espresso jug to refuse.
       const Recipient(
+        isPortafilter: false,
         id: 'method-recipient:espresso',
         name: 'Cup',
         emptyGrams: 90,

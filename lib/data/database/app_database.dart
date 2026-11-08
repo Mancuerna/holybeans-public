@@ -133,6 +133,8 @@ class Recipients extends Table {
   TextColumn get id => text()();
   TextColumn get name => text().withLength(min: 1, max: 120)();
   RealColumn get emptyGrams => real()();
+  BoolColumn get isPortafilter =>
+      boolean().withDefault(const Constant(false))();
   IntColumn get archivedAtMs => integer().nullable()();
   @override
   Set<Column> get primaryKey => {id};
@@ -292,6 +294,8 @@ class Brews extends Table {
   )();
   TextColumn get recipientName => text().nullable()();
   RealColumn get recipientGrams => real().nullable()();
+  BoolColumn get recipientIsPortafilter =>
+      boolean().withDefault(const Constant(false))();
   IntColumn get timeSeconds => integer().nullable()();
   RealColumn get temperatureC => real().nullable()();
   RealColumn get brix => real().nullable()();
@@ -509,7 +513,7 @@ class AppDatabase extends _$AppDatabase {
   final JournalWriteGate writeGate;
 
   /// The schema this version of the app writes.
-  static const currentSchema = 37;
+  static const currentSchema = 38;
 
   /// Where the journal lives.
   static Future<File> file() async {
@@ -597,6 +601,16 @@ class AppDatabase extends _$AppDatabase {
                 schema.waterProfiles.recipeJson,
               );
             },
+            from37To38: (m, schema) async {
+              await m.addColumn(
+                schema.recipients,
+                schema.recipients.isPortafilter,
+              );
+              await m.addColumn(
+                schema.brews,
+                schema.brews.recipientIsPortafilter,
+              );
+            },
             from36To37: (m, schema) async {
               await m.createTable(schema.pistonMachines);
               await m.createTable(schema.pistonMethodLinks);
@@ -624,7 +638,8 @@ class AppDatabase extends _$AppDatabase {
               schema.appPreferences,
               schema.appPreferences.scalesJson,
             ),
-            from32To33: (m, schema) => restoreLegacyBrewRecipients(),
+            // Recovery reads current recipient rows, after structural upgrades.
+            from32To33: (m, schema) async {},
             from31To32: (m, schema) => mergeMigratedRecipients(),
             from30To31: (m, schema) async {
               await m.createTable(schema.recipients);
@@ -663,6 +678,7 @@ class AppDatabase extends _$AppDatabase {
             },
           ),
         );
+        if (from < 33) await restoreLegacyBrewRecipients();
         final violations = await customSelect('PRAGMA foreign_key_check').get();
         if (violations.isNotEmpty) {
           throw StateError('Migration left invalid foreign keys');

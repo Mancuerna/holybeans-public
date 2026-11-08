@@ -124,6 +124,10 @@ extension EquipmentOperations on JournalRepository {
         : jugGrams == null
         ? null
         : await saveRecipient(name: jugName ?? name, emptyGrams: jugGrams);
+    if (recipient != null &&
+        recipient.isPortafilter != (category == 'espresso')) {
+      throw ArgumentError('Recipient use does not match method');
+    }
     final id = _uuid.v4();
     await database
         .into(database.brewMethods)
@@ -164,6 +168,10 @@ extension EquipmentOperations on JournalRepository {
         : jugGrams == null
         ? null
         : await saveRecipient(name: jugName ?? name, emptyGrams: jugGrams);
+    if (recipient != null &&
+        recipient.isPortafilter != (category == 'espresso')) {
+      throw ArgumentError('Recipient use does not match method');
+    }
     final updated =
         await (database.update(
           database.brewMethods,

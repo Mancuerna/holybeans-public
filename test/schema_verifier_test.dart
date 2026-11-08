@@ -46,6 +46,7 @@ void main() {
     34,
     35,
     36,
+    37,
   ]) {
     test(
       'dumped schema $from migrates to exactly the current schema',
@@ -78,6 +79,7 @@ void main() {
     34,
     35,
     36,
+    37,
   ]) {
     test('rebuilt schema $version has the dumped tables and columns', () async {
       final dumped = await verifier.schemaAt(version);

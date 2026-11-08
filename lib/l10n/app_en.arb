@@ -2609,5 +2609,20 @@
   "freshnessGoodRemaining": "{days, plural, =1{1 day left in good condition} other{{days} days left in good condition}}",
   "freshnessStaleIn": "{days, plural, =1{1 day until stale} other{{days} days until stale}}",
   "labelContinuousPaperHint": "Continuous 15 mm tape; printable height 12 mm. The selected length is the design area; about 12.5 mm of extra tape feeds out for manual cutting.",
-  "labelMarklifePrinterHint": "Turn the P12 on and disconnect it from Marklife before searching."
+  "labelMarklifePrinterHint": "Turn the P12 on and disconnect it from Marklife before searching.",
+  "portafilters": "Portafilters",
+  "portafilter": "Portafilter",
+  "addPortafilter": "Add portafilter",
+  "editPortafilter": "Edit portafilter",
+  "archivePortafilter": "Archive portafilter",
+  "portafilterName": "Portafilter name",
+  "portafilterEmptyWeight": "Empty weight with basket (g)",
+  "portafilterBasketHint": "Include the basket when weighing. You can save each combination separately.",
+  "portafiltersEmpty": "Add a portafilter to weigh your espresso dose.",
+  "defaultPortafilter": "Default portafilter",
+  "noPortafilter": "No portafilter",
+  "weighPortafilter": "Weigh with portafilter",
+  "portafilterTotal": "Portafilter with coffee (g)",
+  "useAsDose": "Use as dose",
+  "portafilterWeighHint": "Zero the empty scale, then place the portafilter with coffee on it."
 }

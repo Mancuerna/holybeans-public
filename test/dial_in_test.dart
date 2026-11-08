@@ -128,6 +128,7 @@ void main() {
         (tester) async {
           final date = DateTime.now().millisecondsSinceEpoch;
           Brew row(String id, double rating) => Brew(
+            recipientIsPortafilter: false,
             id: id,
             coffeeId: 'coffee',
             methodName: 'V60',
@@ -302,6 +303,7 @@ void main() {
     tester,
   ) async {
     Brew brew(String id, String? notes) => Brew(
+      recipientIsPortafilter: false,
       id: id,
       coffeeId: 'c',
       methodName: 'V60',
