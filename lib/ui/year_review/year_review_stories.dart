@@ -6,7 +6,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/year_review/year_review_card.dart';
 import 'package:holybeans/ui/year_review/year_review_story.dart';
 
-export 'year_review_story.dart';
+export 'package:holybeans/ui/year_review/year_review_story.dart';
 
 class YearStoryView extends StatelessWidget {
   const YearStoryView({
