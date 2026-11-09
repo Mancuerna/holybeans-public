@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.7.0](https://github.com/Mancuerna/holybeans-public/compare/v1.6.0...v1.7.0) (2026-11-09)
+
+
+### Features
+
+* **espresso:** weigh doses with saved portafilter tares ([#36](https://github.com/Mancuerna/holybeans-public/issues/36)) ([e8b48ad](https://github.com/Mancuerna/holybeans-public/commit/e8b48ad8bac1b4f6cf7ef09ec1d88d9cc8f528e6))
+* **labels:** add horizontal and vertical image adjustments ([642c275](https://github.com/Mancuerna/holybeans-public/commit/642c275a94d34c7a6968e3a3e5d7859c62fa710c))
+* **labels:** support Pristar Marklife P12 continuous tape ([#35](https://github.com/Mancuerna/holybeans-public/issues/35)) ([f5ffc16](https://github.com/Mancuerna/holybeans-public/commit/f5ffc1606d3650a13a95629d17885124ea72193b))
+* **recap:** add visual stories and shareable year carousels ([55b5c70](https://github.com/Mancuerna/holybeans-public/commit/55b5c70b30943d1ca18c2e5893f3ef932fc7ff38))
+* **scales:** support Timemore Dot with acknowledged timer controls ([2cc01e9](https://github.com/Mancuerna/holybeans-public/commit/2cc01e97fb52ab9bcbc25ac842a5c86dbca63ebb))
+* **templates:** add days from roast tag ([#31](https://github.com/Mancuerna/holybeans-public/issues/31)) ([c1c1373](https://github.com/Mancuerna/holybeans-public/commit/c1c1373587575e8bbcda70531034cd613f2bb1f0))
+
+
+### Bug Fixes
+
+* **brews:** replace stale bloom totals with measured time ([ae4d87a](https://github.com/Mancuerna/holybeans-public/commit/ae4d87aa80264ec90d3f5ee489d0f8079bc47029))
+
 ## [1.6.0](https://github.com/Mancuerna/holybeans-public/compare/v1.5.0...v1.6.0) (2026-11-06)
 
 
