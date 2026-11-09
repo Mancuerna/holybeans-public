@@ -262,7 +262,7 @@ class BrewDraft {
             bloomCount: plan.blooms.length,
           );
     if (measured != null) {
-      pours.fillFromCurve(measured, bloomTotal: bloom, replaceBloomTime: true);
+      pours.fillFromCurve(measured, bloomTotal: bloom);
     } else {
       pours.applyPlan(blooms: plan.blooms.length, pours: plan.pours);
       bloom.text = plan.bloomSeconds > 0 ? '${plan.bloomSeconds}' : '';

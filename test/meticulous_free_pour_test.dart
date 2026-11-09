@@ -94,6 +94,20 @@ void main() {
     );
   });
 
+  test('free pour replaces the bloom total before allowing a manual edit', () {
+    final draft = BrewDraft();
+    addTearDown(draft.dispose);
+    draft.bloom.text = '58';
+    final pour = MeticulousFreePour.fromRecord(_record());
+    draft.applyFreePour(pour);
+    expect(draft.bloom.text, '43');
+    draft.bloom.text = '45';
+    draft.applyFreePour(pour);
+    expect(draft.bloom.text, '45');
+    draft.pours.undoFromCurve();
+    expect(draft.bloom.text, '58');
+  });
+
   test('free pour respects chosen counts and leaves manual details intact', () {
     final draft = BrewDraft();
     addTearDown(draft.dispose);

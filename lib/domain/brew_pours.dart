@@ -99,6 +99,15 @@ class BrewPours {
   final int? pourCount;
   final List<BrewPourPhase> phases;
 
+  /// The sum of recorded bloom pouring and resting times, in seconds.
+  int get bloomSeconds => phases
+      .where((phase) => phase.kind == BrewPourKind.bloom)
+      .fold(
+        0,
+        (sum, phase) =>
+            sum + (phase.durationSeconds ?? 0) + (phase.restSeconds ?? 0),
+      );
+
   void validate() {
     for (final (count, max) in [
       (bloomCount, maxBlooms),
