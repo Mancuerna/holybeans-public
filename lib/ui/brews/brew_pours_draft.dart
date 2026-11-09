@@ -103,13 +103,13 @@ class BrewPoursDraft extends ChangeNotifier {
   /// The curve may fill empty details, even when counts were chosen by hand.
   bool get takesCurve => !_phases.values.any((phase) => phase.hasValue);
 
-  /// Fills counts and details from [pours], found on the scale curve, and
-  /// [bloomTotal] with the time the blooms took, pouring and resting, when
-  /// it is empty: a total written by hand, such as the one planned, stays.
+  /// Fills counts, details and [bloomTotal] from the scale curve's [pours].
+  ///
+  /// The measured pouring and resting time replaces any previous total.
+  /// The user can edit it afterwards or restore it with [undoFromCurve].
   void fillFromCurve(
     BrewPours pours, {
     TextEditingController? bloomTotal,
-    bool replaceBloomTime = false,
     bool expandDetails = true,
   }) {
     _plannedWaterBefore = {
@@ -127,19 +127,10 @@ class BrewPoursDraft extends ChangeNotifier {
     _bloomTotalBefore = bloomTotal?.text;
     _bloomCountBefore = bloomCount;
     _pourCountBefore = pourCount;
-    final bloomSeconds = pours.phases
-        .where((phase) => phase.kind == BrewPourKind.bloom)
-        .fold(
-          0,
-          (sum, phase) =>
-              sum + (phase.durationSeconds ?? 0) + (phase.restSeconds ?? 0),
-        );
-    _bloomTotalFilled = null;
-    if (bloomTotal != null &&
-        (replaceBloomTime || bloomTotal.text.trim().isEmpty) &&
-        (replaceBloomTime || bloomSeconds > 0)) {
+    final bloomSeconds = pours.bloomSeconds;
+    _bloomTotalFilled = bloomTotal;
+    if (bloomTotal != null) {
       bloomTotal.text = bloomSeconds > 0 ? '$bloomSeconds' : '';
-      _bloomTotalFilled = bloomTotal;
     }
     bloomCount = pours.bloomCount;
     pourCount = pours.pourCount;

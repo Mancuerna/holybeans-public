@@ -5,6 +5,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_pours.dart';
+import 'package:holybeans/domain/pour_detection.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
@@ -131,14 +132,78 @@ void main() {
     expect(model.draft.bloom.text, '60');
   });
 
-  test('a bloom total written by hand stays, even after undoing', () {
-    model.draft.bloom.text = '60';
-    model.fillPoursFromCurve(bloomAndPour());
-    expect(model.draft.pours.bloomCount, 1);
-    expect(model.draft.bloom.text, '60');
-    model.draft.pours.undoFromCurve();
-    expect(model.draft.bloom.text, '60');
-  });
+  test(
+    'the measured bloom total replaces manual time and undo restores it',
+    () {
+      model.draft.bloom.text = '60';
+      model.fillPoursFromCurve(bloomAndPour());
+      expect(model.draft.pours.bloomCount, 1);
+      expect(model.draft.bloom.text, '31');
+      model.draft.pours.undoFromCurve();
+      expect(model.draft.bloom.text, '60');
+    },
+  );
+
+  test(
+    'a manual total entered after detection survives another timer stop',
+    () {
+      model.fillPoursFromCurve(bloomAndPour());
+      expect(model.draft.bloom.text, '31');
+      model.draft.bloom.text = '40';
+      model.fillPoursFromCurve(bloomAndPour());
+      expect(model.draft.bloom.text, '40');
+      expect(model.draft.pours.value.phases.first.restSeconds, 25);
+    },
+  );
+
+  test(
+    'detecting no blooms clears the previous total and undo restores it',
+    () {
+      model.draft.bloom.text = '60';
+      model.draft.pours.setCount(BrewPourKind.bloom, 0);
+      model.fillPoursFromCurve(bloomAndPour());
+      expect(model.draft.bloom.text, isEmpty);
+      model.draft.pours.undoFromCurve();
+      expect(model.draft.bloom.text, '60');
+    },
+  );
+
+  test(
+    'two measured blooms replace a stale total in the form and storage',
+    () async {
+      final measured = brewPoursOf(const [
+        DetectedPour(startMs: 0, endMs: 3000, grams: 26.6),
+        DetectedPour(startMs: 44000, endMs: 48000, grams: 25.7),
+        DetectedPour(startMs: 89000, endMs: 93000, grams: 49.6),
+      ], bloomCount: 2)!;
+      model.draft.bloom.text = '58';
+      model.draft.pours.fillFromCurve(measured, bloomTotal: model.draft.bloom);
+      expect(model.draft.bloom.text, '89');
+      model.draft.pours.undoFromCurve();
+      expect(model.draft.bloom.text, '58');
+
+      final repository = JournalRepository(database);
+      final coffee = (await repository.allCoffees()).single.id;
+      final id = await repository.createBrew(
+        coffeeId: coffee,
+        methodName: 'V60',
+        bloomSeconds: 58,
+      );
+      await repository.setBrewPours(id, measured);
+      expect((await repository.brew(id))!.bloomSeconds, 89);
+
+      await repository.saveBrew(
+        id: id,
+        coffeeId: coffee,
+        methodName: 'V60',
+        bloomSeconds: 60,
+        pours: measured,
+      );
+      final edited = (await repository.brew(id))!;
+      expect(edited.bloomSeconds, 60);
+      expect(edited.pourPhasesJson, measured.phasesJson);
+    },
+  );
 
   test('what was written by hand is kept', () {
     final pours = model.draft.pours..setCount(BrewPourKind.pour, 3);
@@ -166,6 +231,7 @@ void main() {
     final id = await repository.createBrew(
       coffeeId: coffee.id,
       methodName: 'V60',
+      bloomSeconds: 58,
       pours: BrewPours(bloomCount: 1, pourCount: 3),
     );
     final repeated = BrewFormModel(
@@ -178,11 +244,14 @@ void main() {
     addTearDown(repeated.dispose);
     final pours = repeated.draft.pours;
     expect((pours.bloomCount, pours.pourCount), (1, 3));
+    expect(repeated.draft.bloom.text, '58');
     repeated.fillPoursFromCurve(bloomAndPour());
     expect((pours.bloomCount, pours.pourCount), (1, 1));
+    expect(repeated.draft.bloom.text, '31');
     expect(pours.value.phases.first.waterGrams, 50);
     pours.undoFromCurve();
     expect((pours.bloomCount, pours.pourCount), (1, 3));
+    expect(repeated.draft.bloom.text, '58');
   });
 
   testWidgets('the section says where they came from and can undo it', (
@@ -241,6 +310,7 @@ void main() {
           methodId: method,
           methodName: name,
           doseGrams: 15,
+          bloomSeconds: 58,
           pours: pours,
         );
         await repository.saveScaleCurve(id, bloomAndPour());
@@ -304,16 +374,21 @@ void main() {
         await repository.savePoursFromCurves(found);
         final blank = (await repository.brew(brews['blank']!))!;
         expect((blank.bloomCount, blank.pourCount), (1, 1));
+        expect(blank.bloomSeconds, 31);
         expect(blank.updatedAtMs, before);
         final given = (await repository.brew(brews['oneBloomGiven']!))!;
         expect((given.bloomCount, given.pourCount), (0, 2));
+        expect(given.bloomSeconds, isNull);
         final counts = (await repository.brew(brews['countsOnly']!))!;
         expect(counts.pourPhasesJson, contains('"waterGrams":50'));
+        expect(counts.bloomSeconds, 31);
         final onlyPours = (await repository.brew(brews['pourCountOnly']!))!;
         expect((onlyPours.bloomCount, onlyPours.pourCount), (0, 2));
+        expect(onlyPours.bloomSeconds, isNull);
         expect(onlyPours.pourPhasesJson, contains('"waterGrams":200'));
         final detailed = (await repository.brew(brews['detailed']!))!;
         expect(detailed.pourPhasesJson, contains('"waterGrams":40'));
+        expect(detailed.bloomSeconds, 58);
         expect(await repository.poursFromCurves(), isEmpty);
       },
     );
@@ -338,6 +413,7 @@ void main() {
           methodId: method,
           methodName: 'V60',
           doseGrams: 15,
+          bloomSeconds: 58,
           brewedAt: DateTime.now().subtract(Duration(hours: i + 1)),
         );
         await repository.saveScaleCurve(id, bloomAndPour());
@@ -370,6 +446,9 @@ void main() {
     expect(card, findsNothing);
     final saved = (await tester.runAsync(() => repository.brew(first)))!;
     expect((saved.bloomCount, saved.pourCount), (1, 1));
+    expect(saved.bloomSeconds, 31);
+    expect(find.text('31 s'), findsOneWidget);
+    expect(find.text('58 s'), findsNothing);
     Navigator.of(tester.element(find.byType(BottomSheet))).pop();
     await settleWithWorkers(tester);
 

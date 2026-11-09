@@ -211,15 +211,18 @@ extension ImportOperations on JournalRepository {
     return result;
   }
 
-  /// Records the blooms and pours of [brewId], as found on its curve. Like
-  /// marking a favourite, it is not an edit of the brew.
+  /// Records the blooms, pours and total bloom time found on [brewId]'s curve.
+  ///
+  /// Like marking a favourite, it does not change the brew's edit timestamp.
   Future<void> setBrewPours(String brewId, BrewPours pours) async {
     pours.validate();
+    final bloomSeconds = pours.bloomSeconds;
     final updated =
         await (database.update(
           database.brews,
         )..where((row) => row.id.equals(brewId))).write(
           BrewsCompanion(
+            bloomSeconds: Value(bloomSeconds > 0 ? bloomSeconds : null),
             bloomCount: Value(pours.bloomCount),
             pourCount: Value(pours.pourCount),
             pourPhasesJson: Value(pours.phasesJson),
