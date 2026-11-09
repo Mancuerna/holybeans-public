@@ -24,7 +24,9 @@ class YearBackdrop extends StatelessWidget {
     color: color,
     child: Stack(
       children: [
-        Positioned.fill(child: CustomPaint(painter: _YearArt(art))),
+        Positioned.fill(
+          child: ClipRect(child: CustomPaint(painter: _YearArt(art))),
+        ),
         child,
       ],
     ),

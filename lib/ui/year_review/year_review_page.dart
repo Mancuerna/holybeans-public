@@ -134,6 +134,7 @@ class _YearReviewPageState extends State<YearReviewPage> {
                   value: review.year,
                   dropdownColor: yearPaper,
                   style: const TextStyle(
+                    fontFamily: 'Plex',
                     color: yearWine,
                     fontWeight: FontWeight.w700,
                     fontSize: 18,
