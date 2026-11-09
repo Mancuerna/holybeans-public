@@ -2061,6 +2061,7 @@
   "sharePhotoOverlayHint": "Add a photo to overlay your brew details or template and share everything as one image.",
   "shareOverlayPosition": "Text position",
   "shareOverlaySize": "Text size",
+  "shareOverlayBackgroundOpacity": "Background opacity",
   "shareOverlayTopLeft": "Top left",
   "shareOverlayTopRight": "Top right",
   "shareOverlayCenterLeft": "Center left",

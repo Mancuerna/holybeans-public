@@ -13,8 +13,12 @@ class ShareConfiguration {
     this.templates = const [],
     this.defaults = const {},
     this.labelTemplates = const [],
+    this.overlayBackgroundOpacity = defaultOverlayBackgroundOpacity,
   });
 
+  static const defaultOverlayBackgroundOpacity = 0.5;
+
+  final double overlayBackgroundOpacity;
   final Set<BrewParameter> fields;
   final List<ShareTemplate> templates;
   final Map<ShareTemplateStyle, String> defaults;
@@ -26,6 +30,7 @@ class ShareConfiguration {
 
   Map<String, Object> toJson() => {
     'version': 1,
+    'overlayBackgroundOpacity': overlayBackgroundOpacity,
     'fields': encodeSharedParameters(fields),
     'templates': [for (final template in templates) template.toJson()],
     'defaults': {for (final e in defaults.entries) e.key.name: e.value},
@@ -53,7 +58,12 @@ class ShareConfiguration {
     for (final template in templates) {
       template.validate();
     }
+    final opacity = decoded['overlayBackgroundOpacity'];
     return ShareConfiguration(
+      overlayBackgroundOpacity:
+          opacity is num && opacity.isFinite && opacity >= 0 && opacity <= 1
+          ? opacity.toDouble()
+          : defaultOverlayBackgroundOpacity,
       fields: decodeSharedParameters(
         (decoded['fields'] as List).cast<String>(),
       ),
@@ -92,10 +102,26 @@ class ShareTemplateSettings {
     }),
   );
 
+  Future<void> saveOverlayBackgroundOpacity(double opacity) {
+    if (!opacity.isFinite || opacity < 0 || opacity > 1) {
+      throw ArgumentError.value(opacity, 'opacity');
+    }
+    return _update(
+      (old) => ShareConfiguration(
+        fields: old.fields,
+        templates: old.templates,
+        defaults: old.defaults,
+        labelTemplates: old.labelTemplates,
+        overlayBackgroundOpacity: opacity,
+      ),
+    );
+  }
+
   Future<void> saveLabelTemplate(LabelTemplate template) {
     template.validate();
     return _update(
       (old) => ShareConfiguration(
+        overlayBackgroundOpacity: old.overlayBackgroundOpacity,
         fields: old.fields,
         templates: old.templates,
         defaults: old.defaults,
@@ -110,6 +136,7 @@ class ShareTemplateSettings {
 
   Future<void> deleteLabelTemplate(String id) => _update(
     (old) => ShareConfiguration(
+      overlayBackgroundOpacity: old.overlayBackgroundOpacity,
       fields: old.fields,
       templates: old.templates,
       defaults: old.defaults,
@@ -123,6 +150,7 @@ class ShareTemplateSettings {
     }
     return _update(
       (old) => ShareConfiguration(
+        overlayBackgroundOpacity: old.overlayBackgroundOpacity,
         fields: fields,
         labelTemplates: old.labelTemplates,
         templates: old.templates,
@@ -135,6 +163,7 @@ class ShareTemplateSettings {
     template.validate();
     return _update(
       (old) => ShareConfiguration(
+        overlayBackgroundOpacity: old.overlayBackgroundOpacity,
         fields: old.fields,
         labelTemplates: old.labelTemplates,
         templates: [
@@ -153,6 +182,7 @@ class ShareTemplateSettings {
 
   Future<void> deleteTemplate(String id) => _update(
     (old) => ShareConfiguration(
+      overlayBackgroundOpacity: old.overlayBackgroundOpacity,
       fields: old.fields,
       labelTemplates: old.labelTemplates,
       templates: old.templates.where((t) => t.id != id).toList(),
@@ -169,6 +199,7 @@ class ShareTemplateSettings {
       throw ArgumentError.value(id);
     }
     return ShareConfiguration(
+      overlayBackgroundOpacity: old.overlayBackgroundOpacity,
       fields: old.fields,
       labelTemplates: old.labelTemplates,
       templates: old.templates,

@@ -2858,6 +2858,7 @@
   "sharePhotoOverlayHint": "Añade una foto para colocar encima los datos o tu plantilla y compartirlo todo en una sola imagen.",
   "shareOverlayPosition": "Posición del texto",
   "shareOverlaySize": "Tamaño del texto",
+  "shareOverlayBackgroundOpacity": "Opacidad del fondo",
   "shareOverlayTopLeft": "Arriba a la izquierda",
   "shareOverlayTopRight": "Arriba a la derecha",
   "shareOverlayCenterLeft": "Centro a la izquierda",

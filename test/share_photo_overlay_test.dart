@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
@@ -77,6 +78,7 @@ void main() {
                 photo: bytes,
                 alignment: Alignment.bottomRight,
                 widthFraction: 0.8,
+                backgroundOpacity: 0.5,
                 child: Column(
                   key: contentKey,
                   children: [
@@ -117,6 +119,7 @@ void main() {
     String language = 'en',
     bool withPhoto = true,
     bool template = true,
+    bool rememberOpacity = false,
     Future<Uint8List?> Function()? renderer,
   }) async {
     tester.view.physicalSize = const Size(390, 844);
@@ -139,6 +142,11 @@ void main() {
             builder: (context) => TextButton(
               child: const Text('Open'),
               onPressed: () async {
+                final settings = rememberOpacity
+                    ? ShareTemplateSettings(db)
+                    : null;
+                final saved = await settings?.load();
+                if (!context.mounted) return;
                 result = await showModalBottomSheet<ShareBrewResult>(
                   context: context,
                   isScrollControlled: true,
@@ -155,20 +163,23 @@ void main() {
                     imageRenderer: renderer == null
                         ? null
                         : (_, _, {photo}) => renderer(),
-                    configuration: template
-                        ? ShareConfiguration(
-                            fields: {BrewParameter.coffee},
-                            templates: const [
-                              ShareTemplate(
-                                id: 't',
-                                name: 'Template',
-                                style: ShareTemplateStyle.filter,
-                                body: '**<coffee>**\n<dose>',
-                              ),
-                            ],
-                            defaults: {ShareTemplateStyle.filter: 't'},
-                          )
-                        : null,
+                    templateSettings: settings,
+                    configuration:
+                        saved ??
+                        (template
+                            ? ShareConfiguration(
+                                fields: {BrewParameter.coffee},
+                                templates: const [
+                                  ShareTemplate(
+                                    id: 't',
+                                    name: 'Template',
+                                    style: ShareTemplateStyle.filter,
+                                    body: '**<coffee>**\n<dose>',
+                                  ),
+                                ],
+                                defaults: {ShareTemplateStyle.filter: 't'},
+                              )
+                            : null),
                   ),
                 );
               },
@@ -291,6 +302,114 @@ void main() {
     );
   }
 
+  testWidgets('opacity updates the preview and is remembered on reopening', (
+    tester,
+  ) async {
+    await open(tester, rememberOpacity: true);
+    final opacity = find.byKey(
+      const ValueKey('share-overlay-background-opacity'),
+    );
+    expect(tester.widget<Slider>(opacity).value, 0.5);
+    await tester.ensureVisible(opacity);
+    await tester.drag(opacity, const Offset(80, 0));
+    await tester.pumpAndSettle();
+    final selected = tester.widget<Slider>(opacity).value;
+    expect(selected, greaterThan(0.5));
+    expect(
+      tester
+          .widget<SharePhotoOverlay>(find.byType(SharePhotoOverlay))
+          .backgroundOpacity,
+      selected,
+    );
+    await tester.runAsync(() async {
+      expect(
+        (await ShareTemplateSettings(db).load()).overlayBackgroundOpacity,
+        selected,
+      );
+    });
+    Navigator.of(tester.element(overlay)).pop();
+    await tester.pumpAndSettle();
+    await tap(tester, find.text('Open'));
+    await tap(tester, find.text('Image'));
+    await tap(tester, overlay);
+    expect(tester.widget<Slider>(opacity).value, selected);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('export fades only the panel, preserving foreground and photo', (
+    tester,
+  ) async {
+    final captureKey = GlobalKey();
+    const foregroundKey = ValueKey('opaque-foreground');
+    for (final lightText in [true, false]) {
+      for (final opacity in [0.0, 0.5, 1.0]) {
+        final foreground = lightText ? Colors.white : Colors.black;
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: ShareImagePreview(
+                  captureKey: captureKey,
+                  transparent: true,
+                  lightText: lightText,
+                  child: SharePhotoOverlay(
+                    photo: photo,
+                    alignment: Alignment.center,
+                    widthFraction: 1,
+                    backgroundOpacity: opacity,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Center(
+                        child: ColoredBox(
+                          key: foregroundKey,
+                          color: foreground,
+                          child: const SizedBox(width: 20, height: 20),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.runAsync(
+          () => precacheImage(
+            MemoryImage(photo),
+            tester.element(find.byType(SharePhotoOverlay)),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final boundary =
+            captureKey.currentContext!.findRenderObject()!
+                as RenderRepaintBoundary;
+        final foregroundPosition = boundary.globalToLocal(
+          tester.getCenter(find.byKey(foregroundKey)),
+        );
+        await tester.runAsync(() async {
+          final image = await boundary.toImage();
+          final pixels = (await image.toByteData())!;
+          final x = foregroundPosition.dx.floor();
+          final y = foregroundPosition.dy.floor();
+          final foregroundPixel = (y * image.width + x) * 4;
+          final panelPixel = (y * image.width + x - 40) * 4;
+          for (var channel = 0; channel < 3; channel++) {
+            expect(
+              pixels.getUint8(foregroundPixel + channel),
+              lightText ? 255 : 0,
+            );
+            final background = lightText ? 0 : 255;
+            final expected =
+                pixels.getUint8(channel) * (1 - opacity) + background * opacity;
+            expect(pixels.getUint8(panelPixel + channel), closeTo(expected, 1));
+          }
+          expect(pixels.getUint8(panelPixel + 3), 255);
+          image.dispose();
+        });
+      }
+    }
+  });
+
   testWidgets('missing or removed photo disables image export only', (
     tester,
   ) async {
@@ -334,6 +453,14 @@ void main() {
     expect(
       tester
           .widget<Slider>(find.byKey(const ValueKey('share-overlay-size')))
+          .onChanged,
+      isNull,
+    );
+    expect(
+      tester
+          .widget<Slider>(
+            find.byKey(const ValueKey('share-overlay-background-opacity')),
+          )
           .onChanged,
       isNull,
     );
