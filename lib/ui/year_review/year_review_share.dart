@@ -6,156 +6,95 @@ import 'package:flutter/rendering.dart';
 import 'package:holybeans/domain/coffee_year.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/error_report.dart';
-import 'package:holybeans/ui/core/regional_dates.dart';
-import 'package:holybeans/ui/year_review/year_review_style.dart';
-import 'package:intl/intl.dart';
+import 'package:holybeans/ui/year_review/year_review_card.dart';
+import 'package:holybeans/ui/year_review/year_review_story.dart';
 import 'package:share_plus/share_plus.dart';
 
-Future<void> shareCoffeeYear(BuildContext context, CoffeeYear year) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (_) => _YearShare(year: year),
-    );
+Future<void> shareCoffeeYear(
+  BuildContext context,
+  CoffeeYear year, {
+  YearStory story = YearStory.finalCard,
+}) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  showDragHandle: true,
+  builder: (_) => _YearShare(year: year, initial: story),
+);
 
-class YearSummaryCard extends StatelessWidget {
-  const YearSummaryCard({super.key, required this.year});
+class YearExportCard extends StatelessWidget {
+  const YearExportCard({super.key, required this.year, required this.story});
   final CoffeeYear year;
-  @override
-  Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
-    final number = NumberFormat.decimalPattern(regionalLocale.toString());
-    return SizedBox(
-      width: 560,
-      child: YearBackdrop(
-        child: Padding(
-          padding: const EdgeInsets.all(36),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                s.yearReviewTitle,
-                style: const TextStyle(
-                  color: yearWine,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text('${year.year}', style: yearHeadline(112)),
-              Text(
-                year.isPartial
-                    ? s.yearReviewUntil(
-                        DateFormat.yMMMd(regionalLocale.toString())
-                            .format(year.asOf),
-                      )
-                    : s.yearReviewComplete,
-                style: const TextStyle(color: yearInk, fontSize: 16),
-              ),
-              const SizedBox(height: 28),
-              YearMetric(
-                value: number.format(year.count),
-                label: s.yearReviewBrews,
-              ),
-              const SizedBox(height: 22),
-              Row(
-                children: [
-                  Expanded(
-                    child: YearMetric(
-                      value: number.format(year.coffeeCount),
-                      label: s.yearReviewBeans,
-                    ),
-                  ),
-                  Expanded(
-                    child: YearMetric(
-                      value: number.format(year.activeDays),
-                      label: s.yearReviewDays,
-                    ),
-                  ),
-                ],
-              ),
-              if (year.methodRanks.firstOrNull case final method?) ...[
-                const SizedBox(height: 28),
-                _SummaryLine(label: s.yearReviewTopMethod, value: method.name),
-              ],
-              if (year.coffeeRanks.firstOrNull case final coffee?
-                  when coffee.name.isNotEmpty) ...[
-                const SizedBox(height: 20),
-                _SummaryLine(label: s.yearReviewTopCoffee, value: coffee.name),
-              ],
-              const SizedBox(height: 32),
-              const Divider(color: yearWine),
-              Text(
-                s.yearReviewBrand,
-                style: const TextStyle(
-                  color: yearWine,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+  final YearStory story;
 
-class _SummaryLine extends StatelessWidget {
-  const _SummaryLine({required this.label, required this.value});
-  final String label;
-  final String value;
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(label, style: const TextStyle(color: yearWine, fontSize: 16)),
-      Text(
-        value,
-        style: const TextStyle(
-          color: yearInk,
-          fontSize: 26,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    ],
+  Widget build(BuildContext context) => MediaQuery.withNoTextScaling(
+    child: SizedBox(
+      width: 360,
+      height: 640,
+      child: YearStoryCard(year: year, story: story, forExport: true),
+    ),
   );
 }
 
 class _YearShare extends StatefulWidget {
-  const _YearShare({required this.year});
+  const _YearShare({required this.year, required this.initial});
   final CoffeeYear year;
+  final YearStory initial;
   @override
   State<_YearShare> createState() => _YearShareState();
 }
 
 class _YearShareState extends State<_YearShare> {
   final boundaryKey = GlobalKey();
+  late final available = <YearStory>{
+    ...storiesFor(widget.year),
+    if (moneyStoriesFor(widget.year).contains(widget.initial))
+      ...moneyStoriesFor(widget.year),
+    widget.initial,
+  }.toList();
+  late final selected = <YearStory>{widget.initial};
+  late YearStory preview = widget.initial;
   bool busy = false;
+
   Future<void> _share() async {
+    final toShare = available.where(selected.contains).toList();
+    if (toShare.isEmpty || busy) return;
+    final original = preview;
+    await Scrollable.ensureVisible(boundaryKey.currentContext!);
+    if (!mounted) return;
     setState(() => busy = true);
     try {
-      await WidgetsBinding.instance.endOfFrame;
-      if (!mounted) return;
-      final boundary =
-          boundaryKey.currentContext!.findRenderObject()!
-              as RenderRepaintBoundary;
-      final image = await boundary.toImage(pixelRatio: 2);
-      ByteData? bytes;
-      try {
-        bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      } finally {
-        image.dispose();
+      final files = <XFile>[];
+      final names = <String>[];
+      for (final story in toShare) {
+        if (!mounted) return;
+        setState(() => preview = story);
+        await WidgetsBinding.instance.endOfFrame;
+        if (!mounted) return;
+        final boundary =
+            boundaryKey.currentContext!.findRenderObject()!
+                as RenderRepaintBoundary;
+        final image = await boundary.toImage(pixelRatio: 3);
+        ByteData? bytes;
+        try {
+          bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+        } finally {
+          image.dispose();
+        }
+        if (!mounted) return;
+        if (bytes == null) throw StateError('Could not encode year card');
+        files.add(
+          XFile.fromData(bytes.buffer.asUint8List(), mimeType: 'image/png'),
+        );
+        names.add('holybeans-${widget.year.year}-${story.name}.png');
       }
-      if (!mounted || bytes == null) return;
+      if (!mounted) return;
+      setState(() => preview = original);
       final box = context.findRenderObject() as RenderBox?;
       await SharePlus.instance.share(
         ShareParams(
-          files: [
-            XFile.fromData(bytes.buffer.asUint8List(), mimeType: 'image/png'),
-          ],
-          fileNameOverrides: ['holybeans-${widget.year.year}.png'],
+          files: files,
+          fileNameOverrides: names,
           sharePositionOrigin: box == null
               ? null
               : box.localToGlobal(Offset.zero) & box.size,
@@ -169,7 +108,12 @@ class _YearShareState extends State<_YearShare> {
         );
       }
     } finally {
-      if (mounted) setState(() => busy = false);
+      if (mounted) {
+        setState(() {
+          busy = false;
+          preview = original;
+        });
+      }
     }
   }
 
@@ -178,25 +122,97 @@ class _YearShareState extends State<_YearShare> {
     final s = AppLocalizations.of(context)!;
     return SafeArea(
       child: SizedBox(
-        height: MediaQuery.sizeOf(context).height * .88,
+        height: MediaQuery.sizeOf(context).height * .9,
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-              child: Text(s.yearReviewShareHint),
-            ),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FittedBox(
-                    fit: BoxFit.fitWidth,
-                    child: RepaintBoundary(
-                      key: boundaryKey,
-                      child: YearSummaryCard(year: widget.year),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              s.yearReviewSelection,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ),
+                          IconButton(
+                            key: const ValueKey('year-share-all'),
+                            tooltip: s.yearReviewSelectAll,
+                            onPressed: busy
+                                ? null
+                                : () => setState(
+                                    () => selected.addAll(available),
+                                  ),
+                            icon: const Icon(Icons.select_all),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                    SizedBox(
+                      height: MediaQuery.textScalerOf(context).scale(20) + 40,
+                      child: ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: available.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 8),
+                        itemBuilder: (context, index) {
+                          final story = available[index];
+                          return Center(
+                            child: FilterChip(
+                              key: ValueKey('year-pick-${story.name}'),
+                              label: Text(story.label(s)),
+                              selected: selected.contains(story),
+                              onSelected: busy
+                                  ? null
+                                  : (value) => setState(() {
+                                      if (value) {
+                                        selected.add(story);
+                                        preview = story;
+                                      } else {
+                                        selected.remove(story);
+                                        if (selected.isNotEmpty &&
+                                            preview == story) {
+                                          preview = selected.last;
+                                        }
+                                      }
+                                    }),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      height: 360,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 8,
+                        ),
+                        child: Center(
+                          child: FittedBox(
+                            child: RepaintBoundary(
+                              key: boundaryKey,
+                              child: YearExportCard(
+                                year: widget.year,
+                                story: preview,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Text(
+                        s.yearReviewShareHint,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -204,15 +220,19 @@ class _YearShareState extends State<_YearShare> {
               padding: const EdgeInsets.all(16),
               child: FilledButton.icon(
                 key: const ValueKey('year-share-confirm'),
-                onPressed: busy ? null : _share,
+                onPressed: busy || selected.isEmpty ? null : _share,
                 icon: busy
                     ? const SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.share_outlined),
-                label: Text(s.share),
+                    : const Icon(Icons.ios_share_rounded),
+                label: Text(
+                  selected.length <= 1
+                      ? s.yearReviewShareCard
+                      : s.yearReviewShareCards(selected.length),
+                ),
               ),
             ),
           ],
