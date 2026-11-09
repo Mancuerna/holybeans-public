@@ -2504,10 +2504,10 @@
     }
   },
   "yearReviewComplete": "Del 1 de enero al 31 de diciembre",
-  "yearReviewIntro": "Un año.\nMuchas historias.",
-  "yearReviewBrews": "preparaciones registradas",
+  "yearReviewIntro": "Tu año tuvo\nbuen café.",
+  "yearReviewBrews": "preparaciones",
   "yearReviewBeans": "cafés distintos",
-  "yearReviewDays": "días con preparaciones",
+  "yearReviewDays": "días de ritual",
   "yearReviewDose": "{grams} g de café en {known} de tus {total} preparaciones.",
   "@yearReviewDose": {
     "placeholders": {
@@ -2535,9 +2535,9 @@
       }
     }
   },
-  "yearReviewRoaster": "Quienes pusieron\nel sabor.",
+  "yearReviewRoaster": "Tueste con\nnombre propio.",
   "yearReviewRoasterBody": "Los tostadores que más veces aparecieron en tus preparaciones.",
-  "yearReviewMethod": "Tu ritual\nmás repetido.",
+  "yearReviewMethod": "Tu ritual.\nTus reglas.",
   "yearReviewMethodBody": "Cada método tiene su momento. Estos fueron los tuyos.",
   "yearReviewCountShare": "{count} preparaciones · {percent} % del año",
   "@yearReviewCountShare": {
@@ -2550,10 +2550,10 @@
       }
     }
   },
-  "yearReviewReturn": "Siempre había\nsitio para otra.",
+  "yearReviewReturn": "Lo vuestro\nfue serio.",
   "yearReviewReturnBody": "El café que más veces preparaste.",
   "yearReviewTied": "Primer puesto compartido.",
-  "yearReviewBest": "Una taza\npara recordar.",
+  "yearReviewBest": "Una para\nrecordar.",
   "yearReviewBestBody": "Una de tus preparaciones mejor valoradas, entre {count} con valoración.",
   "@yearReviewBestBody": {
     "placeholders": {
@@ -2570,7 +2570,7 @@
       }
     }
   },
-  "yearReviewRhythm": "Tu año tuvo\nsu propio ritmo.",
+  "yearReviewRhythm": "Un mes para\nexplorar.",
   "yearReviewMonth": "{month}: {count} cafés distintos.",
   "@yearReviewMonth": {
     "placeholders": {
@@ -2596,7 +2596,7 @@
       }
     }
   },
-  "yearReviewFinal": "Todo un año.\nMuy tuyo.",
+  "yearReviewFinal": "Mi año\nen café.",
   "yearReviewFinalBody": "Cafés que descubriste. Rituales que repetiste. Un diario que sigue creciendo contigo.",
   "yearReviewBasis": "Basado en tu diario, incluidas las preparaciones archivadas e importadas. No equivale a tazas bebidas.",
   "yearReviewEmpty": "Este año todavía no tiene preparaciones registradas. Tu historia empieza con la primera.",
@@ -2615,7 +2615,7 @@
     }
   },
   "yearReviewShare": "Compartir mi año",
-  "yearReviewShareHint": "Solo se compartirá esta tarjeta, sin fotos, notas personales ni gastos.",
+  "yearReviewShareHint": "Elige las tarjetas de tu carrusel. Se comparten tal como las ves aquí, sin fotos ni notas personales.",
   "yearReviewTopMethod": "Mi ritual",
   "yearReviewTopCoffee": "El café al que volví",
   "yearReviewBrand": "HolyBeans · Tu diario de café",
@@ -3425,5 +3425,50 @@
   "weighPortafilter": "Pesar con portafiltro",
   "portafilterTotal": "Portafiltro con café (g)",
   "useAsDose": "Usar como dosis",
-  "portafilterWeighHint": "Pon a cero la báscula vacía y coloca el portafiltro con el café."
+  "portafilterWeighHint": "Pon a cero la báscula vacía y coloca el portafiltro con el café.",
+  "yearReviewAbout": "Sobre estos datos",
+  "yearReviewMoney": "Mis gastos en café",
+  "yearReviewShareCard": "Compartir tarjeta",
+  "yearReviewSelection": "Elige tus tarjetas",
+  "yearReviewSelectAll": "Elegir todas",
+  "yearReviewCardIntro": "Mi año",
+  "yearReviewCardOrigins": "Orígenes",
+  "yearReviewCardRoaster": "Tostadores",
+  "yearReviewCardMethod": "Mi ritual",
+  "yearReviewCardReturning": "Mi café",
+  "yearReviewCardBest": "Mi mejor nota",
+  "yearReviewCardRhythm": "Exploración",
+  "yearReviewCardFinal": "Resumen",
+  "yearReviewTeam": "Team {method}.",
+  "@yearReviewTeam": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "yearReviewTopRating": "Tu mejor valoración",
+  "yearReviewJointRating": "Una de tus mejores valoraciones",
+  "yearReviewJointTop": "N.º 1 compartido",
+  "yearReviewFirstCoffee": "El comienzo\nde algo bueno.",
+  "yearReviewRecordedOrigins": "orígenes en tu diario",
+  "yearReviewAlso": "También en tu año",
+  "yearReviewEstimatedCost": "coste estimado del café",
+  "yearReviewRecordedSpend": "en compras registradas",
+  "yearReviewMoreOrigins": "+{count} orígenes",
+  "@yearReviewMoreOrigins": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewShareCards": "Compartir {count} tarjetas",
+  "@yearReviewShareCards": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

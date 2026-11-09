@@ -1707,10 +1707,10 @@
     }
   },
   "yearReviewComplete": "January 1 – December 31",
-  "yearReviewIntro": "One year.\nSo many stories.",
-  "yearReviewBrews": "recorded brews",
+  "yearReviewIntro": "Your year.\nGood coffee.",
+  "yearReviewBrews": "brews",
   "yearReviewBeans": "different coffees",
-  "yearReviewDays": "days with brews",
+  "yearReviewDays": "days of ritual",
   "yearReviewDose": "{grams} g of coffee across {known} of your {total} brews.",
   "@yearReviewDose": {
     "placeholders": {
@@ -1738,9 +1738,9 @@
       }
     }
   },
-  "yearReviewRoaster": "The people\nbehind the flavour.",
+  "yearReviewRoaster": "The names\nbehind the roast.",
   "yearReviewRoasterBody": "The roasters that appeared most often in your brews.",
-  "yearReviewMethod": "Your most\nfamiliar ritual.",
+  "yearReviewMethod": "Your ritual.\nYour rules.",
   "yearReviewMethodBody": "Every method has its moment. These were yours.",
   "yearReviewCountShare": "{count} brews · {percent}% of the year",
   "@yearReviewCountShare": {
@@ -1753,10 +1753,10 @@
       }
     }
   },
-  "yearReviewReturn": "Always room\nfor one more.",
+  "yearReviewReturn": "You kept\ncoming back.",
   "yearReviewReturnBody": "The coffee you brewed most often.",
   "yearReviewTied": "A shared first place.",
-  "yearReviewBest": "A cup\nto remember.",
+  "yearReviewBest": "One to\nremember.",
   "yearReviewBestBody": "One of your highest-rated brews, from {count} with a rating.",
   "@yearReviewBestBody": {
     "placeholders": {
@@ -1773,7 +1773,7 @@
       }
     }
   },
-  "yearReviewRhythm": "Your year had\nits own rhythm.",
+  "yearReviewRhythm": "A month for\ndiscovery.",
   "yearReviewMonth": "{month}: {count} different coffees.",
   "@yearReviewMonth": {
     "placeholders": {
@@ -1799,7 +1799,7 @@
       }
     }
   },
-  "yearReviewFinal": "A whole year.\nEntirely yours.",
+  "yearReviewFinal": "My year\nin coffee.",
   "yearReviewFinalBody": "Coffees you discovered. Rituals you returned to. A journal that keeps growing with you.",
   "yearReviewBasis": "Based on your journal, including archived and imported brews. This is not a count of cups consumed.",
   "yearReviewEmpty": "No brews recorded for this year yet. Your story begins with the first one.",
@@ -1818,7 +1818,7 @@
     }
   },
   "yearReviewShare": "Share my year",
-  "yearReviewShareHint": "Only this card will be shared, without photos, personal notes or spending.",
+  "yearReviewShareHint": "Choose cards for your carousel. They are shared exactly as previewed here, without photos or personal notes.",
   "yearReviewTopMethod": "My ritual",
   "yearReviewTopCoffee": "The coffee I returned to",
   "yearReviewBrand": "HolyBeans · Your coffee journal",
@@ -2624,5 +2624,50 @@
   "weighPortafilter": "Weigh with portafilter",
   "portafilterTotal": "Portafilter with coffee (g)",
   "useAsDose": "Use as dose",
-  "portafilterWeighHint": "Zero the empty scale, then place the portafilter with coffee on it."
+  "portafilterWeighHint": "Zero the empty scale, then place the portafilter with coffee on it.",
+  "yearReviewAbout": "About these numbers",
+  "yearReviewMoney": "My coffee spending",
+  "yearReviewShareCard": "Share card",
+  "yearReviewSelection": "Choose your cards",
+  "yearReviewSelectAll": "Select all",
+  "yearReviewCardIntro": "My year",
+  "yearReviewCardOrigins": "Origins",
+  "yearReviewCardRoaster": "Roasters",
+  "yearReviewCardMethod": "My ritual",
+  "yearReviewCardReturning": "My coffee",
+  "yearReviewCardBest": "My top rating",
+  "yearReviewCardRhythm": "Discovery",
+  "yearReviewCardFinal": "Summary",
+  "yearReviewTeam": "Team {method}.",
+  "@yearReviewTeam": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "yearReviewTopRating": "Your highest rating",
+  "yearReviewJointRating": "One of your highest ratings",
+  "yearReviewJointTop": "Joint No. 1",
+  "yearReviewFirstCoffee": "The start of\nsomething good.",
+  "yearReviewRecordedOrigins": "origins in your journal",
+  "yearReviewAlso": "Also in your year",
+  "yearReviewEstimatedCost": "estimated coffee cost",
+  "yearReviewRecordedSpend": "in recorded purchases",
+  "yearReviewMoreOrigins": "+{count} origins",
+  "@yearReviewMoreOrigins": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewShareCards": "Share {count} cards",
+  "@yearReviewShareCards": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

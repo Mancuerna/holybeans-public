@@ -123,7 +123,7 @@ void main() {
     expect(data.costs.totalEuros, 0);
     expect(data.costs.cups.single.brew.id, 'free');
     expect(data.costs.cups.single.euros, 0);
-    expect(storiesFor(data), contains(YearStory.spending));
+    expect(moneyStoriesFor(data), contains(YearStory.spending));
     expect(review(coffees: [yearCoffee('a')]).costs.costedCoffees, 0);
     for (final grams in [double.nan, double.infinity, -1.0]) {
       expect(review(lots: [yearLot('a', grams: grams)]).costs.costedCoffees, 0);
@@ -184,8 +184,8 @@ void main() {
       isEmpty,
     );
     expect(data.count, 0);
-    expect(storiesFor(data), [
-      YearStory.intro,
+    expect(storiesFor(data), [YearStory.intro, YearStory.spending]);
+    expect(moneyStoriesFor(data), [
       YearStory.expensiveCoffee,
       YearStory.cheapCoffee,
       YearStory.spending,

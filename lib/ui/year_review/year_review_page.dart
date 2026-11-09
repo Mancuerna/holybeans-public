@@ -3,11 +3,12 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/coffee_year.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
-import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/year_review/year_review_data.dart';
+import 'package:holybeans/ui/year_review/year_review_details.dart';
+import 'package:holybeans/ui/year_review/year_review_money.dart';
+import 'package:holybeans/ui/year_review/year_review_share.dart';
 import 'package:holybeans/ui/year_review/year_review_stories.dart';
 import 'package:holybeans/ui/year_review/year_review_style.dart';
-import 'package:intl/intl.dart';
 
 class YearReviewPage extends StatefulWidget {
   const YearReviewPage({
@@ -104,6 +105,23 @@ class _YearReviewPageState extends State<YearReviewPage> {
           style: const TextStyle(fontSize: 16),
         ),
         actions: [
+          PopupMenuButton<String>(
+            key: const ValueKey('year-menu'),
+            tooltip: s.yearReviewAbout,
+            icon: const Icon(Icons.more_horiz),
+            onSelected: (value) {
+              if (value == 'about') {
+                showYearDetails(context, review);
+              } else {
+                showYearMoney(context, review);
+              }
+            },
+            itemBuilder: (_) => [
+              PopupMenuItem(value: 'about', child: Text(s.yearReviewAbout)),
+              if (moneyStoriesFor(review).isNotEmpty)
+                PopupMenuItem(value: 'money', child: Text(s.yearReviewMoney)),
+            ],
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: SizedBox(
@@ -145,15 +163,10 @@ class _YearReviewPageState extends State<YearReviewPage> {
               child: Column(
                 children: [
                   Text(
-                    review.isPartial
-                        ? s.yearReviewUntil(
-                            DateFormat.yMMMd(regionalLocale.toString())
-                                .format(review.asOf),
-                          )
-                        : s.yearReviewComplete,
+                    '${page + 1} / ${stories.length}',
                     style: const TextStyle(fontSize: 12, color: yearWine),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   Semantics(
                     label: s.yearReviewProgress(page + 1, stories.length),
                     child: Row(
@@ -217,27 +230,36 @@ class _YearReviewPageState extends State<YearReviewPage> {
                     icon: const Icon(Icons.arrow_back_rounded),
                   ),
                   Expanded(
-                    child: Text(
-                      '${page + 1} / ${stories.length}',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: yearWine),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: FilledButton(
-                      key: const ValueKey('year-next'),
+                    child: FilledButton.icon(
+                      key: const ValueKey('year-share'),
                       style: FilledButton.styleFrom(
                         backgroundColor: yearWine,
                         foregroundColor: yearPaper,
                       ),
-                      onPressed: () =>
-                          _go(page == stories.length - 1 ? 0 : page + 1),
-                      child: Text(
-                        page == stories.length - 1
-                            ? s.yearReviewAgain
-                            : s.yearReviewNext,
-                      ),
+                      onPressed:
+                          review.count == 0 && review.costs.costedCoffees == 0
+                          ? null
+                          : () => shareCoffeeYear(
+                              context,
+                              review,
+                              story: stories[page],
+                            ),
+                      icon: const Icon(Icons.ios_share_rounded, size: 18),
+                      label: Text(s.yearReviewShareCard),
+                    ),
+                  ),
+                  IconButton(
+                    key: const ValueKey('year-next'),
+                    tooltip: page == stories.length - 1
+                        ? s.yearReviewAgain
+                        : s.yearReviewNext,
+                    onPressed: () =>
+                        _go(page == stories.length - 1 ? 0 : page + 1),
+                    color: yearWine,
+                    icon: Icon(
+                      page == stories.length - 1
+                          ? Icons.replay_rounded
+                          : Icons.arrow_forward_rounded,
                     ),
                   ),
                 ],

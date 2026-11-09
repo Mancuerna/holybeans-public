@@ -79,56 +79,47 @@ void main() {
           await tester.tap(find.byKey(const ValueKey('year-previous')));
           await tester.pumpAndSettle();
           expect(find.text(s.yearReviewIntro), findsOneWidget);
-          for (var i = 0; i < 12; i++) {
+          for (var i = 0; i < 7; i++) {
             await tester.tap(find.byKey(const ValueKey('year-next')));
             await tester.pumpAndSettle();
             expect(tester.takeException(), isNull, reason: 'story ${i + 2}');
-            if (i == 6) {
-              expect(find.text(s.yearMoneyExpensiveCoffee), findsOneWidget);
-            }
-            if (i == 7) {
-              expect(find.text(s.yearMoneyCheapCoffee), findsOneWidget);
-            }
-            if (i == 8) {
-              expect(find.text(s.yearMoneyExpensiveCup), findsOneWidget);
-            }
-            if (i == 9) expect(find.text(s.yearMoneyCheapCup), findsOneWidget);
-            if (i == 10) {
-              expect(find.text(s.yearMoneySpending), findsOneWidget);
-              await tester.drag(
-                find.byKey(const PageStorageKey('year-story-2026-spending')),
-                const Offset(0, -600),
-              );
-              await tester.pumpAndSettle();
-              expect(tester.takeException(), isNull);
-            }
           }
           expect(find.text(s.yearReviewFinal), findsOneWidget);
-          await tester.scrollUntilVisible(
-            find.byKey(const ValueKey('year-share')),
-            240,
-            scrollable: find
-                .descendant(
-                  of: find.byType(YearStoryView).last,
-                  matching: find.byType(Scrollable),
-                )
-                .first,
-          );
           await tester.tap(find.byKey(const ValueKey('year-share')));
           await tester.pumpAndSettle();
           expect(find.text(s.yearReviewShareHint), findsOneWidget);
-          expect(find.byType(YearSummaryCard), findsWidgets);
+          expect(find.byType(YearExportCard), findsWidgets);
           expect(tester.takeException(), isNull);
           Navigator.of(
             tester.element(find.byKey(const ValueKey('year-share-confirm'))),
           ).pop();
+          await tester.pumpAndSettle();
+          await tester.tap(find.byKey(const ValueKey('year-menu')));
+          await tester.pumpAndSettle();
+          await tester.tap(find.text(s.yearReviewMoney));
+          await tester.pumpAndSettle();
+          for (final story in [
+            YearStory.expensiveCoffee,
+            YearStory.cheapCoffee,
+            YearStory.expensiveCup,
+            YearStory.cheapCup,
+            YearStory.spending,
+          ]) {
+            await tester.tap(find.byType(DropdownButton<YearStory>));
+            await tester.pumpAndSettle();
+            await tester.tap(find.text(story.label(s)).last);
+            await tester.pumpAndSettle();
+            expect(tester.takeException(), isNull, reason: story.name);
+          }
+          Navigator.of(tester.element(find.byType(DropdownButton<YearStory>)))
+              .pop();
           await tester.pumpAndSettle();
           await tester.tap(find.byKey(const ValueKey('year-selector')));
           await tester.pumpAndSettle();
           await tester.tap(find.text('2025').last);
           await tester.pumpAndSettle();
           expect(find.text(s.yearReviewIntro), findsOneWidget);
-          expect(find.text(s.yearReviewComplete), findsOneWidget);
+          expect(find.text(s.yearReviewBrand), findsOneWidget);
           expect(find.text('1 / 7'), findsOneWidget);
           expect(tester.takeException(), isNull);
         },
@@ -186,12 +177,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('stats-year-review')));
     await tester.pumpAndSettle();
-    expect(find.text('2023'), findsOneWidget);
-    expect(find.text('1 / 4'), findsOneWidget);
-    for (var i = 0; i < 3; i++) {
-      await tester.tap(find.byKey(const ValueKey('year-next')));
-      await tester.pumpAndSettle();
-    }
+    expect(find.text('2023'), findsWidgets);
+    expect(find.text('1 / 2'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('year-next')));
+    await tester.pumpAndSettle();
     expect(find.text('Your year,\nin euros.'), findsOneWidget);
     expect(find.textContaining('€15.00'), findsWidgets);
     expect(tester.takeException(), isNull);
