@@ -10,12 +10,14 @@ class SharePhotoOverlay extends StatelessWidget {
     required this.photo,
     required this.alignment,
     required this.widthFraction,
+    required this.backgroundOpacity,
     required this.child,
   });
 
   final Uint8List photo;
   final Alignment alignment;
   final double widthFraction;
+  final double backgroundOpacity;
   final Widget child;
 
   @override
@@ -48,7 +50,17 @@ class SharePhotoOverlay extends StatelessWidget {
                     // Long templates and charts must also fit inside the photo.
                     fit: BoxFit.scaleDown,
                     alignment: alignment,
-                    child: SizedBox(width: 340, child: child),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color:
+                            (Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.black
+                                    : Colors.white)
+                                .withValues(alpha: backgroundOpacity),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: SizedBox(width: 340, child: child),
+                    ),
                   ),
                 ),
               ),
@@ -65,20 +77,26 @@ class SharePhotoOverlayOptions extends StatelessWidget {
     super.key,
     required this.alignment,
     required this.widthFraction,
+    required this.backgroundOpacity,
     required this.lightText,
     required this.enabled,
     required this.onAlignmentChanged,
     required this.onWidthChanged,
     required this.onLightTextChanged,
+    required this.onBackgroundOpacityChanged,
+    required this.onBackgroundOpacityChangeEnd,
   });
 
   final Alignment alignment;
   final double widthFraction;
+  final double backgroundOpacity;
   final bool lightText;
   final bool enabled;
   final ValueChanged<Alignment> onAlignmentChanged;
   final ValueChanged<double> onWidthChanged;
   final ValueChanged<bool> onLightTextChanged;
+  final ValueChanged<double> onBackgroundOpacityChanged;
+  final ValueChanged<double> onBackgroundOpacityChangeEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +115,21 @@ class SharePhotoOverlayOptions extends StatelessWidget {
         ShareTextColorOptions(
           lightText: lightText,
           onChanged: enabled ? onLightTextChanged : null,
+        ),
+        const SizedBox(height: 12),
+        Text(
+          '${s.shareOverlayBackgroundOpacity}: '
+          '${(backgroundOpacity * 100).round()}%',
+        ),
+        Slider(
+          key: const ValueKey('share-overlay-background-opacity'),
+          value: backgroundOpacity,
+          divisions: 20,
+          label: '${(backgroundOpacity * 100).round()}%',
+          semanticFormatterCallback: (value) =>
+              '${s.shareOverlayBackgroundOpacity}: ${(value * 100).round()}%',
+          onChanged: enabled ? onBackgroundOpacityChanged : null,
+          onChangeEnd: enabled ? onBackgroundOpacityChangeEnd : null,
         ),
         const SizedBox(height: 12),
         DropdownButtonFormField<Alignment>(

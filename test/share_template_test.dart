@@ -122,6 +122,7 @@ void main() {
       final settings = ShareTemplateSettings(db);
       final fields = BrewParameterSettings(db);
       await fields.saveShared({BrewParameter.notes, BrewParameter.time});
+      await settings.saveOverlayBackgroundOpacity(0.75);
       await settings.saveTemplate(espresso);
       await settings.saveTemplate(filter);
       await settings.select(ShareTemplateStyle.espresso, espresso.id);
@@ -131,6 +132,7 @@ void main() {
       await settings.deleteTemplate(espresso.id);
       await JournalBackup(db).restoreJson(json);
       final restored = await settings.load();
+      expect(restored.overlayBackgroundOpacity, 0.75);
       expect(restored.fields, {BrewParameter.notes, BrewParameter.time});
       expect(restored.templates.map((t) => t.body), [
         espresso.body,
@@ -181,10 +183,12 @@ void main() {
       final settings = ShareTemplateSettings(db);
       await Future.wait([
         settings.saveTemplate(espresso),
+        settings.saveOverlayBackgroundOpacity(0.25),
         BrewParameterSettings(db).saveShared({BrewParameter.dose}),
         LanguageSetting(db).save(const Locale('es')),
       ]);
       final config = await settings.load();
+      expect(config.overlayBackgroundOpacity, 0.25);
       expect(config.fields, {BrewParameter.dose});
       expect(config.templates.single.body, espresso.body);
       expect(await LanguageSetting(db).load(), const Locale('es'));

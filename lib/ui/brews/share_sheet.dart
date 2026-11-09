@@ -92,6 +92,23 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
   bool photoOverlay = false;
   Alignment overlayAlignment = Alignment.bottomLeft;
   double overlayWidth = 0.65;
+  late double overlayBackgroundOpacity =
+      widget.configuration?.overlayBackgroundOpacity ??
+      ShareConfiguration.defaultOverlayBackgroundOpacity;
+
+  Future<void> _saveOverlayBackgroundOpacity(double value) async {
+    try {
+      await widget.templateSettings?.saveOverlayBackgroundOpacity(value);
+    } catch (error, stack) {
+      reportError(error, stack);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.saveFailed)),
+        );
+      }
+    }
+  }
+
   bool get needsPhoto => asImage && photoOverlay && photo == null;
   late Uint8List? photo = widget.initialPhoto;
   bool pickingPhoto = false;
@@ -305,6 +322,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
                 photo: photo!,
                 alignment: overlayAlignment,
                 widthFraction: overlayWidth,
+                backgroundOpacity: overlayBackgroundOpacity,
                 child: card,
               )
             : card,
@@ -424,6 +442,11 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
                         SharePhotoOverlayOptions(
                           alignment: overlayAlignment,
                           widthFraction: overlayWidth,
+                          backgroundOpacity: overlayBackgroundOpacity,
+                          onBackgroundOpacityChanged: (value) =>
+                              setState(() => overlayBackgroundOpacity = value),
+                          onBackgroundOpacityChangeEnd:
+                              _saveOverlayBackgroundOpacity,
                           lightText: lightText,
                           enabled: !busy,
                           onAlignmentChanged: (value) =>
