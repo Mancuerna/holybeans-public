@@ -49,8 +49,8 @@ Install the Android app from [Google Play](https://play.google.com/store/apps/de
 The store handles app signing and updates. Release bundles (`.aab`) are publishing
 artifacts, not files you can install directly on a phone.
 
-Android is the supported release platform. The repository includes an iOS project,
-but iOS builds and device behaviour have not yet been validated for release.
+Android is the supported platform. iOS is not supported, and this repository
+does not include an iOS project.
 Bluetooth and printer support varies by model and firmware; some integrations
 are experimental. See [device support](docs/DEVICES.md) before choosing hardware.
 
