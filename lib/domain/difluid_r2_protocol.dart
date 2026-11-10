@@ -5,8 +5,9 @@
 /// 00FF: `DF DF`, function, command, data length, data, and a checksum
 /// that is the sum of all the previous bytes, modulo 256.
 ///
-/// HolyBeans only asks it to measure, as AGENTS.md allows: an average of
-/// the number of tests the R2 is set to, which it first reads with the
+/// HolyBeans only asks it to measure, within the hardware boundaries in
+/// CONTRIBUTING.md: an average of the number of tests the R2 is set to,
+/// which it first reads with the
 /// documented query, so that the average (which takes that number and
 /// stores it) leaves the setting as it was; a single test when the number
 /// is unknown. BeanConqueror also sets the temperature unit, the automatic

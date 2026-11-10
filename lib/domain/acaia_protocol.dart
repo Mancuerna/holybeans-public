@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:holybeans/domain/scale_recording.dart';
 
 // Protocol reference and captured fixtures: aioacaia (MIT, Josef Zweck).
-// See assets/licenses/aioacaia.txt and docs/reviews/2026-10-27-acaia.md.
+// See assets/licenses/aioacaia.txt and docs/SOURCES.md.
 abstract final class AcaiaUuids {
   static const service = '49535343-fe7d-4ae5-8fa9-9fafd205e455';
   static const notify = '49535343-1e4d-4bd9-ba61-23c647249616';
