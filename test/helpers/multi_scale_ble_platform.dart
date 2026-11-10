@@ -11,6 +11,7 @@ class MultiScalePlatform extends FakeScaleBlePlatform {
   Completer<void>? connecting;
   Completer<void>? scanning;
   int scans = 0;
+  final _connections = <String, int>{};
   @override
   Future<void> startScan({
     ScanFilter? scanFilter,
@@ -30,12 +31,21 @@ class MultiScalePlatform extends FakeScaleBlePlatform {
     bool autoConnect = false,
     ConnectionPlatformConfig? platformConfig,
   }) async {
+    final generation = _connections[deviceId] ?? 0;
     await connecting?.future;
+    // Native disconnect cancels an outstanding connection attempt.
+    if ((_connections[deviceId] ?? 0) != generation) return;
     if (fail.contains(deviceId)) {
       events.add('failed:$deviceId');
       throw StateError('Unavailable');
     }
     await super.connect(deviceId, connectionTimeout: connectionTimeout);
+  }
+
+  @override
+  Future<void> disconnect(String deviceId) async {
+    _connections.update(deviceId, (value) => value + 1, ifAbsent: () => 1);
+    await super.disconnect(deviceId);
   }
 
   @override
