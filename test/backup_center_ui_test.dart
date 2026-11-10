@@ -93,9 +93,10 @@ void main() {
   late AppDatabase database;
   late FakeBackupFolder folder;
   late BackupServices services;
-  final now = DateTime(2026, 10, 17, 23, 59, 59);
+  late DateTime now;
 
   setUp(() async {
+    now = DateTime(2026, 10, 17, 23, 59, 59);
     directory = await Directory.systemTemp.createTemp('holybeans-center-');
     database = AppDatabase.forTesting(NativeDatabase.memory());
     folder = FakeBackupFolder();
@@ -148,6 +149,8 @@ void main() {
       () async => (await services.autoBackups.list()).isNotEmpty,
     );
     returnToApp(tester);
+    // A later safety copy has a later timestamp, including across midnight.
+    now = now.add(const Duration(seconds: 2));
     await tester.runAsync(
       () => repository.createCoffee(name: 'Later', roaster: 'R'),
     );
