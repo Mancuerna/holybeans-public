@@ -152,6 +152,7 @@ class _RestoredJournal {
       ignoredFields: const {'meticulousAddress'},
     );
     for (final preference in preferences) {
+      ShareConfiguration.decode(preference.shareFieldsJson);
       if (preference.scalesJson case final json?) {
         RememberedScale.decodeList(json);
       }

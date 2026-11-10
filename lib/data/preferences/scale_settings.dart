@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show Value;
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/preferences_row.dart';
 import 'package:holybeans/domain/remembered_scale.dart';
@@ -17,7 +18,11 @@ class ScaleSettings {
   Future<List<RememberedScale>> loadAll() async {
     final row = await database.loadPreferences();
     if (row?.scalesJson case final json?) {
-      return RememberedScale.decodeList(json);
+      try {
+        return RememberedScale.decodeList(json);
+      } on FormatException catch (error, stack) {
+        reportError(error, stack);
+      }
     }
     return switch ((row?.scaleDeviceId, row?.scaleName)) {
       (final id?, final name?) => [RememberedScale(deviceId: id, name: name)],
