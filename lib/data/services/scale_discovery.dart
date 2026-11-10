@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:holybeans/data/services/ble_scan.dart';
 import 'package:holybeans/data/services/paired_device.dart';
 import 'package:universal_ble/universal_ble.dart';
 
@@ -26,17 +27,20 @@ class ScaleDiscovery {
         done.complete();
       }
     });
+    final lease = sharedBleScan.acquire();
     Timer? timer;
     try {
-      await UniversalBle.startScan();
-      timer = Timer(duration, cancel);
+      await lease.ready;
+      timer = Timer(duration, () {
+        if (!done.isCompleted) done.complete();
+      });
       await done.future;
       return remembered.where((device) => seen.contains(device.id)).toList();
     } finally {
       timer?.cancel();
       await subscription.cancel();
-      _done = null;
-      await UniversalBle.stopScan();
+      if (identical(_done, done)) _done = null;
+      await lease.release();
     }
   }
 }
