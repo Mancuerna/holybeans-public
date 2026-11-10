@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/data/services/journal_lock.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/altitude.dart';

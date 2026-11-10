@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show Value;
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/preferences_row.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
@@ -39,13 +40,23 @@ class ShareConfiguration {
   };
 
   static ShareConfiguration decode(String? source) {
+    try {
+      return _decode(source);
+    } on TypeError {
+      throw const FormatException('Invalid share preferences');
+    } on ArgumentError {
+      throw const FormatException('Invalid share preferences');
+    }
+  }
+
+  static ShareConfiguration _decode(String? source) {
     if (source == null) {
       return ShareConfiguration(fields: {...defaultSharedParameters});
     }
     final Object? decoded = jsonDecode(source);
     if (decoded is List) {
       return ShareConfiguration(
-        fields: decodeSharedParameters(decoded.whereType<String>().toList()),
+        fields: decodeSharedParameters(decoded.cast<String>()),
       );
     }
     if (decoded is! Map<String, dynamic> || decoded['version'] != 1) {
@@ -85,9 +96,15 @@ class ShareTemplateSettings {
 
   final AppDatabase database;
 
-  Future<ShareConfiguration> load() async => ShareConfiguration.decode(
-    (await database.loadPreferences())?.shareFieldsJson,
-  );
+  Future<ShareConfiguration> load() async {
+    final source = (await database.loadPreferences())?.shareFieldsJson;
+    try {
+      return ShareConfiguration.decode(source);
+    } on FormatException catch (error, stack) {
+      reportError(error, stack);
+      return ShareConfiguration.decode(null);
+    }
+  }
 
   Future<void> _update(
     ShareConfiguration Function(ShareConfiguration) change,
