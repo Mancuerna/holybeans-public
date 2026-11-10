@@ -227,6 +227,9 @@ Future<void> _dose(
 }
 
 class _FixtureMachine implements MeticulousSource {
+  @override
+  void close() {}
+
   final result = MeticulousShot.fromHistoryEntry({
     'id': 'patrol-first-drip',
     'time': DateTime.now().millisecondsSinceEpoch / 1000,

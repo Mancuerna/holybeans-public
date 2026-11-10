@@ -44,12 +44,14 @@ class _FreePourPickerState extends State<_FreePourPicker> {
   }
 
   Future<void> _load() async {
+    MeticulousSource? source;
     setState(() {
       loading = true;
       error = null;
     });
     try {
-      final last = await connectMeticulous(widget.address).lastFreePour();
+      source = connectMeticulous(widget.address);
+      final last = await source.lastFreePour();
       if (mounted) {
         setState(() {
           pour = last;
@@ -65,6 +67,7 @@ class _FreePourPickerState extends State<_FreePourPicker> {
       final s = AppLocalizations.of(context)!;
       setState(() => error = s.meticulousConnectFailed(failure.message));
     } finally {
+      source?.close();
       if (mounted) setState(() => loading = false);
     }
   }

@@ -149,6 +149,7 @@ void main() {
     });
     await HttpOverrides.runWithHttpOverrides(() async {
       final client = MeticulousClient('127.0.0.1:${server.port}');
+      addTearDown(client.close);
       expect((await client.lastFreePour())?.waterGrams, 299.1);
       // A pour over that followed a profile is not offered.
       last = {...?last, 'mode': 'profile'};
@@ -235,6 +236,7 @@ void main() {
     await tester.tap(importButton);
     await settleWithWorkers(tester);
     expect(machine.addresses, ['192.0.2.90']);
+    expect(machine.closed, isTrue);
     expect(find.text('Already imported'), findsNothing);
     await tester.tap(find.byKey(const ValueKey('meticulous-free-pour-pour-1')));
     await settleWithWorkers(tester);
@@ -277,6 +279,9 @@ void main() {
 
 class _FakeMachine implements MeticulousSource {
   final addresses = <String>[];
+  bool closed = false;
+  @override
+  void close() => closed = true;
 
   @override
   Future<List<MeticulousShot>> recentShots({

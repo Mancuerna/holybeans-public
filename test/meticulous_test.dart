@@ -183,6 +183,7 @@ void main() {
     // flutter_test replaces HttpClient with a fake; use the real one here.
     await HttpOverrides.runWithHttpOverrides(() async {
       final client = MeticulousClient('127.0.0.1:${server.port}');
+      addTearDown(client.close);
       final recent = await client.recentShots(limit: 5);
       expect(recent.map((shot) => shot.id), ['a', 'b']);
       expect(recent.first.timeSeconds, isNull);
@@ -512,6 +513,7 @@ void main() {
     await tester.tap(importButton);
     await tester.pumpAndSettle();
     expect(machine.addresses, ['192.0.2.90']);
+    expect(machine.closed, isTrue);
     expect(machine.withCurves, isTrue);
     await tester.tap(find.byKey(const ValueKey('meticulous-shot-new1')));
     await tester.pumpAndSettle();
@@ -626,6 +628,9 @@ class _FakeMachine implements MeticulousSource {
 
   final bool zeroPressure;
   final addresses = <String>[];
+  bool closed = false;
+  @override
+  void close() => closed = true;
   bool? withCurves;
 
   MeticulousShot _shot(
