@@ -43,10 +43,12 @@ class JournalRestore {
     if (_pending.existsSync()) {
       throw StateError('Previous restore cleanup is still pending');
     }
-    await photos.directory.create(recursive: true);
     // Photos already on the phone stay, so a backup without them (a plain
     // JSON or an older ZIP) can link them again and undoing it loses none.
     final current = await photos.names();
+    final availablePhotos = {...current, ...files.keys};
+    JournalBackup.validate(source, availablePhotos.contains);
+    await photos.directory.create(recursive: true);
     await _pending.create();
     try {
       await _file('journal.json')
@@ -59,7 +61,7 @@ class JournalRestore {
       await photos.promoteReplacement(_staged);
       final summary = await backup.restoreJson(
         source,
-        availablePhotos: {...current, ...files.keys},
+        availablePhotos: availablePhotos,
       );
       // Rename keeps recovery from mistaking a partially written marker for
       // a completed restore. This is the operation's commit point.
