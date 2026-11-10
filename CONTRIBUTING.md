@@ -98,7 +98,8 @@ fixture is a reported skip, not a successful conservation test.
 Tests tagged `slow` use real-time waits or substantial file I/O. The default
 `flutter test --no-pub` command includes them. Use `flutter test --no-pub --tags slow`
 to run that group alone, or `--exclude-tags slow` for a quicker local iteration;
-run the complete suite before submitting a change.
+run the complete suite before submitting a change. CI runs both groups in separate
+required jobs with `TZ=Europe/Madrid`, including daylight-saving checks.
 
 The Drive export benchmark is separate:
 `flutter test --no-pub benchmark/drive_sync_export_benchmark_test.dart`.

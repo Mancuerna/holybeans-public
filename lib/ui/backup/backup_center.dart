@@ -22,10 +22,12 @@ class BackupServices {
     required this.state,
     this.folder,
     this.preMigration,
+    this.clock,
   });
 
   final AutoBackups autoBackups;
   final BackupStateStore state;
+  final DateTime Function()? clock;
 
   /// The journal as it was before updates that changed its schema.
   final PreMigrationCopies? preMigration;
@@ -56,7 +58,7 @@ class BackupCenter extends ChangeNotifier with WidgetsBindingObserver {
     DateTime Function()? clock,
   }) : backup = JournalBackup(database),
        settings = BackupSettings(database),
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? services?.clock ?? DateTime.now;
 
   final AppDatabase database;
   final PhotoStore? photos;

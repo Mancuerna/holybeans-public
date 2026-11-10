@@ -5,6 +5,7 @@ import 'package:holybeans/ui/brews/brew_scale_session.dart';
 import 'package:holybeans/ui/brews/brew_timer.dart';
 
 import 'helpers/fake_scale.dart';
+import 'helpers/manual_stopwatch.dart';
 
 class RejectingScale extends FakeScale {
   RejectingScale() : super(name: 'BOOKOO_SC_U', connected: true);
@@ -22,12 +23,14 @@ void main() {
   late BrewScaleSession session;
   late BrewTimer timer;
   late DateTime now;
+  late ManualStopwatch stopwatch;
   late TextEditingController minutes;
   late TextEditingController seconds;
   setUp(() async {
     scale = RejectingScale();
     now = DateTime(2026, 10, 17);
-    session = BrewScaleSession(scale, clock: () => now);
+    stopwatch = ManualStopwatch();
+    session = BrewScaleSession(scale, clock: () => now, stopwatch: stopwatch);
     minutes = TextEditingController();
     seconds = TextEditingController();
     timer = BrewTimer(
@@ -65,9 +68,9 @@ void main() {
     scale.emit(0, timerMs: 100);
   }
 
-  Future<void> samples() async {
+  void samples() {
     for (var i = 1; i <= 3; i++) {
-      await Future<void>.delayed(const Duration(milliseconds: 110));
+      stopwatch.elapsed += const Duration(milliseconds: 110);
       scale.emit(i * 5.0, timerMs: i * 100 + 100);
     }
   }
@@ -76,9 +79,9 @@ void main() {
     test('espresso zero retains result, stopped=$alreadyStopped', () async {
       session.isEspresso = () => true;
       await start();
-      await samples();
+      samples();
       if (!alreadyStopped) {
-        await Future<void>.delayed(const Duration(seconds: 5));
+        stopwatch.elapsed += const Duration(seconds: 5);
       }
       now = now.add(const Duration(seconds: 3));
       scale.emit(31.2, timerMs: 8700);
@@ -97,7 +100,7 @@ void main() {
       if (alreadyStopped) expect(session.curve, same(previous));
       await start();
       expect(timer.elapsedSeconds, 0);
-      await samples();
+      samples();
       expect(timer.running, isTrue);
       expect(session.curve!.timesMs.last, lessThan(600));
       expect(
@@ -114,7 +117,7 @@ void main() {
     'quick physical reset is reconciled after command echoes settle',
     () async {
       await start();
-      await samples();
+      samples();
       final previous = session.curve;
       scale.emit(0);
       expect(timer.running, isTrue);
@@ -128,7 +131,7 @@ void main() {
       ); // Keep the old curve until explicit Start.
       expect(previous, isNotNull);
       await start();
-      await samples();
+      samples();
       expect(timer.running, isTrue);
       expect(session.curve!.weight.last, 15);
       expect(
@@ -140,14 +143,14 @@ void main() {
   );
   test('a normal pause resumes without clearing or taring', () async {
     await start();
-    await samples();
+    samples();
     now = now.add(const Duration(seconds: 3));
     scale.emit(15, timerMs: 400);
     scale.emit(15, timerMs: 400);
     expect(timer.running, isFalse);
     final count = session.curve!.timesMs.length;
     await start();
-    await samples();
+    samples();
     expect(session.curve!.timesMs.length, greaterThan(count));
     expect(
       scale.commands.where((c) => c == ScaleCommand.tareAndStartTimer).length,
@@ -158,7 +161,7 @@ void main() {
     'disconnect stops recording, preserves curve, and prevents offline Start',
     () async {
       await start();
-      await samples();
+      samples();
       final previous = session.curve;
       scale.lose();
       expect(timer.running, isFalse);
@@ -167,7 +170,7 @@ void main() {
       expect(session.curve, same(previous));
       await scale.connect();
       await start();
-      await samples();
+      samples();
       expect(timer.running, isTrue);
       expect(
         session.curve!.timesMs.length,
@@ -209,7 +212,7 @@ void main() {
 
   test('tare alone leaves the clock and recording running', () async {
     await start();
-    await samples();
+    samples();
     now = now.add(const Duration(seconds: 3));
     scale.emit(0, timerMs: 500);
     expect(timer.running, isTrue);

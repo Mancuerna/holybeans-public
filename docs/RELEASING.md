@@ -35,7 +35,7 @@ build number, manifest agreement and bilingual release notes are checked on
 every run. All other pubspec content participates in the hash.
 
 A complete, successful run of `ci.yml` from this repository in the last seven
-days can supply evidence for the same source hash. Its `flutter`, `android` and
+days can supply evidence for the same source hash. Its `flutter`, `slow`, `android` and
 `release` jobs must have actually succeeded. Skipped/reused runs cannot supply
 evidence, and runs from forks, other workflows, or failed attempts are rejected.
 The helper compares Git contents from the candidate's exact `head_sha`; it does

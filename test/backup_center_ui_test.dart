@@ -93,12 +93,14 @@ void main() {
   late AppDatabase database;
   late FakeBackupFolder folder;
   late BackupServices services;
+  final now = DateTime(2026, 10, 17, 23, 59, 59);
 
   setUp(() async {
     directory = await Directory.systemTemp.createTemp('holybeans-center-');
     database = AppDatabase.forTesting(NativeDatabase.memory());
     folder = FakeBackupFolder();
     services = BackupServices(
+      clock: () => now,
       autoBackups: AutoBackups(Directory('${directory.path}/auto')),
       state: BackupStateStore(File('${directory.path}/state.json')),
       folder: folder,
@@ -186,6 +188,7 @@ void main() {
   ) async {
     final copies = PreMigrationCopies(Directory('${directory.path}/pre'));
     services = BackupServices(
+      clock: () => now,
       autoBackups: services.autoBackups,
       state: services.state,
       folder: folder,
@@ -260,7 +263,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('backup-folder')));
     await waitForWidget(tester, find.text('Copy saved in Backups'));
     await tester.pumpAndSettle();
-    final name = folderBackupName(DateTime.now());
+    final name = folderBackupName(now);
     expect(folder.files.keys, [name]);
     expect(JournalBackup.inspectArchive(folder.files[name]!).coffees, 1);
     expect(find.text('Copy saved in Backups'), findsOneWidget);
@@ -297,10 +300,7 @@ void main() {
       await services.state.save(
         const BackupState()
             .withFolder('content://tree/backups', 'Backups')
-            .withFolderCopy(
-              DateTime.now().subtract(const Duration(days: 1)),
-              'a' * 16,
-            )
+            .withFolderCopy(now.subtract(const Duration(days: 1)), 'a' * 16)
             .withJournal('b' * 16, empty: false),
       );
     });
@@ -324,10 +324,7 @@ void main() {
     await tester.runAsync(
       () async => services.state.save(
         (await services.state.load())
-            .withFolderCopy(
-              DateTime.now().subtract(const Duration(days: 1)),
-              'a' * 16,
-            )
+            .withFolderCopy(now.subtract(const Duration(days: 1)), 'a' * 16)
             .withJournal('c' * 16, empty: false),
       ),
     );
@@ -359,7 +356,7 @@ void main() {
     expect(find.byKey(const ValueKey('folder-backup-reminder')), findsNothing);
     expect(
       (await tester.runAsync(services.state.load))!.folderDismissedDay,
-      localDay(DateTime.now()),
+      localDay(now),
     );
     await stop(tester);
   });
