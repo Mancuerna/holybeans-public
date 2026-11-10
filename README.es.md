@@ -44,8 +44,8 @@ Incluye español e inglés y temas claro y oscuro. La
 
 Descarga la app Android desde [Google Play](https://play.google.com/store/apps/details?id=com.caffeinateddev.holybeans).
 Los archivos `.aab` de las releases sirven para publicar, no para instalarlos
-directamente. El proyecto iOS está incluido, pero su publicación y funcionamiento
-en dispositivos aún no están validados.
+directamente. Android es la plataforma compatible. iOS no tiene soporte y el
+repositorio no incluye un proyecto para esa plataforma.
 
 La compatibilidad Bluetooth y de impresoras depende del modelo y firmware;
 algunas integraciones son experimentales. Consulta [dispositivos](docs/DEVICES.md).
