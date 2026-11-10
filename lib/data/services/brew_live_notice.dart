@@ -1,11 +1,12 @@
 import 'package:flutter/services.dart';
 
-/// The brew in progress as an ongoing notification, so its clock (and, in
-/// the pour assistant, its pours) can be read from the lock screen with the
-/// hands busy. On Android 16 it is a progress-style Live Update; before, an
-/// ongoing notification with a chronometer and a progress bar. The Android
-/// side is LiveUpdateBridge; elsewhere, or without permission to notify,
-/// calls do nothing.
+/// The brew in progress as an ongoing Android notification.
+///
+/// Its clock and pours can be read from the lock screen. On Android 16 and
+/// later it can be a progress-style Live Update; on Android 8 through 15 it
+/// uses a chronometer and a progress bar. The Android side is LiveUpdateBridge.
+/// On Android 7, on other platforms or without permission to notify, calls
+/// do nothing.
 class BrewLiveNotice {
   const BrewLiveNotice();
 
