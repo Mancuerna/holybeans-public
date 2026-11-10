@@ -3481,5 +3481,6 @@
   "startupErrorDetails": "Detalles del error",
   "startupCopiesHint": "Comparte una copia guardada antes de una actualización para conservarla. Estas copias no incluyen fotos.",
   "startupCopiesUnavailable": "No se pudieron leer las copias guardadas.",
-  "startupCopiesEmpty": "No se encontraron copias guardadas antes de una actualización."
+  "startupCopiesEmpty": "No se encontraron copias guardadas antes de una actualización.",
+  "importCardTooLarge": "Este enlace o código QR de café contiene demasiados datos."
 }

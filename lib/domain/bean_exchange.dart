@@ -20,6 +20,8 @@ const beanFileMimeType = 'application/x-holybeans';
 
 /// How a QR code's text starts: a link HolyBeans opens.
 const beanQrPrefix = 'holybeans://bean?d=';
+const beanQrMaxBytes = 8 * 1024;
+const beanQrMaxDecodedBytes = 256 * 1024;
 
 const beanFormat = 'holybeans-beans';
 const beanFormatVersion = 1;
@@ -200,6 +202,7 @@ enum BeanReadError {
 
   /// A card from a newer HolyBeans.
   newerVersion,
+  tooLarge,
 }
 
 class BeanReadException implements Exception {
@@ -243,6 +246,10 @@ List<ReadBean> readBeans(String text) {
   final source = text.trim();
   final Object? decoded;
   if (source.startsWith(beanQrPrefix)) {
+    if (source.length > beanQrMaxBytes ||
+        utf8.encode(source).length > beanQrMaxBytes) {
+      throw const BeanReadException(BeanReadError.tooLarge);
+    }
     decoded = _decodeQr(source.substring(beanQrPrefix.length));
   } else {
     decoded = _decodeJson(source);
@@ -271,10 +278,57 @@ List<ReadBean> readBeans(String text) {
 Object? _decodeQr(String data) {
   try {
     final padded = data.padRight((data.length + 3) ~/ 4 * 4, '=');
-    final bytes = const GZipDecoder().decodeBytes(base64Url.decode(padded));
-    return jsonDecode(utf8.decode(bytes));
+    final output = _BoundedQrOutput();
+    // The native decoder buffers all chunks before writing to OutputStream.
+    // The Dart decoder writes as it inflates, so the cap stops expansion early.
+    final valid = const GZipDecoderWeb().decodeStream(
+      InputMemoryStream(base64Url.decode(padded)),
+      output,
+      verify: true,
+    );
+    if (output.limitExceeded) {
+      throw const BeanReadException(BeanReadError.tooLarge);
+    }
+    if (!valid) throw const FormatException('Invalid compressed coffee card');
+    return jsonDecode(utf8.decode(output.getBytes()));
+  } on BeanReadException {
+    rethrow;
   } on Object {
     throw const BeanReadException(BeanReadError.notJson);
+  }
+}
+
+class _BoundedQrOutput extends OutputMemoryStream {
+  bool limitExceeded = false;
+  void _reserve(int count) {
+    if (length + count > beanQrMaxDecodedBytes) {
+      limitExceeded = true;
+      throw const BeanReadException(BeanReadError.tooLarge);
+    }
+  }
+
+  @override
+  void writeByte(int value) {
+    _reserve(1);
+    super.writeByte(value);
+  }
+
+  @override
+  void writeBytes(List<int> bytes, {int? length}) {
+    _reserve(length ?? bytes.length);
+    super.writeBytes(bytes, length: length);
+  }
+
+  @override
+  void writeStream(InputStream stream) {
+    _reserve(stream.length);
+    super.writeStream(stream);
+  }
+
+  @override
+  void writeBackReference(int distance, int count) {
+    _reserve(count);
+    super.writeBackReference(distance, count);
   }
 }
 
