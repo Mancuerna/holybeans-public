@@ -20,7 +20,6 @@ import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/photo_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
-import 'package:holybeans/ui/sync/journal_write_feedback.dart';
 import 'package:intl/intl.dart';
 
 /// Opens the bottom sheet with everything recorded for [brew].
@@ -67,7 +66,6 @@ class BrewDetailsSheet extends StatefulWidget {
 class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
   bool loading = false;
   Object? loadError;
-  Object? poursError;
   @override
   void initState() {
     super.initState();
@@ -313,26 +311,11 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                   _PoursFromCurve(
                     curve: curve,
                     brew: brew,
-                    error: poursError == null
-                        ? null
-                        : journalWriteErrorText(
-                            context,
-                            poursError,
-                            s.saveFailed,
-                          ),
                     onSave: (found) async {
-                      try {
-                        await actions.repository.setBrewPours(brew.id, found);
-                        final saved = await actions.repository.brew(brew.id);
-                        if (saved == null || !mounted) return;
-                        setState(() {
-                          brew = saved;
-                          poursError = null;
-                        });
-                      } catch (error, stack) {
-                        reportError(error, stack);
-                        if (mounted) setState(() => poursError = error);
-                      }
+                      await actions.repository.setBrewPours(brew.id, found);
+                      final saved = await actions.repository.brew(brew.id);
+                      if (saved == null || !mounted) return;
+                      setState(() => brew = saved);
                     },
                   ),
                 if (_extractionMap(context, method) case final map?) ...[
@@ -603,13 +586,11 @@ class _PoursFromCurve extends StatelessWidget {
     required this.curve,
     required this.brew,
     required this.onSave,
-    this.error,
   });
 
   final Future<({ShotCurve curve, String source})?> curve;
   final Brew brew;
   final Future<void> Function(BrewPours pours) onSave;
-  final String? error;
 
   @override
   Widget build(BuildContext context) =>
@@ -643,18 +624,11 @@ class _PoursFromCurve extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      [
-                        s.curveShowsPours(
-                          found.bloomCount ?? 0,
-                          found.pourCount ?? 0,
-                        ),
-                        ?error,
-                      ].join('\n'),
-                      style: TextStyle(
-                        color: error == null
-                            ? colors.onSecondaryContainer
-                            : colors.error,
+                      s.curveShowsPours(
+                        found.bloomCount ?? 0,
+                        found.pourCount ?? 0,
                       ),
+                      style: TextStyle(color: colors.onSecondaryContainer),
                     ),
                   ),
                   TextButton(
