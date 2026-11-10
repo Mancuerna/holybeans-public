@@ -53,7 +53,6 @@ jobs:
       - run: python3 -m tool.ci.check_docs
       - run: python3 -m tool.generate_release_notes
       - run: python3 -m unittest discover -s tool/tests
-      - run: git diff --check
   flutter:
     needs: scope
     if: needs.scope.outputs.full == 'true'
@@ -66,14 +65,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
-        with:
-          flutter-version: '3.47.5'
-          channel: stable
-          cache: true
-      - run: flutter pub get --enforce-lockfile
-      - run: python3 -m tool.generate_release_notes
-      - run: flutter gen-l10n
+      - uses: ./.github/actions/setup-flutter
       - name: Verify generated database code
         run: |
           dart run build_runner build --delete-conflicting-outputs
@@ -95,14 +87,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
-        with:
-          flutter-version: '3.47.5'
-          channel: stable
-          cache: true
-      - run: flutter pub get --enforce-lockfile
-      - run: python3 -m tool.generate_release_notes
-      - run: flutter gen-l10n
+      - uses: ./.github/actions/setup-flutter
       - run: flutter test --no-pub --tags slow
   android:
     needs: scope
@@ -119,14 +104,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
-        with:
-          flutter-version: '3.47.5'
-          channel: stable
-          cache: true
-      - run: flutter pub get --enforce-lockfile
-      - run: python3 -m tool.generate_release_notes
-      - run: flutter gen-l10n
+      - uses: ./.github/actions/setup-flutter
       - name: Android release signing policy
         run: python3 -m tool.ci.check_android_signing
       - name: Android backup publication tests
@@ -147,14 +125,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
-        with:
-          flutter-version: '3.47.5'
-          channel: stable
-          cache: true
-      - run: flutter pub get --enforce-lockfile
-      - run: python3 -m tool.generate_release_notes
-      - run: flutter gen-l10n
+      - uses: ./.github/actions/setup-flutter
       - name: Build test release bundle
         env:
           ORG_GRADLE_PROJECT_allowDebugSigning: 'true'

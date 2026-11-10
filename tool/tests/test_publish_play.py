@@ -173,9 +173,10 @@ class PublishPlayTests(unittest.TestCase):
             {note["language"] for note in release["releaseNotes"]}, set(LANGUAGES)
         )
 
-    def test_cli_publishes_to_production_by_default_and_allows_explicit_tracks(self):
+    def test_cli_publishes_to_internal_by_default_and_allows_explicit_tracks(self):
         for track, options in [
-            ("production", []),
+            ("internal", []),
+            ("production", ["--track", "production"]),
             ("beta", ["--track", "beta"]),
             ("internal", ["--track", "internal"]),
         ]:

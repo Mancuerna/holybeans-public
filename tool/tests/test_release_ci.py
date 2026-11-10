@@ -11,9 +11,13 @@ from unittest.mock import patch
 from tool.ci.publish_selected import check_run
 from tool.ci.release_artifact import checked_tag, verify_bundle, verify_manifest
 from tool.ci.scope import requires_flutter
+from tool.tests.git_fixture import isolated_git_environment
 
 
 class CiScopeTests(unittest.TestCase):
+    def setUp(self):
+        self.enterContext(isolated_git_environment())
+
     def test_only_documentation_skips_flutter(self):
         self.assertFalse(requires_flutter(['README.md', 'docs/RELEASING.md']))
         self.assertTrue(requires_flutter(['docs/generator.py']))
@@ -34,7 +38,7 @@ class CiScopeTests(unittest.TestCase):
             root = Path(directory)
             def git(*args):
                 return subprocess.check_output(['git', '-C', str(root), *args], text=True).strip()
-            git('init', '-q')
+            git('init', '-q', '--template=')
             git('config', 'user.name', 'Test')
             git('config', 'user.email', 'test@example.invalid')
             (root / 'lib').mkdir()

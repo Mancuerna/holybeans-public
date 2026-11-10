@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 from tool.ci.validation import complete_jobs, find_validation, fingerprint, main, reusable_run, validate_metadata
 from tool.publish_play import PublishError
+from tool.tests.git_fixture import isolated_git_environment
 
 
 @contextmanager
@@ -24,10 +25,11 @@ def working_directory(path):
 
 class ValidationTests(unittest.TestCase):
     def setUp(self):
+        self.enterContext(isolated_git_environment())
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        self.git('init', '-q')
+        self.git('init', '-q', '--template=')
         self.git('config', 'user.name', 'Test')
         self.git('config', 'user.email', 'test@example.invalid')
         self.write('pubspec.yaml', 'name: app\nversion: 1.2.1+159\ndependencies: {}\n')
