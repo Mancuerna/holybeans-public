@@ -11,7 +11,7 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'helpers/legacy_schema.dart';
 
 void main() {
-  for (final from in [19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]) {
+  for (var from = 19; from < AppDatabase.currentSchema; from++) {
     test(
       'schema $from migrates to the current schema without changing old rows',
       () async {

@@ -20,6 +20,7 @@ part 'cupping_tables.dart';
 part 'piston_tables.dart';
 part 'recipient_migration.dart';
 part 'roaster_registry.dart';
+part 'roaster_migration.dart';
 part 'stock_tables.dart';
 
 class Coffees extends Table {
@@ -632,7 +633,7 @@ class AppDatabase extends _$AppDatabase {
               await m.createTable(schema.cafes);
               await m.createTable(schema.cafeDrinks);
               await m.createTable(schema.cafeDrinkPhotos);
-              await RoasterRegistry(this).backfill();
+              await backfillRoastersFrom34();
             },
             from33To34: (m, schema) => m.addColumn(
               schema.appPreferences,
