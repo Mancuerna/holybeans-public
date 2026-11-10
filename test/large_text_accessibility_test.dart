@@ -1,17 +1,18 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/equipment/water_profiles_page.dart';
 
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
+
 void main() {
   testWidgets(
     'home, brew and catalog actions remain usable at 2x text on a narrow screen',
     (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       final repository = JournalRepository(database);
       tester.view.physicalSize = const Size(360, 800);
       tester.view.devicePixelRatio = 1;
@@ -76,7 +77,7 @@ void main() {
         findsWidgets,
       );
 
-      await _tapBottomDestination(tester, 1);
+      await tapBottomDestination(tester, 1);
       final beanTabs = find.byKey(const ValueKey('bean-tabs'));
       expect(tester.widget<TabBar>(beanTabs).isScrollable, isTrue);
       expect(
@@ -107,7 +108,7 @@ void main() {
       );
       expect(tester.takeException(), isNull);
 
-      await _tapBottomDestination(tester, 2);
+      await tapBottomDestination(tester, 2);
       final historySearch = find.byType(TextField).first;
       final historyFilterButton = find.byKey(
         const ValueKey('history-filter-button'),
@@ -144,7 +145,7 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
-      await _tapBottomDestination(tester, 1);
+      await tapBottomDestination(tester, 1);
 
       await tester.tap(find.text('Add bean').last);
       await tester.pumpAndSettle();
@@ -161,7 +162,7 @@ void main() {
 
       // Open the bean sheet from the beans list, then follow its primary action into the
       // brew form and confirm the fixed actions and scrolled fields are usable.
-      await _tapBottomDestination(tester, 1);
+      await tapBottomDestination(tester, 1);
       await tester.tap(
         find.text('Ethiopia Guji Uraga Natural Process Reserve').last,
       );
@@ -220,7 +221,7 @@ void main() {
 
       // Brew Details keep the primary action full width and the secondary
       // actions reachable as labelled icons at large text.
-      await _tapBottomDestination(tester, 0);
+      await tapBottomDestination(tester, 0);
       // On Home a coffee's recipe opens the brew it repeats.
       final homeRecipe = find
           .byWidgetPredicate(
@@ -253,7 +254,7 @@ void main() {
         tester.element(find.byKey(const ValueKey('brew-detail-edit'))),
       ).pop();
       await tester.pumpAndSettle();
-      await _tapBottomDestination(tester, 3);
+      await tapBottomDestination(tester, 3);
       expect(find.text('Water'), findsOneWidget);
       await tester.ensureVisible(find.text('Water'));
       await tester.pumpAndSettle();
@@ -299,13 +300,4 @@ void main() {
       await tester.pump(const Duration(milliseconds: 10));
     },
   );
-}
-
-Future<void> _tapBottomDestination(WidgetTester tester, int index) async {
-  final navigation = find.byType(NavigationBar);
-  final bounds = tester.getRect(navigation);
-  await tester.tapAt(
-    Offset(bounds.left + bounds.width * (index + 0.5) / 4, bounds.center.dy),
-  );
-  await tester.pumpAndSettle();
 }

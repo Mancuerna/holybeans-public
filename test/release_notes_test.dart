@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/preferences/current_release.g.dart';
 import 'package:holybeans/data/preferences/release_notes_settings.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/release_notes.dart';
 import 'package:path/path.dart' as path;
+
+import 'helpers/ui_test_support.dart';
 
 void main() {
   late Directory directory;
@@ -115,10 +116,8 @@ void main() {
         final memory = _MemorySettings(file);
         final observer = ReleaseNotesObserver(memory);
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             navigatorObservers: [observer],
             builder: (_, child) => MediaQuery(
               data: const MediaQueryData(textScaler: TextScaler.linear(2)),
@@ -163,10 +162,8 @@ void main() {
     final navigator = GlobalKey<NavigatorState>();
     final memory = _MemorySettings(file);
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         navigatorKey: navigator,
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         navigatorObservers: [ReleaseNotesObserver(memory)],
         home: _LaunchRoute(navigator),
       ),
