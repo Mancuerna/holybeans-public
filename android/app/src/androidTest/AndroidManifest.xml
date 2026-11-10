@@ -1,5 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
+        <provider android:name="com.caffeinateddev.holybeans.IncomingFixtureProvider"
+            android:authorities="com.caffeinateddev.holybeans.patrol.test.incoming"
+            android:exported="true"/>
+        <activity android:name="com.caffeinateddev.holybeans.IncomingFixtureActivity"
+            android:exported="true" android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="holybeans-incoming-test"/>
+            </intent-filter>
+        </activity>
         <activity android:name="com.caffeinateddev.holybeans.ClipboardReceiverActivity"
             android:label="HB Clipboard Test" android:exported="true">
             <intent-filter>

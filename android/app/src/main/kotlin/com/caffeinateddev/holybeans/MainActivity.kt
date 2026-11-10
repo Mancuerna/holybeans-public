@@ -183,6 +183,7 @@ class MainActivity : FlutterActivity() {
         loffeeKey.dispose()
         driveSync.dispose()
         shareClipboard.dispose()
+        incoming.dispose()
         super.onDestroy()
     }
 }

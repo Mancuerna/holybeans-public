@@ -2,12 +2,17 @@ package com.caffeinateddev.holybeans
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.Executor
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 /**
  * Coffee cards that reach the app from outside, for the "holybeans/incoming"
@@ -19,7 +24,19 @@ import io.flutter.plugin.common.MethodChannel
  */
 class IncomingBridge(private val activity: Activity) {
     private var channel: MethodChannel? = null
-    private var pending: String? = null
+    private val worker = ThreadPoolExecutor(
+        1, 1, 0L, TimeUnit.MILLISECONDS, ArrayBlockingQueue(8),
+        ThreadPoolExecutor.DiscardPolicy(),
+    )
+    private val delivery = IncomingDelivery(worker, Executor { activity.runOnUiThread(it) }) {
+        channel?.invokeMethod("arrived", it)
+    }
+    private val cards by lazy {
+        val providers = activity.packageManager.getPackageInfo(
+            activity.packageName, PackageManager.GET_PROVIDERS,
+        ).providers.orEmpty()
+        IncomingCards(providers.flatMap { it.authority.orEmpty().split(';') }.toSet())
+    }
 
     fun attach(channel: MethodChannel) {
         this.channel = channel
@@ -27,20 +44,24 @@ class IncomingBridge(private val activity: Activity) {
 
     /** Keeps what the app was opened with until Flutter asks for it. */
     fun onLaunch(intent: Intent?) {
-        pending = read(intent)
+        if (intent != null) delivery.receive { read(intent) }
     }
 
     /** Hands what arrives while the app runs straight to Flutter. */
     fun onNewIntent(intent: Intent) {
-        val text = read(intent) ?: return
-        channel?.invokeMethod("arrived", text) ?: run { pending = text }
+        onLaunch(intent)
+    }
+
+    fun dispose() {
+        delivery.close()
+        worker.shutdownNow()
+        channel = null
     }
 
     fun handle(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "take" -> {
-                result.success(pending)
-                pending = null
+                result.success(delivery.take())
             }
             "scan" -> scan(result)
             else -> result.notImplemented()
@@ -53,7 +74,7 @@ class IncomingBridge(private val activity: Activity) {
             .build()
         GmsBarcodeScanning.getClient(activity, options)
             .startScan()
-            .addOnSuccessListener { barcode -> result.success(barcode.rawValue) }
+            .addOnSuccessListener { barcode -> result.success(cards.text(barcode.rawValue)) }
             .addOnCanceledListener { result.success(null) }
             .addOnFailureListener { error ->
                 result.error("scan_failed", error.message, null)
@@ -64,8 +85,10 @@ class IncomingBridge(private val activity: Activity) {
         intent ?: return null
         return when (intent.action) {
             Intent.ACTION_VIEW -> intent.data?.let(::readUri)
-            Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)
-                ?: streamOf(intent)?.let(::readUri)
+            Intent.ACTION_SEND -> {
+                val text = intent.getStringExtra(Intent.EXTRA_TEXT)
+                if (text != null) cards.text(text) else streamOf(intent)?.let(::readUri)
+            }
             else -> null
         }
     }
@@ -74,32 +97,7 @@ class IncomingBridge(private val activity: Activity) {
     private fun streamOf(intent: Intent): Uri? =
         intent.getParcelableExtra(Intent.EXTRA_STREAM)
 
-    private fun readUri(uri: Uri): String? = when (uri.scheme) {
-        "holybeans" -> uri.toString()
-        "content", "file" -> try {
-            activity.contentResolver.openInputStream(uri)?.use { stream ->
-                // A card is a few kilobytes; anything far bigger is not one.
-                val out = java.io.ByteArrayOutputStream()
-                val buffer = ByteArray(8192)
-                var tooBig = false
-                while (true) {
-                    val count = stream.read(buffer)
-                    if (count < 0) break
-                    out.write(buffer, 0, count)
-                    if (out.size() > MAX_BYTES) {
-                        tooBig = true
-                        break
-                    }
-                }
-                if (tooBig) null else out.toString(Charsets.UTF_8.name())
-            }
-        } catch (_: Exception) {
-            null
-        }
-        else -> null
-    }
-
-    private companion object {
-        const val MAX_BYTES = 1024 * 1024
+    private fun readUri(uri: Uri): String? = cards.read(uri.scheme, uri.authority, uri.toString()) {
+        activity.contentResolver.openInputStream(uri)
     }
 }
