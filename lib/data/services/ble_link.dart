@@ -119,6 +119,10 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
   @protected
   String? get connectedId => connected ? _deviceId : null;
 
+  /// The device being connected or already connected.
+  @protected
+  String? get connectionTargetId => _deviceId;
+
   void _set(DeviceStatus value) {
     traceEvent('status', {'previous': status.name, 'next': value.name});
     status = value;
@@ -140,20 +144,23 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
   /// Permission and a powered-on adapter, or the status that explains why
   /// not.
   Future<bool> _ready() async {
+    final attempt = _attempt;
     try {
       traceEvent('permissions.request', {});
       await UniversalBle.requestPermissions();
+      if (_disposed || attempt != _attempt) return false;
       traceEvent('permissions.granted', {});
     } on Object catch (error, stack) {
       traceEvent('permissions.error', {
         'error': error.toString(),
         'stack': stack.toString(),
       });
-      _set(DeviceStatus.denied);
+      if (!_disposed && attempt == _attempt) _set(DeviceStatus.denied);
       return false;
     }
     try {
       final state = await UniversalBle.getBluetoothAvailabilityState();
+      if (_disposed || attempt != _attempt) return false;
       traceEvent('adapter', {'state': state.name});
       if (state != AvailabilityState.poweredOn) {
         _set(DeviceStatus.bluetoothOff);
@@ -164,7 +171,7 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
         'error': error.toString(),
         'stack': stack.toString(),
       });
-      _set(DeviceStatus.bluetoothOff);
+      if (!_disposed && attempt == _attempt) _set(DeviceStatus.bluetoothOff);
       return false;
     }
     return true;
@@ -173,7 +180,9 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
   /// Looks for devices nearby for a few seconds.
   @override
   Future<void> search() async {
-    if (_opening || status == DeviceStatus.searching || !await _ready()) return;
+    if (_disposed || status == DeviceStatus.searching) return;
+    if (_opening) await disconnect();
+    if (!await _ready()) return;
     found = const [];
     hasSearched = true;
     _set(DeviceStatus.searching);
@@ -227,7 +236,9 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
   /// Connects to [device] and remembers it.
   @override
   Future<void> pair(FoundDevice device) async {
-    if (_opening) return;
+    if (_disposed) return;
+    if (_opening) await disconnect();
+    if (_disposed) return;
     _opening = true;
     _heldOff = false;
     final attempt = ++_attempt;
@@ -242,7 +253,7 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
         _notify();
       }
     } finally {
-      _opening = false;
+      if (attempt == _attempt) _opening = false;
     }
   }
 
@@ -282,7 +293,7 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
       traceEvent('reconnect.error', {'error': '$error', 'stack': '$stack'});
       if (attempt == _attempt && !_disposed) _set(DeviceStatus.failed);
     } finally {
-      _opening = false;
+      if (attempt == _attempt) _opening = false;
     }
   }
 
@@ -296,10 +307,10 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
     try {
       traceEvent('connect.start', {'id': id, 'name': device.name});
       await UniversalBle.connect(id, timeout: _connectTime);
-      if (!await _stillOpening(id)) return false;
+      if (!await _stillOpening(id, attempt)) return false;
       traceEvent('connect.linked', {'id': id});
       final services = await UniversalBle.discoverServices(id);
-      if (!await _stillOpening(id)) return false;
+      if (!await _stillOpening(id, attempt)) return false;
       traceEvent('gatt.services', bleServices(services));
       configureServices(device, services);
       traceEvent('gatt.selected', {
@@ -318,30 +329,33 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
           );
       traceEvent('subscribe.start', {'id': id});
       await UniversalBle.subscribeNotifications(id, service, characteristic);
-      if (!await _stillOpening(id)) return false;
+      if (!await _stillOpening(id, attempt)) return false;
       traceEvent('subscribe.ok', {'id': id});
       _link = UniversalBle.connectionStream(id).listen((linked) {
         traceEvent('connection.changed', {'id': id, 'linked': linked});
         if (!linked && _deviceId == id) _lost();
       });
       await onNotificationsSubscribed(id);
-      if (!await _stillOpening(id)) return false;
+      if (!await _stillOpening(id, attempt)) return false;
     } on Object catch (error, stack) {
       traceEvent('connect.error', {
         'id': id,
         'error': error.toString(),
         'stack': stack.toString(),
       });
-      await _close(disconnect: true);
+      if (attempt == _attempt && !_disposed) await _close(disconnect: true);
       if (attempt == _attempt && !_disposed) _set(DeviceStatus.failed);
       return false;
     }
+    if (attempt != _attempt || _disposed) return false;
     _set(DeviceStatus.connected);
     return true;
   }
 
-  Future<bool> _stillOpening(String id) async {
-    if (!_disposed && _deviceId == id) return true;
+  Future<bool> _stillOpening(String id, int attempt) async {
+    if (!_disposed && _deviceId == id && attempt == _attempt) return true;
+    // A newer attempt may now own a connection to the same device.
+    if (!_disposed && _deviceId == id) return false;
     try {
       await UniversalBle.disconnect(id, timeout: const Duration(seconds: 5));
     } on Object {
@@ -368,6 +382,7 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
 
   Future<void> _close({bool disconnect = false}) async {
     traceEvent('connection.close', {'id': _deviceId, 'disconnect': disconnect});
+    final hadLink = _link != null || connected;
     connectionClosed();
     final cancelValues = _values?.cancel();
     final cancelLink = _link?.cancel();
@@ -379,10 +394,12 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
     await cancelValues;
     await cancelLink;
     if (disconnect && id != null) {
-      try {
-        await beforeDisconnect(id);
-      } on Object {
-        // A failed stop command must not prevent disconnecting.
+      if (hadLink) {
+        try {
+          await beforeDisconnect(id);
+        } on Object {
+          // A failed stop command must not prevent disconnecting.
+        }
       }
       try {
         await UniversalBle.disconnect(id, timeout: const Duration(seconds: 5));
@@ -396,10 +413,11 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
   @override
   Future<void> disconnect() async {
     _heldOff = true;
-    _attempt++;
+    final attempt = ++_attempt;
+    _opening = false;
     cancelReconnect();
-    await _close(disconnect: !_opening || connected || _link != null);
-    _set(DeviceStatus.idle);
+    await _close(disconnect: true);
+    if (!_disposed && attempt == _attempt) _set(DeviceStatus.idle);
   }
 
   /// Disconnects and forgets the remembered device.
@@ -415,10 +433,11 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
   void dispose() {
     _disposed = true;
     _attempt++;
+    _opening = false;
     cancelReconnect();
     _searchEnd?.cancel();
     _scan?.cancel();
-    _close(disconnect: !_opening || connected || _link != null);
+    _close(disconnect: true);
     _readings.close();
     super.dispose();
   }

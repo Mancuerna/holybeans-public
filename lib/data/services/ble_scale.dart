@@ -38,7 +38,10 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
 
   @override
   Future<void> forgetScale(String id) async {
-    if (id == activeScaleId || !connected) await disconnect();
+    if (id == connectionTargetId ||
+        (connectionTargetId == null && id == _scales.firstOrNull?.id)) {
+      await disconnect();
+    }
     await settings.forget(id);
     await _loadScales();
     setRemembered(_scales.firstOrNull);

@@ -123,6 +123,15 @@ void main() {
       expect(platform.events.last, 'disconnect:mini');
     },
   );
+  test(
+    'forgetting an inactive scale keeps automatic reconnection enabled',
+    () async {
+      await scale.forgetScale(ultra.id);
+      await scale.connect(automatic: true);
+      expect(scale.activeScaleId, mini.id);
+      expect(scale.rememberedScales.map((s) => s.id), ['mini']);
+    },
+  );
   test('concurrent retries start only one scan and one connection', () async {
     platform.nearby = [ultra, mini];
     await Future.wait([
