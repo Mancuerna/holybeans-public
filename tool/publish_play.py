@@ -382,7 +382,7 @@ def argument_parser():
     parser.add_argument("aab", type=Path, help="AAB compilado y firmado según docs/RELEASING.md")
     parser.add_argument("notes", type=Path, help="Documento con notas <es-ES> y <en-GB>")
     parser.add_argument(
-        "--track", default="production", help="Track de Play (predeterminado: production)"
+        "--track", default="internal", help="Track de Play (predeterminado: internal)"
     )
     parser.add_argument("--credentials", type=Path, help="JSON de la cuenta de servicio")
     parser.add_argument(

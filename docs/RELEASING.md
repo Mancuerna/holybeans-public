@@ -171,6 +171,8 @@ Run `Publish selected release to Play` **from `main`**. Enter its tag and the
 AAB SHA-256 from the successful `Release bundle` summary. Choose `internal` or
 `production`. The default `publish=false` performs a dry run with no Play API
 requests. Enable it deliberately to submit the same verified bundle.
+Both this workflow and `python3 -m tool.publish_play` default to the `internal`
+track; sending to production requires selecting it explicitly.
 
 The workflow verifies the tag's ancestry, bundle and notes hashes, selected
 pubspec version, and a successful release-build run for that exact commit.

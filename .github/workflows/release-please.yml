@@ -17,19 +17,28 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
-      actions: write
+    outputs:
+      release_created: ${{ steps.please.outputs.release_created }}
+      tag_name: ${{ steps.please.outputs.tag_name }}
     steps:
       - uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4
         id: please
         with:
           token: ${{ github.token }}
-      # GitHub creates an approval-required pull_request run for the release PR.
-      # Do not dispatch a second CI; it cannot replace the PR's required check.
-      # Release events still need an explicit dispatch when using GITHUB_TOKEN.
+  # GitHub creates an approval-required pull_request run for the release PR.
+  # Release events need an explicit dispatch when using GITHUB_TOKEN.
+  dispatch:
+    needs: propose
+    if: needs.propose.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
       - name: Build the created release
-        if: steps.please.outputs.release_created == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          RELEASE_TAG: ${{ steps.please.outputs.tag_name }}
+          RELEASE_TAG: ${{ needs.propose.outputs.tag_name }}
         run: gh workflow run release-build.yml --ref "$RELEASE_TAG"

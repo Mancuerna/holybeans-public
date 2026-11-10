@@ -1,0 +1,20 @@
+name: Set up Flutter
+description: Install the pinned SDK and prepare locked dependencies and generated inputs
+inputs:
+  cache:
+    description: Cache the Flutter SDK; disable for release signing jobs
+    default: 'true'
+runs:
+  using: composite
+  steps:
+    - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+      with:
+        flutter-version: '3.47.5'
+        channel: stable
+        cache: ${{ inputs.cache }}
+    - run: flutter pub get --enforce-lockfile
+      shell: bash
+    - run: python3 -m tool.generate_release_notes
+      shell: bash
+    - run: flutter gen-l10n
+      shell: bash
