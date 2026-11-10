@@ -237,6 +237,7 @@ void main() {
     });
 
     test('thawing into an empty lot pauses its age', () async {
+      final today = DateTime.now();
       final coffeeId = await repository.createCoffeeWithComponents(
         name: 'Paused',
         roaster: 'Test roaster',
@@ -245,10 +246,11 @@ void main() {
         restDays: 21,
         freeze: FreezeRequest(
           grams: 250,
-          frozenDate: DateTime.now()
-              .subtract(const Duration(days: 30))
-              .toIso8601String()
-              .substring(0, 10),
+          frozenDate: DateTime(
+            today.year,
+            today.month,
+            today.day - 30,
+          ).toIso8601String().substring(0, 10),
         ),
       );
       final coffee = (await repository.watchCoffees().first).single;

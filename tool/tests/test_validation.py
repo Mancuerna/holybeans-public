@@ -155,22 +155,18 @@ class ValidationTests(unittest.TestCase):
                     with self.assertRaises(ValueError):
                         validate_metadata(self.root, self.commit)
 
-    def test_release_build_is_required_for_reusing_validation(self):
-        jobs = [{'name': name, 'status': 'completed', 'conclusion': 'success'}
-                for name in ('flutter', 'android')]
-        self.assertFalse(complete_jobs(jobs))
-        for conclusion in ('skipped', 'failure', 'cancelled'):
-            with self.subTest(conclusion=conclusion):
-                self.assertFalse(complete_jobs(jobs + [
-                    {'name': 'release', 'status': 'completed', 'conclusion': conclusion}]))
-        self.assertTrue(complete_jobs(jobs + [
-            {'name': 'release', 'status': 'completed', 'conclusion': 'success'}]))
+    def test_every_full_job_is_required_for_reusing_validation(self):
+        for missing in ('flutter', 'slow', 'android', 'release'):
+            jobs = [{'name': name, 'status': 'completed', 'conclusion': 'success'}
+                    for name in ('flutter', 'slow', 'android', 'release') if name != missing]
+            with self.subTest(missing=missing):
+                self.assertFalse(complete_jobs(jobs))
 
     def test_only_complete_passing_jobs_are_evidence(self):
         jobs = [{'name': name, 'status': 'completed', 'conclusion': 'success'}
-                for name in ('scope', 'flutter', 'android', 'release', 'CI result')]
+                for name in ('scope', 'flutter', 'slow', 'android', 'release', 'CI result')]
         self.assertTrue(complete_jobs(jobs))
-        for name in ('flutter', 'android', 'release'):
+        for name in ('flutter', 'slow', 'android', 'release'):
             for conclusion in ('skipped', 'failure', 'cancelled'):
                 with self.subTest(name=name, conclusion=conclusion):
                     changed = [{**j, 'conclusion': conclusion} if j['name'] == name else j for j in jobs]
@@ -180,7 +176,7 @@ class ValidationTests(unittest.TestCase):
         full = self.run_record()
         lightweight = self.run_record(id=11)
         jobs = [{'name': name, 'status': 'completed', 'conclusion': 'success'}
-                for name in ('flutter', 'android', 'release')]
+                for name in ('flutter', 'slow', 'android', 'release')]
         def fetch(path):
             if '/workflows/' in path:
                 return {'workflow_runs': [lightweight, full]}

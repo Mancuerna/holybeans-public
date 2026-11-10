@@ -26,9 +26,13 @@ class BrewDevices {
     PressureSensor? pressureSensor,
     Refractometer? refractometer,
     VoidCallback? onMeasurement,
+    DateTime Function()? clock,
+    Stopwatch? stopwatch,
   }) : _isEspresso = isEspresso,
        refractometer = refractometer?.name == null ? null : refractometer,
-       scale = scale?.name == null ? null : BrewScaleSession(scale!),
+       scale = scale?.name == null
+           ? null
+           : BrewScaleSession(scale!, clock: clock, stopwatch: stopwatch),
        pressure = pressureSensor?.name == null
            ? null
            : BrewPressureSession(pressureSensor!) {

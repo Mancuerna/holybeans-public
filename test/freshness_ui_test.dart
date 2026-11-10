@@ -5,15 +5,14 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 
-String _isoDaysAgo(int days) => DateTime.now()
-    .subtract(Duration(days: days))
-    .toIso8601String()
-    .substring(0, 10);
-
 void main() {
   testWidgets('bean details show freshness phases and a sweet spot', (
     tester,
   ) async {
+    final today = DateTime.now();
+    // Calendar days can contain 23 or 25 hours across daylight-saving changes.
+    DateTime daysAgo(int days) =>
+        DateTime(today.year, today.month, today.day - days, 12);
     final database = AppDatabase.forTesting(NativeDatabase.memory());
     addTearDown(database.close);
     tester.view.physicalSize = const Size(360, 800);
@@ -33,12 +32,12 @@ void main() {
       name: 'Fresh light',
       roaster: 'Test roaster',
       roastLevel: 'light',
-      roastDate: _isoDaysAgo(20),
+      roastDate: daysAgo(20).toIso8601String().substring(0, 10),
       initialGrams: 500,
     );
     final lotId = (await repository.coffeeLots(coffeeId)).single.id;
     // Rated brews: best around effective days 20–23, smoothed to 18–25.
-    for (final (daysAgo, rating) in [
+    for (final (daysBefore, rating) in [
       (19, 5.0),
       (18, 5.5),
       (8, 9.0),
@@ -54,7 +53,7 @@ void main() {
         methodName: 'V60',
         doseGrams: 15,
         rating: rating,
-        brewedAt: DateTime.now().subtract(Duration(days: daysAgo)),
+        brewedAt: daysAgo(daysBefore),
       );
     }
 

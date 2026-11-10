@@ -36,9 +36,13 @@ class LoffeeClient implements LoffeeApi {
   LoffeeClient({
     HttpClient Function()? clientFactory,
     Uri? baseUri,
+    DateTime Function()? clock,
+    Future<void> Function(Duration)? delay,
     this.interval = const Duration(seconds: 3),
     this.timeout = const Duration(seconds: 20),
-  }) : _clientFactory = clientFactory ?? HttpClient.new,
+  }) : _clock = clock ?? DateTime.now,
+       _delay = delay ?? Future<void>.delayed,
+       _clientFactory = clientFactory ?? HttpClient.new,
        // The documented subdomain has no DNS record. The same documented
        // route on the official www host was verified with authenticated GET.
        _base = baseUri ?? Uri.https('www.loffeelabs.com', '/api/v2/beans');
@@ -46,6 +50,8 @@ class LoffeeClient implements LoffeeApi {
   static const pageSize = 20;
   final HttpClient Function() _clientFactory;
   final Uri _base;
+  final DateTime Function() _clock;
+  final Future<void> Function(Duration) _delay;
   final Duration interval;
   final Duration timeout;
   Future<void> _queue = Future<void>.value();
@@ -80,12 +86,12 @@ class LoffeeClient implements LoffeeApi {
     var requested = false;
     try {
       await previous;
-      if (_retryAfter?.isAfter(DateTime.now()) ?? false) {
+      if (_retryAfter?.isAfter(_clock()) ?? false) {
         throw const LoffeeException(LoffeeFailure.rateLimit);
       }
-      final delay = _nextRequest?.difference(DateTime.now());
+      final delay = _nextRequest?.difference(_clock());
       if (delay != null && delay > Duration.zero) {
-        await Future<void>.delayed(delay);
+        await _delay(delay);
       }
       final uri = _base.replace(
         queryParameters: {
@@ -111,7 +117,7 @@ class LoffeeClient implements LoffeeApi {
     } finally {
       // Wait after the response: different connection latencies must not
       // squeeze the interval between requests as observed by the server.
-      if (requested) _nextRequest = DateTime.now().add(interval);
+      if (requested) _nextRequest = _clock().add(interval);
       ready.complete();
     }
   }
@@ -163,7 +169,7 @@ class LoffeeClient implements LoffeeApi {
             final date = response.headers.value('retry-after');
             DateTime? until;
             if (seconds != null && seconds > 0) {
-              until = DateTime.now().add(Duration(seconds: seconds));
+              until = _clock().add(Duration(seconds: seconds));
             }
             if (seconds == null && date != null) {
               try {

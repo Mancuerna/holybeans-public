@@ -11,10 +11,14 @@ void main() {
   late HttpServer server;
   late StreamSubscription<HttpRequest> subscription;
   late LoffeeClient client;
+  late DateTime now;
+  final delays = <Duration>[];
   final requests = <HttpRequest>[];
   late void Function(HttpRequest) respond;
   setUp(() async {
     requests.clear();
+    delays.clear();
+    now = DateTime(2026, 10, 17);
     server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
     respond = (request) {
       request.response.headers.contentType = ContentType.json;
@@ -32,6 +36,11 @@ void main() {
     client = LoffeeClient(
       baseUri: Uri.parse('http://127.0.0.1:${server.port}/api/v2/beans'),
       interval: const Duration(milliseconds: 80),
+      clock: () => now,
+      delay: (duration) async {
+        delays.add(duration);
+        now = now.add(duration);
+      },
     );
   });
   tearDown(() async {
@@ -75,7 +84,7 @@ void main() {
   test('concurrent searches are spaced apart', () async {
     final arrivals = <DateTime>[];
     respond = (request) {
-      arrivals.add(DateTime.now());
+      arrivals.add(now);
       request.response.write('[]');
       unawaited(request.response.close());
     };
@@ -83,10 +92,8 @@ void main() {
       client.search(key: 'test-key', query: 'one'),
       client.search(key: 'test-key', query: 'two'),
     ]);
-    expect(
-      arrivals.last.difference(arrivals.first).inMilliseconds,
-      greaterThanOrEqualTo(60),
-    );
+    expect(arrivals.last.difference(arrivals.first).inMilliseconds, 80);
+    expect(delays, [const Duration(milliseconds: 80)]);
   });
   test('401 and 403 are sanitized credential failures', () async {
     for (final code in [401, 403]) {
@@ -106,22 +113,17 @@ void main() {
     () async {
       final arrivals = <DateTime>[];
       respond = (request) {
-        arrivals.add(DateTime.now());
-        unawaited(
-          Future<void>.delayed(const Duration(milliseconds: 150), () async {
-            request.response.write('[]');
-            await request.response.close();
-          }),
-        );
+        arrivals.add(now);
+        now = now.add(const Duration(milliseconds: 150));
+        request.response.write('[]');
+        unawaited(request.response.close());
       };
       await Future.wait([
         client.search(key: 'test-key', query: 'slow first'),
         client.search(key: 'test-key', query: 'second'),
       ]);
-      expect(
-        arrivals.last.difference(arrivals.first).inMilliseconds,
-        greaterThanOrEqualTo(210),
-      );
+      expect(arrivals.last.difference(arrivals.first).inMilliseconds, 230);
+      expect(delays, [const Duration(milliseconds: 80)]);
     },
   );
   test('429 honors Retry-After without blocking indefinitely', () async {
@@ -209,7 +211,7 @@ void main() {
       client.search(key: 'test-key', query: 'slow'),
       failure(LoffeeFailure.network),
     );
-  });
+  }, tags: ['slow']);
   test('invalid credential input never reaches HTTP', () async {
     for (final key in ['', 'test\nkey', 'test key']) {
       await expectLater(

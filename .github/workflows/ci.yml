@@ -59,6 +59,8 @@ jobs:
     if: needs.scope.outputs.full == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    env:
+      TZ: Europe/Madrid
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -80,7 +82,28 @@ jobs:
           git diff --exit-code
       - run: dart format --output=none --set-exit-if-changed lib test integration_test benchmark patrol_test test_driver
       - run: flutter analyze --no-pub
-      - run: flutter test --no-pub
+      - run: flutter test --no-pub --exclude-tags slow
+  slow:
+    needs: scope
+    if: needs.scope.outputs.full == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      TZ: Europe/Madrid
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: '3.47.5'
+          channel: stable
+          cache: true
+      - run: flutter pub get --enforce-lockfile
+      - run: python3 -m tool.generate_release_notes
+      - run: flutter gen-l10n
+      - run: flutter test --no-pub --tags slow
   android:
     needs: scope
     if: needs.scope.outputs.full == 'true'
@@ -138,13 +161,14 @@ jobs:
         run: flutter build appbundle --release --obfuscate --split-debug-info=build/ci-symbols
   result:
     name: CI result
-    needs: [scope, flutter, android, release]
+    needs: [scope, flutter, slow, android, release]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - env:
           SCOPE_RESULT: ${{ needs.scope.result }}
           FLUTTER_RESULT: ${{ needs.flutter.result }}
+          SLOW_RESULT: ${{ needs.slow.result }}
           ANDROID_RESULT: ${{ needs.android.result }}
           RELEASE_RESULT: ${{ needs.release.result }}
           REQUIRED: ${{ needs.scope.outputs.full }}
@@ -152,11 +176,13 @@ jobs:
           test "$SCOPE_RESULT" = success
           if [ "$REQUIRED" = true ]; then
             test "$FLUTTER_RESULT" = success
+            test "$SLOW_RESULT" = success
             test "$ANDROID_RESULT" = success
             test "$RELEASE_RESULT" = success
             echo 'Generated code, complete Flutter suite, Android unit tests and release build passed.' >> "$GITHUB_STEP_SUMMARY"
           else
             test "$FLUTTER_RESULT" = skipped
+            test "$SLOW_RESULT" = skipped
             test "$ANDROID_RESULT" = skipped
             test "$RELEASE_RESULT" = skipped
             echo 'Lightweight checks passed. Complete tests reused (see scope evidence) or documentation-only change.' >> "$GITHUB_STEP_SUMMARY"

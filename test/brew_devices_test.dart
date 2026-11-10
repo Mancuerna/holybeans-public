@@ -6,14 +6,18 @@ import 'package:holybeans/ui/brews/brew_draft.dart';
 import 'package:holybeans/ui/brews/brew_timer.dart';
 
 import 'helpers/fake_scale.dart';
+import 'helpers/manual_stopwatch.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late BrewDraft draft;
   late BrewTimer timer;
   late FakeScale scale;
+  late DateTime now;
+  late ManualStopwatch stopwatch;
 
   setUp(() {
+    now = DateTime(2026, 10, 17);
     draft = BrewDraft();
     timer = BrewTimer(
       minutes: TextEditingController(),
@@ -38,6 +42,8 @@ void main() {
         timer: timer,
         isEspresso: () => espresso,
         scale: scale,
+        clock: () => now,
+        stopwatch: stopwatch = ManualStopwatch(),
         onMeasurement: () => measurements++,
       );
       expect(draft.dose.text, '17');
@@ -64,6 +70,12 @@ void main() {
     });
   }
 
+  Future<void> advance(Duration duration) async {
+    now = now.add(duration);
+    if (stopwatch.isRunning) stopwatch.elapsed += duration;
+    await Future<void>.delayed(Duration.zero);
+  }
+
   /// Records a shot that ends on [grams], then [lifted] readings after the
   /// cup came off the scale, and stops it.
   Future<BrewDevices> shot(
@@ -76,12 +88,14 @@ void main() {
       timer: timer,
       isEspresso: () => espresso,
       scale: scale,
+      clock: () => now,
+      stopwatch: stopwatch = ManualStopwatch(),
     );
     devices.timerStarted(0);
     for (final weight in [0.0, 12.0, 30.0, grams, ...lifted]) {
       scale.emit(weight);
       // The recording keeps a reading every 100 ms at most.
-      await Future<void>.delayed(const Duration(milliseconds: 120));
+      await advance(const Duration(milliseconds: 120));
     }
     devices.timerStopped();
     return devices;
@@ -135,11 +149,13 @@ void main() {
         timer: timer,
         isEspresso: () => true,
         scale: scale,
+        clock: () => now,
+        stopwatch: stopwatch = ManualStopwatch(),
       );
       devices.timerStarted(0);
       for (final grams in [350.0, 0.0, 12.0, 36.0]) {
         scale.emit(grams);
-        await Future<void>.delayed(const Duration(milliseconds: 120));
+        await advance(const Duration(milliseconds: 120));
       }
       devices.timerStopped();
       expect(draft.beverage.text, '36');
@@ -165,14 +181,16 @@ void main() {
         timer: timer,
         isEspresso: () => true,
         scale: scale,
+        clock: () => now,
+        stopwatch: stopwatch = ManualStopwatch(),
       );
       timer.toggle();
       await Future<void>.delayed(Duration.zero);
       scale.emit(0, timerMs: 100);
-      await Future<void>.delayed(const Duration(milliseconds: 120));
+      await advance(const Duration(milliseconds: 120));
       scale.emit(12, timerMs: 200);
       scale.emit(0);
-      await Future<void>.delayed(const Duration(milliseconds: 2100));
+      await advance(const Duration(milliseconds: 2100));
       scale.emit(0);
       expect(timer.running, isFalse);
       expect(draft.beverage.text, isEmpty);
@@ -181,7 +199,7 @@ void main() {
       await Future<void>.delayed(Duration.zero);
       for (final grams in [0.0, 12.0, 36.0]) {
         scale.emit(grams);
-        await Future<void>.delayed(const Duration(milliseconds: 120));
+        await advance(const Duration(milliseconds: 120));
       }
       timer.stop();
       expect(draft.beverage.text, '36');
@@ -206,6 +224,8 @@ void main() {
       timer: timer,
       isEspresso: () => true,
       scale: scale,
+      clock: () => now,
+      stopwatch: stopwatch = ManualStopwatch(),
     );
     draft.durationSeconds.text = '75';
     final commandsBeforeInvalidStart = [...scale.commands];
@@ -226,6 +246,8 @@ void main() {
       timer: timer,
       isEspresso: () => true,
       scale: scale,
+      clock: () => now,
+      stopwatch: stopwatch = ManualStopwatch(),
     );
     timer.toggle();
     devices.scale!.requestStop!(27);
@@ -233,9 +255,9 @@ void main() {
     devices.dispose();
   });
 
-  test(
+  testWidgets(
     'a paired scale that does not answer leaves the timer to run alone',
-    () async {
+    (tester) async {
       final absent = _UnreachableScale();
       addTearDown(absent.dispose);
       timer.dispose();
@@ -264,7 +286,7 @@ void main() {
         ..notifyListeners();
       expect(timer.canStart, isTrue);
       timer.toggle();
-      await Future<void>.delayed(const Duration(milliseconds: 1100));
+      await tester.pump(const Duration(milliseconds: 1100));
       expect(timer.running, isTrue);
       timer.stop();
       expect(timer.elapsedSeconds, greaterThanOrEqualTo(1));
