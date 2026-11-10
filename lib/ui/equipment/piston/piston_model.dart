@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/repositories/piston_repository.dart';
 import 'package:holybeans/data/services/piston_history_client.dart';
 import 'package:holybeans/domain/meticulous/piston_analysis.dart';
@@ -25,7 +26,8 @@ class PistonModel extends ChangeNotifier {
     try {
       data = await repository.load(methodId);
       loadFailed = false;
-    } on Object {
+    } on Object catch (error, stack) {
+      reportError(error, stack);
       loadFailed = true;
     }
     loading = false;
@@ -51,8 +53,11 @@ class PistonModel extends ChangeNotifier {
           _notify();
         },
       );
-    } on Object {
-      if (!_cancelled && !_disposed) failed = true;
+    } on Object catch (error, stack) {
+      if (!_cancelled && !_disposed) {
+        reportError(error, stack);
+        failed = true;
+      }
     } finally {
       _source?.close();
       _source = null;
@@ -60,7 +65,8 @@ class PistonModel extends ChangeNotifier {
         try {
           data = await repository.load(methodId);
           loadFailed = false;
-        } on Object {
+        } on Object catch (error, stack) {
+          reportError(error, stack);
           loadFailed = true;
         }
         busy = false;
@@ -80,7 +86,8 @@ class PistonModel extends ChangeNotifier {
       data = await repository.load(methodId);
       _notify();
       return true;
-    } on Object {
+    } on Object catch (error, stack) {
+      reportError(error, stack);
       return false;
     }
   }
@@ -91,7 +98,8 @@ class PistonModel extends ChangeNotifier {
       data = await repository.load(methodId);
       _notify();
       return true;
-    } on Object {
+    } on Object catch (error, stack) {
+      reportError(error, stack);
       return false;
     }
   }

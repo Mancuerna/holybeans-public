@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/domain/pre_migration.dart';
@@ -80,7 +81,8 @@ class PreMigrationCopies {
         await _deleteWithSideFiles(file(stale));
       }
       return copy;
-    } on Object {
+    } on Object catch (error, stack) {
+      reportError(error, stack);
       return null;
     }
   }
