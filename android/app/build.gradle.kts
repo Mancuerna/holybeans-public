@@ -9,6 +9,26 @@ plugins {
 val isPatrolBuild = providers.gradleProperty("patrol-enabled").orNull == "true"
 val holyBeansApplicationId = "com.caffeinateddev.holybeans"
 
+val releaseSigning = listOf(
+    "HOLYBEANS_KEYSTORE",
+    "HOLYBEANS_KEYSTORE_PASSWORD",
+    "HOLYBEANS_KEY_ALIAS",
+    "HOLYBEANS_KEY_PASSWORD",
+).associateWith { providers.environmentVariable(it).orNull?.takeIf(String::isNotBlank) }
+val missingSigning = releaseSigning.filterValues { it == null }.keys
+val allowDebugSigning = providers.gradleProperty("allowDebugSigning").orNull == "true"
+
+// Inspect resolved tasks so abbreviations and aggregate tasks cannot bypass this.
+gradle.taskGraph.whenReady {
+    if (allTasks.any { it.project == project && it.name.contains("Release") } &&
+        missingSigning.isNotEmpty() && !allowDebugSigning) {
+        throw GradleException(
+            "Release signing requires ${missingSigning.joinToString()}. " +
+                "For local testing only, explicitly set -PallowDebugSigning=true.",
+        )
+    }
+}
+
 android {
     namespace = "com.caffeinateddev.holybeans"
     compileSdk = flutter.compileSdkVersion
@@ -56,16 +76,14 @@ android {
         System.getenv("HOLYBEANS_PATROL_BUILD_TYPE")?.let { testBuildType = it }
     }
 
-    // CI supplies the upload key only for reviewed release builds.
-    // Ordinary source builds can use the local Android debug key.
-    val releaseKeystore = System.getenv("HOLYBEANS_KEYSTORE")?.takeIf { it.isNotBlank() }
+    // Complete upload-key credentials take precedence over the local test opt-in.
     signingConfigs {
-        if (releaseKeystore != null) {
+        if (missingSigning.isEmpty()) {
             create("release") {
-                storeFile = file(releaseKeystore)
-                storePassword = System.getenv("HOLYBEANS_KEYSTORE_PASSWORD") ?: "android"
-                keyAlias = System.getenv("HOLYBEANS_KEY_ALIAS") ?: "androiddebugkey"
-                keyPassword = System.getenv("HOLYBEANS_KEY_PASSWORD") ?: "android"
+                storeFile = file(releaseSigning.getValue("HOLYBEANS_KEYSTORE")!!)
+                storePassword = releaseSigning.getValue("HOLYBEANS_KEYSTORE_PASSWORD")
+                keyAlias = releaseSigning.getValue("HOLYBEANS_KEY_ALIAS")
+                keyPassword = releaseSigning.getValue("HOLYBEANS_KEY_PASSWORD")
             }
         }
     }
@@ -73,7 +91,7 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName(
-                if (releaseKeystore != null) "release" else "debug",
+                if (missingSigning.isEmpty()) "release" else "debug",
             )
             proguardFiles("proguard-rules.pro")
         }

@@ -27,6 +27,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      - uses: gradle/actions/wrapper-validation@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
       - name: Check release identity and notes
         env:
           TAG: ${{ github.event.release.tag_name || github.ref_name }}
@@ -42,7 +43,7 @@ jobs:
         with:
           flutter-version: '3.47.5'
           channel: stable
-          cache: true
+          cache: false
       - run: flutter pub get --enforce-lockfile
       - run: python3 -m tool.generate_release_notes
       - name: Build with the upload key

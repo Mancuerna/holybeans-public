@@ -90,6 +90,19 @@ For a locally installable development APK:
 flutter build apk --debug
 ```
 
+Release builds require all four environment variables: `HOLYBEANS_KEYSTORE`,
+`HOLYBEANS_KEYSTORE_PASSWORD`, `HOLYBEANS_KEY_ALIAS`, and `HOLYBEANS_KEY_PASSWORD`.
+Missing or blank values fail the build. For a local release-mode test with the
+Android debug key, explicitly opt in:
+
+```sh
+ORG_GRADLE_PROJECT_allowDebugSigning=true flutter build apk --release
+```
+
+When invoking Gradle directly, use `-PallowDebugSigning=true` instead. This opt-in
+is for local tests only; publishing requires the upload key. Complete signing
+credentials take precedence over the opt-in.
+
 A locally signed build cannot replace the Play installation unless its signing
 identity matches. Keep a backup before changing how you install the app.
 

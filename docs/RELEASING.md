@@ -83,6 +83,27 @@ Use English Conventional Commit messages and PR titles as described in
 [CONTRIBUTING.md](../CONTRIBUTING.md#commit-messages). When squash merging, review
 the final message that reaches `main`; that is what Release Please reads.
 
+## Local release builds and signing checks
+
+Release tasks require nonblank `HOLYBEANS_KEYSTORE`,
+`HOLYBEANS_KEYSTORE_PASSWORD`, `HOLYBEANS_KEY_ALIAS` and `HOLYBEANS_KEY_PASSWORD`.
+There are no fallback passwords or aliases. For a local test only, use
+`ORG_GRADLE_PROJECT_allowDebugSigning=true flutter build appbundle --release`
+(or `-PallowDebugSigning=true` with Gradle directly). Never enable this exception
+in the signing job. Complete upload-key credentials take precedence.
+
+After resolving Flutter dependencies, `python3 -m tool.ci.check_android_signing`
+checks the real Gradle task graph using dry runs and synthetic credentials;
+it does not build an app or read an upload key. CI runs this matrix before the
+Android unit tests. It covers missing and blank variables, debug/profile builds,
+explicit opt-in, and release tasks requested by abbreviation or an aggregate.
+
+The signing job disables Flutter cache restoration and validates the committed
+wrapper JAR with a pinned Gradle action before running it. The wrapper verifies
+the distribution against its pinned SHA-256 checksum. The sources are the
+[official distribution checksum](https://services.gradle.org/distributions/gradle-9.3.1-all.zip.sha256)
+and [Gradle wrapper validation](https://github.com/gradle/actions/blob/v6.4.1/docs/wrapper-validation.md).
+
 ## Prepare a release
 
 Release Please starts from **1.1.19**, with `pubspec.yaml` at **1.1.19+157**.

@@ -85,6 +85,20 @@ Para generar una APK de desarrollo:
 flutter build apk --debug
 ```
 
+Las compilaciones release necesitan las cuatro variables de entorno:
+`HOLYBEANS_KEYSTORE`, `HOLYBEANS_KEYSTORE_PASSWORD`, `HOLYBEANS_KEY_ALIAS` y
+`HOLYBEANS_KEY_PASSWORD`. Si falta alguna o está vacía, la compilación falla.
+Para probar localmente el modo release con la clave debug de Android, actívalo
+explícitamente:
+
+```sh
+ORG_GRADLE_PROJECT_allowDebugSigning=true flutter build apk --release
+```
+
+Si invocas Gradle directamente, usa `-PallowDebugSigning=true`. Esta excepción
+sirve solo para pruebas locales; publicar requiere la clave de subida. Las
+credenciales de firma completas tienen prioridad sobre la excepción.
+
 Una firma local no permite sustituir una instalación de Play con una firma distinta.
 Guarda una copia del diario antes de cambiar la forma de instalar la app.
 
