@@ -338,19 +338,33 @@ class JournalBackup {
     String source, {
     Set<String> availablePhotos = const {},
   }) async {
+    final journal = _validatedJournal(source, availablePhotos.contains);
+    await journal.replace(database);
+    return journal.summary;
+  }
+
+  /// Checks every backup row and relation without changing the journal.
+  ///
+  /// [keepPhoto] selects photo references whose files will be available.
+  static void validate(String source, bool Function(String) keepPhoto) {
+    _validatedJournal(source, keepPhoto);
+  }
+
+  static _RestoredJournal _validatedJournal(
+    String source,
+    bool Function(String) keepPhoto,
+  ) {
     final (:data, :version) = _readBackup(source);
-    final journal = _RestoredJournal.decode(
+    return _RestoredJournal.decode(
       data,
       restoreBrewJugs: version <= 30,
       keepPhoto: (name) {
         if (!PhotoStore.isValidName(name)) {
           throw const FormatException('Backup has an invalid photo name');
         }
-        return availablePhotos.contains(name);
+        return keepPhoto(name);
       },
     )..validate();
-    await journal.replace(database);
-    return journal.summary;
   }
 
   /// A ZIP with the JSON journal and the photos it references.

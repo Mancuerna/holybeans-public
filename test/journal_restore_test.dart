@@ -2,6 +2,7 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -36,6 +37,19 @@ class _FailPhotos extends PhotoStore {
     if (failure == 'after-promote') {
       throw const FileSystemException('Promotion interrupted');
     }
+  }
+}
+
+class _ObserveStaging extends PhotoStore {
+  _ObserveStaging(super.directory);
+  bool staged = false;
+  @override
+  Future<void> stageReplacement(
+    Directory staged,
+    Map<String, Uint8List> files,
+  ) async {
+    this.staged = true;
+    await super.stageReplacement(staged, files);
   }
 }
 
@@ -118,6 +132,36 @@ void main() {
     expect(await repository.coffeePhotos(coffee), [oldPhoto]);
     expect(await store.file(oldPhoto).readAsBytes(), oldBytes);
     expect(store.file(newPhoto).existsSync(), newPhotoKept);
+  }
+
+  for (final invalid in ['wrong type', 'missing field', 'invalid relation']) {
+    test('$invalid is rejected before staging the journal or photos', () async {
+      final decoded = jsonDecode(newSource) as Map<String, dynamic>;
+      final data = decoded['data'] as Map<String, dynamic>;
+      final row = (data['coffees'] as List).single as Map<String, dynamic>;
+      switch (invalid) {
+        case 'wrong type':
+          row['name'] = 123;
+        case 'missing field':
+          row.remove('name');
+        case 'invalid relation':
+          (data['coffeePhotos'] as List).first['coffeeId'] = 'missing';
+      }
+      final photos = _ObserveStaging(store.directory);
+      await expectLater(
+        JournalRestore(
+          JournalBackup(db),
+          photos,
+        ).replace(jsonEncode(decoded), {newPhoto: newBytes}),
+        throwsFormatException,
+      );
+      expect(photos.staged, isFalse);
+      await expectOriginal();
+      expect(
+        Directory('${store.directory.path}.restore').existsSync(),
+        isFalse,
+      );
+    });
   }
 
   for (final failure in ['stage', 'promote', 'after-promote']) {
