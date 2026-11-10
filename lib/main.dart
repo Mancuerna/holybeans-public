@@ -3,21 +3,16 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:holybeans/app/startup_services.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/language_setting.dart';
 import 'package:holybeans/data/preferences/release_notes_settings.dart';
-import 'package:holybeans/data/preferences/scale_settings.dart';
-import 'package:holybeans/data/services/backup_folder.dart';
-import 'package:holybeans/data/services/ble_scale.dart';
 import 'package:holybeans/data/services/export_folder.dart';
 import 'package:holybeans/data/services/incoming_shares.dart';
-import 'package:holybeans/data/services/journal_backup.dart';
-import 'package:holybeans/data/services/journal_restore.dart';
 import 'package:holybeans/data/services/loffee_api.dart';
 import 'package:holybeans/data/services/loffee_key_store.dart';
 import 'package:holybeans/data/services/photo_store.dart';
-import 'package:holybeans/data/services/pre_migration_copies.dart';
 import 'package:holybeans/data/services/pressure_sensor.dart';
 import 'package:holybeans/data/services/rate_reminders.dart';
 import 'package:holybeans/data/services/refractometer.dart';
@@ -55,75 +50,55 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   installErrorReporting();
   LicenseRegistry.addLicense(bundledAppLicenses);
+  runApp(await prepareApp());
+}
+
+Future<Widget> prepareApp({
+  StartupServices services = const StartupServices(),
+}) async {
   final openRate = ValueNotifier<String?>(null);
-  // Independent start-up work runs side by side.
-  final photosReady = PhotoStore.open();
-  final android = defaultTargetPlatform == TargetPlatform.android;
-  final backupsReady = BackupServices.open(
-    folder: android ? const AndroidBackupFolder() : null,
-  );
-  final remindersReady = LocalRateReminders.start(
-    onOpen: (brewId) => openRate.value = brewId,
-  );
-  // The journal as it is, before an update changes its schema.
-  final databaseFile = await AppDatabase.file();
-  final existingInstallation = databaseFile.existsSync();
-  await (await PreMigrationCopies.open()).keepIfUpgrading(
-    databaseFile,
-    currentSchema: AppDatabase.currentSchema,
-  );
-  final database = await AppDatabase.open();
-  final photos = await photosReady;
-  await JournalRestore(JournalBackup(database), photos).recover();
-  final locale = await LanguageSetting(database).load();
-  final (reminders, launchBrew) = await remindersReady;
+  final android = services.android;
+  // Attach error handlers immediately, including while storage is opening.
+  final backupsReady = optionalStartup(services.backups);
+  final remindersReady = optionalStartup(() => services.reminders(openRate));
+  final existingInstallation = await services.existingInstallation();
+  await optionalStartup(services.keepPreMigrationCopy);
+  final database = await services.openDatabase();
+  final photos = await services.openPhotos();
+  await services.recover(database, photos);
+  final locale = await optionalStartup(() => services.loadLocale(database));
+  final (reminders, launchBrew) = await remindersReady ?? (null, null);
   openRate.value = launchBrew;
   final backupServices = await backupsReady;
-  final scale = android ? BleScale(ScaleSettings(database)) : null;
-  await scale?.load();
-  final pressureSensor = android
-      ? BlePressureSensor(await BlePressureSensor.openStore())
-      : null;
-  await pressureSensor?.load();
-  final refractometer = android
-      ? BleRefractometer(await BleRefractometer.openStore())
-      : null;
-  await refractometer?.load();
-  final driveSync = android
-      ? await DriveSyncModel.open(JournalBackup(database), photos)
-      : null;
-  ReleaseNotesSettings? releaseNotes;
-  try {
-    final settings = await ReleaseNotesSettings.open();
-    if (await settings.pending(existingInstallation: existingInstallation) &&
-        launchBrew == null) {
-      releaseNotes = settings;
-    }
-  } catch (error, stack) {
-    reportError(error, stack);
-  }
-  runApp(
-    HolyBeansApp(
-      database: database,
-      initialLocale: locale,
-      photos: photos,
-      reminders: reminders,
-      openRate: openRate,
-      scale: scale,
-      pressureSensor: pressureSensor,
-      refractometer: refractometer,
-      exportFolder: android ? const AndroidExportFolder() : null,
-      incoming: android ? IncomingShares() : null,
-      loffee: android
-          ? LoffeeServices(
-              api: LoffeeClient(),
-              keys: const AndroidLoffeeKeyStore(),
-            )
-          : null,
-      backupServices: backupServices,
-      driveSync: driveSync,
-      releaseNotes: releaseNotes,
-    ),
+  final scale = await optionalStartup(() => services.scale(database));
+  final pressureSensor = await optionalStartup(services.pressureSensor);
+  final refractometer = await optionalStartup(services.refractometer);
+  final driveSync = await optionalStartup(
+    () => services.drive(database, photos),
+  );
+  final releaseNotes = await optionalStartup(
+    () => services.releaseNotes(existingInstallation, launchBrew),
+  );
+  return HolyBeansApp(
+    database: database,
+    initialLocale: locale,
+    photos: photos,
+    reminders: reminders,
+    openRate: openRate,
+    scale: scale,
+    pressureSensor: pressureSensor,
+    refractometer: refractometer,
+    exportFolder: android ? const AndroidExportFolder() : null,
+    incoming: android ? IncomingShares() : null,
+    loffee: android
+        ? LoffeeServices(
+            api: LoffeeClient(),
+            keys: const AndroidLoffeeKeyStore(),
+          )
+        : null,
+    backupServices: backupServices,
+    driveSync: driveSync,
+    releaseNotes: releaseNotes,
   );
 }
 
