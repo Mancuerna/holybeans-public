@@ -1,16 +1,18 @@
 import 'package:drift/drift.dart' show Value;
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
+
 void main() {
   testWidgets('bean density and unified brew cards remain usable at 2x text', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;
@@ -61,7 +63,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
 
-    await _tapBottomDestination(tester, 1);
+    await tapBottomDestination(tester, 1);
     final beanSearch = find.byType(TextField).first;
     final beanMenu = find.byKey(const ValueKey('beans-view-menu'));
     final beanToggle = find.byKey(const ValueKey('bean-density-toggle'));
@@ -121,7 +123,7 @@ void main() {
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
 
-    await _tapBottomDestination(tester, 2);
+    await tapBottomDestination(tester, 2);
     final brewSearch = find.byType(TextField).first;
     final brewToggle = find.byKey(const ValueKey('brew-density-toggle'));
     final historySort = find.byKey(const ValueKey('history-sort'));
@@ -216,13 +218,4 @@ void _expectControlRowFits(
     expect(bounds.top, greaterThanOrEqualTo(searchBounds.bottom));
     previousRight = bounds.right;
   }
-}
-
-Future<void> _tapBottomDestination(WidgetTester tester, int index) async {
-  final navigation = find.byType(NavigationBar);
-  final bounds = tester.getRect(navigation);
-  await tester.tapAt(
-    Offset(bounds.left + bounds.width * (index + 0.5) / 4, bounds.center.dy),
-  );
-  await tester.pumpAndSettle();
 }

@@ -1,7 +1,5 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/scale.dart';
@@ -15,14 +13,13 @@ import 'package:holybeans/ui/settings/scale_section.dart';
 
 import 'helpers/fake_pressure_sensor.dart';
 import 'helpers/fake_scale.dart';
+import 'helpers/manual_stopwatch.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
-  Widget app(Widget home) => MaterialApp(
-    locale: const Locale('en'),
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    home: home,
-  );
+  Widget app(Widget home) =>
+      localizedApp(locale: const Locale('en'), home: home);
 
   testWidgets('settings find, pair and forget a scale', (tester) async {
     final scale = FakeScale(
@@ -104,7 +101,7 @@ void main() {
 
   testWidgets('the brew form takes weights from the scale and keeps the '
       'curve recorded while the timer runs', (tester) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(400, 900);
     tester.view.devicePixelRatio = 1;
@@ -319,7 +316,7 @@ void main() {
   testWidgets('the pour assistant follows the scale', (tester) async {
     final scale = FakeScale(name: 'BOOKOO_SC_U', connected: true)..emit(380);
     addTearDown(scale.dispose);
-    final clock = _HandStopwatch();
+    final clock = ManualStopwatch();
     PourAssistantResult? result;
     await tester.pumpWidget(
       app(
@@ -389,7 +386,7 @@ void main() {
   testWidgets('paired devices connect when the app opens and comes back', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final scale = FakeScale(name: 'BOOKOO_SC_U');
     final sensor = FakePressureSensor(name: 'BOOKOO_EM-1');
@@ -425,7 +422,7 @@ void main() {
 
   testWidgets('an espresso waits for its first drip and the chart can stop '
       'it', (tester) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(400, 900);
     tester.view.devicePixelRatio = 1;
@@ -486,28 +483,4 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(milliseconds: 10));
   });
-}
-
-/// A stopwatch the test moves by setting [elapsed].
-class _HandStopwatch implements Stopwatch {
-  @override
-  Duration elapsed = Duration.zero;
-  bool _running = false;
-
-  @override
-  bool get isRunning => _running;
-  @override
-  void start() => _running = true;
-  @override
-  void stop() => _running = false;
-  @override
-  void reset() => elapsed = Duration.zero;
-  @override
-  int get elapsedMilliseconds => elapsed.inMilliseconds;
-  @override
-  int get elapsedMicroseconds => elapsed.inMicroseconds;
-  @override
-  int get elapsedTicks => elapsed.inMicroseconds;
-  @override
-  int get frequency => 1000000;
 }

@@ -1,17 +1,17 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/sensory_map_page.dart';
+
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   testWidgets(
     'detail opens the localized sensory map at the recorded EY and TDS',
     (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       tester.view.physicalSize = const Size(360, 800);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
@@ -71,7 +71,7 @@ void main() {
         HolyBeansApp(database: database, initialLocale: const Locale('es')),
       );
       await tester.pumpAndSettle();
-      await _tapBottomDestination(tester, 2);
+      await tapBottomDestination(tester, 2);
 
       final measuredBrew = find.text('Con TDS');
       await tester.scrollUntilVisible(
@@ -242,10 +242,8 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: SensoryMapChart(
+      localizedApp(
+        home: const SensoryMapChart(
           eyPercent: 18.15,
           tdsPercent: 1.37,
           otherEyPercent: 16.86,
@@ -279,15 +277,6 @@ void main() {
     expect(tester.getRect(b).center.dx, closeTo(expected(16.86, 1.29).dx, 1));
     expect(tester.getRect(b).center.dy, closeTo(expected(16.86, 1.29).dy, 1));
   });
-}
-
-Future<void> _tapBottomDestination(WidgetTester tester, int index) async {
-  final navigation = find.byType(NavigationBar);
-  final bounds = tester.getRect(navigation);
-  await tester.tapAt(
-    Offset(bounds.left + bounds.width * (index + 0.5) / 4, bounds.center.dy),
-  );
-  await tester.pumpAndSettle();
 }
 
 Future<void> _popCurrentRoute(WidgetTester tester, Finder routeContent) async {

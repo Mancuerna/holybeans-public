@@ -1,17 +1,18 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
+
 void main() {
   testWidgets(
     'a bean can be frozen, found in the Frozen tab, thawed and brewed',
     (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       tester.view.physicalSize = const Size(360, 800);
       tester.view.devicePixelRatio = 1;
@@ -31,7 +32,7 @@ void main() {
         HolyBeansApp(database: database, initialLocale: const Locale('en')),
       );
       await tester.pumpAndSettle();
-      await _tapBottomDestination(tester, 1);
+      await tapBottomDestination(tester, 1);
       expect(find.text('Available (1)'), findsOneWidget);
       expect(find.text('Frozen (0)'), findsOneWidget);
 
@@ -115,7 +116,7 @@ void main() {
   testWidgets('a new bean can be saved straight into the freezer', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;
@@ -126,7 +127,7 @@ void main() {
       HolyBeansApp(database: database, initialLocale: const Locale('en')),
     );
     await tester.pumpAndSettle();
-    await _tapBottomDestination(tester, 1);
+    await tapBottomDestination(tester, 1);
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
 
@@ -188,7 +189,7 @@ void main() {
   testWidgets('frozen coffee shows the age at which freezing paused it', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;
@@ -208,7 +209,7 @@ void main() {
       HolyBeansApp(database: database, initialLocale: const Locale('en')),
     );
     await tester.pumpAndSettle();
-    await _tapBottomDestination(tester, 1);
+    await tapBottomDestination(tester, 1);
     await tester.tap(find.text('Frozen (1)'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Frozen 4 days after roasting'), findsOneWidget);
@@ -229,7 +230,7 @@ void main() {
   testWidgets(
     'brewing frozen coffee leaves its portion unchanged until saving',
     (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       tester.view.physicalSize = const Size(360, 800);
       tester.view.devicePixelRatio = 1;
@@ -255,7 +256,7 @@ void main() {
         HolyBeansApp(database: database, initialLocale: const Locale('en')),
       );
       await tester.pumpAndSettle();
-      await _tapBottomDestination(tester, 1);
+      await tapBottomDestination(tester, 1);
       await tester.tap(find.text('Frozen (1)'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('All frozen'));
@@ -307,7 +308,7 @@ void main() {
   testWidgets('used-up portions are not offered in coffee details', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;
@@ -336,7 +337,7 @@ void main() {
       HolyBeansApp(database: database, initialLocale: const Locale('en')),
     );
     await tester.pumpAndSettle();
-    await _tapBottomDestination(tester, 1);
+    await tapBottomDestination(tester, 1);
     await tester.tap(find.text('Mixed freezer'));
     await tester.pumpAndSettle();
 
@@ -353,12 +354,4 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(milliseconds: 10));
   });
-}
-
-Future<void> _tapBottomDestination(WidgetTester tester, int index) async {
-  final bounds = tester.getRect(find.byType(NavigationBar));
-  await tester.tapAt(
-    Offset(bounds.left + bounds.width * (index + 0.5) / 4, bounds.center.dy),
-  );
-  await tester.pumpAndSettle();
 }

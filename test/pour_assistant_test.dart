@@ -1,34 +1,29 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/device_feedback.dart';
 import 'package:holybeans/domain/pour_plan.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/pour_assistant/pour_assistant_page.dart';
 
+import 'helpers/manual_stopwatch.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
+
 void main() {
-  Widget app(Widget home) => MaterialApp(
-    locale: const Locale('en'),
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    home: home,
-  );
+  Widget app(Widget home) =>
+      localizedApp(locale: const Locale('en'), home: home);
 
   for (final language in ['en', 'es']) {
     testWidgets('leaving a running pour requires confirmation ($language)', (
       tester,
     ) async {
       final feedback = _FakeFeedback();
-      final clock = _HandStopwatch();
+      final clock = ManualStopwatch();
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: Locale(language),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: Builder(
             builder: (context) => TextButton(
               onPressed: () => Navigator.of(context).push<void>(
@@ -129,7 +124,7 @@ void main() {
     tester,
   ) async {
     final feedback = _FakeFeedback();
-    final clock = _HandStopwatch();
+    final clock = ManualStopwatch();
     PourAssistantResult? result;
     await tester.pumpWidget(
       app(
@@ -221,7 +216,7 @@ void main() {
   testWidgets('a finished pour fills the brew and the method remembers it', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(400, 900);
     tester.view.devicePixelRatio = 1;
@@ -313,28 +308,4 @@ class _FakeFeedback extends DeviceFeedback {
 
   @override
   Future<void> keepScreenOn(bool on) async => screenOn = on;
-}
-
-/// A stopwatch the test moves by setting [elapsed].
-class _HandStopwatch implements Stopwatch {
-  @override
-  Duration elapsed = Duration.zero;
-  bool _running = false;
-
-  @override
-  bool get isRunning => _running;
-  @override
-  void start() => _running = true;
-  @override
-  void stop() => _running = false;
-  @override
-  void reset() => elapsed = Duration.zero;
-  @override
-  int get elapsedMilliseconds => elapsed.inMilliseconds;
-  @override
-  int get elapsedMicroseconds => elapsed.inMicroseconds;
-  @override
-  int get elapsedTicks => elapsed.inMicroseconds;
-  @override
-  int get frequency => 1000000;
 }

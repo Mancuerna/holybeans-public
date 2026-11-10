@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:drift/native.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -25,11 +24,11 @@ import 'package:holybeans/ui/shell/journal_shell.dart';
 
 import 'helpers/beanconqueror_fixture.dart';
 import 'helpers/fake_export_folder.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
-Widget _app(Widget child) => MaterialApp(
+Widget _app(Widget child) => localizedApp(
   locale: const Locale('en'),
-  localizationsDelegates: AppLocalizations.localizationsDelegates,
-  supportedLocales: AppLocalizations.supportedLocales,
   home: Scaffold(body: child),
 );
 
@@ -39,7 +38,7 @@ void main() {
   late Coffee coffee;
   var closed = false;
   setUp(() async {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     repository = JournalRepository(db);
     coffee = (await repository.coffee(
       await repository.createCoffee(name: 'Bean', roaster: 'Test'),
