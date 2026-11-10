@@ -139,8 +139,14 @@ bool folderBackupDue({
 /// backup was exported and when the last backup was made, so two exports of
 /// the same journal match.
 ({String fingerprint, bool empty}) journalDigest(String backupSource) {
-  final decoded = jsonDecode(backupSource) as Map<String, dynamic>;
-  final data = decoded['data'] as Map<String, dynamic>;
+  final decoded = jsonDecode(backupSource);
+  if (decoded is! Map<String, dynamic>) {
+    throw const FormatException('Invalid backup root');
+  }
+  final data = decoded['data'];
+  if (data is! Map<String, dynamic>) {
+    throw const FormatException('Invalid backup data');
+  }
   final preferences = data['preferences'];
   if (preferences is List) {
     for (final row in preferences) {

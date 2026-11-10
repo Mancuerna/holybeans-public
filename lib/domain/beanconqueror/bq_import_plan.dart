@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:holybeans/domain/beanconqueror/bq_plan_models.dart';
 import 'package:holybeans/domain/beanconqueror/bq_values.dart';
 import 'package:holybeans/domain/flavor_notes.dart';
+import 'package:holybeans/domain/https_link.dart';
 
 export 'package:holybeans/domain/beanconqueror/bq_plan_models.dart';
 
@@ -439,9 +440,10 @@ class _Planner {
             notes: bqText(bean['frozenNote']),
           )
         : null;
+    // These are calendar dates; a daylight-saving change is still one day.
     final pauseDays = frozenDate != null && thawedDate != null
-        ? DateTime.parse(thawedDate)
-              .difference(DateTime.parse(frozenDate))
+        ? DateTime.parse('${thawedDate}T00:00:00Z')
+              .difference(DateTime.parse('${frozenDate}T00:00:00Z'))
               .inDays
         : null;
 
@@ -463,7 +465,7 @@ class _Planner {
       },
       isFavorite: _flag(bean['favourite']),
       isDecaf: _flag(bean['decaffeinated']),
-      shopUrl: bqText(bean['url']),
+      shopUrl: httpsLink(bqText(bean['url'])),
       archivedAtMs: archivedMs,
       components: [
         if (bean['bean_information'] case final List<Object?> origins)
