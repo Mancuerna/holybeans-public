@@ -10,7 +10,8 @@ def requires_flutter(paths):
 
 def documentation(path):
     return (path in {'README.md', 'README.es.md', 'CONTRIBUTING.md', 'CHANGELOG.md'}
-            or (path.startswith('docs/') and PurePosixPath(path).suffix in {'.md', '.png', '.jpg', '.svg'})
+            or (path.startswith('docs/') and not path.startswith('docs/releases/')
+                and PurePosixPath(path).suffix in {'.md', '.png', '.jpg', '.svg'})
             or path.startswith('.github/ISSUE_TEMPLATE/'))
 
 

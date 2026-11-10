@@ -62,16 +62,39 @@ class ValidationTests(unittest.TestCase):
                 'head_repository': {'full_name': 'example/app'}, 'head_sha': self.commit,
                 'created_at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'), **changes}
 
-    def test_release_metadata_and_documentation_preserve_tested_source(self):
+    def test_build_number_and_documentation_preserve_tested_source(self):
         before = self.source()
-        self.write('pubspec.yaml', 'name: app\nversion: 1.2.2+160\ndependencies: {}\n')
-        self.write('.release-please-manifest.json', '{".": "1.2.2"}\n')
-        self.write('docs/releases/1.2.2.md', '<es-ES>Otra mejora.</es-ES>\n<en-GB>Another improvement.</en-GB>')
+        self.write('pubspec.yaml', 'name: app\nversion: 1.2.1+160\ndependencies: {}\n')
         self.write('CHANGELOG.md', 'Release notes\n')
         self.write('README.md', 'Documentation\n')
         self.save()
         validate_metadata(self.root)
         self.assertEqual(before, self.source())
+
+    def test_release_note_changes_invalidate_test_evidence(self):
+        before = self.source()
+        for change in ('edit', 'add', 'delete'):
+            with self.subTest(change=change):
+                self.git('reset', '--hard', self.commit)
+                if change == 'delete':
+                    (self.root / 'docs/releases/1.2.1.md').unlink()
+                else:
+                    name = '1.2.2' if change == 'add' else '1.2.1'
+                    self.write(f'docs/releases/{name}.md',
+                               '<es-ES>Cambio.</es-ES>\n<en-GB>Change.</en-GB>')
+                self.save()
+                self.assertNotEqual(before, self.source())
+
+    def test_selecting_existing_release_notes_invalidates_test_evidence(self):
+        self.write('docs/releases/1.2.2.md',
+                   '<es-ES>Otra mejora.</es-ES>\n<en-GB>Another improvement.</en-GB>')
+        self.save()
+        before = self.source()
+        self.write('pubspec.yaml', 'name: app\nversion: 1.2.2+160\ndependencies: {}\n')
+        self.write('.release-please-manifest.json', '{".": "1.2.2"}\n')
+        self.save()
+        validate_metadata(self.root)
+        self.assertNotEqual(before, self.source())
 
     def test_source_dependencies_workflow_and_validation_changes_invalidate_evidence(self):
         before = self.source()

@@ -59,8 +59,9 @@ def fingerprint(ref='HEAD'):
         mode, kind, oid = metadata.split()
         if path == 'pubspec.yaml':
             data = git('show', f'{ref}:pubspec.yaml')
-            version(data)
-            oid = hashlib.sha256(VERSION.sub(b'version: <checked separately>', data)).hexdigest().encode()
+            name, _ = version(data)
+            normalized = VERSION.sub(f'version: {name}+<checked separately>'.encode(), data)
+            oid = hashlib.sha256(normalized).hexdigest().encode()
         digest.update(b'\0'.join((mode, kind, oid, path_bytes)) + b'\0')
     return digest.hexdigest()
 
