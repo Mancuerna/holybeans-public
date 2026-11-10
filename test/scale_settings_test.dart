@@ -16,7 +16,7 @@ void main() {
     expect(await settings.load(), isNull);
 
     await settings.save(
-      const RememberedScale(deviceId: 'EA:54:62:00:00:09', name: 'BOOKOO_SC_U'),
+      const RememberedScale(deviceId: '02:00:00:00:00:01', name: 'BOOKOO_SC_U'),
     );
     final backup = await JournalBackup(database).exportJson();
     expect(backup, contains('"version":${JournalBackup.version}'));
@@ -26,7 +26,7 @@ void main() {
 
     await JournalBackup(database).restoreJson(backup);
     final restored = (await settings.load())!;
-    expect(restored.deviceId, 'EA:54:62:00:00:09');
+    expect(restored.deviceId, '02:00:00:00:00:01');
     expect(restored.name, 'BOOKOO_SC_U');
   });
   test(
