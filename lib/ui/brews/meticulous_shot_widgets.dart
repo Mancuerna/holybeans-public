@@ -44,13 +44,14 @@ class _ShotPickerState extends State<_ShotPicker> {
   }
 
   Future<void> _load() async {
+    MeticulousSource? source;
     setState(() {
       loading = true;
       error = null;
     });
     try {
-      final recent = await connectMeticulous(widget.address)
-          .recentShots(limit: limit, withCurves: true);
+      source = connectMeticulous(widget.address);
+      final recent = await source.recentShots(limit: limit, withCurves: true);
       if (mounted) setState(() => shots = recent);
     } on FormatException {
       if (!mounted) return;
@@ -61,6 +62,7 @@ class _ShotPickerState extends State<_ShotPicker> {
       final s = AppLocalizations.of(context)!;
       setState(() => error = s.meticulousConnectFailed(failure.message));
     } finally {
+      source?.close();
       if (mounted) setState(() => loading = false);
     }
   }

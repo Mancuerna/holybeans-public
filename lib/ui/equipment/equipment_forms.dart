@@ -85,6 +85,7 @@ class _MethodFormState extends State<_MethodForm> {
     final testedMachine = machine;
     final testedAddress = address.text;
     GaggimateSource? gaggimate;
+    MeticulousSource? meticulous;
     setState(() {
       testing = true;
       connection = null;
@@ -95,7 +96,8 @@ class _MethodFormState extends State<_MethodForm> {
         gaggimate = connectGaggimate(testedAddress);
         profile = (await gaggimate.history()).firstOrNull?.profileName;
       } else {
-        profile = (await connectMeticulous(testedAddress).recentShots(limit: 1))
+        meticulous = connectMeticulous(testedAddress);
+        profile = (await meticulous.recentShots(limit: 1))
             .firstOrNull
             ?.profileName;
       }
@@ -136,6 +138,7 @@ class _MethodFormState extends State<_MethodForm> {
         );
       }
     } finally {
+      meticulous?.close();
       gaggimate?.close();
       if (mounted) setState(() => testing = false);
     }

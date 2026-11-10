@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:holybeans/data/services/meticulous_free_pour.dart';
 import 'package:holybeans/domain/shot_curve.dart';
@@ -22,9 +24,8 @@ class MeticulousShot {
     return MeticulousShot(
       id: entry['id']! as String,
       brewedAt: DateTime.fromMillisecondsSinceEpoch((time * 1000).round()),
-      profileName:
-          (entry['name'] as String?) ?? (profile['name'] as String?) ?? '',
-      profileAuthor: profile['author'] as String?,
+      profileName: _text(entry['name']) ?? _text(profile['name']) ?? '',
+      profileAuthor: _text(profile['author']),
       temperatureC: _number(profile['temperature'])?.toDouble(),
       targetWeightGrams: _number(profile['final_weight'])?.toDouble(),
       timeSeconds: curve?.timeSeconds,
@@ -103,7 +104,7 @@ _measure(Object? data) {
   Map<String, Object?> shotOf(Map<String, Object?> sample) =>
       _map(sample['shot']);
   String statusOf(Map<String, Object?> sample) =>
-      (sample['status'] as String? ?? '').trim();
+      (_text(sample['status']) ?? '').trim();
 
   final extraction = [
     for (final sample in samples)
@@ -197,11 +198,16 @@ _measure(Object? data) {
 Map<String, Object?> _map(Object? value) =>
     value is Map ? value.cast<String, Object?>() : const {};
 
-num? _number(Object? value) => switch (value) {
-  final num number when number.isFinite => number,
-  final String text => num.tryParse(text),
-  _ => null,
-};
+String? _text(Object? value) => value is String ? value : null;
+
+num? _number(Object? value) {
+  final number = switch (value) {
+    final num number => number,
+    final String text => num.tryParse(text),
+    _ => null,
+  };
+  return number?.isFinite == true ? number : null;
+}
 
 class MeticulousException implements Exception {
   const MeticulousException(this.message);
@@ -231,6 +237,9 @@ abstract interface class MeticulousSource {
   /// pour; null otherwise. Only the latest can be read from outside the
   /// machine: its pour-over list answers local requests only.
   Future<MeticulousFreePour?> lastFreePour();
+
+  /// Releases connections and cancels pending requests.
+  void close();
 }
 
 /// Opens a source for a machine address; tests replace it with a fake.
@@ -248,8 +257,17 @@ class MeticulousClient implements MeticulousSource {
 
   final Uri base;
   final HttpClient _http;
+  bool _closed = false;
 
   static const _timeout = Duration(seconds: 15);
+  static const _maxResponseBytes = 16 * 1024 * 1024;
+
+  @override
+  void close() {
+    if (_closed) return;
+    _closed = true;
+    _http.close(force: true);
+  }
 
   /// Accepts "192.168.1.50", "meticulous.local:8080" or a full URL.
   static Uri normalizeAddress(String address) {
@@ -269,27 +287,46 @@ class MeticulousClient implements MeticulousSource {
     Map<String, String> query, {
     bool missingIsNull = false,
   }) async {
+    if (_closed) throw const MeticulousException('Closed history client');
     final uri = base.replace(
       path: path,
       queryParameters: query.isEmpty ? null : query,
     );
-    try {
-      final request = await _http.getUrl(uri).timeout(_timeout);
+    Future<Object?> read() async {
+      final request = await _http.getUrl(uri);
+      request.followRedirects = false;
       request.headers.set(HttpHeaders.acceptHeader, 'application/json');
-      final response = await request.close().timeout(_timeout);
-      final body = await utf8.decodeStream(response).timeout(_timeout);
+      final response = await request.close();
       if (missingIsNull && response.statusCode == HttpStatus.notFound) {
+        await response.listen(null).cancel();
         return null;
       }
       if (response.statusCode != HttpStatus.ok) {
         throw MeticulousException('HTTP ${response.statusCode} for $path');
       }
-      return jsonDecode(body);
+      if (response.contentLength > _maxResponseBytes) {
+        throw const FormatException('History response too large');
+      }
+      final bytes = BytesBuilder(copy: false);
+      await for (final chunk in response) {
+        if (bytes.length + chunk.length > _maxResponseBytes) {
+          throw const FormatException('History response too large');
+        }
+        bytes.add(chunk);
+      }
+      return _decodeResponse(bytes.takeBytes());
+    }
+
+    try {
+      return await read().timeout(_timeout);
     } on MeticulousException {
+      close();
       rethrow;
     } on FormatException catch (error) {
+      close();
       throw MeticulousException('Invalid response: ${error.message}');
     } on Object catch (error) {
+      close();
       throw MeticulousException('$error');
     }
   }
@@ -316,7 +353,7 @@ class MeticulousClient implements MeticulousSource {
         'dump_data': '$withCurves',
       }),
     );
-    return [for (final entry in entries) ?_tryParse(entry)];
+    return _readShots(entries);
   }
 
   @override
@@ -330,7 +367,7 @@ class MeticulousClient implements MeticulousSource {
     );
     final entry = entries.where((entry) => entry['id'] == id).firstOrNull;
     if (entry == null) throw MeticulousException('Shot $id not found');
-    return MeticulousShot.fromHistoryEntry(entry);
+    return Isolate.run(() => MeticulousShot.fromHistoryEntry(entry));
   }
 
   @override
@@ -356,17 +393,25 @@ class MeticulousClient implements MeticulousSource {
     );
     try {
       if (record is! Map) throw const FormatException('Not a record');
-      return MeticulousFreePour.fromRecord(record.cast<String, Object?>());
+      return await Isolate.run(
+        () => MeticulousFreePour.fromRecord(record.cast<String, Object?>()),
+      );
     } on FormatException catch (error) {
       throw MeticulousException('Invalid free pour: ${error.message}');
     }
   }
+}
 
-  MeticulousShot? _tryParse(Map<String, Object?> entry) {
-    try {
-      return MeticulousShot.fromHistoryEntry(entry);
-    } on FormatException {
-      return null;
-    }
+Future<Object?> _decodeResponse(Uint8List bytes) =>
+    Isolate.run(() => jsonDecode(utf8.decode(bytes)));
+
+Future<List<MeticulousShot>> _readShots(List<Map<String, Object?>> entries) =>
+    Isolate.run(() => [for (final entry in entries) ?_tryParse(entry)]);
+
+MeticulousShot? _tryParse(Map<String, Object?> entry) {
+  try {
+    return MeticulousShot.fromHistoryEntry(entry);
+  } on FormatException {
+    return null;
   }
 }
