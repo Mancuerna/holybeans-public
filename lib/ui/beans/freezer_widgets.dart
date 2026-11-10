@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/freeze_plan.dart';
@@ -6,7 +7,6 @@ import 'package:holybeans/domain/stock.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/freeze_portions_fields.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/core/semantic_colors.dart';

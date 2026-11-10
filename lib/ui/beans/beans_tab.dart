@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/bean_roaster_groups.dart';
@@ -9,7 +10,6 @@ import 'package:holybeans/domain/text_suggestions.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/bean_card.dart';
 import 'package:holybeans/ui/beans/roaster_group_header.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/journal_search_toolbar.dart';
 import 'package:holybeans/ui/core/page_layout.dart';
 import 'package:holybeans/ui/core/swipe_actions.dart';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_comparison.dart';
@@ -13,7 +14,6 @@ import 'package:holybeans/ui/brews/espresso_map_page.dart';
 import 'package:holybeans/ui/brews/sensory_map_page.dart';
 import 'package:holybeans/ui/brews/tasting_widgets.dart';
 import 'package:holybeans/ui/core/brew_parameter_labels.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';

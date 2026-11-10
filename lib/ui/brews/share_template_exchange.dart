@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/domain/share_template.dart';
 import 'package:holybeans/domain/share_template_exchange.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/share_template_editor.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';

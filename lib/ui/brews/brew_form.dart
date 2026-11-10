@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -22,7 +23,6 @@ import 'package:holybeans/ui/brews/gaggimate_shot_widgets.dart';
 import 'package:holybeans/ui/brews/meticulous_free_pour_widgets.dart';
 import 'package:holybeans/ui/brews/meticulous_shot_widgets.dart';
 import 'package:holybeans/ui/brews/pour_assistant/pour_assistant_page.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/form_exit_guard.dart';
 import 'package:holybeans/ui/core/form_validation.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';

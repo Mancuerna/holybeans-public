@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:holybeans/ui/core/error_report.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/ui/core/photo_source_sheet.dart';
 import 'package:image_picker/image_picker.dart';
 

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/services/gaggimate_client.dart';
 import 'package:holybeans/domain/gaggimate/shot.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/extraction_chart.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 
 String gaggimateError(AppLocalizations s, GaggimateFailure failure) =>

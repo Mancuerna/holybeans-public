@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/photo_store.dart';
@@ -15,7 +16,6 @@ import 'package:holybeans/ui/beans/live_freshness_section.dart';
 import 'package:holybeans/ui/beans/stock_adjustment_section.dart';
 import 'package:holybeans/ui/brews/brew_card.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/page_layout.dart';
 import 'package:holybeans/ui/core/photo_widgets.dart';

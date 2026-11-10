@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/repositories/cafe_repository.dart';
 import 'package:holybeans/data/services/cafe_catalog.dart';
 import 'package:holybeans/domain/cafe_journal.dart';
 import 'package:holybeans/domain/text_suggestions.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 
 class CafePicker extends StatefulWidget {
   const CafePicker({super.key, required this.data});

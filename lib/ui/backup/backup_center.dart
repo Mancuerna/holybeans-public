@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:isolate';
 
 import 'package:flutter/widgets.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/backup_settings.dart';
 import 'package:holybeans/data/preferences/backup_state.dart';
@@ -12,7 +13,6 @@ import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/data/services/pre_migration_copies.dart';
 import 'package:holybeans/domain/auto_backup.dart';
 import 'package:holybeans/domain/pre_migration.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 
 /// Phone services for automatic and folder copies. Without them (tests,
 /// other platforms) only the manual backup and its monthly reminder remain.

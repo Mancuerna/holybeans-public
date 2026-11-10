@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/photo_resizer.dart';
@@ -15,7 +16,6 @@ import 'package:holybeans/ui/beans/coffee_form_model.dart';
 import 'package:holybeans/ui/beans/coffee_origin_card.dart';
 import 'package:holybeans/ui/beans/coffee_origin_draft.dart';
 import 'package:holybeans/ui/beans/freezer_widgets.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/flavor_notes_field.dart';
 import 'package:holybeans/ui/core/form_exit_guard.dart';
 import 'package:holybeans/ui/core/form_validation.dart';

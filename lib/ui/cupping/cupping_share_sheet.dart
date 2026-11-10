@@ -4,10 +4,10 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/repositories/cupping_share.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/cupping/cupping_share_card.dart';
 import 'package:share_plus/share_plus.dart';

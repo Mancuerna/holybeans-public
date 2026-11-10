@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/data/services/share_clipboard.dart';
@@ -16,7 +17,6 @@ import 'package:holybeans/ui/brews/share_sheet_controls.dart';
 import 'package:holybeans/ui/brews/share_template_values.dart';
 import 'package:holybeans/ui/brews/share_templates_page.dart';
 import 'package:holybeans/ui/core/brew_parameter_labels.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/journal_share_card.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/core/share_image.dart';

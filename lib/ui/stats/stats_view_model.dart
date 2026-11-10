@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/coffee_freshness.dart';
 import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/stats_comparison.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/stats/stats_data.dart';
 
 typedef StatsRequest = ({

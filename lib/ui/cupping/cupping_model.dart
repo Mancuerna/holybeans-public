@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/device_feedback.dart';
 import 'package:holybeans/domain/cupping.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 
 /// Owns the recoverable draft and serialises writes before finalisation.
 class CuppingModel extends ChangeNotifier {

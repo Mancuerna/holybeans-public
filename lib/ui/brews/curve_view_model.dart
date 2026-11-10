@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/domain/prepared_curve.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/ui/brews/curve_worker.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 
 /// Large curves are prepared off the UI isolate. During live updates each
 /// completed coherent snapshot is shown, with at most one newer input queued.

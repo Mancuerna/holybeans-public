@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/services/atomic_json_file.dart';
 import 'package:holybeans/data/services/drive_backups.dart';
 import 'package:holybeans/data/services/drive_sync_coordinator.dart';
 import 'package:holybeans/data/services/drive_sync_remote.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/data/services/photo_store.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';

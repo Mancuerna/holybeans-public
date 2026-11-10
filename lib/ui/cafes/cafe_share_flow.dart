@@ -1,13 +1,13 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/cafe_repository.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/cafes/cafe_share_sheet.dart';
 import 'package:holybeans/ui/cafes/cafe_share_text.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:share_plus/share_plus.dart';
 

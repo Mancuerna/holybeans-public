@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart' show formatGrams;
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
 import 'package:holybeans/ui/sync/journal_write_feedback.dart';
