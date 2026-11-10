@@ -14,8 +14,9 @@ import io.flutter.plugin.common.MethodChannel
 /**
  * The brew in progress as one ongoing notification ("holybeans/live-update").
  * On Android 16 a progress-style notification asking to be promoted to a
- * Live Update; before, an ongoing notification with a chronometer and a
- * progress bar. Without permission to notify it does nothing.
+ * Live Update; on Android 8 through 15, an ongoing notification with a
+ * chronometer and a progress bar. On Android 7 or without permission to
+ * notify it does nothing.
  */
 class LiveUpdateBridge(private val activity: Activity) {
     // Looked up on first use: the activity has no context yet while it is
@@ -39,6 +40,7 @@ class LiveUpdateBridge(private val activity: Activity) {
     }
 
     private fun show(call: MethodCall) {
+        if (Build.VERSION.SDK_INT < 26) return
         if (!allowed()) return
         ensureChannel()
         val title = call.argument<String>("title") ?: return
@@ -92,6 +94,7 @@ class LiveUpdateBridge(private val activity: Activity) {
             PackageManager.PERMISSION_GRANTED
 
     private fun ensureChannel() {
+        if (Build.VERSION.SDK_INT < 26) return
         // Creating it again only renames it, to the app's language; the
         // user's own settings for it stay.
         manager.createNotificationChannel(
