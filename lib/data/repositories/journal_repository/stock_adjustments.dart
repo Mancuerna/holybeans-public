@@ -87,7 +87,7 @@ extension StockAdjustmentOperations on JournalRepository {
         )..where((r) => r.id.equals(portion))).write(
           FrozenPortionsCompanion(
             remainingGrams: Value(after),
-            thawedAtMs: Value(after == 0 ? now : null),
+            thawedAtMs: Value(after <= _gramsTolerance ? now : null),
             updatedAtMs: Value(now),
           ),
         );
@@ -115,7 +115,7 @@ extension StockAdjustmentOperations on JournalRepository {
       await record(
         lot,
         portion.remainingGrams,
-        after.clamp(0, double.infinity),
+        _roundGrams(after.clamp(0, double.infinity)),
         portion.id,
       );
     } else {
@@ -223,12 +223,16 @@ extension StockAdjustmentOperations on JournalRepository {
               throw const StockAdjustmentException('changed');
             }
             await _checkFrozenAdjustmentCapacity(portion, after);
+            final remaining = _roundGrams(max(0, after));
+            final thawedAt = remaining > _gramsTolerance
+                ? null
+                : portion.thawedAtMs ?? now;
             await (database.update(
               database.frozenPortions,
             )..where((r) => r.id.equals(portionId))).write(
               FrozenPortionsCompanion(
-                remainingGrams: Value(max(0, after)),
-                thawedAtMs: Value(after > 0 ? null : portion.thawedAtMs),
+                remainingGrams: Value(remaining),
+                thawedAtMs: Value(thawedAt),
                 updatedAtMs: Value(now),
               ),
             );
