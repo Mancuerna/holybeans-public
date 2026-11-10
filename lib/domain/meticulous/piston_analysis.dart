@@ -75,7 +75,9 @@ PistonReading analyzePiston(Map<String, dynamic> entry) {
   String? before;
   final currents = <double>[];
   final speeds = <double>[];
-  for (final row in entry['data'] as List? ?? const []) {
+  final rows = entry['data'] ?? const <Object?>[];
+  if (rows is! List) throw const FormatException('Invalid shot data');
+  for (final row in rows) {
     if (row is! Map ||
         row['status'] is! String ||
         (row['status'] as String).trim().isEmpty) {

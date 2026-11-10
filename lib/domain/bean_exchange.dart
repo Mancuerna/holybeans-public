@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:archive/archive.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/domain/altitude.dart';
+import 'package:holybeans/domain/https_link.dart';
 
 /// Coffee cards passed between people and apps: a `.holybeans` file, a QR
 /// code or text an AI filled in. A card describes the coffee and one bag of
@@ -194,7 +195,7 @@ class ReadBean {
 
 /// Why nothing could be read.
 enum BeanReadError {
-  /// Not JSON, nor JSON inside the text.
+  /// Not valid coffee JSON, nor valid coffee JSON inside the text.
   notJson,
 
   /// JSON without any coffee in it.
@@ -253,6 +254,14 @@ List<ReadBean> readBeans(String text) {
     decoded = _decodeQr(source.substring(beanQrPrefix.length));
   } else {
     decoded = _decodeJson(source);
+  }
+  if (decoded is Map &&
+      decoded.containsKey('version') &&
+      decoded['version'] is! int) {
+    throw const BeanReadException(
+      BeanReadError.notJson,
+      detail: 'Invalid format version',
+    );
   }
   final List<Object?> items;
   switch (decoded) {
@@ -472,12 +481,8 @@ ReadBean? _readBean(Map<String, Object?> json) {
 
   String? shopUrl;
   if (field('shopUrl') case final url?) {
-    final uri = Uri.tryParse(url);
-    if (uri != null && (uri.scheme == 'https' || uri.scheme == 'http')) {
-      shopUrl = url;
-    } else {
-      dropped.add('shopUrl');
-    }
+    shopUrl = httpsLink(url);
+    if (shopUrl == null) dropped.add('shopUrl');
   }
 
   double? number(String key) {

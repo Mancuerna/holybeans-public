@@ -69,12 +69,20 @@ class ShareTemplate {
     'body': body,
   };
 
-  static ShareTemplate fromJson(Map<String, dynamic> json) => ShareTemplate(
-    id: json['id'] as String,
-    name: json['name'] as String,
-    style: ShareTemplateStyle.values.byName(json['style'] as String),
-    body: json['body'] as String,
-  );
+  static ShareTemplate fromJson(Map<String, dynamic> json) {
+    try {
+      return ShareTemplate(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        style: ShareTemplateStyle.values.byName(json['style'] as String),
+        body: json['body'] as String,
+      )..validate();
+    } on TypeError {
+      throw const FormatException('Invalid share template fields');
+    } on ArgumentError {
+      throw const FormatException('Invalid share template style');
+    }
+  }
 
   void validate() {
     if (id.isEmpty ||

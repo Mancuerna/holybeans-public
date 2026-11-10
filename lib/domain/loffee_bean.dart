@@ -1,4 +1,5 @@
 import 'package:holybeans/domain/bean_exchange.dart';
+import 'package:holybeans/domain/https_link.dart';
 
 /// Catalog data, separate from the dates, money and stock of one's own bag.
 class LoffeeBean {
@@ -73,7 +74,7 @@ class LoffeeBean {
             .map((n) => n.trim())
             .where((n) => n.isNotEmpty)
             .toList(),
-        shopUrl: _httpsLink(text('link')),
+        shopUrl: httpsLink(text('link')),
         origins: origin.isEmpty ? const [] : [origin],
       ),
       description: text('description'),
@@ -89,7 +90,7 @@ class LoffeeBean {
           : high != null
           ? '$high m'
           : null,
-      imageUrl: _httpsLink(text('image')),
+      imageUrl: httpsLink(text('image')),
       harvestNeedsReview: harvestNeedsReview,
     );
   }
@@ -127,16 +128,6 @@ class LoffeeBean {
   };
 }
 
-String? _httpsLink(String? value) {
-  final uri = Uri.tryParse(value ?? '');
-  return uri != null &&
-          uri.scheme == 'https' &&
-          uri.host.isNotEmpty &&
-          uri.userInfo.isEmpty
-      ? uri.toString()
-      : null;
-}
-
 /// One page of catalog results. No response modifies the local inventory.
 class LoffeePage {
   factory LoffeePage.decode(
@@ -159,10 +150,16 @@ class LoffeePage {
     }
     final beans = <LoffeeBean>[];
     for (final row in rows) {
-      if (row is! Map<String, Object?>) {
-        throw const FormatException('Invalid coffee result');
+      if (row is! Map<String, Object?>) continue;
+      try {
+        beans.add(LoffeeBean.fromJson(row));
+      } on FormatException {
+        // A malformed row does not hide valid coffees on the same page.
+        continue;
       }
-      beans.add(LoffeeBean.fromJson(row));
+    }
+    if (rows.isNotEmpty && beans.isEmpty) {
+      throw const FormatException('Invalid coffee results');
     }
     final meta = root['meta'] ?? root['pagination'];
     final metadata = meta is Map<String, Object?> ? meta : root;
