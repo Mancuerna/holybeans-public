@@ -117,9 +117,17 @@ flutter test --no-pub
 python3 -m unittest discover -s tool/tests
 ```
 
-Generated database code is included. After changing Drift declarations, regenerate
-it with `dart run build_runner build --delete-conflicting-outputs` and update the
-migration tests. Localization sources are in `lib/l10n/`.
+Generated database code is included. After changing Drift declarations and
+schema snapshots, regenerate the code and update the migration tests:
+
+```sh
+dart run build_runner build --delete-conflicting-outputs
+dart run drift_dev schema steps drift_schemas lib/data/database/schema_steps.g.dart
+dart run drift_dev schema generate drift_schemas test/generated_migrations
+```
+
+CI repeats this generation and rejects differences from the committed files.
+Localization sources are in `lib/l10n/`.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) for architecture, tests, Android integration
 checks and device restrictions. Tests requiring an external real backup are

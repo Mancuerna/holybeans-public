@@ -13,7 +13,7 @@ from tool.publish_play import parse_release_notes
 VERSION = re.compile(rb'^version: ([0-9]+\.[0-9]+\.[0-9]+)\+([0-9]+)$', re.MULTILINE)
 SHA = re.compile(r'[0-9a-f]{40}')
 WORKFLOW = '.github/workflows/ci.yml'
-FULL_JOBS = {'flutter', 'android'}
+FULL_JOBS = {'flutter', 'android', 'release'}
 
 
 def git(*args):

@@ -16,9 +16,12 @@ Actions and bundletool are pinned to immutable revisions or checksums.
 
 ## Avoiding duplicate validation
 
-Flutter formatting, analysis and the full Flutter suite run in one job; Android
-unit tests run in parallel. Every invocation still checks release metadata,
-documentation, helper tests and whitespace before the required `CI result` passes.
+Database code regeneration, Flutter formatting, analysis and the full Flutter
+suite run in one job. Android unit tests and a release bundle build run in
+parallel. The release check uses explicit debug signing, obfuscation and R8; it
+receives no upload key and does not publish its bundle. Every invocation still
+checks release metadata, documentation, helper tests and whitespace before the
+required `CI result` passes.
 
 CI hashes tracked file contents and modes, including application code, tests,
 dependencies, build settings, workflows and the reuse helper itself. Versioned
@@ -32,8 +35,8 @@ build number, manifest agreement and bilingual release notes are checked on
 every run. All other pubspec content participates in the hash.
 
 A complete, successful run of `ci.yml` from this repository in the last seven
-days can supply evidence for the same source hash. Both its `flutter` and
-`android` jobs must have actually succeeded. Skipped/reused runs cannot supply
+days can supply evidence for the same source hash. Its `flutter`, `android` and
+`release` jobs must have actually succeeded. Skipped/reused runs cannot supply
 evidence, and runs from forks, other workflows, or failed attempts are rejected.
 The helper compares Git contents from the candidate's exact `head_sha`; it does
 not trust a branch name or an uploaded cache marker. CI explicitly checks out
