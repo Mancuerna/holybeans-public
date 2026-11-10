@@ -217,6 +217,20 @@ void main() {
         tester.widget(find.byType(LinearProgressIndicator));
     expect(bar().value, isNull, reason: 'no count to show yet');
 
+    expect(
+      ModalRoute.of(tester.element(find.byType(BeanconquerorImportPage)))!
+          .popDisposition,
+      RoutePopDisposition.doNotPop,
+    );
+    await tester.binding.handlePopRoute();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byType(BeanconquerorImportPage), findsOneWidget);
+    await tester.tap(find.byType(BackButton));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byType(BeanconquerorImportPage), findsOneWidget);
+
     bundle.read.complete();
     await tester.pump();
     await tester.pump();
@@ -232,6 +246,84 @@ void main() {
     await tester.pumpAndSettle();
     expect(summary!.brews, 2);
   });
+
+  testWidgets('failed photo cleanup still leaves the import retryable', (
+    tester,
+  ) async {
+    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(database.close);
+    final folder = Directory.systemTemp.createTempSync('bq_cleanup');
+    addTearDown(() => folder.deleteSync(recursive: true));
+    final photos = _RejectDeletePhotos(folder);
+    final repository = JournalRepository(database);
+    final plan = await tester.runAsync(
+      () async => planBeanconquerorImport(
+        BeanconquerorArchive.read(zip()),
+        await repository.beanconquerorJournal(),
+      ),
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: BeanconquerorImportPage(
+          plan: plan!,
+          repository: repository,
+          photos: photos,
+          extra: _BrokenCurves(),
+          pickFiles: () async => [],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final button = find.byKey(const ValueKey('bq-import'));
+    await tester.scrollUntilVisible(button, 200);
+    await tester.runAsync(() async {
+      await tester.tap(button);
+      for (var i = 0; i < 100 && !photos.deleteAttempted; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        await tester.pump();
+      }
+    });
+    await tester.pump();
+    expect(photos.deleteAttempted, isTrue);
+    expect(tester.widget<FilledButton>(button).onPressed, isNotNull);
+    expect(find.byType(LinearProgressIndicator), findsNothing);
+    expect(
+      find.text('The import failed; your journal is unchanged.'),
+      findsOneWidget,
+    );
+    expect(await repository.allCoffees(), isEmpty);
+    expect(tester.takeException(), isNull);
+  });
+}
+
+class _RejectDeletePhotos extends PhotoStore {
+  _RejectDeletePhotos(super.directory);
+  bool deleteAttempted = false;
+  @override
+  Future<String> add(Uint8List bytes) async =>
+      '11111111-1111-4111-8111-111111111111.jpg';
+  @override
+  Future<void> delete(String? name) async {
+    deleteAttempted = true;
+    throw const FileSystemException('Cannot delete copied photo');
+  }
+}
+
+class _BrokenCurves implements BqExtraFiles {
+  @override
+  Set<String> get names => {'photo_abc.jpg', 'brew-v60_flow_profile.json'};
+  @override
+  Future<Map<String, Uint8List>> files(Set<String> wanted) async => {
+    'photo_abc.jpg': Uint8List.fromList([0xFF, 0xD8, 0xFF]),
+  };
+  @override
+  Future<Map<String, ShotCurve>> curves(
+    Set<String> wanted, {
+    BqProgress? onProgress,
+  }) async => throw const FormatException('Broken curve');
 }
 
 /// The export's curves, read only once [read] completes; none come back.
