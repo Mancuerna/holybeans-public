@@ -270,9 +270,13 @@ class _HolyBeansAppState extends State<HolyBeansApp>
           ? null
           : DriveSyncTile(model: widget.driveSync!),
       locale: locale,
-      onLocaleChanged: (value) {
+      onLocaleChanged: (value) async {
         setState(() => locale = value);
-        LanguageSetting(widget.database).save(value);
+        try {
+          await LanguageSetting(widget.database).save(value);
+        } catch (error, stack) {
+          reportError(error, stack);
+        }
       },
     ),
   );

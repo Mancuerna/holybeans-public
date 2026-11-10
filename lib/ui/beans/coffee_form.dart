@@ -122,8 +122,19 @@ class _CoffeeFormState extends State<CoffeeForm> {
   }
 
   Future<void> _loadSuggestions() async {
-    final loaded = await widget.repository.coffeeSuggestions();
-    if (mounted) setState(() => suggestions = loaded);
+    try {
+      final loaded = await widget.repository.coffeeSuggestions();
+      if (mounted) setState(() => suggestions = loaded);
+    } catch (error, stack) {
+      reportError(error, stack);
+      if (mounted) {
+        showOperationError(
+          context,
+          error,
+          AppLocalizations.of(context)!.dataError,
+        );
+      }
+    }
   }
 
   void _refreshPricePerKg() {

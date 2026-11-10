@@ -438,6 +438,14 @@ void main() {
     await settle(card);
     expect(find.text('The curve shows 1 bloom and 1 pour.'), findsOneWidget);
     await tester.ensureVisible(card);
+    database.writeGate.writable = false;
+    await tester.tap(find.byKey(const ValueKey('brew-detail-pours-save')));
+    await settleWithWorkers(tester);
+    expect(tester.takeException(), isNull);
+    final s = lookupAppLocalizations(const Locale('en'));
+    expect(find.textContaining(s.driveWriteChecking), findsOneWidget);
+    expect(card, findsOneWidget);
+    database.writeGate.writable = true;
     await tester.tap(find.byKey(const ValueKey('brew-detail-pours-save')));
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),

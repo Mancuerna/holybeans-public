@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/domain/auto_backup.dart';
 import 'package:holybeans/domain/pre_migration.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/backup/backup_actions.dart';
 import 'package:holybeans/ui/backup/backup_center.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
+import 'package:holybeans/ui/sync/journal_write_feedback.dart';
 
 /// Date and time of a copy in the device's regional format, like every other
 /// date in the journal, e.g. "04/10/2026 18:30".
@@ -136,7 +138,12 @@ class BackupSection extends StatelessWidget {
       case 'change':
         onChooseFolder();
       case 'forget':
-        await center.forgetFolder();
+        try {
+          await center.forgetFolder();
+        } catch (error, stack) {
+          reportError(error, stack);
+          if (context.mounted) showOperationError(context, error, s.saveFailed);
+        }
     }
   }
 }

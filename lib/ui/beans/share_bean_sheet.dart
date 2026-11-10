@@ -21,11 +21,19 @@ Future<void> showBeanTransferSheet(
   Coffee coffee,
 ) async {
   final repository = actions.repository;
-  final card = SharedBean.fromCoffee(
-    coffee,
-    await repository.coffeeComponents(coffee.id),
-    await repository.coffeeLots(coffee.id),
-  );
+  final s = AppLocalizations.of(context)!;
+  final SharedBean card;
+  try {
+    card = SharedBean.fromCoffee(
+      coffee,
+      await repository.coffeeComponents(coffee.id),
+      await repository.coffeeLots(coffee.id),
+    );
+  } catch (error, stack) {
+    reportError(error, stack);
+    if (context.mounted) showOperationError(context, error, s.shareFailed);
+    return;
+  }
   if (!context.mounted) return;
   await showModalBottomSheet<void>(
     context: context,
