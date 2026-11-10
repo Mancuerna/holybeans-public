@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/beanconqueror_archive.dart';
 import 'package:holybeans/data/services/beanconqueror_sources.dart';
@@ -318,11 +319,15 @@ class _BeanconquerorImportPageState extends State<BeanconquerorImportPage> {
         curves: curves,
       );
       if (mounted) Navigator.pop(context, summary);
-    } on Object catch (error) {
-      debugPrint('BeanConqueror import failed: $error');
+    } on Object catch (error, stack) {
+      reportError(error, stack);
       // The journal is untouched; drop the photos copied for it.
       for (final name in stored.values) {
-        await widget.photos?.delete(name);
+        try {
+          await widget.photos?.delete(name);
+        } catch (cleanupError, cleanupStack) {
+          reportError(cleanupError, cleanupStack);
+        }
       }
       if (mounted) {
         setState(() {
@@ -445,7 +450,7 @@ class _BeanconquerorImportPageState extends State<BeanconquerorImportPage> {
         found(photoNames) == photoNames.length &&
         found(curveNames) == curveNames.length;
 
-    return Scaffold(
+    final page = Scaffold(
       appBar: AppBar(title: Text(s.bqImport)),
       body: SafeArea(
         child: ListView(
@@ -547,6 +552,7 @@ class _BeanconquerorImportPageState extends State<BeanconquerorImportPage> {
         ),
       ),
     );
+    return PopScope(canPop: !importing, child: page);
   }
 }
 

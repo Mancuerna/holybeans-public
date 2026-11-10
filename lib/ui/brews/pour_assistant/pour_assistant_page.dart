@@ -7,6 +7,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_ratio_slider.dart';
 import 'package:holybeans/ui/brews/pour_assistant/pour_chart.dart';
 import 'package:holybeans/ui/brews/pour_assistant/pour_run.dart';
+import 'package:holybeans/ui/core/form_exit_guard.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/scale/scale_readout.dart';
@@ -70,7 +71,7 @@ class _PourAssistantPageState extends State<PourAssistantPage> {
   @override
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context)!;
-    return Scaffold(
+    final page = Scaffold(
       appBar: AppBar(title: Text(s.pourAssistant)),
       body: SafeArea(
         child: running
@@ -99,6 +100,11 @@ class _PourAssistantPageState extends State<PourAssistantPage> {
                 onStart: () => setState(() => running = true),
               ),
       ),
+    );
+    return FormExitGuard(
+      hasChanges: () => running,
+      busy: () => false,
+      child: page,
     );
   }
 }

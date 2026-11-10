@@ -18,6 +18,69 @@ void main() {
     home: home,
   );
 
+  for (final language in ['en', 'es']) {
+    testWidgets('leaving a running pour requires confirmation ($language)', (
+      tester,
+    ) async {
+      final feedback = _FakeFeedback();
+      final clock = _HandStopwatch();
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: Locale(language),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => Navigator.of(context).push<void>(
+                MaterialPageRoute(
+                  builder: (_) => PourAssistantPage(
+                    plan: PourPlan.toStart(doseGrams: 18, waterGrams: 288),
+                    feedback: feedback,
+                    stopwatch: () => clock,
+                  ),
+                ),
+              ),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      final start = find.byKey(const ValueKey('pour-start'));
+      await tester.scrollUntilVisible(
+        start,
+        200,
+        scrollable: find
+            .descendant(
+              of: find.byType(PourAssistantPage),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      await tester.tap(start);
+      await tester.pump();
+      expect(feedback.screenOn, isTrue);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('keep-editing')));
+      await tester.pumpAndSettle();
+      expect(find.byType(PourAssistantPage), findsOneWidget);
+      expect(feedback.screenOn, isTrue);
+      expect(clock.isRunning, isTrue);
+
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('discard-changes')));
+      await tester.pumpAndSettle();
+      expect(find.byType(PourAssistantPage), findsNothing);
+      expect(feedback.screenOn, isFalse);
+      expect(clock.isRunning, isFalse);
+    });
+  }
+
   testWidgets('changing pour counts preserves unedited numeric precision', (
     tester,
   ) async {
