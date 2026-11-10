@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/rate_reminder_settings.dart';
@@ -15,7 +16,6 @@ import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/share_brew_flow.dart';
 import 'package:holybeans/ui/brews/tasting_widgets.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart' show formatGrams;
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 

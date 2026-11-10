@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PistonCredits extends StatelessWidget {

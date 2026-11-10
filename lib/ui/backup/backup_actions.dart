@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/data/services/journal_restore.dart';
@@ -11,7 +12,6 @@ import 'package:holybeans/domain/brew_csv.dart';
 import 'package:holybeans/domain/pre_migration.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/backup/backup_center.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/sync/journal_write_feedback.dart';
 import 'package:share_plus/share_plus.dart';
 

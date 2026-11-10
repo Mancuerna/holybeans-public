@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/services/photo_store.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 
 /// Owns photos until the form is saved or discarded, including late picks.
 class PhotosDraft extends ChangeNotifier {

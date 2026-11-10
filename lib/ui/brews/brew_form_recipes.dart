@@ -1,5 +1,5 @@
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/repositories/brew_recipe_context.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 
 /// Only the newest recipe request can apply or end the loading state.
 class BrewFormRecipes {

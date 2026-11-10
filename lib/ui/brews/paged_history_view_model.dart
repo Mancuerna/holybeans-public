@@ -1,12 +1,12 @@
 import 'dart:async';
 
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/history_pages.dart';
 import 'package:holybeans/data/repositories/history_query.dart';
 import 'package:holybeans/data/repositories/journal_data.dart';
 import 'package:holybeans/data/repositories/journal_read_queries.dart';
 import 'package:holybeans/ui/brews/history_view_model.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 
 /// Keeps at most six pages of previews. Cursors are small and allow evicted
 /// pages to be fetched again without retaining every visited brew.

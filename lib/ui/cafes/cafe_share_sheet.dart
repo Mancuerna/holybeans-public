@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/cafes/cafe_share_card.dart';
 import 'package:holybeans/ui/cafes/cafe_share_text.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/share_image.dart';
 
 class CafeShareResult {

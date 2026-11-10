@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/language_setting.dart';
 import 'package:holybeans/data/preferences/release_notes_settings.dart';
@@ -25,7 +26,6 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/backup/backup_center.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/core/device_toasts.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/release_notes.dart';
 import 'package:holybeans/ui/shell/journal_shell.dart';
 import 'package:holybeans/ui/sync/drive_sync_model.dart';
@@ -53,6 +53,7 @@ Stream<LicenseEntry> bundledAppLicenses() async* {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  installErrorReporting();
   LicenseRegistry.addLicense(bundledAppLicenses);
   final openRate = ValueNotifier<String?>(null);
   // Independent start-up work runs side by side.

@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/motion.dart';
 import 'package:holybeans/ui/core/photo_source_sheet.dart';
 import 'package:holybeans/ui/core/photos_draft.dart';

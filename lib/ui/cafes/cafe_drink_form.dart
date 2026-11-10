@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/cafe_repository.dart';
 import 'package:holybeans/data/services/photo_store.dart';
@@ -6,7 +7,6 @@ import 'package:holybeans/domain/cafe_journal.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/cafes/cafe_picker.dart';
 import 'package:holybeans/ui/core/coffee_country_field.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/form_exit_guard.dart';
 import 'package:holybeans/ui/core/photo_widgets.dart';
 import 'package:holybeans/ui/core/photos_draft.dart';

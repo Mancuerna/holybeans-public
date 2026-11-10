@@ -2,6 +2,17 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
 
+void installErrorReporting() {
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    reportError(details.exception, details.stack ?? StackTrace.current);
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    reportError(error, stack);
+    return true;
+  };
+}
+
 /// Leaves a trace of an error the app recovered from, such as a save that
 /// failed and was answered with a message.
 ///

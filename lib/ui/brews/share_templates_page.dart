@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/domain/share_template.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/share_template_editor.dart';
 import 'package:holybeans/ui/brews/share_template_exchange.dart';
 import 'package:holybeans/ui/brews/share_template_values.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/core/share_markdown_text.dart';
 

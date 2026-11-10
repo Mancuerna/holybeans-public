@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/history_query.dart';
 import 'package:holybeans/data/repositories/journal_data.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 
 /// Search work is independent of rendering. Only one worker runs at a time;
 /// typing and journal changes replace its pending request, never its result.

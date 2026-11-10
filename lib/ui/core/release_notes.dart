@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/preferences/current_release.g.dart';
 import 'package:holybeans/data/preferences/release_notes_settings.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 
 class ReleaseNotesObserver extends NavigatorObserver {
   ReleaseNotesObserver(this.settings);

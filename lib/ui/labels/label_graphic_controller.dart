@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/domain/label_graphic.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:image_picker/image_picker.dart';
 
 class LabelGraphicController extends ChangeNotifier {

@@ -3,9 +3,9 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/domain/coffee_year.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/year_review/year_review_card.dart';
 import 'package:holybeans/ui/year_review/year_review_story.dart';
 import 'package:share_plus/share_plus.dart';

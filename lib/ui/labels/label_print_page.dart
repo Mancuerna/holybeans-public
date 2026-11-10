@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/label_output_preferences.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
@@ -6,7 +7,6 @@ import 'package:holybeans/data/services/label_printer.dart';
 import 'package:holybeans/domain/label_template.dart';
 import 'package:holybeans/domain/share_template.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/form_exit_guard.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/labels/label_editor.dart';

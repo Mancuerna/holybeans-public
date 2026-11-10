@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/list_options_settings.dart';
@@ -44,7 +45,6 @@ import 'package:holybeans/ui/brews/history_tab.dart';
 import 'package:holybeans/ui/brews/share_template_exchange.dart';
 import 'package:holybeans/ui/brews/share_templates_page.dart';
 import 'package:holybeans/ui/cafes/cafes_page.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/core/lazy_indexed_stack.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';

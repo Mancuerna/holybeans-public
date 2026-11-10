@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/list_options_settings.dart';
@@ -10,7 +11,6 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/domain/list_options.dart';
-import 'package:holybeans/ui/core/error_report.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
 
 /// The journal as the shell shows it: the live rows, the settings every tab
