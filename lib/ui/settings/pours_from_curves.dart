@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
+import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/sync/journal_write_feedback.dart';
 
@@ -13,7 +15,14 @@ Future<void> fillPoursFromCurves(
   required ValueChanged<String> message,
 }) async {
   final s = AppLocalizations.of(context)!;
-  final found = await repository.poursFromCurves();
+  final List<({Brew brew, BrewPours pours})> found;
+  try {
+    found = await repository.poursFromCurves();
+  } catch (error, stack) {
+    reportError(error, stack);
+    if (context.mounted) showOperationError(context, error, s.dataError);
+    return;
+  }
   if (!context.mounted) return;
   if (found.isEmpty) {
     message(s.poursFromCurvesNone);

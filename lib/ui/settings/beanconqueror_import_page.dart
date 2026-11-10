@@ -88,8 +88,8 @@ Future<BqImportSummary?> importFromBeanconqueror(
   } on BqArchiveException {
     if (context.mounted) showMessage(context, s.bqNotAnExport);
     return null;
-  } on Object catch (error) {
-    debugPrint('BeanConqueror import failed to read: $error');
+  } on Object catch (error, stack) {
+    reportError(error, stack);
     if (context.mounted) showOperationError(context, error, s.bqImportFailed);
     return null;
   }
@@ -267,7 +267,8 @@ class _BeanconquerorImportPageState extends State<BeanconquerorImportPage> {
       try {
         final zip = await ZipExtraFiles.of(await file.readAsBytes());
         if (zip != null && zip.names.any(wanted.contains)) zips.add(zip);
-      } on Object {
+      } on Object catch (error, stack) {
+        reportError(error, stack);
         // Not a ZIP after all; nothing in it is used.
       }
     }
