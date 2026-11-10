@@ -35,6 +35,69 @@ void main() {
         grams: grams,
         frozenPortionId: portion,
       );
+  for (final reason in ['gift', 'waste']) {
+    test(
+      'decimal frozen $reason empties the portion and undo restores it',
+      () async {
+        final id = await repo.freezeCoffee(
+          lotId: lot,
+          grams: 50.1,
+          frozenDate: '2026-10-01',
+        );
+        final first = await adjust(reason, 20.2, portion: id);
+        final last = await adjust(reason, 29.9, portion: id);
+        var portion = await db.select(db.frozenPortions).getSingle();
+        expect(portion.remainingGrams, 0);
+        expect(portion.thawedAtMs, isNotNull);
+        expect((await stock()).frozenGrams, 0);
+        final adjustment = (await repo.stockAdjustments(coffee))
+            .singleWhere((row) => row.operationId == last);
+        expect(adjustment.resultingGrams, 0);
+
+        await repo.undoStockAdjustment(last);
+        portion = await db.select(db.frozenPortions).getSingle();
+        expect(portion.remainingGrams, 29.9);
+        expect(portion.thawedAtMs, isNull);
+        await repo.undoStockAdjustment(first);
+        portion = await db.select(db.frozenPortions).getSingle();
+        expect(portion.remainingGrams, 50.1);
+        expect(portion.thawedAtMs, isNull);
+        expect((await repo.coffeeLot(lot))!.remainingGrams, 199.9);
+        expect((await stock()).consumedGrams, 0);
+      },
+    );
+  }
+
+  test(
+    'a frozen correction within zero tolerance empties the portion',
+    () async {
+      final id = await repo.freezeCoffee(
+        lotId: lot,
+        grams: 10,
+        frozenDate: '2026-10-01',
+      );
+      await adjust('correction', 0.0000001, portion: id);
+      final portion = await db.select(db.frozenPortions).getSingle();
+      expect(portion.remainingGrams, 0);
+      expect(portion.thawedAtMs, isNotNull);
+      expect((await repo.stockAdjustments(coffee)).single.resultingGrams, 0);
+    },
+  );
+
+  test('undoing a frozen refill marks the portion empty again', () async {
+    final id = await repo.freezeCoffee(
+      lotId: lot,
+      grams: 10,
+      frozenDate: '2026-10-01',
+    );
+    await adjust('gift', 10, portion: id);
+    final refill = await adjust('correction', 5, portion: id);
+    await repo.undoStockAdjustment(refill);
+    final portion = await db.select(db.frozenPortions).getSingle();
+    expect(portion.remainingGrams, 0);
+    expect(portion.thawedAtMs, isNotNull);
+  });
+
   test(
     'gifts, waste and corrections leave brewed grams and purchase unchanged',
     () async {
