@@ -7,10 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/brew_form_sections.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
+
+import 'helpers/ui_test_support.dart';
 
 class _HeldCatalog extends QueryInterceptor {
   _HeldCatalog(this.table, {this.fail = false});
@@ -60,10 +61,8 @@ Future<String> _open(
   final coffees = await repository.allCoffees();
   reads.armed = true;
   await tester.pumpWidget(
-    MaterialApp(
+    localizedApp(
       locale: const Locale('en'),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
         body: Builder(
           builder: (context) => TextButton(

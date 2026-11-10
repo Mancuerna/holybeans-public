@@ -1,10 +1,10 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   testWidgets(
@@ -13,7 +13,7 @@ void main() {
       tester.view.physicalSize = const Size(393, 852);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       final repository = JournalRepository(database);
       final coffee = await repository.createCoffee(
@@ -93,7 +93,7 @@ void main() {
   testWidgets('the full form opens from Adjust with every section', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     final coffee = await repository.createCoffee(

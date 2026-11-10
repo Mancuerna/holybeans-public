@@ -1,20 +1,20 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/beanconqueror_archive.dart';
 import 'package:holybeans/domain/beanconqueror/bq_import_plan.dart';
 
 import 'helpers/beanconqueror_fixture.dart' as fixture;
 
+import 'helpers/test_database.dart';
+
 void main() {
   test(
     'BeanConqueror import and refresh preserve both elevation endpoints',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repo = JournalRepository(db);
       final payload = fixture.exportJson();

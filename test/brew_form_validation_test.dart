@@ -1,4 +1,3 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -7,6 +6,9 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
+
 void main() {
   late AppDatabase database;
   late JournalRepository repository;
@@ -14,7 +16,7 @@ void main() {
   late String v60Id;
 
   setUp(() async {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     repository = JournalRepository(database);
     await repository.createCoffee(
       name: 'Validation coffee',
@@ -131,10 +133,8 @@ Future<void> _openForm(
   String language,
 ) async {
   await tester.pumpWidget(
-    MaterialApp(
+    localizedApp(
       locale: Locale(language),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
         body: Builder(
           builder: (context) => Center(

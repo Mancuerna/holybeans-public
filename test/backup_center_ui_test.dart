@@ -4,7 +4,6 @@ library;
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -19,6 +18,7 @@ import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/backup/backup_center.dart';
 
 import 'helpers/legacy_schema.dart';
+import 'helpers/test_database.dart';
 
 class FakeBackupFolder implements BackupFolder {
   bool available = true;
@@ -98,7 +98,7 @@ void main() {
   setUp(() async {
     now = DateTime(2026, 10, 17, 23, 59, 59);
     directory = await Directory.systemTemp.createTemp('holybeans-center-');
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     folder = FakeBackupFolder();
     services = BackupServices(
       clock: () => now,

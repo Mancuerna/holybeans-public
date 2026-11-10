@@ -1,17 +1,17 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   testWidgets(
     'ratio targets change water but preserve the measured espresso yield',
     (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       tester.view.physicalSize = const Size(480, 1000);
       tester.view.devicePixelRatio = 1;
@@ -49,9 +49,7 @@ void main() {
       final coffees = await database.select(database.coffees).get();
 
       await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
+        localizedApp(
           home: Scaffold(
             body: Builder(
               builder: (context) => Center(
@@ -178,7 +176,7 @@ void main() {
   testWidgets('an untouched ratio outside the usual range keeps its water', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     final coffeeId = await repository.createCoffee(
@@ -201,9 +199,7 @@ void main() {
     )..where((row) => row.id.equals(brewId))).getSingle();
     final coffees = await database.select(database.coffees).get();
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+      localizedApp(
         home: Scaffold(
           body: Builder(
             builder: (context) => TextButton(

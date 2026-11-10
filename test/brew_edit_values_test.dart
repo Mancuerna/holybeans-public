@@ -1,7 +1,5 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
@@ -10,11 +8,13 @@ import 'package:holybeans/ui/core/optional_rating_slider.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:intl/intl.dart';
 
+import 'helpers/test_database.dart';
+
 void main() {
   testWidgets(
     'editing preserves values and distinguishes unspecified from pre-ground',
     (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       final repository = JournalRepository(database);
       final coffeeId = await repository.createCoffee(
         name: 'Brew edit regression',
@@ -337,7 +337,7 @@ void main() {
   testWidgets('repeat copies the recipe but starts with an empty result', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     final repository = JournalRepository(database);
     final coffeeId = await repository.createCoffee(
       name: 'Repeat bean',

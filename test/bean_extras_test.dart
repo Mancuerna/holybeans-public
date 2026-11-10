@@ -1,15 +1,15 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   testWidgets(
     'favourites rise to the top and cards show flavour notes and consumption',
     (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       tester.view.physicalSize = const Size(360, 800);
       tester.view.devicePixelRatio = 1;
@@ -98,7 +98,7 @@ void main() {
   testWidgets('archiving offers the average brew rating as a start', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;

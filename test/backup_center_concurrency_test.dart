@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/backup_state.dart';
@@ -11,6 +10,8 @@ import 'package:holybeans/data/services/auto_backups.dart';
 import 'package:holybeans/data/services/backup_folder.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/ui/backup/backup_center.dart';
+
+import 'helpers/test_database.dart';
 
 class _Folder implements BackupFolder {
   final entered = Completer<void>();
@@ -49,7 +50,7 @@ void main() {
   late BackupCenter center;
   setUp(() async {
     dir = await Directory.systemTemp.createTemp('backup-concurrency-');
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     await JournalRepository(db).createCoffee(name: 'Kept', roaster: 'R');
     folder = _Folder();
     center = BackupCenter(

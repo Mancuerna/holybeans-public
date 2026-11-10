@@ -1,18 +1,17 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 
+import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 void main() {
   testWidgets(
     'swiping a bean right brews with it, left archives and restores',
     (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       final repository = JournalRepository(database);
       final coffee = await repository.createCoffee(

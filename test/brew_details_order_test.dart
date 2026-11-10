@@ -1,4 +1,3 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -8,6 +7,7 @@ import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_details_sheet.dart';
 
+import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 /// Labels of the detail tiles, in reading order.
@@ -57,7 +57,7 @@ void main() {
     testWidgets(
       '$category saved curve chooses statistics by method, not pressure',
       (tester) async {
-        final database = AppDatabase.forTesting(NativeDatabase.memory());
+        final database = memoryDatabase();
         addTearDown(database.close);
         final repository = JournalRepository(database);
         final coffee = await repository.createCoffee(
@@ -129,7 +129,7 @@ void main() {
     tester.view.physicalSize = const Size(393, 852);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     final coffee = await repository.createCoffee(
@@ -210,7 +210,7 @@ void main() {
   testWidgets('espresso details keep the three shot times together', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     final coffee = await repository.createCoffee(

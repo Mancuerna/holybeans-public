@@ -1,18 +1,16 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/list_options_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/freshness_calendar.dart';
 import 'package:holybeans/domain/list_options.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/bean_card.dart';
 import 'package:holybeans/ui/beans/coffee_details_sheet.dart';
 import 'package:holybeans/ui/beans/freshness_calendar_page.dart';
 import 'package:holybeans/ui/beans/roaster_group_header.dart';
 
+import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 void main() {
@@ -20,7 +18,7 @@ void main() {
     testWidgets(
       'roaster view persists, filters and keeps tab stock separate ($language)',
       (tester) async {
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(db.close);
         tester.view.physicalSize = const Size(400, 1000);
         tester.view.devicePixelRatio = 1;
@@ -143,7 +141,7 @@ void main() {
   testWidgets('calendar navigates months and updates from the live journal', (
     tester,
   ) async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
     addTearDown(db.close);
     tester.view.physicalSize = const Size(400, 1200);
     tester.view.devicePixelRatio = 1;
@@ -237,10 +235,8 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: Locale(language),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context)
                 .copyWith(textScaler: const TextScaler.linear(2)),

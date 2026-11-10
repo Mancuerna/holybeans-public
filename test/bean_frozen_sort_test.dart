@@ -1,7 +1,5 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/list_options_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/list_options.dart';
@@ -9,12 +7,14 @@ import 'package:holybeans/domain/stock.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/bean_card.dart';
 
+import 'helpers/test_database.dart';
+
 void main() {
   for (final language in ['es', 'en']) {
     testWidgets(
       'frozen dates, direction and independent order survive reopen ($language)',
       (tester) async {
-        final database = AppDatabase.forTesting(NativeDatabase.memory());
+        final database = memoryDatabase();
         addTearDown(database.close);
         tester.view.physicalSize = const Size(400, 1200);
         tester.view.devicePixelRatio = 1;

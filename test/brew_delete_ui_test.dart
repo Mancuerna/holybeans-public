@@ -1,9 +1,10 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
+
+import 'helpers/test_database.dart';
 
 /// A journal with one bean of 250 g and a 15 g brew of it; with
 /// [archiveCoffee], the coffee (and so the brew) archived.
@@ -14,7 +15,7 @@ Future<(AppDatabase, String)> _journal(
   tester.view.physicalSize = const Size(400, 900);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  final database = AppDatabase.forTesting(NativeDatabase.memory());
+  final database = memoryDatabase();
   addTearDown(database.close);
   final repository = JournalRepository(database);
   final coffeeId = await repository.createCoffee(

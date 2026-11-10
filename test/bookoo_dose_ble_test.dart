@@ -1,8 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/scale_settings.dart';
 import 'package:holybeans/data/services/ble_scale.dart';
 import 'package:holybeans/data/services/scale.dart';
@@ -14,6 +12,7 @@ import 'package:universal_ble/universal_ble.dart';
 
 import 'helpers/bookoo_dose_packet.dart';
 import 'helpers/fake_scale_ble_platform.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +25,7 @@ void main() {
     test(
       'a BLE dose preserves live readings with command channel $options',
       () async {
-        final database = AppDatabase.forTesting(NativeDatabase.memory());
+        final database = memoryDatabase();
         final platform = _BookooPlatform(
           notify: options.notify,
           fail: options.fail,

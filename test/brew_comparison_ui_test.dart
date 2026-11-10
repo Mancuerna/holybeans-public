@@ -1,17 +1,15 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_comparison.dart';
 import 'package:holybeans/domain/shot_curve.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_comparison_page.dart';
 import 'package:holybeans/ui/brews/comparison_curves.dart';
 import 'package:holybeans/ui/brews/comparison_values_row.dart';
 import 'package:holybeans/ui/brews/espresso_map_page.dart';
 
+import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 void main() {
@@ -22,7 +20,7 @@ void main() {
       testWidgets(
         'compare picker, differences and compatible curves work at narrow width ($language, $scenario)',
         (tester) async {
-          final db = AppDatabase.forTesting(NativeDatabase.memory());
+          final db = memoryDatabase();
           addTearDown(() async {
             await tester.pumpWidget(const SizedBox.shrink());
             await tester.pumpAndSettle();
@@ -236,10 +234,8 @@ void main() {
     'flow in ml/s and g/s is separated and missing curves remain explicit',
     (tester) async {
       final curve = ShotCurve(timesMs: [0, 1000], flow: [0, 2], weight: [0, 2]);
-      Widget app(ComparisonCurve? a, ComparisonCurve? b) => MaterialApp(
+      Widget app(ComparisonCurve? a, ComparisonCurve? b) => localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: ComparisonCurves(a: a, b: b),

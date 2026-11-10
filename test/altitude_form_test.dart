@@ -1,11 +1,10 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_details_sheet.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
 
+import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 void main() {
@@ -13,7 +12,7 @@ void main() {
     testWidgets(
       'altitude endpoints sit together, validate and survive editing ($locale)',
       (tester) async {
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(db.close);
         tester.view.physicalSize = const Size(360, 800);
         tester.view.devicePixelRatio = 1;

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:archive/archive.dart';
 import 'package:drift/drift.dart' hide isNotNull, isNull;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -12,6 +11,7 @@ import 'package:holybeans/domain/beanconqueror/bq_import_plan.dart';
 import 'package:holybeans/domain/beanconqueror/bq_values.dart';
 
 import 'helpers/beanconqueror_fixture.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   test('BeanConqueror values become HolyBeans ones', () {
@@ -87,7 +87,7 @@ void main() {
   });
 
   test('an import adds everything once and keeps the originals', () async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     // The journal already has a V60: the import reuses it.
@@ -247,7 +247,7 @@ void main() {
   });
 
   test('changes in BeanConqueror update what was not edited here', () async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     await repository.importBeanconqueror(

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/bean_add_button.dart';
+
+import 'helpers/ui_test_support.dart';
 
 void main() {
   Future<void> launch(
@@ -10,9 +11,7 @@ void main() {
     bool reduceMotion = false,
     bool navigationBar = false,
   }) => tester.pumpWidget(
-    MaterialApp(
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
+    localizedApp(
       builder: (context, child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(disableAnimations: reduceMotion),
         child: child!,
