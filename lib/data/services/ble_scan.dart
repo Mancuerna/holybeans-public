@@ -6,11 +6,13 @@ final sharedBleScan = BleScanCoordinator();
 class BleScanCoordinator {
   int _users = 0;
   Future<void>? _starting;
-  Future<void> _stopping = Future.value();
+  Future<void>? _stopping;
 
   BleScanLease acquire() {
     _users++;
-    final ready = _starting ??= _stopping.then((_) => UniversalBle.startScan());
+    final ready = _starting ??=
+        _stopping?.then((_) => UniversalBle.startScan()) ??
+        UniversalBle.startScan();
     return BleScanLease._(ready, _release);
   }
 
@@ -23,9 +25,14 @@ class BleScanCoordinator {
         .then<void>((_) {}, onError: (Object error, StackTrace stack) {})
         .then((_) => UniversalBle.stopScan());
     // Return stop failures to the releaser without blocking later scans.
-    _stopping = stopping.then<void>(
-      (_) {},
-      onError: (Object error, StackTrace stack) {},
+    late final Future<void> settled;
+    void clear() {
+      if (identical(_stopping, settled)) _stopping = null;
+    }
+
+    settled = _stopping = stopping.then<void>(
+      (_) => clear(),
+      onError: (Object error, StackTrace stack) => clear(),
     );
     return stopping;
   }
