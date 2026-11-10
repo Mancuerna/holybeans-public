@@ -487,10 +487,10 @@ class FrozenPortionCard extends StatelessWidget {
         ? s.frozenPartial
         : s.frozen;
     final number = NumberFormat('0.#', regionalLocale.toString());
+    final frozenDate = DateTime.tryParse(portion.frozenDate);
     final details = [
-      s.frozenOn(
-        formatRegionalDate(DateTime.parse(portion.frozenDate), regionalLocale),
-      ),
+      if (frozenDate != null)
+        s.frozenOn(formatRegionalDate(frozenDate, regionalLocale)),
       if (portion.container != null) frozenContainerLabel(s, portion.container),
     ].join(', ');
     final ageWhenFrozen = frozenAtRoastAge(portion, roastDate);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/services/loffee_api.dart';
 import 'package:holybeans/domain/loffee_bean.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -39,7 +40,8 @@ class _LoffeeSearchPageState extends State<LoffeeSearchPage> {
           _loadingKey = false;
         });
       }
-    } on Object {
+    } on Object catch (error, stack) {
+      reportError(error, stack);
       if (mounted) {
         setState(() {
           _keyFailed = true;
@@ -86,7 +88,8 @@ class _LoffeeSearchPageState extends State<LoffeeSearchPage> {
       if (_scroll.hasClients) _scroll.jumpTo(0);
     } on LoffeeException catch (error) {
       if (mounted) setState(() => _failure = error.failure);
-    } on Object {
+    } on Object catch (error, stack) {
+      reportError(error, stack);
       if (mounted) setState(() => _failure = LoffeeFailure.unavailable);
     } finally {
       if (mounted) setState(() => _busy = false);
