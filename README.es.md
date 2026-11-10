@@ -114,8 +114,17 @@ python3 -m unittest discover -s tool/tests
 ```
 
 El código generado de la base de datos está incluido. Tras cambiar declaraciones
-Drift, regénéralo con `dart run build_runner build --delete-conflicting-outputs`
-y actualiza las pruebas de migración. Las traducciones están en `lib/l10n/`.
+Drift y las instantáneas del esquema, regenera el código y actualiza las pruebas
+de migración:
+
+```sh
+dart run build_runner build --delete-conflicting-outputs
+dart run drift_dev schema steps drift_schemas lib/data/database/schema_steps.g.dart
+dart run drift_dev schema generate drift_schemas test/generated_migrations
+```
+
+CI repite esta generación y rechaza diferencias con los archivos versionados.
+Las traducciones están en `lib/l10n/`.
 
 Consulta [CONTRIBUTING.md](CONTRIBUTING.md) para arquitectura, pruebas de integración
 Android y límites de uso del hardware. Los casos
