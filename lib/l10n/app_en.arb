@@ -2674,5 +2674,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "startupFailedTitle": "Could not open your journal",
+  "startupFailedHint": "Close and reopen the app to try again.",
+  "startupErrorDetails": "Error details",
+  "startupCopiesHint": "Share a copy saved before an update to keep it safe. These copies do not include photos.",
+  "startupCopiesUnavailable": "Could not read the saved copies.",
+  "startupCopiesEmpty": "No copies saved before an update were found."
 }

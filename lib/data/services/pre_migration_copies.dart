@@ -36,6 +36,19 @@ class PreMigrationCopies {
   File file(PreMigrationCopy copy) =>
       File(path.join(directory.path, copy.fileName));
 
+  Future<List<File>> recoveryFiles(PreMigrationCopy copy) async {
+    final journal = file(copy);
+    if (!journal.existsSync()) {
+      throw FileSystemException('Missing saved journal', journal.path);
+    }
+    final files = [journal];
+    for (final suffix in _sideFiles) {
+      final side = File(path.join(directory.path, '${copy.fileName}$suffix'));
+      if (side.existsSync()) files.add(side);
+    }
+    return files;
+  }
+
   /// Copies [journal] before it is opened when its schema is older than
   /// [currentSchema], then keeps only the newest [preMigrationCopiesKept].
   /// Run it before the database opens. It never stops the journal from

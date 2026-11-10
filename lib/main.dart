@@ -23,6 +23,7 @@ import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/core/device_toasts.dart';
 import 'package:holybeans/ui/core/release_notes.dart';
 import 'package:holybeans/ui/shell/journal_shell.dart';
+import 'package:holybeans/ui/startup/startup_recovery.dart';
 import 'package:holybeans/ui/sync/drive_sync_model.dart';
 import 'package:holybeans/ui/sync/drive_sync_page.dart';
 import 'package:holybeans/ui/sync/drive_sync_scope.dart';
@@ -56,16 +57,25 @@ Future<void> main() async {
 Future<Widget> prepareApp({
   StartupServices services = const StartupServices(),
 }) async {
+  AppDatabase? opened;
+  late final AppDatabase database;
+  late final PhotoStore photos;
+  late final bool existingInstallation;
+  try {
+    existingInstallation = await services.existingInstallation();
+    await optionalStartup(services.keepPreMigrationCopy);
+    database = opened = await services.openDatabase();
+    photos = await services.openPhotos();
+    await services.recover(database, photos);
+  } catch (error, stack) {
+    reportError(error, stack);
+    if (opened != null) await optionalStartup(opened.close);
+    return StartupRecoveryApp(error: error);
+  }
   final openRate = ValueNotifier<String?>(null);
   final android = services.android;
-  // Attach error handlers immediately, including while storage is opening.
   final backupsReady = optionalStartup(services.backups);
   final remindersReady = optionalStartup(() => services.reminders(openRate));
-  final existingInstallation = await services.existingInstallation();
-  await optionalStartup(services.keepPreMigrationCopy);
-  final database = await services.openDatabase();
-  final photos = await services.openPhotos();
-  await services.recover(database, photos);
   final locale = await optionalStartup(() => services.loadLocale(database));
   final (reminders, launchBrew) = await remindersReady ?? (null, null);
   openRate.value = launchBrew;
