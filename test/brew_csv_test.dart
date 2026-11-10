@@ -5,6 +5,71 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_csv.dart';
 
 void main() {
+  for (final (value, encoded) in [
+    ('=1+1', "'=1+1"),
+    ('+1+1', "'+1+1"),
+    ('-1+1', "'-1+1"),
+    ('@SUM(A1)', "'@SUM(A1)"),
+    ('\t=1+1', "'\t=1+1"),
+    ('\r=1+1', '"\'\r=1+1"'),
+    ('=SUM(1, "2")', '"\'=SUM(1, ""2"")"'),
+  ]) {
+    test(
+      'neutralises spreadsheet prefix ${value.codeUnitAt(0)} (${value.length} chars)',
+      () {
+        final at = DateTime(2026, 1, 2, 3, 4).millisecondsSinceEpoch;
+        final csv = brewsCsv(
+          coffees: [
+            Coffee(
+              id: 'coffee',
+              name: value,
+              roaster: value,
+              roastLevel: value,
+              isFavorite: false,
+              isDecaf: false,
+              createdAtMs: at,
+              updatedAtMs: at,
+            ),
+          ],
+          brews: [
+            Brew(
+              id: 'brew',
+              coffeeId: 'coffee',
+              methodName: value,
+              profileName: value,
+              grinderName: value,
+              grindSetting: value,
+              waterProfileName: value,
+              notes: value,
+              doseGrams: 18,
+              waterGrams: 288,
+              temperatureC: -5,
+              isPreGround: false,
+              recipientIsPortafilter: false,
+              isFavorite: false,
+              brewedAtMs: at,
+              createdAtMs: at,
+              updatedAtMs: at,
+            ),
+          ],
+          lots: const [],
+        );
+        final expected = List.filled(35, '');
+        expected[0] = '2026-01-02 03:04';
+        for (final index in [1, 2, 3, 4, 5, 6, 7, 29, 30]) {
+          expected[index] = encoded;
+        }
+        expected[9] = '18';
+        expected[10] = '288';
+        expected[13] = '-5';
+        expect(
+          csv.substring(csv.indexOf('\r\n') + 2),
+          '${expected.join(',')}\r\n',
+        );
+      },
+    );
+  }
+
   test('brews export as CSV for spreadsheets', () async {
     final database = AppDatabase.forTesting(NativeDatabase.memory());
     addTearDown(database.close);

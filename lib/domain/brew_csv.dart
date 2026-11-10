@@ -19,6 +19,12 @@ String brewsCsv({
     return text.contains('.') ? text.replaceFirst(RegExp(r'\.?0+$'), '') : text;
   }
 
+  String text(String? value) {
+    if (value == null || value.isEmpty) return '';
+    // Apply before CSV quoting, keeping generated numeric cells numeric.
+    return '=+-@\t\r'.contains(value[0]) ? "'$value" : value;
+  }
+
   const header = [
     'brewed_at',
     'coffee',
@@ -68,13 +74,13 @@ String brewsCsv({
         final time = '${two(at.hour)}:${two(at.minute)}';
         return [
           '$date $time',
-          coffee?.name ?? '',
-          coffee?.roaster ?? '',
-          coffee?.roastLevel ?? '',
-          brew.methodName,
-          brew.profileName ?? '',
-          brew.isPreGround ? 'pre-ground' : brew.grinderName ?? '',
-          brew.grindSetting ?? '',
+          text(coffee?.name),
+          text(coffee?.roaster),
+          text(coffee?.roastLevel),
+          text(brew.methodName),
+          text(brew.profileName),
+          brew.isPreGround ? 'pre-ground' : text(brew.grinderName),
+          text(brew.grindSetting),
           number(brew.grindRpm),
           number(brew.doseGrams),
           number(brew.waterGrams),
@@ -96,8 +102,8 @@ String brewsCsv({
           number(brew.body),
           number(brew.aftertaste),
           number(brewCost(brew, prices)),
-          brew.waterProfileName ?? '',
-          brew.notes ?? '',
+          text(brew.waterProfileName),
+          text(brew.notes),
           brew.archivedAtMs == null ? '' : 'yes',
           number(brew.feederRpm),
           number(brew.brix),
