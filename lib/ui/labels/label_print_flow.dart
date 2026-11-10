@@ -5,6 +5,7 @@ import 'package:holybeans/data/preferences/label_output_preferences.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/label_printer.dart';
+import 'package:holybeans/data/services/label_printer_cleanup.dart';
 import 'package:holybeans/data/services/marklife_printer.dart';
 import 'package:holybeans/data/services/paired_device_file.dart';
 import 'package:holybeans/domain/label_printer_profile.dart';
@@ -71,10 +72,6 @@ Future<void> showCoffeeLabelPage(
     reportError(error, stack);
     actions.message(s.labelOpenFailed);
   } finally {
-    for (final printer in printers) {
-      await printer.stopSearch();
-      await printer.disconnect();
-      printer.dispose();
-    }
+    await closeLabelPrinters(printers);
   }
 }
