@@ -104,7 +104,12 @@ class _CuppingSessionsPageState extends State<CuppingSessionsPage> {
             itemCount: rows.length,
             itemBuilder: (context, index) {
               final row = rows[index];
-              final draft = CuppingDraft.fromJson(row.draftJson);
+              CuppingDraft? draft;
+              try {
+                draft = CuppingDraft.fromJson(row.draftJson);
+              } on FormatException catch (error, stack) {
+                reportError(error, stack);
+              }
               return Card(
                 child: ListTile(
                   title: Text(row.name.isEmpty ? s.cuppingTitle : row.name),
@@ -115,15 +120,23 @@ class _CuppingSessionsPageState extends State<CuppingSessionsPage> {
                         regionalLocale,
                       ),
                       if (row.completedAtMs == null) s.cuppingDraft,
-                      [
-                        s.cuppingCoffeeCount(draft.cups.length),
-                        if (draft.blind) s.cuppingBlindShort,
-                      ].join(', '),
+                      if (draft == null)
+                        s.dataError
+                      else
+                        [
+                          s.cuppingCoffeeCount(draft.cups.length),
+                          if (draft.blind) s.cuppingBlindShort,
+                        ].join(', '),
                     ].join('\n'),
                   ),
                   isThreeLine: true,
-                  onTap: () =>
-                      openCupping(context, widget.repository, session: row),
+                  onTap: draft == null
+                      ? null
+                      : () => openCupping(
+                          context,
+                          widget.repository,
+                          session: row,
+                        ),
                   trailing: row.completedAtMs != null
                       ? const Icon(Icons.chevron_right)
                       : IconButton(
