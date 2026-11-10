@@ -106,6 +106,10 @@ def main():
     args = parser.parse_args()
     current = snapshot(records(args.audit))
     if args.action == 'snapshot':
+        if args.baseline.exists():
+            previous = json.loads(args.baseline.read_text())
+            if 'provenance' in previous:
+                current['provenance'] = previous['provenance']
         args.baseline.write_text(json.dumps(current, indent=2) + '\n')
     else:
         failures = compare(json.loads(args.baseline.read_text()), current)

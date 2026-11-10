@@ -3,8 +3,9 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
-from tool.performance import compare, records, snapshot
+from tool.performance import compare, main, records, snapshot
 
 
 class PerformanceTests(unittest.TestCase):
@@ -21,6 +22,33 @@ class PerformanceTests(unittest.TestCase):
         self.assertEqual(compare(before, after), [])
         after['records'][0]['metrics']['build.p95Ms'] = 15
         self.assertEqual(len(compare(before, after)), 1)
+
+    def test_snapshot_command_preserves_existing_provenance(self):
+        with tempfile.TemporaryDirectory() as folder:
+            audit = Path(folder) / 'audit.jsonl'
+            baseline = Path(folder) / 'baseline.json'
+            provenance = {'run': 'test', 'device': 'test device',
+                          'status': 'Provisional reference'}
+            baseline.write_text(json.dumps({**snapshot(self.rows),
+                                            'provenance': provenance}))
+            changed = {**self.rows[0], 'elapsedMs': 5100}
+            complete = {**changed, 'operation': 'audit_complete', 'passed': True}
+            audit.write_text('\n'.join(map(json.dumps, [changed, complete])))
+            with patch('sys.argv', ['performance', 'snapshot', str(audit), str(baseline)]):
+                main()
+            result = json.loads(baseline.read_text())
+            self.assertEqual(result['provenance'], provenance)
+            self.assertEqual(result['records'][0]['metrics']['elapsedMs'], 5100)
+
+    def test_snapshot_command_creates_a_baseline_without_inventing_provenance(self):
+        with tempfile.TemporaryDirectory() as folder:
+            audit = Path(folder) / 'audit.jsonl'
+            baseline = Path(folder) / 'baseline.json'
+            complete = {**self.rows[0], 'operation': 'audit_complete', 'passed': True}
+            audit.write_text('\n'.join(map(json.dumps, [*self.rows, complete])))
+            with patch('sys.argv', ['performance', 'snapshot', str(audit), str(baseline)]):
+                main()
+            self.assertNotIn('provenance', json.loads(baseline.read_text()))
 
     def test_empty_or_nonfinite_baseline_cannot_pass(self):
         current = snapshot(self.rows)

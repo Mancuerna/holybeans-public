@@ -103,7 +103,9 @@ python3 -m tool.performance compare artifacts/performance-phase2/device-repeat.j
 ```
 
 The snapshot contains only context, scenario identities and selected metrics,
-not sample arrays or logs. Comparisons require the same OS/build context and
+not sample arrays or logs. Refreshing an existing snapshot retains its manually
+maintained `provenance` block; review that metadata when the source run or device
+changes. Comparisons require the same OS/build context and
 harness version, a complete successful audit, and every baseline scenario and
 metric. Limits are baseline × 1.25 + 5 ms for elapsed time, × 1.25 + 2 ms for
 median time, × 1.20 + 2 ms for build/raster p95, × 1.50 + 5 ms for

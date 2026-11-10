@@ -13,12 +13,17 @@ lib/data/preferences/current_release.g.dart
 __pycache__/
 .idea/
 .vscode/
+.fvm/
+.fvmrc
+devtools_options.yaml
 *.iml
+*.hprof
 .DS_Store
 android/.gradle/
 android/.kotlin/
 android/local.properties
 android/key.properties
+android/app/.cxx/
 # Credentials, backups and unpublished artifacts never belong in source control.
 .env
 .env.*
@@ -27,6 +32,10 @@ android/key.properties
 *.keystore
 *.pem
 *.p12
+*.p8
+*.mobileprovision
+google-services.json
+*service-account*.json
 *.apk
 *.aab
 *.zip

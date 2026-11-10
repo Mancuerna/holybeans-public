@@ -23,9 +23,17 @@ void main() {
   test('web links get a scheme and must look like a web page', () {
     expect(normalizeWebLink(null), isNull);
     expect(normalizeWebLink('  '), isNull);
-    expect(normalizeWebLink('tienda.com/cafe'), 'https://tienda.com/cafe');
-    expect(normalizeWebLink(' http://shop.es '), 'http://shop.es');
-    for (final bad in ['cafe', 'ftp://shop.es', 'https://', 'tienda .com']) {
+    expect(
+      normalizeWebLink('tienda.example/cafe'),
+      'https://tienda.example/cafe',
+    );
+    expect(normalizeWebLink(' http://shop.example '), 'http://shop.example');
+    for (final bad in [
+      'cafe',
+      'ftp://shop.example',
+      'https://',
+      'tienda .example',
+    ]) {
       expect(() => normalizeWebLink(bad), throwsFormatException, reason: bad);
     }
   });
@@ -81,7 +89,7 @@ void main() {
       await repository.setCoffeeExtras(
         coffeeId,
         isDecaf: true,
-        shopUrl: 'tienda.com/huila',
+        shopUrl: 'tienda.example/huila',
       );
       expect(
         () => repository.setCoffeeExtras(
@@ -93,7 +101,7 @@ void main() {
       );
       final coffee = (await repository.coffee(coffeeId))!;
       expect(coffee.isDecaf, isTrue);
-      expect(coffee.shopUrl, 'https://tienda.com/huila');
+      expect(coffee.shopUrl, 'https://tienda.example/huila');
       expect(
         (await repository.coffeeComponents(coffeeId)).single.harvest,
         '2025',
@@ -129,7 +137,7 @@ void main() {
     await repository.setCoffeeExtras(
       coffeeId,
       isDecaf: true,
-      shopUrl: 'https://tienda.com/huila',
+      shopUrl: 'https://tienda.example/huila',
     );
     await repository.createMethod(
       name: 'V60',
@@ -155,7 +163,7 @@ void main() {
     final coffee = (await copy.coffee(coffeeId))!;
     expect(
       (coffee.isDecaf, coffee.shopUrl),
-      (true, 'https://tienda.com/huila'),
+      (true, 'https://tienda.example/huila'),
     );
     expect((await copy.coffeeComponents(coffeeId)).single.harvest, 'Jan 2025');
     final methods = await target.select(target.brewMethods).get();

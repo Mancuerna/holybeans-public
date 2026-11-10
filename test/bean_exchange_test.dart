@@ -59,7 +59,7 @@ void main() {
       expect(read.bean.bagGrams, 100);
       expect(
         read.bean.shopUrl,
-        'https://rozalicoffee.com/products/hugo-pareja-sl9',
+        'https://roaster.example/products/hugo-pareja-sl9',
       );
     }
   });
