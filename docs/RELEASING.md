@@ -21,11 +21,15 @@ unit tests run in parallel. Every invocation still checks release metadata,
 documentation, helper tests and whitespace before the required `CI result` passes.
 
 CI hashes tracked file contents and modes, including application code, tests,
-dependencies, build settings, workflows and the reuse helper itself. Only the
-existing documentation allowlist, the release manifest and the stable
-`version: name+build` line of `pubspec.yaml` are excluded. Version syntax, build
-number, manifest agreement and bilingual release notes are checked separately.
-All other pubspec content participates in the hash.
+dependencies, build settings, workflows and the reuse helper itself. Versioned
+notes in `docs/releases/` and the version name in `pubspec.yaml` are compilation
+inputs: changing either requires complete validation of the new inputs. This
+also covers selecting notes for a version whose file already existed.
+
+Only the documentation allowlist (excluding release notes), the release manifest
+and the build-number portion of `pubspec.yaml` are excluded. Version syntax,
+build number, manifest agreement and bilingual release notes are checked on
+every run. All other pubspec content participates in the hash.
 
 A complete, successful run of `ci.yml` from this repository in the last seven
 days can supply evidence for the same source hash. Both its `flutter` and
@@ -36,10 +40,11 @@ not trust a branch name or an uploaded cache marker. CI explicitly checks out
 that head, so **strict up-to-date branch protection must remain enabled** before
 merging a PR. A new base must be incorporated and checked before merge.
 
-This lets the release metadata PR, the squash merge on `main`, and the tag reuse
-the original code PR's complete validation. The scope job summary links to the
-original run and records its commit and source hash. If evidence cannot be found
-or read, full tests run. A manual CI dispatch with `full=true` forces full tests.
+This lets the squash merge on `main` and the release tag reuse complete
+validation of the same release inputs. A release PR that changes the version
+name or notes needs validation of those new inputs. The scope job summary links
+to the original run and records its commit and source hash. If evidence cannot
+be found or read, full tests run. A manual CI dispatch with `full=true` forces full tests.
 No previously built app is reused: each new release still builds and verifies
 its own signed AAB, version, package and certificate.
 

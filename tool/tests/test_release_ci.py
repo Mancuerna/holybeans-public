@@ -22,6 +22,12 @@ class CiScopeTests(unittest.TestCase):
         self.assertTrue(requires_flutter(['unknown-file']))
         self.assertTrue(requires_flutter([]))
 
+    def test_release_notes_are_compilation_inputs(self):
+        for paths in (['docs/releases/1.2.1.md'],
+                      ['README.md', 'docs/releases/1.2.1.md']):
+            with self.subTest(paths=paths):
+                self.assertTrue(requires_flutter(paths))
+
     def test_git_scope_covers_renames_and_documentation(self):
         script = Path(__file__).parents[1] / 'ci/scope.py'
         with tempfile.TemporaryDirectory() as directory:
