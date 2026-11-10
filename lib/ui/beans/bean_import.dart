@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
@@ -28,21 +29,26 @@ Future<void> importBeansFromText(
   final s = AppLocalizations.of(context)!;
   final List<ReadBean> read;
   try {
-    read = readBeans(text);
+    read = await _readInBackground(text);
   } on BeanReadException catch (exception, stack) {
     // Says where reading stopped, in the device log only.
     reportError(exception, stack);
-    actions.message(_readErrorMessage(s, exception.error));
+    if (context.mounted) actions.message(_readErrorMessage(s, exception.error));
     return;
   }
+  if (!context.mounted) return;
   await _reviewBeans(context, actions, coffees, read);
 }
+
+Future<List<ReadBean>> _readInBackground(String text) =>
+    Isolate.run(() => readBeans(text));
 
 String _readErrorMessage(AppLocalizations s, BeanReadError error) =>
     switch (error) {
       BeanReadError.notJson => s.importInvalidJson,
       BeanReadError.noBeans => s.importNothing,
       BeanReadError.newerVersion => s.importNewer,
+      BeanReadError.tooLarge => s.importCardTooLarge,
     };
 
 String _fieldName(AppLocalizations s, String field) => switch (field) {
@@ -424,15 +430,21 @@ class _PasteDialogState extends State<_PasteDialog> {
   BeanReadError? _error;
   bool _submitted = false;
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_submitted) return;
+    setState(() => _submitted = true);
     try {
-      final read = readBeans(_text.text);
-      _submitted = true;
+      final read = await _readInBackground(_text.text);
+      if (!mounted) return;
       Navigator.pop(context, read);
     } on BeanReadException catch (error, stack) {
       reportError(error, stack);
-      setState(() => _error = error.error);
+      if (mounted) {
+        setState(() {
+          _error = error.error;
+          _submitted = false;
+        });
+      }
     }
   }
 
@@ -475,7 +487,7 @@ class _PasteDialogState extends State<_PasteDialog> {
           listenable: _text,
           builder: (context, _) => FilledButton(
             key: const ValueKey('paste-import'),
-            onPressed: _text.text.trim().isEmpty ? null : _submit,
+            onPressed: _submitted || _text.text.trim().isEmpty ? null : _submit,
             child: Text(s.importAction),
           ),
         ),

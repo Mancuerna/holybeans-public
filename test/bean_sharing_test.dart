@@ -24,6 +24,21 @@ const _geisha = SharedBean(
 
 const _pink = SharedBean(name: 'Pink Bourbon', roaster: 'Guido Coffee');
 
+Future<void> expectVisible(
+  WidgetTester tester,
+  Finder finder,
+  Matcher matcher,
+) async {
+  final deadline = DateTime.now().add(const Duration(seconds: 10));
+  while (finder.evaluate().isEmpty && DateTime.now().isBefore(deadline)) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 10)),
+    );
+    await tester.pumpAndSettle();
+  }
+  expect(finder, matcher);
+}
+
 void main() {
   late AppDatabase database;
   late JournalRepository repository;
@@ -78,6 +93,30 @@ void main() {
     await tester.pump(const Duration(milliseconds: 10));
   }
 
+  for (final language in ['en', 'es']) {
+    testWidgets('oversized coffee links show a controlled error ($language)', (
+      tester,
+    ) async {
+      await launchWith(
+        tester,
+        beanQrPrefix.padRight(beanQrMaxBytes + 1, 'A'),
+        language: language,
+      );
+      await expectVisible(
+        tester,
+        find.text(
+          language == 'en'
+              ? 'This coffee link or QR code contains too much data.'
+              : 'Este enlace o código QR de café contiene demasiados datos.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byType(CoffeeForm), findsNothing);
+      expect(await database.select(database.coffees).get(), isEmpty);
+      await finish(tester);
+    });
+  }
+
   testWidgets('invalid pasted text never opens a form or writes a coffee', (
     tester,
   ) async {
@@ -109,11 +148,19 @@ void main() {
     await tester.pump();
     await tester.tap(find.byKey(const ValueKey('paste-import')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('paste-dialog')), findsOneWidget);
+    await expectVisible(
+      tester,
+      find.byKey(const ValueKey('paste-dialog')),
+      findsOneWidget,
+    );
     final strings = AppLocalizations.of(
       tester.element(find.byKey(const ValueKey('paste-dialog'))),
     )!;
-    expect(find.text(strings.importInvalidJson), findsOneWidget);
+    await expectVisible(
+      tester,
+      find.text(strings.importInvalidJson),
+      findsOneWidget,
+    );
     expect(
       tester
           .widget<TextField>(find.byKey(const ValueKey('paste-text')))
@@ -135,8 +182,12 @@ void main() {
       await tester.pump();
       await tester.tap(find.byKey(const ValueKey('paste-import')));
       await tester.pumpAndSettle();
-      expect(find.text(sample.$2), findsOneWidget);
-      expect(find.byKey(const ValueKey('paste-dialog')), findsOneWidget);
+      await expectVisible(tester, find.text(sample.$2), findsOneWidget);
+      await expectVisible(
+        tester,
+        find.byKey(const ValueKey('paste-dialog')),
+        findsOneWidget,
+      );
     }
     await tester.enterText(
       find.byKey(const ValueKey('paste-text')),
@@ -145,7 +196,7 @@ void main() {
     await tester.pump();
     await tester.tap(find.byKey(const ValueKey('paste-import')));
     await tester.pumpAndSettle();
-    expect(find.byType(CoffeeForm), findsOneWidget);
+    await expectVisible(tester, find.byType(CoffeeForm), findsOneWidget);
     expect(await database.select(database.coffees).get(), isEmpty);
     await tester.tap(find.text('Cancel').last);
     await tester.pumpAndSettle();
@@ -165,10 +216,18 @@ void main() {
             language: language,
           );
           final dialog = find.byKey(const ValueKey('import-dropped'));
-          expect(dialog, findsOneWidget);
+          await expectVisible(tester, dialog, findsOneWidget);
           final strings = AppLocalizations.of(tester.element(dialog))!;
-          expect(find.textContaining(strings.paidPrice), findsOneWidget);
-          expect(find.textContaining(strings.roastDate), findsOneWidget);
+          await expectVisible(
+            tester,
+            find.textContaining(strings.paidPrice),
+            findsOneWidget,
+          );
+          await expectVisible(
+            tester,
+            find.textContaining(strings.roastDate),
+            findsOneWidget,
+          );
           expect(find.byType(CoffeeForm), findsNothing);
           expect(await database.select(database.coffees).get(), isEmpty);
           await tester.tap(
@@ -178,7 +237,11 @@ void main() {
           );
           await tester.pumpAndSettle();
           if (review) {
-            expect(find.byType(CoffeeForm), findsOneWidget);
+            await expectVisible(
+              tester,
+              find.byType(CoffeeForm),
+              findsOneWidget,
+            );
             await tester.tap(find.text(strings.cancel).last);
             await tester.pumpAndSettle();
           }
@@ -195,7 +258,7 @@ void main() {
     tester,
   ) async {
     await launchWith(tester, encodeBeans([_geisha]));
-    expect(find.byType(CoffeeForm), findsOneWidget);
+    await expectVisible(tester, find.byType(CoffeeForm), findsOneWidget);
     expect(await database.select(database.coffees).get(), isEmpty);
     await tester.tap(find.text('Cancel').last);
     await tester.pumpAndSettle();
@@ -208,7 +271,7 @@ void main() {
 
   testWidgets('a shared card opens the coffee form filled in', (tester) async {
     await launchWith(tester, encodeBeans([_geisha]));
-    expect(find.byType(CoffeeForm), findsOneWidget);
+    await expectVisible(tester, find.byType(CoffeeForm), findsOneWidget);
     expect(find.widgetWithText(TextFormField, 'Abu Coffee Geisha'), findsOne);
     expect(find.widgetWithText(TextFormField, 'Kima Coffee'), findsOne);
 
@@ -233,10 +296,14 @@ void main() {
       roaster: 'Kima Coffee',
     );
     await launchWith(tester, beanQrText(_geisha));
-    expect(find.byKey(const ValueKey('import-duplicate')), findsOneWidget);
+    await expectVisible(
+      tester,
+      find.byKey(const ValueKey('import-duplicate')),
+      findsOneWidget,
+    );
     await tester.tap(find.byKey(const ValueKey('import-add-anyway')));
     await tester.pumpAndSettle();
-    expect(find.byType(CoffeeForm), findsOneWidget);
+    await expectVisible(tester, find.byType(CoffeeForm), findsOneWidget);
     await finish(tester);
   });
 
@@ -254,13 +321,21 @@ void main() {
   {"name": "Pink Bourbon", "roaster": "Guido", "roastDate": "soon"}
 ]
 ```''');
-    expect(find.byType(BeanImportPage), findsOneWidget);
+    await expectVisible(tester, find.byType(BeanImportPage), findsOneWidget);
     final first = tester.widget<CheckboxListTile>(
       find.byKey(const ValueKey('import-bean-0')),
     );
     expect(first.value, isFalse, reason: 'already in the journal');
-    expect(find.text('Already in your journal'), findsOneWidget);
-    expect(find.text('Not read: Roast date'), findsOneWidget);
+    await expectVisible(
+      tester,
+      find.text('Already in your journal'),
+      findsOneWidget,
+    );
+    await expectVisible(
+      tester,
+      find.text('Not read: Roast date'),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byKey(const ValueKey('import-beans-confirm')));
     await tester.pumpAndSettle();
@@ -269,14 +344,15 @@ void main() {
         coffee.name,
     ];
     expect(names, unorderedEquals(['Abu Coffee Geisha', 'Pink Bourbon']));
-    expect(find.text('1 coffee imported'), findsOneWidget);
+    await expectVisible(tester, find.text('1 coffee imported'), findsOneWidget);
     await finish(tester);
   });
 
   testWidgets('text that is not a card says so', (tester) async {
     await launchWith(tester, 'Just a shopping list: milk, bread');
     expect(find.byType(CoffeeForm), findsNothing);
-    expect(
+    await expectVisible(
+      tester,
       find.text(
         'This card could not be read. Check that you copied the complete JSON.',
       ),
@@ -296,7 +372,11 @@ void main() {
         message: 'Play services missing',
       ),
     );
-    expect(find.text('Could not open the QR scanner.'), findsOneWidget);
+    await expectVisible(
+      tester,
+      find.text('Could not open the QR scanner.'),
+      findsOneWidget,
+    );
     expect(find.byType(CoffeeForm), findsNothing);
     await finish(tester);
   });
@@ -331,8 +411,16 @@ void main() {
     );
     await tester.tap(find.byKey(const ValueKey('bean-share-transfer')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('share-bean-qr')), findsOneWidget);
-    expect(find.byKey(const ValueKey('share-bean-file')), findsOneWidget);
+    await expectVisible(
+      tester,
+      find.byKey(const ValueKey('share-bean-qr')),
+      findsOneWidget,
+    );
+    await expectVisible(
+      tester,
+      find.byKey(const ValueKey('share-bean-file')),
+      findsOneWidget,
+    );
     final qrButton = find.byKey(const ValueKey('share-bean-qr-image'));
     await tester.ensureVisible(qrButton);
     await tester.pumpAndSettle();
@@ -379,10 +467,14 @@ void main() {
 
     // The clipboard can be read: the box comes filled in.
     await paste();
-    expect(find.byKey(const ValueKey('paste-dialog')), findsOneWidget);
+    await expectVisible(
+      tester,
+      find.byKey(const ValueKey('paste-dialog')),
+      findsOneWidget,
+    );
     await tester.tap(find.byKey(const ValueKey('paste-import')));
     await tester.pumpAndSettle();
-    expect(find.byType(BeanImportPage), findsOneWidget);
+    await expectVisible(tester, find.byType(BeanImportPage), findsOneWidget);
     await tester.pageBack();
     await tester.pumpAndSettle();
 
@@ -398,8 +490,8 @@ void main() {
     );
     await tester.tap(find.byKey(const ValueKey('paste-import')));
     await tester.pumpAndSettle();
-    expect(find.text('Hugo Pareja [SL9]'), findsWidgets);
-    expect(find.byType(CoffeeForm), findsOneWidget);
+    await expectVisible(tester, find.text('Hugo Pareja [SL9]'), findsWidgets);
+    await expectVisible(tester, find.byType(CoffeeForm), findsOneWidget);
     await tester.tap(find.text('Cancel').last);
     await tester.pumpAndSettle();
 
@@ -415,7 +507,8 @@ void main() {
     await tester.pump();
     await tester.tap(import);
     await tester.pumpAndSettle();
-    expect(
+    await expectVisible(
+      tester,
       find.text(
         'This card could not be read. Check that you copied the complete JSON.',
       ),
