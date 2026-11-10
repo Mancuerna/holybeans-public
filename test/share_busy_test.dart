@@ -178,6 +178,7 @@ void main() {
     );
     for (final key in [
       'share-photo-caption',
+      'share-charts-overlay',
       'share-transparent-background',
       'share-field-coffee',
       'share-include-curve',
