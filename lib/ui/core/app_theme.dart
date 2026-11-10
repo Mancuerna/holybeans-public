@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// HolyBeans' look: a lab notebook for coffee. Grey bench, white sheets,
-/// ink, and one cherry red (the coffee fruit) for actions and selected controls.
-/// Frozen stock has its own blue accent. IBM Plex Sans for text; its condensed cut, with tabular
-/// figures, for the numbers that are read and compared. The tokens and the
-/// reasons behind them are in docs/DESIGN.md.
+/// HolyBeans' look: a lab notebook for coffee.
+///
+/// Uses grey surfaces, white sheets, ink, and cherry red (the coffee fruit) for
+/// actions and selected controls. Frozen stock has its own blue accent. Text
+/// uses IBM Plex Sans; numbers use its condensed cut with tabular figures so
+/// they can be read and compared. Color and typography
+/// tokens are defined here for both light and dark themes.
 abstract final class AppTheme {
   /// Family names as declared in pubspec.yaml.
   static const text = 'Plex';

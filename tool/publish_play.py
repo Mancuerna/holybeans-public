@@ -379,7 +379,7 @@ def argument_parser():
     parser = argparse.ArgumentParser(
         description="Valida y publica un AAB de HolyBeans con Google Play Developer API."
     )
-    parser.add_argument("aab", type=Path, help="AAB generado por tool/build-play-bundle.sh")
+    parser.add_argument("aab", type=Path, help="AAB compilado y firmado según docs/RELEASING.md")
     parser.add_argument("notes", type=Path, help="Documento con notas <es-ES> y <en-GB>")
     parser.add_argument(
         "--track", default="production", help="Track de Play (predeterminado: production)"

@@ -15,7 +15,7 @@ import java.security.MessageDigest
 import java.util.concurrent.Executors
 import javax.net.ssl.HttpsURLConnection
 
-/** Keeps OAuth credentials native and ephemeral. No generic host proxy, deletes,
+/** Keeps OAuth credentials native and ephemeral. No generic host proxy,
  * token logging, redirects, or token persistence. Every request binds its account.
  */
 class DriveSyncBridge(private val activity: Activity) {

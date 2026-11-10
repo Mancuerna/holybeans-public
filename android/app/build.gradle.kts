@@ -51,7 +51,7 @@ android {
             execution = "ANDROIDX_TEST_ORCHESTRATOR"
         }
         // `patrol test --profile` needs the instrumented tests built in that
-        // mode too, for timings of compiled code (docs/PATROL.md).
+        // mode too, for timings of compiled code. Set this to "profile".
         System.getenv("HOLYBEANS_PATROL_BUILD_TYPE")?.let { testBuildType = it }
     }
 

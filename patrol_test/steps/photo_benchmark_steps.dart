@@ -13,8 +13,8 @@ import 'package:path_provider/path_provider.dart';
 ///
 /// Reads the JPEG files pushed to `files/bench` in the test package's
 /// external folder (`adb push`), repeated [rounds] times, and writes the
-/// times to `files/bench/result.json`. Run it as a profile build
-/// (docs/PATROL.md).
+/// times to `files/bench/result.json`. Run it with `patrol test --profile`
+/// and `HOLYBEANS_PATROL_BUILD_TYPE=profile` to time compiled code.
 Future<void> runPhotoBenchmark({int rounds = 8}) async {
   final folder = Directory(
     '${(await getExternalStorageDirectory())!.path}/bench',
