@@ -50,15 +50,8 @@ class SharePhotoOverlay extends StatelessWidget {
                     // Long templates and charts must also fit inside the photo.
                     fit: BoxFit.scaleDown,
                     alignment: alignment,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color:
-                            (Theme.of(context).brightness == Brightness.dark
-                                    ? Colors.black
-                                    : Colors.white)
-                                .withValues(alpha: backgroundOpacity),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
+                    child: ShareOverlayPanel(
+                      backgroundOpacity: backgroundOpacity,
                       child: SizedBox(width: 340, child: child),
                     ),
                   ),
@@ -70,6 +63,30 @@ class SharePhotoOverlay extends StatelessWidget {
       ),
     );
   }
+}
+
+class ShareOverlayPanel extends StatelessWidget {
+  const ShareOverlayPanel({
+    super.key,
+    required this.backgroundOpacity,
+    required this.child,
+  });
+
+  final double backgroundOpacity;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      color:
+          (Theme.of(context).brightness == Brightness.dark
+                  ? Colors.black
+                  : Colors.white)
+              .withValues(alpha: backgroundOpacity),
+      borderRadius: BorderRadius.circular(24),
+    ),
+    child: child,
+  );
 }
 
 class SharePhotoOverlayOptions extends StatelessWidget {
@@ -85,6 +102,8 @@ class SharePhotoOverlayOptions extends StatelessWidget {
     required this.onLightTextChanged,
     required this.onBackgroundOpacityChanged,
     required this.onBackgroundOpacityChangeEnd,
+    this.positionLabel,
+    this.sizeLabel,
   });
 
   final Alignment alignment;
@@ -97,6 +116,8 @@ class SharePhotoOverlayOptions extends StatelessWidget {
   final ValueChanged<bool> onLightTextChanged;
   final ValueChanged<double> onBackgroundOpacityChanged;
   final ValueChanged<double> onBackgroundOpacityChangeEnd;
+  final String? positionLabel;
+  final String? sizeLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +157,9 @@ class SharePhotoOverlayOptions extends StatelessWidget {
           key: const ValueKey('share-overlay-position'),
           initialValue: alignment,
           isExpanded: true,
-          decoration: InputDecoration(labelText: s.shareOverlayPosition),
+          decoration: InputDecoration(
+            labelText: positionLabel ?? s.shareOverlayPosition,
+          ),
           items: [
             for (final position in positions.entries)
               DropdownMenuItem(
@@ -151,7 +174,7 @@ class SharePhotoOverlayOptions extends StatelessWidget {
               : null,
         ),
         const SizedBox(height: 12),
-        Text(s.shareOverlaySize),
+        Text(sizeLabel ?? s.shareOverlaySize),
         Slider(
           key: const ValueKey('share-overlay-size'),
           value: widthFraction,
@@ -159,7 +182,7 @@ class SharePhotoOverlayOptions extends StatelessWidget {
           divisions: 12,
           label: '${(widthFraction * 100).round()}%',
           semanticFormatterCallback: (value) =>
-              '${s.shareOverlaySize}: ${(value * 100).round()}%',
+              '${sizeLabel ?? s.shareOverlaySize}: ${(value * 100).round()}%',
           onChanged: enabled ? onWidthChanged : null,
         ),
       ],

@@ -8,6 +8,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/espresso_map_page.dart';
 import 'package:holybeans/ui/brews/extraction_chart.dart';
 import 'package:holybeans/ui/brews/sensory_map_page.dart';
+import 'package:holybeans/ui/core/share_photo_overlay.dart';
 
 BrewShareChartData brewShareChartData(
   Brew brew,
@@ -81,56 +82,87 @@ class BrewShareCharts extends StatelessWidget {
     required this.data,
     required this.includeCurve,
     required this.includeMap,
+    this.panelBackgroundOpacity,
   });
 
   final BrewShareChartData data;
   final bool includeCurve;
   final bool includeMap;
+  final double? panelBackgroundOpacity;
 
   @override
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context)!;
     final title = Theme.of(context).textTheme.titleMedium;
+    final curve = includeCurve && data.hasCurve;
+    final map = includeMap && data.hasMap;
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (includeCurve && data.hasCurve) ...[
-          const Divider(height: 28),
-          Text(s.extractionCurve, style: title),
-          const SizedBox(height: 8),
-          ExtractionChart(
-            key: const ValueKey('share-extraction-chart'),
-            curve: data.recording!.curve,
-            interactive: false,
-            replayable: false,
-            showReadout: false,
-            flowUnit:
-                data.recording!.source == ImportOperations.meticulousSource
-                ? 'ml/s'
-                : 'g/s',
+        if (curve)
+          _section(
+            key: const ValueKey('share-curve-panel'),
+            children: [
+              Text(s.extractionCurve, style: title),
+              const SizedBox(height: 8),
+              ExtractionChart(
+                key: const ValueKey('share-extraction-chart'),
+                curve: data.recording!.curve,
+                interactive: false,
+                replayable: false,
+                showReadout: false,
+                flowUnit:
+                    data.recording!.source == ImportOperations.meticulousSource
+                    ? 'ml/s'
+                    : 'g/s',
+              ),
+            ],
           ),
-        ],
-        if (includeMap && data.hasMap) ...[
-          const Divider(height: 28),
-          Text(data.espresso ? s.espressoMap : s.sensoryMap, style: title),
+        if (curve && map && panelBackgroundOpacity != null)
           const SizedBox(height: 12),
-          if (data.espresso)
-            EspressoMapChart(
-              eyPercent: data.ey!,
-              tdsPercent: data.tdsPercent!,
-              ratio: data.ratio!,
-              style: EspressoStyle.forRatio(data.ratio!),
-            )
-          else ...[
-            SensoryMapChart(eyPercent: data.ey!, tdsPercent: data.tdsPercent!),
-            const SizedBox(height: 8),
-            Text(
-              s.shareSensorySource,
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-          ],
-        ],
+        if (map)
+          _section(
+            key: const ValueKey('share-map-panel'),
+            children: [
+              Text(data.espresso ? s.espressoMap : s.sensoryMap, style: title),
+              const SizedBox(height: 12),
+              if (data.espresso)
+                EspressoMapChart(
+                  eyPercent: data.ey!,
+                  tdsPercent: data.tdsPercent!,
+                  ratio: data.ratio!,
+                  style: EspressoStyle.forRatio(data.ratio!),
+                )
+              else ...[
+                SensoryMapChart(
+                  eyPercent: data.ey!,
+                  tdsPercent: data.tdsPercent!,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  s.shareSensorySource,
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              ],
+            ],
+          ),
       ],
+    );
+  }
+
+  Widget _section({required Key key, required List<Widget> children}) {
+    final opacity = panelBackgroundOpacity;
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [if (opacity == null) const Divider(height: 28), ...children],
+    );
+    if (opacity == null) return content;
+    return ShareOverlayPanel(
+      key: key,
+      backgroundOpacity: opacity,
+      child: Padding(padding: const EdgeInsets.all(16), child: content),
     );
   }
 }

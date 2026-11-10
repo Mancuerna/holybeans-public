@@ -90,6 +90,9 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
   bool lightText = true;
   bool photoCaption = false;
   bool photoOverlay = false;
+  bool chartsOnPhoto = false;
+  bool get overlayingCharts => photoCaption && chartsOnPhoto;
+  bool get hasPhotoOverlay => photoOverlay || overlayingCharts;
   Alignment overlayAlignment = Alignment.bottomLeft;
   double overlayWidth = 0.65;
   late double overlayBackgroundOpacity =
@@ -109,7 +112,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
     }
   }
 
-  bool get needsPhoto => asImage && photoOverlay && photo == null;
+  bool get needsPhoto => asImage && hasPhotoOverlay && photo == null;
   late Uint8List? photo = widget.initialPhoto;
   bool pickingPhoto = false;
   bool copying = false;
@@ -279,20 +282,35 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Center(
-            child: ShareImagePreview(
-              captureKey: cardKey,
-              transparent: transparent,
-              lightText: lightText,
-              child: SharePhotoCard(
-                photo: photo,
-                title: widget.coffee.name,
-                charts: BrewShareCharts(
-                  data: chartData,
-                  includeCurve: includeCurve,
-                  includeMap: includeMap,
-                ),
-              ),
-            ),
+            child: overlayingCharts && photo == null
+                ? Text(s.shareChartsOverlayHint)
+                : ShareImagePreview(
+                    captureKey: cardKey,
+                    transparent: transparent || overlayingCharts,
+                    lightText: lightText,
+                    child: overlayingCharts
+                        ? SharePhotoOverlay(
+                            photo: photo!,
+                            alignment: overlayAlignment,
+                            widthFraction: overlayWidth,
+                            backgroundOpacity: 0,
+                            child: BrewShareCharts(
+                              data: chartData,
+                              includeCurve: includeCurve,
+                              includeMap: includeMap,
+                              panelBackgroundOpacity: overlayBackgroundOpacity,
+                            ),
+                          )
+                        : SharePhotoCard(
+                            photo: photo,
+                            title: widget.coffee.name,
+                            charts: BrewShareCharts(
+                              data: chartData,
+                              includeCurve: includeCurve,
+                              includeMap: includeMap,
+                            ),
+                          ),
+                  ),
           ),
           const SizedBox(height: 16),
           Text(s.sharePhotoCaptionHint),
@@ -416,7 +434,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
                         ),
                       ),
                     if (asImage) ...[
-                      if (!photoOverlay)
+                      if (!hasPhotoOverlay)
                         ShareImageOptions(
                           transparent: transparent,
                           lightText: lightText,
@@ -438,8 +456,38 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
                                 if (value) photoCaption = false;
                               }),
                       ),
-                      if (photoOverlay)
+                      SwitchListTile(
+                        key: const ValueKey('share-photo-caption'),
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(s.sharePhotoCaption),
+                        value: photoCaption,
+                        onChanged: busy
+                            ? null
+                            : (value) => setState(() {
+                                photoCaption = value;
+                                if (value) photoOverlay = false;
+                              }),
+                      ),
+                      if (photoCaption)
+                        SwitchListTile(
+                          key: const ValueKey('share-charts-overlay'),
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(s.shareChartsOverlay),
+                          subtitle: Text(s.shareChartsOverlayHint),
+                          value: chartsOnPhoto,
+                          onChanged: busy
+                              ? null
+                              : (value) =>
+                                    setState(() => chartsOnPhoto = value),
+                        ),
+                      if (hasPhotoOverlay)
                         SharePhotoOverlayOptions(
+                          positionLabel: overlayingCharts
+                              ? s.shareChartOverlayPosition
+                              : null,
+                          sizeLabel: overlayingCharts
+                              ? s.shareChartOverlaySize
+                              : null,
                           alignment: overlayAlignment,
                           widthFraction: overlayWidth,
                           backgroundOpacity: overlayBackgroundOpacity,
@@ -456,18 +504,6 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
                           onLightTextChanged: (value) =>
                               setState(() => lightText = value),
                         ),
-                      SwitchListTile(
-                        key: const ValueKey('share-photo-caption'),
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(s.sharePhotoCaption),
-                        value: photoCaption,
-                        onChanged: busy
-                            ? null
-                            : (value) => setState(() {
-                                photoCaption = value;
-                                if (value) photoOverlay = false;
-                              }),
-                      ),
                       if (photoCaption || photoOverlay)
                         Wrap(
                           spacing: 8,
