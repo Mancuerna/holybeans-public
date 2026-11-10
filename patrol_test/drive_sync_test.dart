@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/drive_sync_coordinator.dart';
@@ -36,6 +37,22 @@ void main() {
       expect(
         await const DriveNativeClient().channel.invokeMethod<String>('package'),
         'com.caffeinateddev.holybeans.patrol',
+      );
+      const native = DriveNativeClient();
+      await native.cancel();
+      await native.disconnect();
+      await expectLater(
+        native.request(
+          'unconnected',
+          'https://www.googleapis.com/drive/v3/files',
+        ),
+        throwsA(
+          isA<PlatformException>().having(
+            (error) => error.code,
+            'code',
+            'not_connected',
+          ),
+        ),
       );
       // Patrol clears app data, including the selected Google account. OAuth
       // and actual Drive bytes are covered separately on the release fixture;
