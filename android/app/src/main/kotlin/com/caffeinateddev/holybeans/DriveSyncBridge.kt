@@ -10,7 +10,6 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
-import java.net.URL
 import java.security.MessageDigest
 import java.util.concurrent.Executors
 import javax.net.ssl.HttpsURLConnection
@@ -20,34 +19,30 @@ import javax.net.ssl.HttpsURLConnection
  */
 class DriveSyncBridge(private val activity: Activity) {
     private companion object {
-        const val REQUEST = 7020
         const val MAX_BYTES = 64 * 1024 * 1024
         val executor = Executors.newSingleThreadExecutor()
     }
     private var token: String? = null
     private var account: String? = null
-    private var active: MethodChannel.Result? = null
-    private var generation = 0L
+    private val operations = DriveOperations<MethodChannel.Result>()
     private var disposed = false
 
     fun handle(call: MethodCall, result: MethodChannel.Result) {
         if (disposed) { result.error("cancelled", null, null); return }
         if (call.method == "cancel") {
-            generation++
             token = null
             account = null
-            fail("cancelled")
+            operations.cancel()?.error("cancelled", null, null)
             result.success(null)
             return
         }
-        if (active != null) { result.error("busy", null, null); return }
+        if (operations.busy) { result.error("busy", null, null); return }
         when (call.method) {
             "package" -> result.success(activity.packageName)
             "connect" -> {
-                active = result
                 token = null
                 account = null
-                val operation = ++generation
+                val operation = operations.begin(result)
                 authorize(call.argument<Boolean>("interactive") == true, operation)
             }
             "disconnect" -> { token = null; account = null; result.success(null) }
@@ -60,13 +55,13 @@ class DriveSyncBridge(private val activity: Activity) {
                 val method = call.argument<String>("method") ?: "GET"
                 val body = call.argument<ByteArray>("body")
                 val type = call.argument<String>("contentType") ?: "application/json"
-                active = result
+                val operation = operations.begin(result)
                 executor.execute {
                     try {
-                        val response = request(credential, url, method, body, type)
-                        activity.runOnUiThread { finish(response) }
+                        val response = request(operation, credential, url, method, body, type)
+                        activity.runOnUiThread { finish(operation, response) }
                     } catch (_: Exception) {
-                        activity.runOnUiThread { fail("network") }
+                        activity.runOnUiThread { fail(operation, "network") }
                     }
                 }
             }
@@ -79,37 +74,41 @@ class DriveSyncBridge(private val activity: Activity) {
             listOf(Scope("https://www.googleapis.com/auth/drive.appdata"))).build()
         Identity.getAuthorizationClient(activity).authorize(request)
             .addOnSuccessListener { result ->
-                if (disposed || operation != generation) return@addOnSuccessListener
+                if (disposed || !operations.isCurrent(operation)) return@addOnSuccessListener
                 if (result.hasResolution()) {
-                    if (!interactive) { fail("authorization_required"); return@addOnSuccessListener }
+                    if (!interactive) { fail(operation, "authorization_required"); return@addOnSuccessListener }
+                    var requestCode: Int? = null
                     try {
+                        requestCode = operations.reserveResolution(operation)
                         activity.startIntentSenderForResult(result.pendingIntent!!.intentSender,
-                            REQUEST, null, 0, 0, 0)
-                    } catch (_: Exception) { fail("authorization_failed") }
+                            requestCode, null, 0, 0, 0)
+                    } catch (_: Exception) {
+                        requestCode?.let(operations::consumeResolution)
+                        fail(operation, "authorization_failed")
+                    }
                 } else authorized(result.accessToken, operation)
             }.addOnFailureListener {
-                if (operation == generation) fail("authorization_failed")
+                if (operations.isCurrent(operation)) fail(operation, "authorization_failed")
             }
     }
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        if (requestCode != REQUEST) return false
-        if (active == null) return true
-        if (resultCode != Activity.RESULT_OK) { fail("cancelled"); return true }
-        val operation = generation
+        val operation = operations.consumeResolution(requestCode) ?: return false
+        if (!operations.isCurrent(operation)) return true
+        if (resultCode != Activity.RESULT_OK) { fail(operation, "cancelled"); return true }
         try {
             authorized(Identity.getAuthorizationClient(activity)
                 .getAuthorizationResultFromIntent(data).accessToken, operation)
-        } catch (_: Exception) { fail("authorization_failed") }
+        } catch (_: Exception) { fail(operation, "authorization_failed") }
         return true
     }
 
     private fun authorized(credential: String?, operation: Long) {
-        if (disposed || operation != generation) return
-        if (credential.isNullOrBlank()) { fail("authorization_failed"); return }
+        if (disposed || !operations.isCurrent(operation)) return
+        if (credential.isNullOrBlank()) { fail(operation, "authorization_failed"); return }
         executor.execute {
             try {
-                val response = request(credential,
+                val response = request(operation, credential,
                     "https://www.googleapis.com/drive/v3/about?fields=user(permissionId)", "GET", null,
                     "application/json")
                 check(response["status"] == 200)
@@ -119,26 +118,23 @@ class DriveSyncBridge(private val activity: Activity) {
                 val key = MessageDigest.getInstance("SHA-256")
                     .digest(id.toByteArray(Charsets.UTF_8)).joinToString("") { "%02x".format(it) }
                 activity.runOnUiThread {
-                    if (!disposed && operation == generation) {
+                    if (!disposed && operations.isCurrent(operation)) {
                         token = credential
                         account = key
-                        finish(key)
+                        finish(operation, key)
                     }
                 }
             } catch (_: Exception) {
                 activity.runOnUiThread {
-                    if (operation == generation) fail("authorization_failed")
+                    if (operations.isCurrent(operation)) fail(operation, "authorization_failed")
                 }
             }
         }
     }
 
-    private fun request(credential: String, address: String, method: String,
+    private fun request(operation: Long, credential: String, address: String, method: String,
                         body: ByteArray?, contentType: String): Map<String, Any?> {
-        val url = URL(address)
-        require(url.protocol == "https" && url.host == "www.googleapis.com" &&
-            url.port == -1 && url.userInfo == null && url.ref == null &&
-            (url.path.startsWith("/drive/v3/") || url.path.startsWith("/upload/drive/v3/")))
+        val url = DriveRequestPolicy.url(address)
         require(method in setOf("GET", "POST", "PUT", "DELETE"))
         require(body == null || body.size <= MAX_BYTES)
         require(!contentType.contains('\r') && !contentType.contains('\n'))
@@ -168,16 +164,25 @@ class DriveSyncBridge(private val activity: Activity) {
                 }
             }
             if (status == 401) activity.runOnUiThread {
-                token = null; account = null
-                Identity.getAuthorizationClient(activity).clearToken(
-                    ClearTokenRequest.builder().setToken(credential).build())
+                operations.runIfCurrent(operation) {
+                    token = null; account = null
+                    Identity.getAuthorizationClient(activity).clearToken(
+                        ClearTokenRequest.builder().setToken(credential).build())
+                }
             }
             return mapOf("status" to status, "body" to output.toByteArray(),
                 "location" to connection.getHeaderField("Location"))
         } finally { connection.disconnect() }
     }
 
-    private fun finish(value: Any?) { active?.success(value); active = null }
-    private fun fail(code: String) { active?.error(code, null, null); active = null }
-    fun dispose() { disposed = true; token = null; account = null; fail("cancelled") }
+    private fun finish(operation: Long, value: Any?) {
+        operations.take(operation)?.success(value)
+    }
+    private fun fail(operation: Long, code: String) {
+        operations.take(operation)?.error(code, null, null)
+    }
+    fun dispose() {
+        disposed = true; token = null; account = null
+        operations.cancel()?.error("cancelled", null, null)
+    }
 }
