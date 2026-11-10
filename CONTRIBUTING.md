@@ -3,32 +3,22 @@
 Use the pinned Flutter version in the README and keep `pubspec.lock` committed.
 A commit does not publish to Google Play.
 
-## Completing a change
+## Submitting a change
 
-The default workflow for implementation tasks includes delivery to `main`,
-unless the user explicitly requests a draft, local-only work or a review.
-Passing local tests or opening a PR does not mean the task is complete.
+1. Start a focused branch from the latest `main` and preserve unrelated work.
+2. Implement the change, add regression tests for changed behaviour and run the
+   applicable checks in [Validation](#validation). Update documentation and both
+   translations when needed.
+3. Review the diff for accidental files and personal data, then commit with an
+   English Conventional Commit message and open a pull request against `main`.
+4. Describe the problem, the resulting behaviour and the validation performed.
+   Include reproduction steps or screenshots when they help review the change.
+5. Address review feedback, keep the branch up to date and wait for `CI result`
+   to pass on the latest commit. Maintainers merge approved changes through the
+   pull request with the repository's branch protections in place.
 
-1. Inspect the working tree, branch, existing PR and current remote `main`.
-   Preserve unrelated work, use a feature branch and keep commits focused.
-2. Review the diff and run the applicable validation below. Commit the change
-   with an English Conventional Commit message and push the branch.
-3. Create or update its PR against `main`. Incorporate the latest `main` and
-   wait for the required `CI result` to pass on the current PR head. Resolve
-   failures and recheck after any new commit; an older green run is insufficient.
-4. Review the final diff and squash message, then merge through the PR while
-   respecting branch protection and required approvals. Do not bypass checks.
-5. Verify that GitHub reports the PR as merged and check the resulting `main`
-   commit's CI. Synchronize local references without overwriting unrelated work.
-6. Report the commit, PR and CI links, merge status and any remaining local
-   changes. Do not describe a change as delivered while it is only local,
-   unpushed, awaiting CI or unmerged.
-
-Continue through these steps without asking for confirmation at each routine
-step. If permissions, required approvals, failing checks or an explicit user
-constraint prevent completion, report the exact blocker and remaining action.
-Do not silently leave pending work or treat an inability to check CI as success.
-Release PRs and publication to Play follow the separate release procedure below.
+Release pull requests and Google Play publication follow the separate release
+procedure below.
 
 ## Commit messages
 
@@ -65,7 +55,9 @@ reliably enforce. App translations remain in English and Spanish.
 
 ## Structure
 
-- `lib/domain/`: pure logic with unit tests.
+- `lib/domain/`: domain logic with unit tests. Some existing adapters accept
+  immutable generated database rows; `test/architecture_test.dart` records
+  those exceptions. Prefer plain inputs for new domain logic.
 - `lib/data/`: Drift database, repositories, services and preferences.
 - `lib/ui/`: UI grouped by feature. `JournalShell` implements `JournalActions`.
 - `lib/l10n/`: English and Spanish ARB sources; generated translations are ignored.
