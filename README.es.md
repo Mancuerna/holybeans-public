@@ -50,8 +50,9 @@ El diario funciona sin conexión. Puedes exportarlo con sus fotos y guardar copi
 opcionales en tu Google Drive. **Las copias de Drive son independientes: no fusionan
 ni sincronizan automáticamente los diarios de varios dispositivos.**
 
-Las migraciones conservan los diarios existentes y se mantiene la lectura de
-copias desde la versión 19. Consulta la [política de privacidad](https://holybeans.jacortes.me/es/).
+Las migraciones desde el esquema 19 conservan los diarios existentes y se mantiene
+la lectura de copias desde la versión 5. Consulta la
+[política de privacidad](https://holybeans.jacortes.me/es/).
 
 ## Compilar y colaborar
 

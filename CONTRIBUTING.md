@@ -98,7 +98,7 @@ documentation-only changes run lightweight checks. Keep PR branches up to date
 with `main`: CI tests the exact branch head and strict branch protection is required.
 
 Run `flutter test --no-pub test/schema_verifier_test.dart` for schema changes.
-Keep migrations from schema 20 and backup compatibility from version 19.
+Keep migrations from schema 19 and backup compatibility from version 5.
 Never replace a migration with deletion or recreation of the user's journal.
 Real-data migration checks are performed privately by maintainers; an absent
 fixture is a reported skip, not a successful conservation test.
