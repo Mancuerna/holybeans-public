@@ -6,10 +6,10 @@ import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/domain/brew_ratio.dart';
 import 'package:holybeans/domain/brew_stats.dart';
-import 'package:holybeans/domain/pour_detection.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
+import 'package:holybeans/ui/brews/brew_pours_from_curve.dart';
 import 'package:holybeans/ui/brews/espresso_map_page.dart';
 import 'package:holybeans/ui/brews/extraction_chart.dart';
 import 'package:holybeans/ui/brews/sensory_map_page.dart';
@@ -20,6 +20,7 @@ import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/photo_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
+import 'package:holybeans/ui/sync/journal_write_feedback.dart';
 import 'package:intl/intl.dart';
 
 /// Opens the bottom sheet with everything recorded for [brew].
@@ -66,6 +67,7 @@ class BrewDetailsSheet extends StatefulWidget {
 class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
   bool loading = false;
   Object? loadError;
+  Object? poursError;
   @override
   void initState() {
     super.initState();
@@ -308,14 +310,29 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                       category: method?.category,
                       methodName: brew.methodName,
                     ))
-                  _PoursFromCurve(
+                  BrewPoursFromCurve(
                     curve: curve,
                     brew: brew,
+                    error: poursError == null
+                        ? null
+                        : journalWriteErrorText(
+                            context,
+                            poursError,
+                            s.saveFailed,
+                          ),
                     onSave: (found) async {
-                      await actions.repository.setBrewPours(brew.id, found);
-                      final saved = await actions.repository.brew(brew.id);
-                      if (saved == null || !mounted) return;
-                      setState(() => brew = saved);
+                      try {
+                        await actions.repository.setBrewPours(brew.id, found);
+                        final saved = await actions.repository.brew(brew.id);
+                        if (saved == null || !mounted) return;
+                        setState(() {
+                          brew = saved;
+                          poursError = null;
+                        });
+                      } catch (error, stack) {
+                        reportError(error, stack);
+                        if (mounted) setState(() => poursError = error);
+                      }
                     },
                   ),
                 if (_extractionMap(context, method) case final map?) ...[
@@ -577,71 +594,6 @@ Set<BrewParameter> _recordedRows(Brew brew, BrewPours pours) {
     if (brew.notes?.trim().isNotEmpty ?? false) BrewParameter.notes,
     if (pours.phases.isNotEmpty) BrewParameter.pourDetails,
   };
-}
-
-/// Blooms and pours found on the brew's curve, offered to be saved when
-/// none are recorded.
-class _PoursFromCurve extends StatelessWidget {
-  const _PoursFromCurve({
-    required this.curve,
-    required this.brew,
-    required this.onSave,
-  });
-
-  final Future<({ShotCurve curve, String source})?> curve;
-  final Brew brew;
-  final Future<void> Function(BrewPours pours) onSave;
-
-  @override
-  Widget build(BuildContext context) =>
-      FutureBuilder<({ShotCurve curve, String source})?>(
-        future: curve,
-        builder: (context, snapshot) {
-          final found = switch (snapshot.data) {
-            (:final curve, source: _) => poursToFill(
-              curve,
-              doseGrams: brew.doseGrams,
-              bloomCount: brew.bloomCount,
-              pourCount: brew.pourCount,
-            ),
-            null => null,
-          };
-          if (found == null) return const SizedBox.shrink();
-          final s = AppLocalizations.of(context)!;
-          final colors = Theme.of(context).colorScheme;
-          return Card(
-            key: const ValueKey('brew-detail-pours-from-curve'),
-            margin: const EdgeInsets.only(top: 12),
-            color: colors.secondaryContainer,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(14, 6, 6, 6),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.auto_graph_rounded,
-                    color: colors.onSecondaryContainer,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      s.curveShowsPours(
-                        found.bloomCount ?? 0,
-                        found.pourCount ?? 0,
-                      ),
-                      style: TextStyle(color: colors.onSecondaryContainer),
-                    ),
-                  ),
-                  TextButton(
-                    key: const ValueKey('brew-detail-pours-save'),
-                    onPressed: () => onSave(found),
-                    child: Text(s.save),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
 }
 
 /// The saved extraction curve, if the brew has one.
