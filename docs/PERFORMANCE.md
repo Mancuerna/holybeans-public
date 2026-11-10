@@ -127,7 +127,8 @@ user interactions. See the recorded measurements for actual changes.
 ### Final measurements on the available phone
 
 The complete harness-v6 `phase2-confirmed` profile run passed on the Galaxy
-A53 (Android 15, 60 Hz), using application source `cd36c82`. It includes all nine
+A53 (Android 15, 60 Hz), using application source `cd36c82` from a historical
+branch not preserved in this repository. It includes all nine
 access fixtures, three UI journal sizes, media/backup round trips, startup and
 three live-curve sizes. The phone was USB powered; battery temperature was
 observed at 32 °C during the run. Raw evidence and the source manifest remain
@@ -173,8 +174,9 @@ controlled measurements and a separate reference on a second, lower-memory
 physical phone before treating these allowances as stable device-wide targets.
 
 The independent `phase2-repeat` run also passed all functional assertions and
-completed Android instrumentation successfully. Repository revision `b17eaf4`
-contains the same application source as `cd36c82`. Its 158 measured scenarios
+completed Android instrumentation successfully. Historical revision `b17eaf4`,
+also from a branch not preserved in this repository, was recorded as containing
+the same application source as `cd36c82`. Its 158 measured scenarios
 triggered 12 metric-budget exceedances: initial loading (one), search (three),
 insertion (two), full-row reading (two), UI frames (three) and backup export
 (one). Examples include the 1,000-entry `citrico` search median, 48.6 → 72.1 ms;
