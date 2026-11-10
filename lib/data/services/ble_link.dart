@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:holybeans/data/services/ble_scan.dart';
 import 'package:holybeans/data/services/ble_trace.dart';
 import 'package:holybeans/data/services/paired_device.dart';
 import 'package:universal_ble/universal_ble.dart';
@@ -96,6 +97,7 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
 
   final _readings = StreamController<T>.broadcast();
   StreamSubscription<BleDevice>? _scan;
+  BleScanLease? _scanLease;
   StreamSubscription<Uint8List>? _values;
   StreamSubscription<bool>? _link;
   Timer? _searchEnd;
@@ -182,7 +184,13 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
   Future<void> search() async {
     if (_disposed || status == DeviceStatus.searching) return;
     if (_opening) await disconnect();
-    if (!await _ready()) return;
+    final attempt = _attempt;
+    if (!await _ready() ||
+        _disposed ||
+        attempt != _attempt ||
+        status == DeviceStatus.searching) {
+      return;
+    }
     found = const [];
     hasSearched = true;
     _set(DeviceStatus.searching);
@@ -197,18 +205,22 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
       ];
       _notify();
     });
+    final lease = _scanLease = sharedBleScan.acquire();
     try {
       traceEvent('scan.start', {});
-      await UniversalBle.startScan();
+      await lease.ready;
     } on Object catch (error, stack) {
       traceEvent('scan.error', {
         'error': error.toString(),
         'stack': stack.toString(),
       });
-      await stopSearch();
-      _set(DeviceStatus.failed);
+      if (identical(_scanLease, lease)) {
+        await stopSearch();
+        if (!_disposed && _scanLease == null) _set(DeviceStatus.failed);
+      }
       return;
     }
+    if (_disposed || !identical(_scanLease, lease)) return;
     _searchEnd = Timer(_searchTime, stopSearch);
   }
 
@@ -216,15 +228,18 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
   Future<void> stopSearch() async {
     _searchEnd?.cancel();
     _searchEnd = null;
-    await _scan?.cancel();
+    final cancelScan = _scan?.cancel();
+    final lease = _scanLease;
     _scan = null;
+    _scanLease = null;
+    await cancelScan;
     try {
-      await UniversalBle.stopScan();
+      await lease?.release();
       traceEvent('scan.stop', {'supportedDevices': found.length});
     } on Object {
       // Not scanning.
     }
-    if (status == DeviceStatus.searching) {
+    if (status == DeviceStatus.searching && _scanLease == null) {
       _set(
         _deviceId != null && _link != null
             ? DeviceStatus.connected
@@ -435,8 +450,7 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
     _attempt++;
     _opening = false;
     cancelReconnect();
-    _searchEnd?.cancel();
-    _scan?.cancel();
+    unawaited(stopSearch());
     _close(disconnect: true);
     _readings.close();
     super.dispose();

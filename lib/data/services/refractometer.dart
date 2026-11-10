@@ -52,7 +52,17 @@ class BleRefractometer extends BleLink<R2Message> implements Refractometer {
   double? _tds;
   bool _measuring = false;
   Timer? _giveUp;
-  Completer<int>? _count;
+  Completer<int?>? _count;
+  int _measurementGeneration = 0;
+
+  @override
+  void connectionClosed() {
+    _measurementGeneration++;
+    _giveUp?.cancel();
+    _measuring = false;
+    _count?.complete(null);
+    _count = null;
+  }
 
   @override
   String get service => DifluidR2Uuids.service;
@@ -115,7 +125,7 @@ class BleRefractometer extends BleLink<R2Message> implements Refractometer {
   /// The number of tests the R2 averages with its own button, read every
   /// time in case it was changed on the device; null without an answer.
   Future<int?> _testCount(String id) async {
-    final answer = _count = Completer<int>();
+    final answer = _count = Completer<int?>();
     try {
       await _write(id, difluidGetNumberOfTests);
       return await answer.future.timeout(_countTimeout);
@@ -130,8 +140,10 @@ class BleRefractometer extends BleLink<R2Message> implements Refractometer {
   Future<bool> measure() async {
     final id = connectedId;
     if (id == null || _measuring) return false;
+    final generation = _measurementGeneration;
     _setMeasuring(true);
     final count = await _testCount(id);
+    if (generation != _measurementGeneration || connectedId != id) return false;
     try {
       // The average takes the count and stores it: passing the one it has
       // leaves the setting as it was.
@@ -142,7 +154,7 @@ class BleRefractometer extends BleLink<R2Message> implements Refractometer {
             : difluidAverageTest(count),
       );
     } on Object {
-      _setMeasuring(false);
+      if (generation == _measurementGeneration) _setMeasuring(false);
       return false;
     }
     return true;
@@ -151,7 +163,6 @@ class BleRefractometer extends BleLink<R2Message> implements Refractometer {
   @override
   void dispose() {
     _giveUp?.cancel();
-    _count = null;
     _messages.cancel();
     super.dispose();
   }
