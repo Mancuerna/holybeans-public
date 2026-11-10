@@ -9,6 +9,12 @@
   <a href="https://holybeans.jacortes.me/es/home/">Web</a> ·
   <a href="README.md">English</a>
 </p>
+<p align="center">
+  <a href="https://github.com/Mancuerna/holybeans-public/actions/workflows/ci.yml"><img src="https://github.com/Mancuerna/holybeans-public/actions/workflows/ci.yml/badge.svg" alt="Estado de CI"></a>
+  <img src="https://img.shields.io/badge/platform-Android-3DDC84" alt="Plataforma: Android">
+  <img src="https://img.shields.io/badge/built_with-Flutter-02569B" alt="Desarrollado con Flutter">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--only-blue" alt="Licencia: GPL-3.0-only"></a>
+</p>
 
 HolyBeans es un diario para quienes disfrutan preparando, probando y aprendiendo
 sobre café. Reúne tus granos, recetas, equipo y notas de cata para volver a esas
@@ -44,6 +50,10 @@ en dispositivos aún no están validados.
 La compatibilidad Bluetooth y de impresoras depende del modelo y firmware;
 algunas integraciones son experimentales. Consulta [dispositivos](docs/DEVICES.md).
 
+Android permite conexiones HTTP con máquinas Meticulous y Gaggimate en la red
+local. La búsqueda opcional de cafés en Loffee Labs usa HTTPS y tu clave de API;
+consulta los [datos y credenciales de la integración](docs/DEVICES.md#loffee-labs-coffee-catalog).
+
 ## Privacidad y copias
 
 El diario funciona sin conexión. Puedes exportarlo con sus fotos y guardar copias
@@ -54,7 +64,7 @@ Las migraciones desde el esquema 19 conservan los diarios existentes y se mantie
 la lectura de copias desde la versión 5. Consulta la
 [política de privacidad](https://holybeans.jacortes.me/es/).
 
-## Compilar y colaborar
+## Compilar desde el código fuente
 
 Necesitas Flutter **3.47.5**, Dart **3.13.4**, JDK **21** y el SDK de Android.
 Después de clonar el repositorio:
@@ -69,22 +79,49 @@ flutter gen-l10n
 flutter run
 ```
 
-Para generar una APK de desarrollo: `flutter build apk --debug`. Una firma local
-no permite sustituir una instalación de Play con una firma distinta.
+Para generar una APK de desarrollo:
+
+```sh
+flutter build apk --debug
+```
+
+Una firma local no permite sustituir una instalación de Play con una firma distinta.
+Guarda una copia del diario antes de cambiar la forma de instalar la app.
+
+## Desarrollo
 
 ```sh
 flutter analyze --no-pub
+flutter test --no-pub test/schema_verifier_test.dart
+# Suite completa de Flutter (el benchmark se ejecuta por separado):
 flutter test --no-pub
+# Tests de publicación y CI; no necesitan credenciales ni red:
 python3 -m unittest discover -s tool/tests
 ```
 
-Consulta [CONTRIBUTING.md](CONTRIBUTING.md) para arquitectura y pruebas. Los casos
+El código generado de la base de datos está incluido. Tras cambiar declaraciones
+Drift, regénéralo con `dart run build_runner build --delete-conflicting-outputs`
+y actualiza las pruebas de migración. Las traducciones están en `lib/l10n/`.
+
+Consulta [CONTRIBUTING.md](CONTRIBUTING.md) para arquitectura, pruebas de integración
+Android y límites de uso del hardware. Los casos
 que requieren una copia real externa se omiten explícitamente si no está disponible.
-No adjuntes diarios personales, credenciales ni fotos privadas en incidencias.
+CI no sube diarios personales. La [auditoría de rendimiento](docs/PERFORMANCE.md)
+recoge mediciones en dispositivo, optimizaciones y escenarios de estrés reproducibles.
+
+## Releases
 
 Release Please acumula cambios en una PR. Al integrarla se prepara la release;
 **el envío a Play se ejecuta manualmente** sobre el AAB ya validado.
 [Funcionamiento y configuración](docs/RELEASING.md).
+
+## Colaborar
+
+Puedes contribuir con informes de errores, traducciones y PR con cambios concretos.
+Incluye los pasos para reproducir el problema, la versión de la app y el modelo de
+dispositivo cuando sea relevante. Usa datos ficticios en los ejemplos y elimina
+los datos personales de los logs. No adjuntes diarios personales, credenciales ni
+fotos privadas en incidencias.
 
 ## Licencia y créditos
 

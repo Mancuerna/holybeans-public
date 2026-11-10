@@ -3,9 +3,18 @@
 Hardware compatibility depends on the model, firmware and platform. Protocol
 support is not a claim that every combination has been physically tested.
 
-HolyBeans includes integrations for supported Bluetooth scales, DiFluid R2
-refractometers and BOOKOO pressure sensors. Meticulous and Gaggimate history
-integrations read documented machine endpoints without changing machine state.
+HolyBeans includes Bluetooth scale adapters for **Acaia, BOOKOO, DiFluid and
+Timemore**. Support is limited to the protocols and models implemented by each
+adapter; it does not cover every scale sold by these brands. DiFluid R2
+refractometers and BOOKOO pressure sensors have separate integrations.
+Meticulous and Gaggimate history integrations read documented machine endpoints
+without changing machine state.
+
+Android permits cleartext HTTP (`usesCleartextTraffic="true"`) so Meticulous and
+Gaggimate can be reached at their configured addresses on the local network.
+That manifest setting applies to the app as a whole, not just those two hosts.
+Use machine addresses on a trusted local network. The Loffee Labs integration
+below uses HTTPS.
 
 For a new espresso, **Extraction assistant** offers **Pressure** and **Flow**
 reference modes. Flow needs only a connected Bluetooth scale and an earlier
@@ -64,3 +73,20 @@ is never interpreted as the requested timer action. Commands are serialized,
 and an uncertain command requires reconnection before another control is sent.
 The implementation uses the manufacturer's
 [BLE protocol](https://github.com/TIMEMORE-COFFEE/open-scale-protocol/blob/main/Timemore%20Black%20Mirror%20SCALE%20BLE%20Protocol.md).
+
+## Loffee Labs coffee catalog
+
+Loffee Labs search is optional and requires the user's API key. A search sends
+the entered search text, page number and page size to
+`https://www.loffeelabs.com/api/v2/beans`, with the key in the HTTPS Authorization
+header. It does not upload the journal, tasting notes or local photos. Selecting
+a coffee opens a review before saving its catalog data in the journal.
+
+Catalog photos are downloaded from their HTTPS image URLs without the API key.
+The client does not follow redirects on authenticated requests or photo downloads.
+
+On Android, the API key is encrypted with AES-GCM using an Android Keystore key
+and stored in `noBackupFilesDir/loffee-key.enc`. It is separate from journal
+preferences and excluded from HolyBeans and Android backups. The search screen's
+key settings allow it to be replaced or deleted; a new installation needs its
+own key configuration.

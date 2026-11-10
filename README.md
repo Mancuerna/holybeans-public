@@ -54,6 +54,10 @@ but iOS builds and device behaviour have not yet been validated for release.
 Bluetooth and printer support varies by model and firmware; some integrations
 are experimental. See [device support](docs/DEVICES.md) before choosing hardware.
 
+Android allows HTTP connections for Meticulous and Gaggimate machines on the
+local network. Optional Loffee Labs coffee search uses HTTPS and your API key;
+see [integration data and credentials](docs/DEVICES.md#loffee-labs-coffee-catalog).
+
 ## Your data
 
 The local journal works offline. You can export a backup including photos, and
