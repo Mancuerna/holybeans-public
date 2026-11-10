@@ -60,8 +60,8 @@ The local journal works offline. You can export a backup including photos, and
 optionally store independent backups in your own Google Drive. Drive backups
 are **not automatic merging or live synchronization between devices**.
 
-Schema migrations preserve existing journals, and backups from version 19 remain
-supported. See [data and compatibility](docs/DATA.md) and the
+Migrations from schema 19 preserve existing journals, and backups from version 5
+remain supported. See [data and compatibility](docs/DATA.md) and the
 [privacy policy](https://holybeans.jacortes.me/).
 
 ## Build from source
