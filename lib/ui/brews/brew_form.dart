@@ -94,6 +94,7 @@ class _BrewFormState extends State<BrewForm> {
   late final services = widget.services ?? AppServicesScope.read(context);
   final formKey = GlobalKey<FormState>();
   final _finalWeightKey = GlobalKey();
+  final _liveChartKey = GlobalKey();
   bool _timerWasRunning = false;
   late final BrewFormModel model;
   late bool fullForm = !widget.adjust;
@@ -133,8 +134,10 @@ class _BrewFormState extends State<BrewForm> {
   }
 
   void _timerChanged() {
+    final started = !_timerWasRunning && model.timer.running;
     final stopped = _timerWasRunning && !model.timer.running;
     _timerWasRunning = model.timer.running;
+    if (started) _revealLiveChart();
     if (!stopped) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted ||
@@ -150,6 +153,37 @@ class _BrewFormState extends State<BrewForm> {
       Scrollable.ensureVisible(
         target,
         alignment: 0.2,
+        duration: motionDuration(target, const Duration(milliseconds: 300)),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+  void _revealLiveChart() {
+    final scale = model.scaleSession;
+    if (scale == null ||
+        (!scale.scale.connected && scale.curve == null) ||
+        ModalRoute.of(context)?.isCurrent != true ||
+        model.timerAtWaterPlan) {
+      return;
+    }
+    FocusScope.of(context).unfocus();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted ||
+          !model.timer.running ||
+          model.timerAtWaterPlan ||
+          ModalRoute.of(context)?.isCurrent != true) {
+        return;
+      }
+      final target = _liveChartKey.currentContext;
+      if (target == null || target.size?.isEmpty != false) return;
+      Scrollable.ensureVisible(
+        target,
+        alignment:
+            target.size!.height >
+                Scrollable.of(target).position.viewportDimension
+            ? 0
+            : .5,
         duration: motionDuration(target, const Duration(milliseconds: 300)),
         curve: Curves.easeOut,
       );
@@ -415,6 +449,7 @@ class _BrewFormState extends State<BrewForm> {
                       ),
                       BrewTimingSection(
                         model: model,
+                        liveChartKey: _liveChartKey,
                         previousDuration: _previousBrewDurationReference(s),
                       ),
                       result(),
@@ -443,6 +478,7 @@ class _BrewFormState extends State<BrewForm> {
                         ),
                         BrewTimingSection(
                           model: model,
+                          liveChartKey: _liveChartKey,
                           previousDuration: _previousBrewDurationReference(s),
                         ),
                         result(),
