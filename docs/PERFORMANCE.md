@@ -1051,6 +1051,43 @@ The driver also changes the device region and seeks to check numeric formatting.
 Existing playback, seek, restart, lifecycle, alignment and comparison assertions
 remain unchanged. These widget rebuild counts are not device frame timings.
 
+## Remaining UI repeated-work reductions (November 2026)
+
+Numeric brew edits notify the recipe and result sections directly. Coffee,
+equipment and timing sections keep their general model/state notifications.
+Pour charts prepare the step list once per paint and reuse the unchanged
+interpolation algorithm for both paths, the cursor and step markers. Invalid
+plans are rejected before preparing steps. Share previews retain one transparent
+theme for the current base theme and text color; opaque previews use the base
+theme without constructing a seeded color scheme.
+
+The same widget drivers on `7993e70` and this change measure:
+
+| Driver and workload | Before | After |
+| --- | ---: | ---: |
+| `brew_numeric_rebuild_test.dart`: 100 dose edits, builds of each coffee/equipment/timing section | 100 | 0 |
+| Same edits, builds of each recipe/result section | 100 | 100 |
+| `pour_chart_preparation_test.dart`: step-list preparations over 100 elapsed-time updates | 40,500 | 100 |
+| `share_preview_theme_reuse_test.dart`: distinct preview themes over 100 equivalent parent updates | 100 | 1 |
+
+The drivers also check ratio/EY updates and saved values, invalid pour plans,
+and preview text color, base-theme changes and transparency. Preview identities
+come from the actual `Theme.data` supplied by the widget, before Flutter's
+localized theme cache. Existing form, interpolation and image-export assertions
+remain unchanged. These counts are not Android frame-time or allocation-byte
+measurements. Other inline formatter call sites remain candidates for shared
+helpers after output-equivalence review.
+
+### Asset assessment
+
+`NotoEmoji.ttf` is 1,982,596 bytes and remains intact: label text supports
+arbitrary user-authored emoji grapheme clusters, so a static subset could remove
+characters used in labels. The 802,475-byte launcher PNG contains only IHDR,
+IDAT and IEND chunks, with no metadata to strip. Recompressing the same filtered
+pixels with zlib level 9 increases the combined IDAT payload from 802,274 to
+814,492 bytes. That candidate is rejected; other lossless encoders have not
+been benchmarked. The measurements above do not claim an asset-size reduction.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

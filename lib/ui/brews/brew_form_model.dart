@@ -306,17 +306,6 @@ class BrewFormModel extends ChangeNotifier {
         _notify();
       }),
     );
-    // Ratio and extraction yield follow these as they are typed.
-    for (final controller in [
-      draft.dose,
-      draft.water,
-      draft.beverage,
-      draft.tds,
-      draft.brix,
-      draft.brixFactor,
-    ]) {
-      controller.addListener(_notify);
-    }
     draft.jugTotal.addListener(() => draft.applyTare(jugGrams));
 
     if (_fresh && methodId != null) {
