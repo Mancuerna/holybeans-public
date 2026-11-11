@@ -74,6 +74,7 @@ class StatsViewModel extends ChangeNotifier {
   bool _disposed = false;
   StatsData? value;
   Object? error;
+  bool updating = false;
 
   void update(StatsRequest request) {
     if (_disposed || request == _input) return;
@@ -82,9 +83,10 @@ class StatsViewModel extends ChangeNotifier {
     if (request.brews.length <= 200) {
       _pending = null;
       value = prepareStats(request);
+      updating = false;
       notifyListeners();
     } else {
-      value = null;
+      updating = true;
       _pending = request;
       notifyListeners();
       if (!_running) unawaited(_drain());
@@ -105,11 +107,13 @@ class StatsViewModel extends ChangeNotifier {
           );
           if (_disposed || request != _input) continue;
           value = result;
+          updating = false;
           notifyListeners();
         } catch (failure, stack) {
           if (_disposed || request != _input) continue;
           reportError(failure, stack);
           error = failure;
+          updating = false;
           notifyListeners();
         }
       }
@@ -123,6 +127,7 @@ class StatsViewModel extends ChangeNotifier {
     _disposed = true;
     _pending = _input = null;
     value = null;
+    updating = false;
     super.dispose();
   }
 }
