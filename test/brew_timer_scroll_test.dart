@@ -121,6 +121,83 @@ Future<void> _start(
 }
 
 void main() {
+  for (final espresso in [false, true]) {
+    for (final adjust in [false, true]) {
+      testWidgets('scale start reveals chart once and dismisses keyboard '
+          '(espresso=$espresso, adjust=$adjust)', (tester) async {
+        final brew = await _openBrew(
+          tester,
+          espresso: espresso,
+          adjust: adjust,
+        );
+        final position = tester
+            .state<ScrollableState>(brew.scrollable)
+            .position;
+        final dose = find.byWidgetPredicate(
+          (widget) =>
+              widget is TextField && widget.controller == brew.model.draft.dose,
+        );
+        await tester.ensureVisible(dose);
+        await tester.showKeyboard(dose);
+        await tester.pumpAndSettle();
+        expect(tester.testTextInput.isVisible, isTrue);
+        position.jumpTo(0);
+        await tester.pumpAndSettle();
+        final chart = find.byKey(const ValueKey('scale-live-chart'));
+        expect(chart.hitTestable(), findsNothing);
+
+        // The scale session forwards its physical timer start here.
+        brew.model.scaleSession!.requestStart!();
+        await tester.pumpAndSettle();
+        expect(brew.model.timer.running, isTrue);
+        expect(brew.model.scaleSession!.recording, isTrue);
+        expect(tester.testTextInput.isVisible, isFalse);
+        final viewport = tester.getRect(brew.scrollable);
+        final bounds = tester.getRect(chart);
+        expect(bounds.top, greaterThanOrEqualTo(viewport.top));
+        expect(bounds.bottom, lessThanOrEqualTo(viewport.bottom));
+        expect(chart.hitTestable(), findsOneWidget);
+
+        // Readings, clock ticks and duplicate starts leave manual scrolling alone.
+        position.jumpTo(0);
+        brew.scale.emit(0);
+        brew.model.scaleSession!.requestStart!();
+        await tester.pump(const Duration(seconds: 1));
+        await tester.pumpAndSettle();
+        expect(position.pixels, 0);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pumpAndSettle();
+      });
+    }
+  }
+
+  for (final scenario in ['covered', 'stopped before layout', 'disposed']) {
+    testWidgets('scale start does not scroll when $scenario', (tester) async {
+      final brew = await _openBrew(tester, espresso: true);
+      final position = tester.state<ScrollableState>(brew.scrollable).position;
+      position.jumpTo(0);
+      if (scenario == 'covered') {
+        Navigator.of(tester.element(find.byType(BrewForm))).push<void>(
+          MaterialPageRoute(
+            builder: (_) => const Scaffold(body: Text('Other screen')),
+          ),
+        );
+        await tester.pumpAndSettle();
+      }
+      brew.model.scaleSession!.requestStart!();
+      if (scenario == 'stopped before layout') brew.model.timer.stop();
+      if (scenario == 'disposed') {
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
+      await tester.pumpAndSettle();
+      if (scenario != 'disposed') expect(position.pixels, 0);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+    });
+  }
+
   for (final (jug, adjust, scaleStop) in [
     (false, false, false),
     (true, false, true),
@@ -182,7 +259,7 @@ void main() {
     'no curve',
     'covered',
   ]) {
-    testWidgets('does not scroll on $scenario', (tester) async {
+    testWidgets('does not scroll on stop with $scenario', (tester) async {
       final brew = await _openBrew(
         tester,
         espresso: scenario == 'espresso',

@@ -11,7 +11,6 @@ import 'package:holybeans/ui/brews/filter_brew_readout.dart';
 import 'package:holybeans/ui/brews/filter_water_targets.dart';
 import 'package:holybeans/ui/brews/weight_targets.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
-import 'package:holybeans/ui/core/motion.dart';
 
 /// Recording controls, live curve and progress for the brew being prepared.
 class BrewWeightChart extends StatelessWidget {
@@ -57,95 +56,76 @@ class BrewWeightChart extends StatelessWidget {
                 water: model.devices.filterWaterTarget,
               )
             : null;
-        return Builder(
-          builder: (chartContext) {
-            Widget chart(List<WeightTarget> targets) => ExtractionChart(
-              key: const ValueKey('scale-live-chart'),
-              weightTargets: targets,
-              curve: model.devices.curve ?? _emptyWeightCurve,
-              flowUnit: 'g/s',
-              live: scale.recording,
-              height: 180,
-              replayable: false,
-              showReadout: model.isEspresso,
-              showFlowStatistics: model.isEspresso,
-              targetWeightGrams:
-                  model.isEspresso && model.shows(BrewParameter.ratio)
-                  ? model.espressoTargetGrams
-                  : null,
-              firstDripMs: firstDrip == null ? null : firstDrip * 1000,
-              action: model.timerAtWaterPlan
-                  ? null
-                  : FilledButton.tonalIcon(
-                      key: const ValueKey('chart-timer-toggle'),
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      onPressed: model.timer.running
-                          ? model.timer.stop
-                          : !model.timer.canStart
-                          ? null
-                          : () {
-                              model.timer.toggle();
-                              if (model.timer.running) {
-                                Scrollable.ensureVisible(
-                                  chartContext,
-                                  alignment: 0.5,
-                                  duration: motionDuration(
-                                    chartContext,
-                                    const Duration(milliseconds: 300),
-                                  ),
-                                  curve: Curves.easeOut,
-                                );
-                              }
-                            },
-                      icon: Icon(
-                        model.timer.running
-                            ? Icons.stop_rounded
-                            : Icons.play_arrow_rounded,
-                      ),
-                      label: Text(
-                        model.timer.running ? s.stopTimer : s.startTimer,
-                      ),
-                    ),
-            );
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (plan != null && plan.problem == null)
-                  FilterWaterTargets(
-                    plan: plan,
-                    poured: scale.pouredGrams,
-                    builder: chart,
-                  )
-                else
-                  chart(const []),
-                if (model.isEspresso) ...[
-                  const SizedBox(height: 8),
-                  EspressoBrewReadout(
-                    grams: scale.beverageGrams,
-                    doseGrams: parseNumber(model.draft.dose.text),
-                    targetGrams: model.espressoTargetGrams,
-                    targetRatio: model.espressoTargetRatio,
-                    showRatio: model.shows(BrewParameter.ratio),
+        Widget chart(List<WeightTarget> targets) => ExtractionChart(
+          key: const ValueKey('scale-live-chart'),
+          weightTargets: targets,
+          curve: model.devices.curve ?? _emptyWeightCurve,
+          flowUnit: 'g/s',
+          live: scale.recording,
+          height: 180,
+          replayable: false,
+          showReadout: model.isEspresso,
+          showFlowStatistics: model.isEspresso,
+          targetWeightGrams:
+              model.isEspresso && model.shows(BrewParameter.ratio)
+              ? model.espressoTargetGrams
+              : null,
+          firstDripMs: firstDrip == null ? null : firstDrip * 1000,
+          action: model.timerAtWaterPlan
+              ? null
+              : FilledButton.tonalIcon(
+                  key: const ValueKey('chart-timer-toggle'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                ],
-                if (!model.isEspresso) ...[
-                  const SizedBox(height: 8),
-                  FilterBrewReadout(
-                    showRatio: model.shows(BrewParameter.ratio),
-                    showTarget: model.shows(BrewParameter.water),
-                    progress: FilterBrewProgress(
-                      pouredGrams: scale.pouredGrams,
-                      doseGrams: parseNumber(model.draft.dose.text),
-                      targetWaterGrams: model.devices.filterWaterTarget,
-                    ),
+                  onPressed: model.timer.running
+                      ? model.timer.stop
+                      : !model.timer.canStart
+                      ? null
+                      : model.timer.toggle,
+                  icon: Icon(
+                    model.timer.running
+                        ? Icons.stop_rounded
+                        : Icons.play_arrow_rounded,
                   ),
-                ],
-              ],
-            );
-          },
+                  label: Text(model.timer.running ? s.stopTimer : s.startTimer),
+                ),
+        );
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (plan != null && plan.problem == null)
+              FilterWaterTargets(
+                plan: plan,
+                poured: scale.pouredGrams,
+                builder: chart,
+              )
+            else
+              chart(const []),
+            if (model.isEspresso) ...[
+              const SizedBox(height: 8),
+              EspressoBrewReadout(
+                grams: scale.beverageGrams,
+                doseGrams: parseNumber(model.draft.dose.text),
+                targetGrams: model.espressoTargetGrams,
+                targetRatio: model.espressoTargetRatio,
+                showRatio: model.shows(BrewParameter.ratio),
+              ),
+            ],
+            if (!model.isEspresso) ...[
+              const SizedBox(height: 8),
+              FilterBrewReadout(
+                showRatio: model.shows(BrewParameter.ratio),
+                showTarget: model.shows(BrewParameter.water),
+                progress: FilterBrewProgress(
+                  pouredGrams: scale.pouredGrams,
+                  doseGrams: parseNumber(model.draft.dose.text),
+                  targetWaterGrams: model.devices.filterWaterTarget,
+                ),
+              ),
+            ],
+          ],
         );
       },
     );
