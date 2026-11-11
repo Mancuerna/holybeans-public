@@ -218,9 +218,24 @@ class BrewFormModel extends ChangeNotifier {
   List<WaterProfile> get waterProfiles => catalogs.waterProfiles;
   bool get loadingWaterProfiles => catalogs.loadingWaterProfiles;
   bool _recipientChosen = false;
+  String? _repeatedRecipientId;
   Recipient? recipient;
   List<Recipient> get recipients => catalogs.recipients;
   bool get loadingRecipients => catalogs.loadingRecipients;
+
+  /// The saved tare belongs to the brew being edited, even after reselection.
+  Recipient? get historicalRecipient {
+    final recorded = existing;
+    if (recorded?.recipientId == null || recorded?.recipientGrams == null) {
+      return null;
+    }
+    return Recipient(
+      id: recorded!.recipientId!,
+      name: recorded.recipientName!,
+      emptyGrams: recorded.recipientGrams!,
+      isPortafilter: recorded.recipientIsPortafilter,
+    );
+  }
 
   Set<String> get selectedToolIds => toolSelection.selectedIds;
   List<MethodTool> get tools => toolSelection.tools;
@@ -284,19 +299,14 @@ class BrewFormModel extends ChangeNotifier {
     String? initialLotId,
     String? initialMethodId,
   }) {
-    final recorded = existing ?? (repeat ? seed : null);
     _aimAt(existing ?? seed);
-    _recipientChosen = existing != null || recorded?.recipientId != null;
-    if (recorded?.recipientId != null && recorded?.recipientGrams != null) {
-      recipient = Recipient(
-        id: recorded!.recipientId!,
-        name: recorded.recipientName!,
-        emptyGrams: recorded.recipientGrams!,
-        isPortafilter: recorded.recipientIsPortafilter,
-      );
-      if (existing != null && !recipient!.isPortafilter) {
-        draft.fillJugTotal(recipient!.emptyGrams);
-      }
+    _repeatedRecipientId = existing == null && repeat
+        ? seed?.recipientId
+        : null;
+    _recipientChosen = existing != null || _repeatedRecipientId != null;
+    recipient = historicalRecipient;
+    if (recipient != null && !recipient!.isPortafilter) {
+      draft.fillJugTotal(recipient!.emptyGrams);
     }
     methodId = existing?.methodId ?? initialMethodId ?? seed?.methodId;
     waterProfileId =
@@ -474,6 +484,7 @@ class BrewFormModel extends ChangeNotifier {
   double? get jugGrams => isEspresso ? null : recipient?.emptyGrams;
 
   void selectRecipient(Recipient? value) {
+    _repeatedRecipientId = null;
     _recipientChosen = true;
     recipient = value;
     if (value == null) draft.jugTotal.clear();
@@ -583,6 +594,7 @@ class BrewFormModel extends ChangeNotifier {
     importedShot = null;
     importedFreePour = null;
     methodId = id;
+    _repeatedRecipientId = null;
     _recipientChosen = false;
     _defaultRecipient();
     draft.jugTotal.clear();

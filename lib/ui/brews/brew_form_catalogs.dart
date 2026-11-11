@@ -5,6 +5,19 @@ extension BrewFormCatalogs on BrewFormModel {
   void _watchCatalogs() => catalogs.watch();
 
   void _recipientsChanged(List<Recipient> rows) {
+    if (_repeatedRecipientId != null) {
+      // Repeat starts a new brew with today's catalog weight, not its seed's tare.
+      recipient = rows
+          .where(
+            (r) =>
+                r.id == _repeatedRecipientId &&
+                r.isPortafilter == seed?.recipientIsPortafilter &&
+                r.archivedAtMs == null,
+          )
+          .firstOrNull;
+      _repeatedRecipientId = null;
+      _recipientChosen = recipient != null;
+    }
     if (existing == null &&
         recipient != null &&
         rows.any((r) => r.id == recipient!.id && r.archivedAtMs != null)) {
