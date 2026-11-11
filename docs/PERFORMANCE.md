@@ -761,6 +761,20 @@ It verifies that the cost summary stays unchanged. Initial preparation and
 chart-point construction remain outside this counter measurement; this is not
 a device frame-time result.
 
+## Statistics refresh retention (November 2026)
+
+A large-history refresh keeps the last complete statistics snapshot and its
+mounted tabs while the worker prepares the newest request. A small progress bar
+indicates the update; a failed refresh keeps the last result and displays the
+localized error. Initial loading and obsolete-result rejection remain intact.
+
+`stats_refresh_retention_test.dart` starts with 300 brews, scrolls the actual
+overview and submits ten updated snapshots. The same driver on `b1e33c5` and
+this change measures **10 → 0 replacements of the overview's scroll state**.
+The final version preserves the offset and displays the latest total, then
+verifies retained content through a failed refresh and successful recovery.
+This measures widget retention, not worker latency or device frame time.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

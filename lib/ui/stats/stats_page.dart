@@ -207,6 +207,31 @@ class _StatsPageState extends State<StatsPage> {
                 ],
               ),
             ),
+            if (data != null) ...[
+              SizedBox(
+                height: 4,
+                child: model.updating
+                    ? const LinearProgressIndicator(
+                        key: ValueKey('stats-refreshing'),
+                      )
+                    : null,
+              ),
+              if (model.error != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Text(
+                      s.dataError,
+                      key: const ValueKey('stats-refresh-error'),
+                      style: TextStyle(color: theme.colorScheme.error),
+                    ),
+                  ),
+                ),
+            ],
             Expanded(
               child: data == null
                   ? Center(
