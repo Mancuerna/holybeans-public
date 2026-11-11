@@ -675,6 +675,21 @@ on `4ef029a` and after this change measures **100 → 0 Home builds** and
 checks both receive the new snapshot, and verifies the search survives returning
 to Beans. These are host widget-build counts, not device frame-time measurements.
 
+## Bean search aggregation reuse (November 2026)
+
+The Beans list retains stock totals, latest roast/brew dates and tab membership
+for each journal/freezer snapshot. Search text is folded once per coffee, with
+origins grouped in one pass; that index is created only when a nonempty query
+needs it. Roaster groups share the stock totals. Freshness ordering still reads
+the current day through the existing actions.
+
+`bean_search_aggregation_test.dart` uses three coffees, lots and origins, warms
+one query, then supplies 100 distinct queries with no matches. On `d711fdf` and
+after this change, the same driver measures **1,200 → 0 lot element reads** and
+**900 → 0 component element reads** during those queries. It also checks accented
+origin search, a freezer-only input change and a new journal snapshot. Initial
+indexing, matching-card work and device frame times are outside this measurement.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
