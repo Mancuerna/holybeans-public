@@ -660,6 +660,21 @@ initial build. It also verifies freezer-only and journal updates, and advances
 the date by eight days to check the rolling-week count without recalculating stock.
 These are collection-access counts, not total screen work or device frame times.
 
+## Retained journal tabs (November 2026)
+
+Visited offscreen tabs retain their widget while journal data, methods, frozen
+portions, hidden parameters, list options and equipment selection stay unchanged.
+They receive updated inputs immediately. The selected tab still refreshes with
+its parent and on return from another tab, preserving date-sensitive content.
+Unvisited tabs remain unmounted through the existing lazy stack.
+
+`journal_tab_rebuild_test.dart` opens all four tabs in the real app, keeps a
+coffee search, then alternates History and Equipment 100 times. The same driver
+on `4ef029a` and after this change measures **100 → 0 Home builds** and
+**100 → 0 Beans builds**. It also inserts a coffee while both are hidden,
+checks both receive the new snapshot, and verifies the search survives returning
+to Beans. These are host widget-build counts, not device frame-time measurements.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
