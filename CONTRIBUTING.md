@@ -55,12 +55,35 @@ reliably enforce. App translations remain in English and Spanish.
 
 ## Structure
 
-- `lib/domain/`: domain logic with unit tests. Some existing adapters accept
-  immutable generated database rows; `test/architecture_test.dart` records
-  those exceptions. Prefer plain inputs for new domain logic.
+- `lib/domain/`: pure logic with unit tests. Inputs are plain records or scalar
+  values; map database rows in `lib/data/`. Pass the current time explicitly so
+  calculations and import plans are reproducible. Architecture tests forbid
+  data, platform I/O and presentation dependencies in this layer.
 - `lib/data/`: Drift database, repositories, services and preferences.
-- `lib/ui/`: UI grouped by feature. `JournalShell` implements `JournalActions`.
-- `lib/l10n/`: English and Spanish ARB sources; generated translations are ignored.
+  Repository aggregates own their queries and take `AppDatabase` explicitly;
+  `JournalRepository` composes them and retains its caller API through
+  delegation. Keep transaction logic in the owning aggregate; shared row
+  lookups live in `JournalRecordQueries`. Aggregates do not depend on the façade.
+- `lib/ui/`: UI grouped by feature. `JournalShell` implements separate read, navigation and command roles.
+  `JournalActions` only groups those handles for parent routes; leaf widgets
+  receive the roles they use. Read queries do not expose the repository or
+  database. Inventory forms take their owning aggregate.
+  `AppServicesScope` above the navigator shares stable dependencies with routes
+  and sheets. Controllers receive the same bundle explicitly; the existing
+  owners retain disposal responsibility. File and backup work belongs in data
+  services; UI notifiers forward lifecycle events and present their state.
+  The brew form owns independent catalog and tool notifiers, including their
+  subscriptions, retry errors and guards against stale loads.
+- `lib/l10n/`: English and Spanish ARB sources; generated translations are ignored. The
+  generated localization accessor is non-null; optional hosts should use
+  `Localizations.of<AppLocalizations>` explicitly.
+- Stored roast, method and container codes are declared in `journal_codes.dart`;
+  serialize their explicit `code`, never an enum ordinal. Keep legacy aliases
+  and unknown-value handling at the existing boundaries.
+- Reuse the shared median, accent, fingerprint and calendar-day helpers while
+  preserving each caller's empty-input, punctuation, hash serialization and
+  elapsed-time contracts. Decimal formatting caches remain private and include
+  the locale, pattern and grouping mode in their keys.
 - `test/`: unit, widget and persistence tests.
 - `drift_schemas/`: historical schemas needed to verify migration paths.
 - `patrol_test/`: Android integration flows using an isolated app package.

@@ -3,6 +3,7 @@ import 'package:holybeans/data/services/meticulous_client.dart';
 import 'package:holybeans/data/services/meticulous_free_pour.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/extraction_chart.dart';
+import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:intl/intl.dart';
 
@@ -60,11 +61,11 @@ class _FreePourPickerState extends State<_FreePourPicker> {
       }
     } on FormatException {
       if (!mounted) return;
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       setState(() => error = s.meticulousInvalidAddress);
     } on MeticulousException catch (failure) {
       if (!mounted) return;
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       setState(() => error = s.meticulousConnectFailed(failure.message));
     } finally {
       source?.close();
@@ -74,7 +75,7 @@ class _FreePourPickerState extends State<_FreePourPicker> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final found = pour;
     return ListView(
@@ -181,8 +182,7 @@ String freePourSummary(MeticulousFreePour pour, AppLocalizations s) {
       '${s.water} ${number.format(grams)} g',
     if (pour.beverageGrams case final grams?)
       '${s.brewOutput} ${number.format(grams)} g',
-    if (pour.timeSeconds case final seconds?)
-      '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}',
+    if (pour.timeSeconds case final seconds?) formatDuration(seconds),
   ].join(', ');
 }
 
@@ -202,7 +202,7 @@ class MeticulousFreePourCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final picked = pour;
     return Card(

@@ -3,8 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/domain/stock.dart';
+import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/bean_share_sheet.dart';
 import 'package:holybeans/ui/beans/bean_share_text.dart';
@@ -18,13 +17,13 @@ Future<void> showShareBeanSheet(
   JournalActions actions,
   Coffee coffee,
 ) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   try {
-    final repository = actions.repository;
+    final repository = actions.read.queries;
     final components = await repository.coffeeComponents(coffee.id);
     final lots = await repository.coffeeLots(coffee.id);
     Uint8List? photo;
-    if (actions.photos case final store?) {
+    if (actions.read.photos case final store?) {
       for (final name in await repository.coffeePhotos(coffee.id)) {
         try {
           photo = await store.file(name).readAsBytes();
@@ -44,7 +43,7 @@ Future<void> showShareBeanSheet(
           components,
           CoffeeStock(
             lots: lots.where((lot) => lot.archivedAtMs == null).toList(),
-            portions: actions.portions,
+            portions: actions.read.portions,
           ),
         ),
         initialPhoto: photo,
@@ -52,7 +51,7 @@ Future<void> showShareBeanSheet(
     );
     if (result == null || !context.mounted) return;
     if (result.transfer) {
-      await showBeanTransferSheet(context, actions, coffee);
+      await showBeanTransferSheet(context, actions.read, coffee);
       return;
     }
     await SharePlus.instance.share(
@@ -68,6 +67,6 @@ Future<void> showShareBeanSheet(
     );
   } catch (error, stack) {
     reportError(error, stack);
-    actions.message(s.shareFailed);
+    actions.navigation.message(s.shareFailed);
   }
 }

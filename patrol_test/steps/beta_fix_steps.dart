@@ -10,6 +10,7 @@ import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
 import 'package:holybeans/ui/brews/brew_card.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 import '../support/smoke_support.dart';
@@ -50,7 +51,10 @@ Future<void> checkBetaFixes(
     brewedAt: DateTime.now().subtract(const Duration(days: 1)),
   );
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: database, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: database),
+      initialLocale: const Locale('en'),
+    ),
   );
   await _tab($, 'Brews');
   expect($.tester.widget<BrewCard>(find.byType(BrewCard).first).brew.id, newer);
@@ -111,7 +115,10 @@ Future<void> checkBetaFixes(
   // The order is kept when the app opens again.
   await $.pumpWidgetAndSettle(const SizedBox.shrink());
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: database, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: database),
+      initialLocale: const Locale('en'),
+    ),
   );
   await _tab($, 'Beans');
   expect(

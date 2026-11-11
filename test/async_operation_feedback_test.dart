@@ -7,7 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/backup_state.dart';
 import 'package:holybeans/data/preferences/language_setting.dart';
+import 'package:holybeans/data/repositories/freezer_repository.dart';
+import 'package:holybeans/data/repositories/journal_mutations.dart';
+import 'package:holybeans/data/repositories/journal_queries.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/data/repositories/stock_adjustment_repository.dart';
 import 'package:holybeans/data/services/beanconqueror_archive.dart';
 import 'package:holybeans/domain/beanconqueror/bq_import_plan.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -17,6 +21,7 @@ import 'package:holybeans/ui/backup/backup_center.dart';
 import 'package:holybeans/ui/backup/backup_section.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
 import 'package:holybeans/ui/beans/share_bean_sheet.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/settings/beanconqueror_import_page.dart';
 import 'package:holybeans/ui/settings/pours_from_curves.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
@@ -61,6 +66,7 @@ void main() {
             final plan = planBeanconquerorImport(
               BeanconquerorArchive.read(zip()),
               await repository.beanconquerorJournal(),
+              now: DateTime.utc(2026),
             );
             await tester.pumpWidget(
               _app(
@@ -201,7 +207,10 @@ void main() {
       "CREATE TRIGGER reject_locale BEFORE UPDATE OF locale_code ON app_preferences BEGIN SELECT RAISE(FAIL, 'Language write failed'); END",
     );
     await tester.pumpWidget(
-      HolyBeansApp(database: db, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: db),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     final messages = <String>[];
@@ -227,10 +236,21 @@ void main() {
   });
 }
 
-class _Actions extends Fake implements JournalActions {
+class _Actions extends Fake
+    implements JournalRead, JournalNavigation, JournalCommands {
   _Actions(this.repository);
-  @override
+  JournalActions get actions =>
+      JournalActions(read: this, navigation: this, commands: this);
+
   final JournalRepository repository;
+  @override
+  late final queries = JournalQueries(repository);
+  @override
+  late final mutations = JournalMutations(repository);
+  @override
+  StockAdjustmentRepository get stockEdits => repository.stockEdits;
+  @override
+  FreezerRepository get freezer => repository.freezer;
 }
 
 class _FailingFolderCenter extends BackupCenter {

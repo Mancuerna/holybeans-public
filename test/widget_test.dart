@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 
@@ -10,7 +11,10 @@ void main() {
   ) async {
     final database = memoryDatabase();
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('es')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('es'),
+      ),
     );
     await tester.pumpAndSettle();
     expect(find.text('Inicio'), findsWidgets);

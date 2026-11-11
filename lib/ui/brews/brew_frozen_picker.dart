@@ -9,7 +9,7 @@ Future<FrozenPortion?> chooseFrozenForBrew(
   List<FrozenPortion> portions,
   double grams,
 ) {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   final enough =
       portions.where((p) => p.remainingGrams + 1e-6 >= grams).toList()
         ..sort((a, b) => a.frozenDate.compareTo(b.frozenDate));

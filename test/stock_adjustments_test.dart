@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
-import 'package:holybeans/domain/stock.dart';
 
 import 'helpers/test_database.dart';
 

@@ -11,6 +11,7 @@ import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/share_template.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/share_sheet.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 import '../../test/helpers/fake_scale.dart';
@@ -90,9 +91,8 @@ Future<void> checkShareTemplates(
   try {
     await $.pumpWidgetAndSettle(
       HolyBeansApp(
-        database: database,
+        services: AppServices(database: database, scale: scale),
         initialLocale: const Locale('en'),
-        scale: scale,
       ),
     );
     await tab('Beans');

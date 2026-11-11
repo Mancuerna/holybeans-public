@@ -9,6 +9,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/bean_import.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 
@@ -80,9 +81,8 @@ void main() {
     );
     await tester.pumpWidget(
       HolyBeansApp(
-        database: database,
+        services: AppServices(database: database, incoming: IncomingShares()),
         initialLocale: Locale(language),
-        incoming: IncomingShares(),
       ),
     );
     await tester.pumpAndSettle();
@@ -156,7 +156,7 @@ void main() {
     );
     final strings = AppLocalizations.of(
       tester.element(find.byKey(const ValueKey('paste-dialog'))),
-    )!;
+    );
     await expectVisible(
       tester,
       find.text(strings.importInvalidJson),
@@ -218,7 +218,7 @@ void main() {
           );
           final dialog = find.byKey(const ValueKey('import-dropped'));
           await expectVisible(tester, dialog, findsOneWidget);
-          final strings = AppLocalizations.of(tester.element(dialog))!;
+          final strings = AppLocalizations.of(tester.element(dialog));
           await expectVisible(
             tester,
             find.textContaining(strings.paidPrice),
@@ -452,7 +452,10 @@ void main() {
       ),
     );
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
 

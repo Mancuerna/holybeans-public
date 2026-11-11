@@ -5,8 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/domain/bean_exchange.dart';
+import 'package:holybeans/data/repositories/bean_exchange.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
 import 'package:holybeans/ui/sync/journal_write_feedback.dart';
@@ -17,14 +16,14 @@ import 'package:share_plus/share_plus.dart';
 /// or a picture of the QR for whoever would rather not download files.
 Future<void> showBeanTransferSheet(
   BuildContext context,
-  JournalActions actions,
+  JournalRead actions,
   Coffee coffee,
 ) async {
-  final repository = actions.repository;
-  final s = AppLocalizations.of(context)!;
+  final repository = actions.queries;
+  final s = AppLocalizations.of(context);
   final SharedBean card;
   try {
-    card = SharedBean.fromCoffee(
+    card = sharedBeanFromCoffee(
       coffee,
       await repository.coffeeComponents(coffee.id),
       await repository.coffeeLots(coffee.id),
@@ -40,18 +39,14 @@ Future<void> showBeanTransferSheet(
     isScrollControlled: true,
     showDragHandle: true,
     useSafeArea: true,
-    builder: (_) => SafeArea(
-      top: false,
-      child: _ShareBeanSheet(card: card, actions: actions),
-    ),
+    builder: (_) => SafeArea(top: false, child: _ShareBeanSheet(card: card)),
   );
 }
 
 class _ShareBeanSheet extends StatelessWidget {
-  const _ShareBeanSheet({required this.card, required this.actions});
+  const _ShareBeanSheet({required this.card});
 
   final SharedBean card;
-  final JournalActions actions;
 
   /// A file name from the coffee's name, safe on any system.
   String get _fileName {
@@ -63,7 +58,7 @@ class _ShareBeanSheet extends StatelessWidget {
   }
 
   Future<void> _sendFile(BuildContext context) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       await SharePlus.instance.share(
         ShareParams(
@@ -83,7 +78,7 @@ class _ShareBeanSheet extends StatelessWidget {
   }
 
   Future<void> _sendQrImage(BuildContext context) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       final png = await _qrPng(
         beanQrText(card),
@@ -104,7 +99,7 @@ class _ShareBeanSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),

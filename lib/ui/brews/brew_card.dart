@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_ratio.dart';
@@ -10,7 +11,6 @@ import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/core/settle_in.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
-import 'package:intl/intl.dart';
 
 /// The recipe in parts such as "18 g → 288 g", "1:16" and "3:00", without
 /// the [hidden] parameters. With [fill] below 1 the output and the time
@@ -141,7 +141,7 @@ class BrewCard extends StatelessWidget {
   );
 
   Widget _card(BuildContext context, double fill) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final coffee = data.coffees
         .where((row) => row.id == brew.coffeeId)
         .firstOrNull;
@@ -150,11 +150,11 @@ class BrewCard extends StatelessWidget {
         ? formatBrewTimestamp(brew, deviceLocale)
         : regionalTimeFormat(deviceLocale.toString())
               .format(DateTime.fromMillisecondsSinceEpoch(brew.brewedAtMs));
-    final hidden = actions.hiddenParameters;
+    final hidden = actions.read.hiddenParameters;
     bool shows(BrewParameter parameter) => !hidden.contains(parameter);
     final recipe = brewRecipeParts(
       brew,
-      actions.methods,
+      actions.read.methods,
       regionalLocale.toString(),
       hidden: hidden,
       fill: fill,
@@ -163,7 +163,7 @@ class BrewCard extends StatelessWidget {
         ? recipe
         : brewRecipeParts(
             brew,
-            actions.methods,
+            actions.read.methods,
             regionalLocale.toString(),
             hidden: hidden,
           );
@@ -185,7 +185,7 @@ class BrewCard extends StatelessWidget {
             rating: brew.rating!,
             localeName: regionalLocale.toString(),
             semanticLabel:
-                '${s.rating}: ${NumberFormat('0.#', regionalLocale.toString()).format(brew.rating)} / 10',
+                '${s.rating}: ${formatDecimal(brew.rating, pattern: '0.#', locale: regionalLocale.toString())} / 10',
           );
     final subtitle = [
       brew.methodName,
@@ -218,7 +218,7 @@ class BrewCard extends StatelessWidget {
         onLongPressHint: s.editBrew,
         child: InkWell(
           customBorder: theme.cardTheme.shape,
-          onTap: () => actions.showBrewDetails(brew, coffee, data),
+          onTap: () => actions.navigation.showBrewDetails(brew, coffee, data),
           onLongPress: onLongPress,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 4, 12),
@@ -294,7 +294,7 @@ class BrewCard extends StatelessWidget {
   }
 
   Widget _actionsMenu(BuildContext context, Coffee? coffee) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return PopupMenuButton<String>(
       tooltip: s.actions,
       onSelected: (value) => _onAction(context, value, coffee),
@@ -335,21 +335,25 @@ class BrewCard extends StatelessWidget {
   void _onAction(BuildContext context, String value, Coffee? coffee) {
     switch (value) {
       case 'repeat':
-        actions.openBrewForm(data.coffees, seed: brew, repeat: true);
+        actions.navigation.openBrewForm(data.coffees, seed: brew, repeat: true);
       case 'rate':
-        actions.rateBrew(brew, coffee);
+        actions.commands.rateBrew(brew, coffee);
       case 'favorite':
-        actions.setBrewFavorite(brew, favorite: !brew.isFavorite);
+        actions.commands.setBrewFavorite(brew, favorite: !brew.isFavorite);
       case 'edit':
-        actions.openBrewForm(data.coffees, existing: brew);
+        actions.navigation.openBrewForm(data.coffees, existing: brew);
       case 'share':
         if (coffee != null) {
-          actions.shareBrew(brew, coffee, data.componentsOf(coffee.id));
+          actions.commands.shareBrew(
+            brew,
+            coffee,
+            data.componentsOf(coffee.id),
+          );
         }
       case 'compare':
-        actions.compareBrew(brew, data);
+        actions.navigation.compareBrew(brew, data);
       case 'archive':
-        actions.archiveBrew(brew);
+        actions.commands.archiveBrew(brew);
       case 'delete':
         deleteBrewAfterConfirming(context, actions, brew);
     }

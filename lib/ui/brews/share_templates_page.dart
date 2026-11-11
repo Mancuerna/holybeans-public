@@ -50,7 +50,7 @@ class _ShareTemplatesPageState extends State<ShareTemplatesPage> {
       reportError(problem, stack);
       if (mounted) {
         setState(
-          () => error = AppLocalizations.of(context)!.shareTemplateLoadFailed,
+          () => error = AppLocalizations.of(context).shareTemplateLoadFailed,
         );
       }
     }
@@ -66,7 +66,7 @@ class _ShareTemplatesPageState extends State<ShareTemplatesPage> {
       reportError(problem, stack);
       if (mounted) {
         setState(
-          () => error = AppLocalizations.of(context)!.shareTemplateFailed,
+          () => error = AppLocalizations.of(context).shareTemplateFailed,
         );
       }
     } finally {
@@ -88,7 +88,7 @@ class _ShareTemplatesPageState extends State<ShareTemplatesPage> {
   }
 
   Future<void> _delete(ShareTemplate template) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -130,7 +130,7 @@ class _ShareTemplatesPageState extends State<ShareTemplatesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final templates =
         config?.templates.where((t) => t.style == style).toList() ?? [];
     final selected = config?.selected(style)?.id;
@@ -250,7 +250,7 @@ class _TemplateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),

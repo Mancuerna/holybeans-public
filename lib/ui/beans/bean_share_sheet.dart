@@ -49,7 +49,7 @@ class _BeanShareSheetState extends State<BeanShareSheet> {
   Future<void> _pickPhoto() async {
     if (busy) return;
     setState(() => busy = true);
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       final bytes = await pickSharePhoto(context);
       if (mounted && bytes != null) setState(() => photo = bytes);
@@ -63,7 +63,7 @@ class _BeanShareSheetState extends State<BeanShareSheet> {
   Future<void> _share(String source) async {
     if (busy || source.isEmpty) return;
     setState(() => busy = true);
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       final bytes = asImage
           ? await renderShareImage(context, cardKey, photo: photo)
@@ -84,7 +84,7 @@ class _BeanShareSheetState extends State<BeanShareSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final source = beanShareText(widget.rows, selected);
     return SafeArea(
       child: Padding(
@@ -257,7 +257,7 @@ class _Fields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return ExpansionTile(
       title: Text(s.shareFields),
       children: [

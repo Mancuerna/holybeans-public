@@ -27,7 +27,8 @@ void main() {
             home: Scaffold(
               body: Builder(
                 builder: (context) => TextButton(
-                  onPressed: () => showFreezeSheet(context, repo, lots: lots),
+                  onPressed: () =>
+                      showFreezeSheet(context, repo.freezer, lots: lots),
                   child: const Text('Open'),
                 ),
               ),

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/data/repositories/tool_catalog.dart';
 import 'package:holybeans/domain/text_suggestions.dart';
-import 'package:holybeans/domain/tool_catalog.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 
@@ -103,7 +103,7 @@ class _ToolFormState extends State<_ToolForm> {
         showOperationError(
           context,
           error,
-          AppLocalizations.of(context)!.saveFailed,
+          AppLocalizations.of(context).saveFailed,
         );
       }
     }
@@ -190,7 +190,7 @@ class _ToolFormState extends State<_ToolForm> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return SheetFrame(
       title: widget.existing == null ? s.addTool : s.editTool,
       formKey: formKey,

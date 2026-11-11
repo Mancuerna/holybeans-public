@@ -21,7 +21,7 @@ class PourStepCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final grams = NumberFormat('0', regionalLocale.toString());
     final current = this.current;
@@ -92,7 +92,7 @@ class _ScaleProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final number = NumberFormat('0', regionalLocale.toString());
     final left = target - grams;

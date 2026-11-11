@@ -11,6 +11,7 @@ import 'package:holybeans/l10n/app_localizations_es.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
 import 'package:holybeans/ui/brews/brew_share_text.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
@@ -30,8 +31,11 @@ void main() {
     );
     final method = await repo.createMethod(name: 'V60', category: 'pourover');
     final model = BrewFormModel(
-      repository: repo,
-      settings: BrewParameterSettings(db),
+      services: AppServices.forJournal(
+        repo,
+        parameterSettings: BrewParameterSettings(db),
+      ),
+
       coffees: await repo.allCoffees(),
       initialCoffeeId: coffee,
       initialMethodId: method,
@@ -71,8 +75,11 @@ void main() {
     expect(saved.bloomSeconds, isNull);
     expect(await repo.brewCurve(saved.id), isNull);
     final editor = BrewFormModel(
-      repository: repo,
-      settings: BrewParameterSettings(db),
+      services: AppServices.forJournal(
+        repo,
+        parameterSettings: BrewParameterSettings(db),
+      ),
+
       coffees: await repo.allCoffees(),
       existing: saved,
     );

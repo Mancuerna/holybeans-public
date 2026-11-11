@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/cafe_repository.dart';
@@ -10,7 +11,6 @@ import 'package:holybeans/ui/cafes/cafe_share_flow.dart';
 import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/sync/journal_write_feedback.dart';
-import 'package:intl/intl.dart';
 
 class CafesPage extends StatefulWidget {
   const CafesPage({super.key, required this.repository, this.photos});
@@ -34,7 +34,7 @@ class _CafesPageState extends State<CafesPage> {
         ),
       );
   Future<void> remove(CafeJournalData data, CafeDrink drink) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final yes = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
@@ -68,7 +68,7 @@ class _CafesPageState extends State<CafesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return StreamBuilder<CafeJournalData>(
       stream: stream,
       builder: (context, snap) {
@@ -152,7 +152,7 @@ class _CafesPageState extends State<CafesPage> {
                                           regionalLocale,
                                         ),
                                         if (d.rating != null)
-                                          '${s.rating}: ${NumberFormat('0.#', Localizations.localeOf(context).toLanguageTag()).format(d.rating)}',
+                                          '${s.rating}: ${formatDecimal(d.rating, pattern: '0.#', locale: Localizations.localeOf(context).toLanguageTag())}',
                                       ].where((v) => v.isNotEmpty).join('\n'),
                                     ),
                                     trailing: Row(
@@ -199,7 +199,7 @@ class _CafeStatsView extends StatelessWidget {
   final List<CafeDrink> drinks;
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final stats = CafeStats(
       drinks.map(
         (d) => (
@@ -227,10 +227,11 @@ class _CafeStatsView extends StatelessWidget {
           ListTile(
             title: Text(s.cafeAverageRating),
             trailing: Text(
-              NumberFormat(
-                '0.0',
-                Localizations.localeOf(context).toLanguageTag(),
-              ).format(stats.averageRating),
+              formatDecimal(
+                stats.averageRating,
+                pattern: '0.0',
+                locale: Localizations.localeOf(context).toLanguageTag(),
+              ),
             ),
           ),
         for (final entry in stats.spending.entries)

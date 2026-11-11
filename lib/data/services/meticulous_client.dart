@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:holybeans/data/services/meticulous_free_pour.dart';
+import 'package:holybeans/domain/machine_address.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 
 /// A shot from a Meticulous espresso machine's history, reduced to what a
@@ -270,15 +271,7 @@ class MeticulousClient implements MeticulousSource {
   }
 
   /// Accepts "192.168.1.50", "meticulous.local:8080" or a full URL.
-  static Uri normalizeAddress(String address) {
-    final text = address.trim();
-    if (text.isEmpty) throw const FormatException('Empty address');
-    final uri = Uri.parse(text.contains('://') ? text : 'http://$text');
-    if (uri.host.isEmpty || !{'http', 'https'}.contains(uri.scheme)) {
-      throw FormatException('Invalid address', address);
-    }
-    return Uri(scheme: uri.scheme, host: uri.host, port: uri.port);
-  }
+  static Uri normalizeAddress(String address) => meticulousAddress(address);
 
   /// The JSON at [path]; with [missingIsNull], null when the machine
   /// answers 404 (nothing there, or a firmware without that history).

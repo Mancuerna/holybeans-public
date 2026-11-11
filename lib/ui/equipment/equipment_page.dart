@@ -3,6 +3,7 @@ import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/equipment_overview.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/domain/journal_codes.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/cupping/cupping_sessions_page.dart';
@@ -105,19 +106,19 @@ class _EquipmentPageState extends State<EquipmentPage>
   Future<void> _editMethod(BrewMethod method) async {
     final saved = await showMethodForm(context, widget.repository, method);
     if (saved != null && mounted) {
-      _message(AppLocalizations.of(context)!.methodSaved);
+      _message(AppLocalizations.of(context).methodSaved);
     }
   }
 
   Future<void> _editGrinder(Grinder grinder) async {
     final saved = await showGrinderForm(context, widget.repository, grinder);
     if (saved != null && mounted) {
-      _message(AppLocalizations.of(context)!.grinderSaved);
+      _message(AppLocalizations.of(context).grinderSaved);
     }
   }
 
   Future<void> _archiveMethod(BrewMethod method) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       await widget.repository.setMethodArchived(
         method.id,
@@ -130,7 +131,7 @@ class _EquipmentPageState extends State<EquipmentPage>
   }
 
   Future<void> _archiveGrinder(Grinder grinder) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       await widget.repository.setGrinderArchived(
         grinder.id,
@@ -144,7 +145,7 @@ class _EquipmentPageState extends State<EquipmentPage>
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final labels = [
       s.methods,
       s.grinders,
@@ -289,7 +290,7 @@ class _EquipmentSectionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     if (section == EquipmentSection.methods) {
       // The methods in use first, by their last brew; unused ones after,
       // by name.
@@ -455,7 +456,7 @@ class _MethodCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final number = NumberFormat('0.#', regionalLocale.toString());
     final details = <String>[
@@ -568,11 +569,12 @@ class _MethodCard extends StatelessWidget {
   }
 }
 
-String _styleLabel(AppLocalizations strings, String code) => switch (code) {
-  'espresso' => strings.styleEspresso,
-  // Percolation is no longer offered: methods that kept it read as pour
-  // overs, which is how they brew.
-  'pourover' || 'percolation' => strings.stylePourover,
-  'immersion' => strings.styleImmersion,
-  _ => code,
-};
+String _styleLabel(AppLocalizations strings, String code) =>
+    switch (MethodCategory.fromCode(code, allowLegacy: true)) {
+      MethodCategory.espresso => strings.styleEspresso,
+      // Percolation is no longer offered: methods that kept it read as pour
+      // overs, which is how they brew.
+      MethodCategory.pourover => strings.stylePourover,
+      MethodCategory.immersion => strings.styleImmersion,
+      null => code,
+    };

@@ -37,7 +37,7 @@ class _WaterChartState extends State<WaterChart> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final points = widget.points.where((p) => p.hasCoordinates).toList();
     final number = NumberFormat('0.##', regionalLocale.toString());

@@ -1,10 +1,20 @@
-part of '../journal_repository.dart';
+import 'package:drift/drift.dart';
+import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/brew_stock_ledger.dart';
+import 'package:holybeans/data/repositories/catalog_validation.dart';
+import 'package:holybeans/data/repositories/journal_inputs.dart';
+import 'package:holybeans/domain/altitude.dart';
+import 'package:uuid/uuid.dart';
 
-/// The steps of [CoffeeOperations.updateCoffeeProfile]: the arguments it
-/// accepts, the bag it creates or edits and the single origin it saves.
-extension _CoffeeProfileSteps on JournalRepository {
+/// Profile edits preserve lot identity, consumption and origin details.
+class CoffeeProfileWriter {
+  CoffeeProfileWriter(this.database, this._stock);
+  final AppDatabase database;
+  final BrewStockLedger _stock;
+  final Uuid _uuid = const Uuid();
+
   /// Rejects what the profile editor may not ask for, before any write.
-  void _checkProfileEdit({
+  void checkProfileEdit({
     required int? paidPriceCents,
     required String? roastLevel,
     required bool checkRoastLevel,
@@ -22,15 +32,15 @@ extension _CoffeeProfileSteps on JournalRepository {
     if (createInventoryLot && inventoryLotId != null) {
       throw ArgumentError('A new lot cannot also identify an existing lot');
     }
-    _checkPrice(paidPriceCents);
-    if (checkRoastLevel) _checkRoastLevel(roastLevel);
-    if (checkRestDays) _checkRestDays(restDays);
+    validateCoffeePrice(paidPriceCents);
+    if (checkRoastLevel) validateRoastLevel(roastLevel);
+    if (checkRestDays) validateRestDays(restDays);
     if (!validAltitudeRange(altitudeMeters, altitudeMaxMeters)) {
       throw ArgumentError('Invalid altitude range');
     }
     if (inventoryLotId != null || createInventoryLot) {
-      _checkDate(roastDate);
-      _checkPositive(initialGrams, 'initialGrams');
+      validateStockDate(roastDate);
+      validatePositive(initialGrams, 'initialGrams');
     } else if (roastDate != null || initialGrams != null) {
       throw ArgumentError('Inventory edits require a selected single lot');
     }
@@ -50,7 +60,7 @@ extension _CoffeeProfileSteps on JournalRepository {
           .get();
 
   /// The first bag of a coffee that has none active, full.
-  Future<void> _createFirstLot(
+  Future<void> createFirstLot(
     String coffeeId, {
     required String? roastDate,
     required double? grams,
@@ -76,7 +86,7 @@ extension _CoffeeProfileSteps on JournalRepository {
 
   /// Edits the only active bag: roast date, quantity bought and, when asked,
   /// the grams left measured by hand.
-  Future<void> _editSingleLot(
+  Future<void> editSingleLot(
     String coffeeId,
     String lotId, {
     required String? roastDate,
@@ -103,7 +113,7 @@ extension _CoffeeProfileSteps on JournalRepository {
       final before = nextRemaining == null
           ? null
           : nextRemaining - (nextOverdraw ?? 0);
-      if (before == null || (before - remainingGrams).abs() > _gramsTolerance) {
+      if (before == null || (before - remainingGrams).abs() > stockTolerance) {
         await database
             .into(database.stockAdjustments)
             .insert(
@@ -163,7 +173,7 @@ extension _CoffeeProfileSteps on JournalRepository {
       // Apply the purchased-quantity change to the signed balance. This also
       // allows correcting the total below brew consumption; the difference
       // is represented as overdraw instead of a negative visible balance.
-      return _materializeBalance(
+      return materializeBalance(
         lot.remainingGrams! -
             (lot.overdrawGrams ?? 0) +
             initialGrams -
@@ -176,15 +186,15 @@ extension _CoffeeProfileSteps on JournalRepository {
       database.stockAdjustments,
     )..where((r) => r.lotId.equals(lot.id) & r.reversedAtMs.isNull())).get();
     if (adjustments.isNotEmpty) return (null, null);
-    final consumed = await _consumedGrams(lot);
+    final consumed = await _stock.consumedGrams(lot);
     return consumed == null
         ? (null, null)
-        : _materializeBalance(initialGrams - consumed);
+        : materializeBalance(initialGrams - consumed);
   }
 
   /// Saves the single origin the simple editor shows, creating it when the
   /// coffee had none and something was written.
-  Future<void> _saveSingleOrigin(
+  Future<void> saveSingleOrigin(
     String coffeeId, {
     required String? country,
     required String? region,
@@ -210,7 +220,7 @@ extension _CoffeeProfileSteps on JournalRepository {
           producer,
           variety,
           process,
-        ].any((value) => _trimOrNull(value) != null) ||
+        ].any((value) => trimOrNull(value) != null) ||
         altitudeMeters != null ||
         altitudeMaxMeters != null;
     if (existing == null && !values) return;
@@ -218,12 +228,12 @@ extension _CoffeeProfileSteps on JournalRepository {
       id: existing?.id ?? _uuid.v4(),
       coffeeId: coffeeId,
       position: 0,
-      country: _trimOrNull(country),
-      region: _trimOrNull(region),
-      farm: _trimOrNull(farm),
-      producer: _trimOrNull(producer),
-      variety: _trimOrNull(variety),
-      process: _trimOrNull(process),
+      country: trimOrNull(country),
+      region: trimOrNull(region),
+      farm: trimOrNull(farm),
+      producer: trimOrNull(producer),
+      variety: trimOrNull(variety),
+      process: trimOrNull(process),
       altitudeMeters: altitudeMeters,
       altitudeMaxMeters: altitudeMaxMeters,
       harvest: existing?.harvest,

@@ -1,5 +1,6 @@
 import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/domain/shot_curve.dart';
+import 'package:holybeans/domain/statistics.dart';
 
 /// A pour found on a scale curve: when the weight left its resting level,
 /// when it reached the next one, and how much water that added.
@@ -100,19 +101,6 @@ BrewPours? brewPoursFromCurve(
   pourCount: pourCount,
 );
 
-/// Fills a saved brew without details, respecting both recorded counts.
-BrewPours? poursToFill(
-  ShotCurve curve, {
-  double? doseGrams,
-  int? bloomCount,
-  int? pourCount,
-}) => brewPoursFromCurve(
-  curve,
-  doseGrams: doseGrams,
-  bloomCount: bloomCount,
-  pourCount: pourCount,
-);
-
 /// [pours], in order, as blooms and pours for a brew of [doseGrams]. The
 /// first [bloomCount] pours are blooms when given. With only [pourCount],
 /// the remaining leading pours are blooms. Incompatible counts return null.
@@ -192,8 +180,7 @@ List<double> _smoothed(List<int> times, List<double> weight) {
     while (to + 1 < times.length && times[to + 1] <= times[i] + _smoothMs) {
       to++;
     }
-    final window = weight.sublist(from, to + 1)..sort();
-    smoothed.add(window[window.length ~/ 2]);
+    smoothed.add(upperMedian(weight.getRange(from, to + 1)));
   }
   return smoothed;
 }
@@ -219,8 +206,11 @@ List<_Level> _restingLevels(List<int> times, List<double> weight) {
       j++;
     }
     if (times[j] - times[i] >= _stillMs) {
-      final run = weight.sublist(i, j + 1)..sort();
-      levels.add((from: i, to: j, grams: run[run.length ~/ 2]));
+      levels.add((
+        from: i,
+        to: j,
+        grams: upperMedian(weight.getRange(i, j + 1)),
+      ));
       i = j + 1;
     } else {
       i++;

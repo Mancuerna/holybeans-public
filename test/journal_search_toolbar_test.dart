@@ -67,7 +67,7 @@ void main() {
         expect(taps, 3);
         await tester.enterText(search, 'Ethiopia');
         await tester.pump();
-        final strings = AppLocalizations.of(tester.element(search))!;
+        final strings = AppLocalizations.of(tester.element(search));
         await tester.tap(find.byTooltip(strings.clearSearch));
         await tester.pump();
         expect(controller.text, isEmpty);

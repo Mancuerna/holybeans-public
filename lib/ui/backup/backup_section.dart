@@ -33,7 +33,7 @@ class BackupSection extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: center,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       if (!center.hasAutoBackups) return const SizedBox.shrink();
       final latest = center.autoEntries.firstOrNull;
       final folderName = center.state.folderName ?? '';
@@ -97,7 +97,7 @@ class BackupSection extends StatelessWidget {
   );
 
   Future<void> _folderOptions(BuildContext context) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final choice = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
@@ -162,7 +162,7 @@ class AutoBackupsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(s.autoBackupsTitle)),
       body: ListenableBuilder(

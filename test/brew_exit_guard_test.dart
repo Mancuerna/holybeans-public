@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 
 import 'helpers/test_database.dart';
@@ -40,8 +41,11 @@ void main() {
                 onPressed: () => showFormSheet<BrewFormResult>(
                   context,
                   BrewForm(
-                    repository: repo,
-                    settings: BrewParameterSettings(db),
+                    services: AppServices.forJournal(
+                      repo,
+                      parameterSettings: BrewParameterSettings(db),
+                    ),
+
                     coffees: coffees,
                     initialCoffeeId: coffee,
                     initialMethodId: method,

@@ -8,6 +8,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/pressure_guide_chart.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/pressure_guide_page.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 import '../../test/helpers/fake_pressure_sensor.dart';
@@ -44,12 +45,15 @@ Future<void> checkPressureAssistant(
       supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
         body: BrewForm(
-          repository: repo,
-          settings: BrewParameterSettings(db),
+          services: AppServices.forJournal(
+            repo,
+            parameterSettings: BrewParameterSettings(db),
+            pressureSensor: sensor,
+          ),
+
           coffees: coffees,
           initialCoffeeId: coffee,
           initialMethodId: method,
-          pressureSensor: sensor,
         ),
       ),
     ),

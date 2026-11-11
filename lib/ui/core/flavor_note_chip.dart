@@ -14,7 +14,7 @@ class FlavorNoteChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final label = flavorNoteLabel(note, s);
     final seed = flavorNoteColor(flavorNoteTone(note));
     // A note without a known family is outlined on the sheet: a grey fill

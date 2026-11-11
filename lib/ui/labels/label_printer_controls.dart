@@ -11,7 +11,7 @@ class LabelPrinterControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     String statusLabel(DeviceStatus status) => switch (status) {
       DeviceStatus.idle => s.labelDisconnected,
       DeviceStatus.searching => s.labelSearching,
@@ -101,7 +101,7 @@ class _LabelTemplateNameDialogState extends State<LabelTemplateNameDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return AlertDialog(
       title: Text(s.labelTemplateSave),
       content: TextField(

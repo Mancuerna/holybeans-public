@@ -10,7 +10,7 @@ Future<void> deleteEquipmentAfterConfirming(
   required Future<List<EquipmentDeletionBlocker>> Function() check,
   required Future<void> Function() delete,
 }) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   try {
     final blockers = await check();
     if (!context.mounted) return;
@@ -60,7 +60,7 @@ Future<void> _showBlockers(
   String name,
   List<EquipmentDeletionBlocker> blockers,
 ) {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   return showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(

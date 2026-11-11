@@ -8,6 +8,7 @@ import 'package:holybeans/domain/share_template_exchange.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/share_template_editor.dart';
 import 'package:holybeans/ui/brews/share_templates_page.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 
@@ -44,8 +45,7 @@ void main() {
         addTearDown(incoming.dispose);
         await tester.pumpWidget(
           HolyBeansApp(
-            database: db,
-            incoming: incoming,
+            services: AppServices(database: db, incoming: incoming),
             initialLocale: const Locale('en'),
           ),
         );

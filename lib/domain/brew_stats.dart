@@ -1,6 +1,7 @@
-import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/domain/calendar_days.dart';
 import 'package:holybeans/domain/coffee_countries.dart';
 import 'package:holybeans/domain/freshness.dart';
+import 'package:holybeans/domain/stats_inputs.dart';
 
 /// Period the statistics cover, counted in local days ending today.
 enum StatsRange {
@@ -16,8 +17,7 @@ enum StatsRange {
 }
 
 /// Local calendar day of [time], as a UTC midnight so days compare exactly.
-DateTime statsDay(DateTime time) =>
-    DateTime.utc(time.year, time.month, time.day);
+DateTime statsDay(DateTime time) => calendarDay(time);
 
 /// Purchase cost in euros per kilogram, or null when either amount is
 /// unknown or the purchased weight is not positive.
@@ -39,8 +39,8 @@ double? pricePerKgFor({
 /// what was paid over the grams bought across all its lots, archived ones
 /// included, so older brews keep their cost.
 Map<String, double> pricePerKgByCoffee(
-  List<Coffee> coffees,
-  List<CoffeeLot> lots,
+  List<StatsCoffee> coffees,
+  List<StatsLot> lots,
 ) {
   final bought = <String, double>{};
   final unknown = <String>{};
@@ -62,18 +62,21 @@ Map<String, double> pricePerKgByCoffee(
   };
 }
 
-/// Cost of the coffee used in [brew], or null without a dose or price.
-double? brewCost(Brew brew, Map<String, double> pricePerKg) {
-  final dose = brew.doseGrams;
-  final price = pricePerKg[brew.coffeeId];
+/// Cost of [dose] grams of [coffeeId], or null without a dose or price.
+double? brewCost(
+  String coffeeId,
+  double? dose,
+  Map<String, double> pricePerKg,
+) {
+  final price = pricePerKg[coffeeId];
   return dose == null || price == null ? null : dose * price / 1000;
 }
 
 /// Brew counts per local day.
-Map<DateTime, int> brewsPerDay(Iterable<Brew> brews) {
+Map<DateTime, int> brewsPerDay(Iterable<int> brewedAtTimes) {
   final counts = <DateTime, int>{};
-  for (final brew in brews) {
-    final day = statsDay(DateTime.fromMillisecondsSinceEpoch(brew.brewedAtMs));
+  for (final time in brewedAtTimes) {
+    final day = statsDay(DateTime.fromMillisecondsSinceEpoch(time));
     counts.update(day, (count) => count + 1, ifAbsent: () => 1);
   }
   return counts;
@@ -151,10 +154,9 @@ class BrewStats {
   /// Statistics for the brews in [range], ending on [now]'s day. Archived
   /// beans and brews count too: they are still coffee you made.
   factory BrewStats.compute({
-    required List<Brew> brews,
-    required List<Coffee> coffees,
-    required List<CoffeeComponent> components,
-    required BrewStyle Function(Brew brew) styleOf,
+    required List<StatsBrew> brews,
+    required List<StatsCoffee> coffees,
+    required List<StatsComponent> components,
     required StatsRange range,
     required DateTime now,
     required String languageCode,
@@ -267,9 +269,7 @@ class BrewStats {
         }
       }
       if (brew.rating != null) {
-        styleCounts
-            .putIfAbsent(styleOf(brew), () => _Tally(''))
-            .add(brew.rating);
+        styleCounts.putIfAbsent(brew.style, () => _Tally('')).add(brew.rating);
       }
     }
 
@@ -291,7 +291,10 @@ class BrewStats {
             return byRating != 0 ? byRating : b.count.compareTo(a.count);
           });
 
-    final costs = [for (final brew in inRange) ?brewCost(brew, pricePerKg)];
+    final costs = [
+      for (final brew in inRange)
+        ?brewCost(brew.coffeeId, brew.doseGrams, pricePerKg),
+    ];
 
     return BrewStats._(
       coffeeCost: costs.fold(0, (sum, cost) => sum + cost),
@@ -325,7 +328,7 @@ class BrewStats {
   }
 
   /// Brews within the range.
-  final List<Brew> brews;
+  final List<StatsBrew> brews;
 
   /// Days since the later of the range start and the journal’s first brew.
   final int days;

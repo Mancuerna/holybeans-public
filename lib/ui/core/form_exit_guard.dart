@@ -100,7 +100,7 @@ class _FormExitGuardState extends State<FormExitGuard> {
   Future<bool> _confirm() async {
     if (!mounted || widget.busy()) return false;
     if (_allowed || !widget.hasChanges()) return true;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final discard = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(

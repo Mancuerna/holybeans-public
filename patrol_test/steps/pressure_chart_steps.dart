@@ -12,6 +12,7 @@ import 'package:holybeans/domain/curve_flow_stats.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 import 'package:universal_ble/universal_ble.dart';
 
@@ -56,10 +57,12 @@ Future<void> checkPressureChart(
     );
     await $.pumpWidgetAndSettle(
       HolyBeansApp(
-        database: database,
+        services: AppServices(
+          database: database,
+          scale: scale,
+          pressureSensor: sensor,
+        ),
         initialLocale: const Locale('en'),
-        scale: scale,
-        pressureSensor: sensor,
       ),
     );
     await $.tap(find.text('Brew'));

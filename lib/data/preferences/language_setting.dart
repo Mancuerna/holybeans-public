@@ -1,5 +1,6 @@
+import 'dart:ui' show Locale;
+
 import 'package:drift/drift.dart' show Value;
-import 'package:flutter/widgets.dart' show Locale;
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/preferences_row.dart';
 

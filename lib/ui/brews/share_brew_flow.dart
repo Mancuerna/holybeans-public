@@ -5,9 +5,9 @@ import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/photo_store.dart';
-import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_share_text.dart';
 import 'package:holybeans/ui/brews/share_sheet.dart';
@@ -29,7 +29,7 @@ Future<void> shareBrewFlow(
   required BrewMethod? method,
   required void Function(String text) message,
 }) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   try {
     final lots = await repository.watchLots().first;
     final lot = lots.where((lot) => lot.id == brew.lotId).firstOrNull;

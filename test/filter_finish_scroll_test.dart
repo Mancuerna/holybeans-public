@@ -8,6 +8,7 @@ import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_form_sections.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/fake_scale.dart';
 import 'helpers/test_database.dart';
@@ -56,14 +57,17 @@ Future<_Brew> _openBrew(
               context: context,
               isScrollControlled: true,
               builder: (_) => BrewForm(
-                repository: repository,
-                settings: settings,
+                services: AppServices.forJournal(
+                  repository,
+                  parameterSettings: settings,
+                  scale: scale,
+                ),
+
                 coffees: coffees,
                 initialCoffeeId: coffee,
                 initialMethodId: method,
                 initialDoseGrams: 15,
                 adjust: adjust,
-                scale: scale,
               ),
             ),
             child: const Text('Open'),

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/domain/bean_exchange.dart';
+import 'package:holybeans/data/repositories/bean_exchange.dart';
 
 import 'helpers/escaped_bean_card.dart';
 
@@ -77,7 +77,7 @@ void main() {
   });
 
   test('a coffee becomes a card without anything personal', () {
-    final bean = SharedBean.fromCoffee(
+    final bean = sharedBeanFromCoffee(
       _coffee(priceCents: 2400, flavor: 'Mango, raspberry'),
       [_origin(1, 'Colombia'), _origin(0, 'Panama')],
       [_lot('old', 250, 1), _lot('new', 500, 2)],
@@ -93,7 +93,7 @@ void main() {
   });
 
   test('files and QR codes read back what they carried', () {
-    final bean = SharedBean.fromCoffee(
+    final bean = sharedBeanFromCoffee(
       _coffee(priceCents: 796, flavor: 'Mango, raspberry, blueberry'),
       [_origin(0, 'Panama')],
       [_lot('bag', 50, 1)],

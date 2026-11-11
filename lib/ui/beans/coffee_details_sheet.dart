@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
+import 'package:holybeans/data/repositories/freezer_repository.dart';
+import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/altitude.dart';
-import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/coffee_countries.dart';
 import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
-import 'package:holybeans/domain/stock.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/coffee_details_header.dart';
 import 'package:holybeans/ui/beans/freezer_widgets.dart';
@@ -22,7 +23,6 @@ import 'package:holybeans/ui/core/photo_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
 import 'package:holybeans/ui/sync/journal_write_feedback.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Opens the bottom sheet with everything about [coffee].
@@ -61,18 +61,18 @@ class CoffeeDetailsSheet extends StatefulWidget {
 
 class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
   // Opened once, so rebuilding the sheet does not resubscribe.
-  late final Stream<List<String>> photos = widget.actions.repository
+  late final Stream<List<String>> photos = widget.actions.read.queries
       .watchCoffeePhotos(widget.coffee.id);
-  late final Stream<List<CoffeeLot>> lotStream = widget.actions.repository
+  late final Stream<List<CoffeeLot>> lotStream = widget.actions.read.queries
       .watchLots();
   late final Stream<List<FrozenPortion>> portionStream = widget
       .actions
-      .repository
+      .read
+      .queries
       .watchFrozenPortions();
 
-  late final adjustmentStream = widget.actions.repository.watchStockAdjustments(
-    coffeeId: widget.coffee.id,
-  );
+  late final adjustmentStream = widget.actions.read.queries
+      .watchStockAdjustments(coffeeId: widget.coffee.id);
 
   @override
   Widget build(BuildContext context) => StreamBuilder<List<StockAdjustment>>(
@@ -89,7 +89,7 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
       stream: lotStream,
       builder: (context, lotSnapshot) => StreamBuilder<List<FrozenPortion>>(
         stream: portionStream,
-        initialData: actions.portions,
+        initialData: actions.read.portions,
         builder: (context, portionSnapshot) {
           final lots = lotSnapshot.hasData
               ? [
@@ -113,8 +113,12 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CoffeeDetailsHeader(actions: actions, coffee: coffee),
-                if (actions.photos case final store?)
+                CoffeeDetailsHeader(
+                  navigation: actions.navigation,
+                  commands: actions.commands,
+                  coffee: coffee,
+                ),
+                if (actions.read.photos case final store?)
                   _Photos(stream: photos, store: store),
                 _Extras(
                   actions: actions,
@@ -125,14 +129,14 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
                 const SizedBox(height: 16),
                 StatGrid(
                   items: _coffeeStats(
-                    AppLocalizations.of(context)!,
+                    AppLocalizations.of(context),
                     coffee,
                     stock,
                     brewCount: data.brewCount(coffee.id),
                   ),
                 ),
                 StockAdjustmentSection(
-                  repository: actions.repository,
+                  repository: actions.commands.stockEdits,
                   coffee: coffee,
                   stock: stock,
                   adjustments: adjustments
@@ -144,7 +148,7 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
                   coffee: coffee,
                   lots: lots,
                   allLots: lotSnapshot.data ?? data.lots,
-                  methods: actions.methods,
+                  methods: actions.read.methods,
                   frozenAge: stock.frozenOnlyAge,
                 ),
                 _FreezerSection(
@@ -157,12 +161,13 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
                 _OriginRows(components: components),
                 if (notes.isNotEmpty)
                   DetailRow(
-                    AppLocalizations.of(context)!.notes,
+                    AppLocalizations.of(context).notes,
                     notes,
                     stacked: true,
                   ),
                 _RecentBrews(
-                  actions: actions,
+                  actions: actions.navigation,
+                  journal: actions.read,
                   coffee: coffee,
                   data: data,
                   brews: brews,
@@ -222,7 +227,7 @@ List<StatItem> _coffeeStats(
     if (coffee.rating case final rating?)
       StatItem(
         s.rating,
-        '${NumberFormat('0.#', regionalLocale.toString()).format(rating)} / 10',
+        '${formatDecimal(rating, pattern: '0.#', locale: regionalLocale.toString())} / 10',
       ),
     if (coffee.paidPriceCents case final cents?)
       StatItem(
@@ -253,7 +258,7 @@ class _Photos extends StatelessWidget {
         child: DetailPhotos(
           store: store,
           files: files,
-          label: AppLocalizations.of(context)!.bagPhoto,
+          label: AppLocalizations.of(context).bagPhoto,
         ),
       ),
     },
@@ -281,7 +286,10 @@ class _Extras extends StatelessWidget {
   Future<void> _brew(BuildContext context) async {
     if (!stock.onlyFrozen) {
       Navigator.pop(context);
-      await actions.openBrewForm(data.coffees, initialCoffeeId: coffee.id);
+      await actions.navigation.openBrewForm(
+        data.coffees,
+        initialCoffeeId: coffee.id,
+      );
       return;
     }
     final portions = stock.frozenOldestFirst;
@@ -295,13 +303,13 @@ class _Extras extends StatelessWidget {
       data,
       coffee,
       portion,
-      note: AppLocalizations.of(context)!.onlyFrozenLeft,
+      note: AppLocalizations.of(context).onlyFrozenLeft,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -366,7 +374,7 @@ Future<void> _thawThenBrew(
   if (grams == null) return;
   if (!context.mounted) return;
   Navigator.pop(context);
-  await actions.openBrewForm(
+  await actions.navigation.openBrewForm(
     data.coffees,
     initialCoffeeId: coffee.id,
     initialLotId: portion.lotId,
@@ -384,7 +392,7 @@ Future<FrozenPortion?> _choosePortion(
   BuildContext context,
   List<FrozenPortion> portions,
 ) {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   final locale = regionalLocale;
   return showDialog<FrozenPortion>(
     context: context,
@@ -436,17 +444,17 @@ class _FreezerSection extends StatefulWidget {
 
 class _FreezerSectionState extends State<_FreezerSection> {
   JournalActions get actions => widget.actions;
-  JournalRepository get repository => widget.actions.repository;
+  FreezerRepository get repository => widget.actions.commands.freezer;
 
   Future<void> _freeze() async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final labels = await showFreezeSheet(
       context,
       repository,
       lots: widget.stock.lots,
     );
     if (labels != null) {
-      actions.message(
+      actions.navigation.message(
         labels.length == 1
             ? s.frozenSaved(labels.single)
             : s.frozenBatchSaved(labels.length),
@@ -457,7 +465,7 @@ class _FreezerSectionState extends State<_FreezerSection> {
   /// Thaws grams the user picks; returns them, or null when cancelled or
   /// failed.
   Future<double?> _thaw(FrozenPortion portion) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final grams = await showThawDialog(context, portion);
     if (grams == null) return null;
     try {
@@ -474,13 +482,13 @@ class _FreezerSectionState extends State<_FreezerSection> {
       _thawThenBrew(context, actions, widget.data, widget.coffee, portion);
 
   Future<void> _edit(FrozenPortion portion) async {
-    final lot = await repository.coffeeLot(portion.lotId);
+    final lot = await actions.read.queries.coffeeLot(portion.lotId);
     if (lot == null || !mounted) return;
     await showFreezeSheet(context, repository, lots: [lot], existing: portion);
   }
 
   Future<void> _delete(FrozenPortion portion) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -518,7 +526,7 @@ class _FreezerSectionState extends State<_FreezerSection> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final stock = widget.stock;
     final active = widget.coffee.archivedAtMs == null;
     final canFreeze =
@@ -557,7 +565,7 @@ class _FreezerSectionState extends State<_FreezerSection> {
             onThaw: () async {
               final grams = await _thaw(portion);
               if (grams != null) {
-                actions.message(
+                actions.navigation.message(
                   s.thawedSaved(formatGrams(grams, regionalLocale.toString())),
                 );
               }
@@ -580,7 +588,7 @@ class _OriginRows extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -619,12 +627,14 @@ class _OriginRows extends StatelessWidget {
 class _RecentBrews extends StatelessWidget {
   const _RecentBrews({
     required this.actions,
+    required this.journal,
     required this.coffee,
     required this.data,
     required this.brews,
   });
 
-  final JournalActions actions;
+  final JournalNavigation actions;
+  final JournalRead journal;
   final Coffee coffee;
   final JournalData data;
 
@@ -634,7 +644,7 @@ class _RecentBrews extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (brews.isEmpty) return const SizedBox.shrink();
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final deviceLocale = regionalLocale;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -655,9 +665,9 @@ class _RecentBrews extends StatelessWidget {
               title: Text(
                 brewRecipeLine(
                       brew,
-                      actions.methods,
+                      journal.methods,
                       regionalLocale.toString(),
-                      hidden: actions.hiddenParameters,
+                      hidden: journal.hiddenParameters,
                     ) ??
                     brew.methodName,
               ),
@@ -673,7 +683,7 @@ class _RecentBrews extends StatelessWidget {
                   rating: rating,
                   localeName: regionalLocale.toString(),
                   semanticLabel:
-                      '${s.rating}: ${NumberFormat('0.#', regionalLocale.toString()).format(rating)} / 10',
+                      '${s.rating}: ${formatDecimal(rating, pattern: '0.#', locale: regionalLocale.toString())} / 10',
                 ),
                 null => const Icon(Icons.chevron_right_rounded),
               },

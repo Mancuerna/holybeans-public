@@ -1,11 +1,12 @@
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:holybeans/data/repositories/bean_exchange.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
-import 'package:holybeans/domain/bean_exchange.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 
@@ -27,7 +28,7 @@ void main() {
         flavorProfile: profile,
       );
       final coffee = (await repo.coffee(id))!;
-      final card = SharedBean.fromCoffee(coffee, const [], const []);
+      final card = sharedBeanFromCoffee(coffee, const [], const []);
       expect(card.flavorProfile, profile);
       await JournalBackup(restored)
           .restoreJson(await JournalBackup(db).exportJson());
@@ -54,7 +55,10 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
         await tester.pumpWidget(
-          HolyBeansApp(database: db, initialLocale: Locale(language)),
+          HolyBeansApp(
+            services: AppServices(database: db),
+            initialLocale: Locale(language),
+          ),
         );
         await tester.pumpAndSettle();
         await tester.tap(find.byKey(const ValueKey('bean-add-manual')));

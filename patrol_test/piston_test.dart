@@ -4,6 +4,7 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/piston_history_client.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/equipment/piston/piston_chart.dart';
 import 'package:holybeans/ui/equipment/piston/piston_page.dart';
 import 'package:patrol/patrol.dart';
@@ -33,7 +34,10 @@ void main() {
           $.tester.platformDispatcher.platformBrightnessTestValue =
               language == 'es' ? Brightness.dark : Brightness.light;
           await $.pumpWidgetAndSettle(
-            HolyBeansApp(database: db, initialLocale: Locale(language)),
+            HolyBeansApp(
+              services: AppServices(database: db),
+              initialLocale: Locale(language),
+            ),
           );
           final s = lookupAppLocalizations(Locale(language));
           await $.tap(find.text(s.equipment).last);

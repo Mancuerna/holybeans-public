@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/services/brew_live_notice.dart';
 import 'package:holybeans/data/services/device_feedback.dart';
 import 'package:holybeans/data/services/scale.dart';
@@ -13,6 +14,7 @@ import 'package:holybeans/ui/brews/extraction_chart.dart';
 import 'package:holybeans/ui/brews/pour_assistant/pour_bars.dart';
 import 'package:holybeans/ui/brews/pour_assistant/pour_chart.dart';
 import 'package:holybeans/ui/brews/pour_assistant/pour_step_card.dart';
+import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:intl/intl.dart';
 
@@ -145,15 +147,16 @@ class _PourRunViewState extends State<PourRunView> {
     if (widget.atYourPace && manual.draining) {
       if (!announcedDrain) {
         announcedDrain = true;
-        final s = AppLocalizations.of(context)!;
+        final s = AppLocalizations.of(context);
         unawaited(
           const BrewLiveNotice().showPours(
             title: s.drawdown,
             text: s.totalWater(
-              NumberFormat(
-                '0',
-                regionalLocale.toString(),
-              ).format(widget.plan.totalWaterGrams),
+              formatDecimal(
+                widget.plan.totalWaterGrams,
+                pattern: '0',
+                locale: regionalLocale.toString(),
+              ),
             ),
             startedAt: widget.atYourPace
                 ? DateTime.now().subtract(watch.elapsed)
@@ -178,7 +181,7 @@ class _PourRunViewState extends State<PourRunView> {
       return;
     }
     announced = step;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final grams = NumberFormat('0', regionalLocale.toString());
     final steps = widget.plan.steps;
     unawaited(
@@ -232,7 +235,7 @@ class _PourRunViewState extends State<PourRunView> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final grams = NumberFormat('0', regionalLocale.toString());
     final plan = widget.plan;
@@ -248,8 +251,7 @@ class _PourRunViewState extends State<PourRunView> {
         ? manual.draining
         : next == null && now >= plan.pouringEndSecond;
     final onScale = scale == null ? null : recording.lastGrams;
-    String clock(int seconds) =>
-        '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
+    String clock(int seconds) => formatDuration(seconds);
 
     return Column(
       children: [

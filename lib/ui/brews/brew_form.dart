@@ -1,15 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/device_feedback.dart';
-import 'package:holybeans/data/services/photo_store.dart';
-import 'package:holybeans/data/services/pressure_sensor.dart';
-import 'package:holybeans/data/services/refractometer.dart';
-import 'package:holybeans/data/services/scale.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_adjust_section.dart';
@@ -23,15 +19,16 @@ import 'package:holybeans/ui/brews/gaggimate_shot_widgets.dart';
 import 'package:holybeans/ui/brews/meticulous_free_pour_widgets.dart';
 import 'package:holybeans/ui/brews/meticulous_shot_widgets.dart';
 import 'package:holybeans/ui/brews/pour_assistant/pour_assistant_page.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/form_exit_guard.dart';
 import 'package:holybeans/ui/core/form_validation.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
+import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/motion.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/equipment/equipment_forms.dart';
 import 'package:holybeans/ui/equipment/method_tools_sheet.dart';
 import 'package:holybeans/ui/equipment/water_profile_form.dart';
-import 'package:intl/intl.dart';
 
 class BrewFormResult {
   const BrewFormResult({
@@ -51,9 +48,8 @@ class BrewFormResult {
 
 class BrewForm extends StatefulWidget {
   const BrewForm({
+    this.services,
     super.key,
-    required this.repository,
-    required this.settings,
     required this.coffees,
     this.existing,
     this.seed,
@@ -64,26 +60,10 @@ class BrewForm extends StatefulWidget {
     this.initialMethodId,
     this.repeat = false,
     this.adjust = false,
-    this.photos,
     this.savedPhotos = const [],
-    this.scale,
-    this.pressureSensor,
-    this.refractometer,
   });
 
-  final JournalRepository repository;
-
-  /// Bluetooth scale; its readout shows when one is paired.
-  final Scale? scale;
-
-  /// Bluetooth pressure sensor; its readout shows for espresso when paired.
-  final PressureSensor? pressureSensor;
-
-  /// Bluetooth refractometer; the TDS gets a measure button when paired.
-  final Refractometer? refractometer;
-
-  /// Which optional fields are hidden.
-  final BrewParameterSettings settings;
+  final AppServices? services;
   final List<Coffee> coffees;
   final Brew? existing;
   final Brew? seed;
@@ -103,9 +83,6 @@ class BrewForm extends StatefulWidget {
   /// the form folds behind one button.
   final bool adjust;
 
-  /// Photo folder; the photo control is hidden without it.
-  final PhotoStore? photos;
-
   /// Photo files of [existing], in order.
   final List<String> savedPhotos;
 
@@ -114,6 +91,7 @@ class BrewForm extends StatefulWidget {
 }
 
 class _BrewFormState extends State<BrewForm> {
+  late final services = widget.services ?? AppServicesScope.read(context);
   final formKey = GlobalKey<FormState>();
   final _finalWeightKey = GlobalKey();
   bool _timerWasRunning = false;
@@ -128,8 +106,7 @@ class _BrewFormState extends State<BrewForm> {
   void initState() {
     super.initState();
     model = BrewFormModel(
-      repository: widget.repository,
-      settings: widget.settings,
+      services: services,
       coffees: widget.coffees,
       existing: widget.existing,
       seed: widget.seed,
@@ -139,11 +116,7 @@ class _BrewFormState extends State<BrewForm> {
       initialDoseGrams: widget.initialDoseGrams,
       initialFrozenSource: widget.initialFrozenSource,
       initialMethodId: widget.initialMethodId,
-      photos: widget.photos,
       savedPhotos: widget.savedPhotos,
-      scale: widget.scale,
-      pressureSensor: widget.pressureSensor,
-      refractometer: widget.refractometer,
     );
     changes = BrewFormChanges(model);
     model.timer.addListener(_timerChanged);
@@ -186,32 +159,35 @@ class _BrewFormState extends State<BrewForm> {
   String? _previousBrewYieldReference(AppLocalizations strings) {
     final value = widget.repeat ? widget.seed?.beverageGrams : null;
     if (value == null) return null;
-    final amount = NumberFormat('0.#', regionalLocale.toString()).format(value);
+    final amount = formatDecimal(
+      value,
+      pattern: '0.#',
+      locale: regionalLocale.toString(),
+    );
     return strings.previousBrewYieldReference(amount);
   }
 
   String? _previousBrewDurationReference(AppLocalizations strings) {
     final seconds = widget.repeat ? widget.seed?.timeSeconds : null;
     if (seconds == null) return null;
-    final duration =
-        '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
+    final duration = formatDuration(seconds);
     return strings.previousBrewDurationReference(duration);
   }
 
   Future<void> _addMethod() async {
-    final created = await showMethodForm(context, widget.repository);
+    final created = await showMethodForm(context, services.repository);
     if (created == null || !mounted) return;
     await model.methodCreated(created);
   }
 
   Future<void> _addGrinder() async {
-    final created = await showGrinderForm(context, widget.repository);
+    final created = await showGrinderForm(context, services.repository);
     if (created == null || !mounted) return;
     model.grinderCreated(created);
   }
 
   Future<void> _addWaterProfile() async {
-    final created = await showWaterProfileForm(context, widget.repository);
+    final created = await showWaterProfileForm(context, services.repository);
     if (created == null || !mounted) return;
     model.waterProfileCreated(created);
   }
@@ -230,14 +206,14 @@ class _BrewFormState extends State<BrewForm> {
       pouredGrams: result.pouredGrams,
     );
     if (mounted) {
-      showMessage(context, AppLocalizations.of(context)!.pourResultApplied);
+      showMessage(context, AppLocalizations.of(context).pourResultApplied);
     }
   }
 
   Future<void> _manageTools() async {
     final selected = model.selectedMethod;
     if (selected == null) return;
-    await showMethodTools(context, widget.repository, selected);
+    await showMethodTools(context, services.repository, selected);
     if (!mounted) return;
     await model.reloadTools();
   }
@@ -246,7 +222,7 @@ class _BrewFormState extends State<BrewForm> {
   /// brew with it.
   Future<void> _importShot(BrewMethod method) async {
     if (method.machine == 'gaggimate') {
-      final imported = await widget.repository.importedGaggimateShots();
+      final imported = await services.repository.importedGaggimateShots();
       if (!mounted) return;
       final shot = await pickGaggimateShot(
         context,
@@ -258,7 +234,7 @@ class _BrewFormState extends State<BrewForm> {
       }
       return;
     }
-    final imported = await widget.repository.importedMeticulousShots();
+    final imported = await services.repository.importedMeticulousShots();
     if (!mounted) return;
     final shot = await pickMeticulousShot(
       context,
@@ -271,7 +247,7 @@ class _BrewFormState extends State<BrewForm> {
   /// Shows the latest free pour on the Meticulous's scale and fills the
   /// filter brew with it.
   Future<void> _importFreePour(String address) async {
-    final imported = await widget.repository.importedMeticulousFreePours();
+    final imported = await services.repository.importedMeticulousFreePours();
     if (!mounted) return;
     final pour = await pickMeticulousFreePour(
       context,
@@ -282,7 +258,7 @@ class _BrewFormState extends State<BrewForm> {
   }
 
   Future<void> save() async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     if (!model.isEspresso && !draft.hasValidPourDetails) {
       draft.pours.detailsExpanded = true;
       await WidgetsBinding.instance.endOfFrame;
@@ -337,7 +313,7 @@ class _BrewFormState extends State<BrewForm> {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: model,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       final draft = model.draft;
       final recipeInputs = Listenable.merge([draft.dose, draft.water]);
       Widget result() => ListenableBuilder(
@@ -352,7 +328,7 @@ class _BrewFormState extends State<BrewForm> {
         builder: (_, _) => BrewResultSection(
           model: model,
           finalWeightKey: _finalWeightKey,
-          photos: widget.photos,
+          photos: services.photos,
           previousYield: _previousBrewYieldReference(s),
         ),
       );

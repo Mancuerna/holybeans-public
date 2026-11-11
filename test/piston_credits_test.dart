@@ -5,6 +5,7 @@ import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/equipment/piston/piston_credits.dart';
 import 'package:holybeans/ui/settings/settings_page.dart';
 
@@ -106,8 +107,10 @@ void main() {
               onExportBackup: () async {},
               onExportCsv: () {},
               onImportBackup: () async {},
-              parameterSettings: BrewParameterSettings(db),
-              templateSettings: ShareTemplateSettings(db),
+              services: AppServices.forPreferences(
+                BrewParameterSettings(db),
+                templateSettings: ShareTemplateSettings(db),
+              ),
             ),
           ),
         );

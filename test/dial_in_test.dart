@@ -6,6 +6,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/dial_in_card.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
@@ -90,7 +91,10 @@ Future<Finder> _openKenyaV60(
     await repository.setBrewFavorite(best, favorite: true);
   }
   await tester.pumpWidget(
-    HolyBeansApp(database: database, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: database),
+      initialLocale: const Locale('en'),
+    ),
   );
   await tester.pumpAndSettle();
   final bounds = tester.getRect(find.byType(NavigationBar));
@@ -165,7 +169,7 @@ void main() {
           );
           final strings = AppLocalizations.of(
             tester.element(find.byType(DialInCard)),
-          )!;
+          );
           final label = tester
               .widget<Text>(find.byKey(const ValueKey('brew-dial-in-latest')))
               .data;

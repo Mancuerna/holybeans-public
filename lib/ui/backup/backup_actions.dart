@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
+import 'package:holybeans/data/repositories/brew_csv.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/data/services/journal_restore.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/auto_backup.dart';
-import 'package:holybeans/domain/brew_csv.dart';
 import 'package:holybeans/domain/pre_migration.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/backup/backup_center.dart';
@@ -37,7 +37,7 @@ class BackupActions {
   final void Function(String text) message;
 
   Future<void> exportBackup(BuildContext context) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       // A ZIP carries the journal and its photos together.
       final bytes = await backup.exportArchive(photos);
@@ -58,7 +58,7 @@ class BackupActions {
 
   /// Saves today's copy to the chosen folder.
   Future<void> saveToFolder(BuildContext context) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       await center.saveToFolder();
       message(s.backupFolderSaved(center.state.folderName ?? ''));
@@ -70,7 +70,7 @@ class BackupActions {
 
   /// Picks the folder for daily copies and saves the first one there.
   Future<void> chooseFolder(BuildContext context) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       if (await center.chooseFolder()) {
         message(s.backupFolderSaved(center.state.folderName ?? ''));
@@ -83,7 +83,7 @@ class BackupActions {
 
   /// Shares every brew as a CSV file for spreadsheets.
   Future<void> exportBrewsCsv(BuildContext context) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       final csv = brewsCsv(
         brews: await repository.allBrews(),
@@ -108,7 +108,7 @@ class BackupActions {
     BuildContext context, {
     Future<XFile?> Function()? pickFile,
   }) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       const backupTypes = XTypeGroup(
         label: 'HolyBeans',
@@ -147,7 +147,7 @@ class BackupActions {
     BuildContext context,
     AutoBackupEntry entry,
   ) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final services = center.services;
     if (services == null) return;
     try {
@@ -180,7 +180,7 @@ class BackupActions {
     BuildContext context,
     PreMigrationCopy copy,
   ) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final copies = center.services?.preMigration;
     if (copies == null) return;
     try {
@@ -207,7 +207,7 @@ class BackupActions {
     BuildContext context,
     BackupSummary summary,
   ) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(

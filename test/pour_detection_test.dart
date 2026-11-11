@@ -69,7 +69,7 @@ void main() {
       (null, 11, null),
     ]) {
       test('counts $blooms + $pours give $expected', () {
-        final found = poursToFill(
+        final found = brewPoursFromCurve(
           builder.curve,
           doseGrams: 15,
           bloomCount: blooms,

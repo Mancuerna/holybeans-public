@@ -1,17 +1,47 @@
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/domain/brew_ratio.dart';
-import 'package:holybeans/domain/brew_stats.dart';
+
+typedef ExportBrew = ({
+  int? acidity,
+  int? aftertaste,
+  int? archivedAtMs,
+  double? beverageGrams,
+  int? bitterness,
+  int? bloomSeconds,
+  int? body,
+  int brewedAtMs,
+  double? brix,
+  double? brixFactor,
+  String? coffeeName,
+  double? cost,
+  double? doseGrams,
+  int? feederRpm,
+  int? firstDripSeconds,
+  int? grindRpm,
+  String? grindSetting,
+  String? grinderName,
+  bool isPreGround,
+  String methodName,
+  String? notes,
+  int? preinfusionSeconds,
+  double? pressureBar,
+  String? profileName,
+  double? rating,
+  String? roastLevel,
+  String? roaster,
+  int? sweetness,
+  int? tasteBalance,
+  int? tasteStrength,
+  double? tdsPercent,
+  double? temperatureC,
+  int? timeSeconds,
+  double? waterGrams,
+  String? waterProfileName,
+});
 
 /// All brews, archived ones included, as CSV for spreadsheets: one row per
 /// brew, oldest first, local times, dots as decimal separators and a UTF-8
 /// byte order mark so spreadsheet apps read accents correctly.
-String brewsCsv({
-  required List<Brew> brews,
-  required List<Coffee> coffees,
-  required List<CoffeeLot> lots,
-}) {
-  final coffeeById = {for (final coffee in coffees) coffee.id: coffee};
-  final prices = pricePerKgByCoffee(coffees, lots);
+String brewRecordsCsv(List<ExportBrew> brews) {
   String two(int value) => value.toString().padLeft(2, '0');
   String number(num? value) {
     if (value == null) return '';
@@ -68,15 +98,14 @@ String brewsCsv({
     header,
     for (final brew in sorted)
       () {
-        final coffee = coffeeById[brew.coffeeId];
         final at = DateTime.fromMillisecondsSinceEpoch(brew.brewedAtMs);
         final date = '${at.year}-${two(at.month)}-${two(at.day)}';
         final time = '${two(at.hour)}:${two(at.minute)}';
         return [
           '$date $time',
-          text(coffee?.name),
-          text(coffee?.roaster),
-          text(coffee?.roastLevel),
+          text(brew.coffeeName),
+          text(brew.roaster),
+          text(brew.roastLevel),
           text(brew.methodName),
           text(brew.profileName),
           brew.isPreGround ? 'pre-ground' : text(brew.grinderName),
@@ -92,7 +121,13 @@ String brewsCsv({
           number(brew.bloomSeconds),
           number(brew.firstDripSeconds),
           number(brew.tdsPercent),
-          number(brewExtractionYield(brew)),
+          number(
+            extractionYieldPercent(
+              doseGrams: brew.doseGrams,
+              beverageGrams: brew.beverageGrams,
+              tdsPercent: brew.tdsPercent,
+            ),
+          ),
           number(brew.rating),
           number(brew.tasteBalance),
           number(brew.tasteStrength),
@@ -101,7 +136,7 @@ String brewsCsv({
           number(brew.bitterness),
           number(brew.body),
           number(brew.aftertaste),
-          number(brewCost(brew, prices)),
+          number(brew.cost),
           text(brew.waterProfileName),
           text(brew.notes),
           brew.archivedAtMs == null ? '' : 'yes',

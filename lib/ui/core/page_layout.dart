@@ -89,7 +89,7 @@ class SearchField extends StatelessWidget {
       suffixIcon: controller.text.isEmpty
           ? null
           : IconButton(
-              tooltip: AppLocalizations.of(context)!.clearSearch,
+              tooltip: AppLocalizations.of(context).clearSearch,
               onPressed: controller.clear,
               icon: const Icon(Icons.clear_rounded),
             ),
@@ -110,7 +110,7 @@ class DensityToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context)!;
+    final strings = AppLocalizations.of(context);
     return IconButton(
       // The tooltip names the action, so no separate toggle node is needed
       // (a bare Semantics(toggled:) was read as an unlabeled switch).

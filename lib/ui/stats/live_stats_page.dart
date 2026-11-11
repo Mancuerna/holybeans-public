@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/domain/brew_stats.dart';
-import 'package:holybeans/domain/stock.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
+import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
 import 'package:holybeans/ui/stats/stats_page.dart';
@@ -19,7 +18,7 @@ class LiveStatsPage extends StatefulWidget {
     required this.components,
   });
 
-  final JournalActions actions;
+  final JournalRead actions;
   final List<Coffee> coffees;
   final List<Brew> brews;
   final List<CoffeeLot> lots;
@@ -30,11 +29,11 @@ class LiveStatsPage extends StatefulWidget {
 }
 
 class _LiveStatsPageState extends State<LiveStatsPage> {
-  late final _coffees = widget.actions.repository.watchCoffees(
+  late final _coffees = widget.actions.queries.watchCoffees(
     includeArchived: true,
   );
-  late final _brews = widget.actions.repository.reads.watchAnalytics();
-  late final _lots = widget.actions.repository.watchLots();
+  late final _brews = widget.actions.queries.watchAnalytics();
+  late final _lots = widget.actions.queries.watchLots();
 
   /// Grams of the coffees still in use: a finished coffee's leftovers are
   /// not stock, as on Home.
@@ -61,11 +60,11 @@ class _LiveStatsPageState extends State<LiveStatsPage> {
           if (!brewSnapshot.hasData || brewSnapshot.hasError) {
             return Scaffold(
               appBar: AppBar(
-                title: Text(AppLocalizations.of(context)!.statsTitle),
+                title: Text(AppLocalizations.of(context).statsTitle),
               ),
               body: Center(
                 child: brewSnapshot.hasError
-                    ? Text(AppLocalizations.of(context)!.dataError)
+                    ? Text(AppLocalizations.of(context).dataError)
                     : const CircularProgressIndicator(),
               ),
             );
@@ -75,9 +74,9 @@ class _LiveStatsPageState extends State<LiveStatsPage> {
           return StatsPage(
             photos: widget.actions.photos,
             photoOf: (brew) async =>
-                (await widget.actions.repository.brewPhotos(brew.id))
+                (await widget.actions.queries.brewPhotos(brew.id))
                     .firstOrNull ??
-                (await widget.actions.repository.coffeePhotos(brew.coffeeId))
+                (await widget.actions.queries.coffeePhotos(brew.coffeeId))
                     .firstOrNull,
             coffees: coffees,
             brews: brewSnapshot.data!,

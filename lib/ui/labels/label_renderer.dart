@@ -344,7 +344,7 @@ class _LabelPreviewState extends State<LabelPreview> {
                     if (snapshot.hasError) {
                       return Center(
                         child: Text(
-                          AppLocalizations.of(context)!.labelExportFailed,
+                          AppLocalizations.of(context).labelExportFailed,
                         ),
                       );
                     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -8,7 +9,6 @@ import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
-import 'package:intl/intl.dart';
 
 /// A coffee at hand on Home: what is left, where it stands in its freshness
 /// window and the recipe Repeat starts from (its favourite, else its last
@@ -23,6 +23,7 @@ class HomeCoffeeTile extends StatelessWidget {
     required this.seed,
     required this.data,
     required this.actions,
+    required this.journal,
     this.low = false,
   });
 
@@ -33,14 +34,15 @@ class HomeCoffeeTile extends StatelessWidget {
   /// The brew Repeat and Adjust start from; null if never brewed.
   final Brew? seed;
   final JournalData data;
-  final JournalActions actions;
+  final JournalNavigation actions;
+  final JournalRead journal;
 
   /// Fewer than two doses left: the grams take the warning colour.
   final bool low;
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final muted = theme.textTheme.bodySmall?.copyWith(
@@ -121,6 +123,7 @@ class HomeCoffeeTile extends StatelessWidget {
                   coffee: coffee,
                   data: data,
                   actions: actions,
+                  journal: journal,
                 )
               else
                 Row(
@@ -153,7 +156,7 @@ class _Freshness extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final timing = freshnessTimeLabel(s, freshness.window, freshness.day);
     final label = [freshnessPhaseLabel(s, freshness.phase), ?timing].join(', ');
@@ -196,23 +199,25 @@ class _Recipe extends StatelessWidget {
     required this.coffee,
     required this.data,
     required this.actions,
+    required this.journal,
   });
 
   final Brew brew;
   final Coffee coffee;
   final JournalData data;
-  final JournalActions actions;
+  final JournalNavigation actions;
+  final JournalRead journal;
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final parts = brewRecipeParts(
       brew,
-      actions.methods,
+      journal.methods,
       regionalLocale.toString(),
-      hidden: actions.hiddenParameters,
+      hidden: journal.hiddenParameters,
     );
     final when = relativeTimeInline(
       s,
@@ -244,10 +249,11 @@ class _Recipe extends StatelessWidget {
               ),
             ),
             TextSpan(
-              text: NumberFormat(
-                '0.#',
-                regionalLocale.toString(),
-              ).format(rating),
+              text: formatDecimal(
+                rating,
+                pattern: '0.#',
+                locale: regionalLocale.toString(),
+              ),
             ),
           ],
         ],

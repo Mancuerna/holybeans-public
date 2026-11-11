@@ -55,7 +55,7 @@ class _FilterWaterTargetsState extends State<FilterWaterTargets> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.waterTargetsSaveFailed),
+            content: Text(AppLocalizations.of(context).waterTargetsSaveFailed),
           ),
         );
       }
@@ -66,7 +66,7 @@ class _FilterWaterTargetsState extends State<FilterWaterTargets> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final format = NumberFormat('0.##', regionalLocale.toString());
     final steps = widget.plan.steps;
     final poured = widget.poured;

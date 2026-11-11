@@ -7,6 +7,7 @@ import 'package:holybeans/domain/pour_plan.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/pour_assistant/pour_assistant_page.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 import '../../test/helpers/fake_scale.dart';
@@ -47,13 +48,16 @@ Future<void> checkPourAssistant(
                 MaterialPageRoute<void>(
                   builder: (_) => Scaffold(
                     body: BrewForm(
-                      repository: repo,
-                      settings: BrewParameterSettings(db),
+                      services: AppServices.forJournal(
+                        repo,
+                        parameterSettings: BrewParameterSettings(db),
+                        scale: withScale ? scale : null,
+                      ),
+
                       coffees: coffees,
                       initialCoffeeId: coffee,
                       initialMethodId: method,
                       initialDoseGrams: 15,
-                      scale: withScale ? scale : null,
                     ),
                   ),
                 ),

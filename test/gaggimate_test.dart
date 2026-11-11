@@ -25,7 +25,6 @@ void main() {
       expect(shot.peakPressureBar, 9);
       expect(shot.temperatureC, 93);
       expect(shot.firstDripSeconds, 4);
-      expect(shot.preinfusionSeconds, isNull);
       expect(shot.curve!.timesMs, [0, 4000, 8000, 30000, 32000]);
       expect(shot.curve!.flow, everyElement(1.2)); // scale, not pump's 3 ml/s
       expect(shot.curve!.weight.last, 36.5);

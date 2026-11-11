@@ -5,6 +5,7 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 /// Two blooms of 50 g with 25 s rests and two pours of 90 g, then a swirl
@@ -69,7 +70,10 @@ Future<void> checkPoursFromCurves(
     brews.add(id);
   }
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: database, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: database),
+      initialLocale: const Locale('en'),
+    ),
   );
   await $.tap(
     find.descendant(

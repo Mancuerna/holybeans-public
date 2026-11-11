@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/services/drive_backups.dart';
-import 'package:holybeans/data/services/drive_sync_coordinator.dart';
+import 'package:holybeans/data/services/drive_sync_contracts.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/sync/drive_sync_model.dart';
@@ -31,7 +31,7 @@ class DriveSyncTile extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: model,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       return ListTile(
         leading: const Icon(Icons.cloud_sync_outlined),
         title: Text(s.driveSyncTitle),
@@ -56,7 +56,7 @@ class DriveSyncPage extends StatelessWidget {
     DriveBackupCopy? copy,
     bool disable = false,
   }) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final accepted = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -88,7 +88,7 @@ class DriveSyncPage extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: model,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       return PopScope(
         canPop: !model.restoring,
         child: Scaffold(

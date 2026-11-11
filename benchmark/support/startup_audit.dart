@@ -36,10 +36,10 @@ Future<void> runStartupAudit(WidgetTester tester, AuditRecord record) async {
         find.byType(app.HolyBeansApp),
       );
       // Never initiate device discovery, reminders, or remote backups here.
-      expect(running.driveSync?.enabled, isFalse);
+      expect(running.services.driveSync?.enabled, isFalse);
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpAndSettle();
-      await running.database.close();
+      await running.services.database.close();
     }
     record({
       'operation': 'real_main_to_loaded_shell',

@@ -20,7 +20,7 @@ class FilterBrewReadout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final number = NumberFormat('0.#', regionalLocale.toString());
     String grams(double? value) =>
         value == null ? '—' : '${number.format(value)} g';

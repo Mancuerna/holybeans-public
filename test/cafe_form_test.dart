@@ -243,7 +243,7 @@ void main() {
         expect(find.byType(AlertDialog), findsOneWidget);
         final s = AppLocalizations.of(
           tester.element(find.byType(CafeDrinkForm)),
-        )!;
+        );
         await tester.tap(find.text(s.keepEditing));
         await tester.pumpAndSettle();
         expect(tester.widget<TextFormField>(venue).controller!.text, 'My cafe');

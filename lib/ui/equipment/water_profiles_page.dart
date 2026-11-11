@@ -42,12 +42,12 @@ class _WaterProfilesListState extends State<WaterProfilesList> {
       existing: profile,
     );
     if (result != null && mounted) {
-      _message(AppLocalizations.of(context)!.waterProfileSaved);
+      _message(AppLocalizations.of(context).waterProfileSaved);
     }
   }
 
   Future<void> _archive(WaterProfile profile) async {
-    final strings = AppLocalizations.of(context)!;
+    final strings = AppLocalizations.of(context);
     try {
       await widget.repository.setWaterProfileArchived(
         profile.id,
@@ -69,7 +69,7 @@ class _WaterProfilesListState extends State<WaterProfilesList> {
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context)!;
+    final strings = AppLocalizations.of(context);
     return StreamBuilder<List<WaterProfile>>(
       stream: profiles,
       builder: (context, snapshot) {

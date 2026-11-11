@@ -14,7 +14,7 @@ Future<void> fillPoursFromCurves(
   required JournalRepository repository,
   required ValueChanged<String> message,
 }) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   final List<({Brew brew, BrewPours pours})> found;
   try {
     found = await repository.poursFromCurves();

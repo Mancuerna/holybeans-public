@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
@@ -7,16 +8,13 @@ import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/list_options_settings.dart';
 import 'package:holybeans/data/preferences/rate_reminder_settings.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
+import 'package:holybeans/data/repositories/freezer_repository.dart';
 import 'package:holybeans/data/repositories/freshness_calendar_data.dart';
+import 'package:holybeans/data/repositories/journal_mutations.dart';
+import 'package:holybeans/data/repositories/journal_queries.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/data/services/export_folder.dart';
-import 'package:holybeans/data/services/incoming_shares.dart';
-import 'package:holybeans/data/services/loffee_api.dart';
+import 'package:holybeans/data/repositories/stock_adjustment_repository.dart';
 import 'package:holybeans/data/services/photo_store.dart';
-import 'package:holybeans/data/services/pressure_sensor.dart';
-import 'package:holybeans/data/services/rate_reminders.dart';
-import 'package:holybeans/data/services/refractometer.dart';
-import 'package:holybeans/data/services/scale.dart';
 import 'package:holybeans/domain/app_shortcut.dart';
 import 'package:holybeans/domain/bean_exchange.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
@@ -45,6 +43,7 @@ import 'package:holybeans/ui/brews/history_tab.dart';
 import 'package:holybeans/ui/brews/share_template_exchange.dart';
 import 'package:holybeans/ui/brews/share_templates_page.dart';
 import 'package:holybeans/ui/cafes/cafes_page.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/core/lazy_indexed_stack.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -73,46 +72,12 @@ import 'package:holybeans/ui/stats/live_stats_page.dart';
 class JournalShell extends StatefulWidget {
   const JournalShell({
     super.key,
-    required this.database,
     this.locale,
     required this.onLocaleChanged,
-    this.photos,
-    this.reminders,
-    this.openRate,
-    this.scale,
-    this.pressureSensor,
-    this.refractometer,
-    this.exportFolder,
-    this.incoming,
-    this.loffee,
-    this.backupServices,
     this.driveTile,
   });
 
-  final AppDatabase database;
-  final PhotoStore? photos;
   final Widget? driveTile;
-
-  /// Automatic and folder copies; without them only manual backups remain.
-  final BackupServices? backupServices;
-  final RateReminders? reminders;
-
-  /// Bluetooth scale; without it the scale controls are hidden.
-  final Scale? scale;
-
-  /// Bluetooth pressure sensor; without it its controls are hidden.
-  final PressureSensor? pressureSensor;
-
-  /// Bluetooth refractometer; without it the TDS has no measure button.
-  final Refractometer? refractometer;
-
-  /// Reads another app's export folder; without it imports take a file.
-  final ExportFolder? exportFolder;
-
-  /// Coffee cards opened, shared or scanned into the app.
-  final IncomingShares? incoming;
-  final LoffeeServices? loffee;
-  final ValueNotifier<String?>? openRate;
 
   /// The explicitly chosen app locale, or null when following the system.
   final Locale? locale;
@@ -124,45 +89,52 @@ class JournalShell extends StatefulWidget {
 
 class _JournalShellState extends State<JournalShell>
     with SingleTickerProviderStateMixin
-    implements JournalActions {
+    implements JournalRead, JournalNavigation, JournalCommands {
+  late final services = AppServicesScope.read(context);
+  late final actions = JournalActions(
+    read: this,
+    navigation: this,
+    commands: this,
+  );
   @override
-  late final JournalRepository repository = JournalRepository(widget.database);
+  late final queries = JournalQueries(repository);
+  @override
+  late final mutations = JournalMutations(repository);
+  @override
+  FreezerRepository get freezer => repository.freezer;
+  @override
+  StockAdjustmentRepository get stockEdits => repository.stockEdits;
+  JournalRepository get repository => services.repository;
 
   @override
-  PhotoStore? get photos => widget.photos;
+  PhotoStore? get photos => services.photos;
 
   @override
   late final BackupCenter backupCenter = BackupCenter(
-    database: widget.database,
-    photos: widget.photos,
-    services: widget.backupServices,
+    database: services.database,
+    photos: services.photos,
+    services: services.backupServices,
   );
   late final BackupActions backups = BackupActions(
     center: backupCenter,
     repository: repository,
-    photos: widget.photos,
+    photos: services.photos,
     message: message,
   );
-  late final BrewParameterSettings parameterSettings = BrewParameterSettings(
-    widget.database,
-  );
-  late final RateReminderSettings reminderSettings = RateReminderSettings(
-    widget.database,
-  );
+  BrewParameterSettings get parameterSettings => services.parameterSettings;
+  RateReminderSettings get reminderSettings => services.reminderSettings;
 
   /// The live journal and the settings the tabs follow.
   late final JournalViewModel journal = JournalViewModel(
     repository: repository,
     parameterSettings: parameterSettings,
-    listOptionsSettings: ListOptionsSettings(widget.database),
+    listOptionsSettings: ListOptionsSettings(services.database),
   );
-  late final templateSettings = ShareTemplateSettings(widget.database);
+  @override
+  ShareTemplateSettings get templateSettings => services.templateSettings;
   late final brewActions = BrewActions(
     context: context,
-    repository: repository,
-    parameterSettings: parameterSettings,
-    templateSettings: templateSettings,
-    reminderSettings: reminderSettings,
+    services: services,
     methods: () => methods,
     message: message,
     showBeans: () => setState(() => tab = 1),
@@ -171,11 +143,6 @@ class _JournalShellState extends State<JournalShell>
       afterOverdraw: afterOverdraw,
       reason: reason,
     ),
-    photos: widget.photos,
-    scale: widget.scale,
-    pressureSensor: widget.pressureSensor,
-    refractometer: widget.refractometer,
-    reminders: widget.reminders,
   );
   late final TabController beanTabs = TabController(length: 3, vsync: this);
   final historyFilters = HistoryFilters();
@@ -234,13 +201,13 @@ class _JournalShellState extends State<JournalShell>
         );
       }),
     );
-    widget.openRate?.addListener(_openRateFromReminder);
+    services.openRate?.addListener(_openRateFromReminder);
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => _openRateFromReminder(),
     );
     backupCenter.start();
     surfaces.start();
-    if (widget.incoming case final incoming?) {
+    if (services.incoming case final incoming?) {
       _arrivals = incoming.arrivals.listen(_receiveCard);
       unawaited(
         incoming.takeLaunch().then((text) {
@@ -266,9 +233,9 @@ class _JournalShellState extends State<JournalShell>
       await runAppShortcut(
         context,
         shortcut,
-        actions: this,
+        actions: actions,
         journal: journal,
-        incoming: widget.incoming,
+        incoming: services.incoming,
       );
     } else if (isShareTemplateFile(text)) {
       final settings = templateSettings;
@@ -278,7 +245,7 @@ class _JournalShellState extends State<JournalShell>
         source: text,
       );
       if (imported != null && mounted) {
-        message(AppLocalizations.of(context)!.shareTemplateSaved);
+        message(AppLocalizations.of(context).shareTemplateSaved);
         await Navigator.of(context).push(
           MaterialPageRoute<void>(
             builder: (_) =>
@@ -287,18 +254,30 @@ class _JournalShellState extends State<JournalShell>
         );
       }
     } else {
-      await importBeansFromText(context, this, journal.coffees, text);
+      await importBeansFromText(context, actions, journal.coffees, text);
     }
   }
 
   @override
-  Future<void> addCoffeeFromCard(SharedBean card) async {
+  Future<void> addCoffeeFromCard(
+    SharedBean card, {
+    String? initialNotes,
+    String? roastLevelHint,
+    Future<Uint8List> Function()? importPhoto,
+  }) async {
     final saved = await showFormSheet<Object>(
       context,
-      CoffeeForm(repository: repository, photos: widget.photos, card: card),
+      CoffeeForm(
+        repository: repository,
+        photos: services.photos,
+        card: card,
+        initialNotes: initialNotes,
+        roastLevelHint: roastLevelHint,
+        importPhoto: importPhoto,
+      ),
     );
     if (saved != null && mounted) {
-      message(AppLocalizations.of(context)!.beanSaved);
+      message(AppLocalizations.of(context).beanSaved);
     }
   }
 
@@ -312,7 +291,7 @@ class _JournalShellState extends State<JournalShell>
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Shortcuts, widget and notice follow the app's language.
-    surfaces.relabel(surfaceLabels(AppLocalizations.of(context)!));
+    surfaces.relabel(surfaceLabels(AppLocalizations.of(context)));
   }
 
   @override
@@ -321,7 +300,7 @@ class _JournalShellState extends State<JournalShell>
     unawaited(_arrivals?.cancel());
     journal.dispose();
     backupCenter.dispose();
-    widget.openRate?.removeListener(_openRateFromReminder);
+    services.openRate?.removeListener(_openRateFromReminder);
     beanTabs.dispose();
     floatingExtension.dispose();
     surfaces.dispose();
@@ -356,28 +335,28 @@ class _JournalShellState extends State<JournalShell>
         existing: existing,
         components: components,
         lots: lots,
-        photos: widget.photos,
+        photos: services.photos,
         savedPhotos: savedPhotos,
       ),
     );
     if (saved is String && mounted) {
-      message(AppLocalizations.of(context)!.frozenSaved(saved));
+      message(AppLocalizations.of(context).frozenSaved(saved));
     } else if (saved == true && mounted) {
-      message(AppLocalizations.of(context)!.beanSaved);
+      message(AppLocalizations.of(context).beanSaved);
     }
   }
 
   Future<void> addMethod() async {
     final saved = await showMethodForm(context, repository);
     if (saved != null && mounted) {
-      message(AppLocalizations.of(context)!.methodSaved);
+      message(AppLocalizations.of(context).methodSaved);
     }
   }
 
   Future<void> addGrinder() async {
     final saved = await showGrinderForm(context, repository);
     if (saved != null && mounted) {
-      message(AppLocalizations.of(context)!.grinderSaved);
+      message(AppLocalizations.of(context).grinderSaved);
     }
   }
 
@@ -393,7 +372,7 @@ class _JournalShellState extends State<JournalShell>
   Future<void> addWaterProfile() async {
     final saved = await showWaterProfileForm(context, repository);
     if (saved != null && mounted) {
-      message(AppLocalizations.of(context)!.waterProfileSaved);
+      message(AppLocalizations.of(context).waterProfileSaved);
     }
   }
 
@@ -401,11 +380,11 @@ class _JournalShellState extends State<JournalShell>
     final summary = await importFromBeanconqueror(
       context,
       repository: repository,
-      photos: widget.photos,
-      folder: widget.exportFolder,
+      photos: services.photos,
+      folder: services.exportFolder,
     );
     if (summary == null || !mounted) return;
-    message(bqSummaryMessage(AppLocalizations.of(context)!, summary));
+    message(bqSummaryMessage(AppLocalizations.of(context), summary));
   }
 
   void openSettings() {
@@ -429,21 +408,14 @@ class _JournalShellState extends State<JournalShell>
             ],
           ),
           onImportBeanconqueror: _importBeanconqueror,
-          onConfigureLoffee: widget.loffee == null
+          onConfigureLoffee: services.loffee == null
               ? null
-              : () => configureLoffeeKey(context, widget.loffee!.keys),
+              : () => configureLoffeeKey(context, services.loffee!.keys),
           onFillPoursFromCurves: () => fillPoursFromCurves(
             context,
             repository: repository,
             message: message,
           ),
-          parameterSettings: parameterSettings,
-          templateSettings: templateSettings,
-          reminders: widget.reminders,
-          reminderSettings: reminderSettings,
-          scale: widget.scale,
-          pressureSensor: widget.pressureSensor,
-          refractometer: widget.refractometer,
         ),
       ),
     );
@@ -457,7 +429,7 @@ class _JournalShellState extends State<JournalShell>
   ) => Navigator.of(context).push(
     MaterialPageRoute<void>(
       builder: (_) => LiveStatsPage(
-        actions: this,
+        actions: actions.read,
         coffees: coffees,
         brews: brews,
         lots: lots,
@@ -500,9 +472,9 @@ class _JournalShellState extends State<JournalShell>
 
   /// Opens the rate sheet for a brew whose reminder was tapped.
   Future<void> _openRateFromReminder() async {
-    final brewId = widget.openRate?.value;
+    final brewId = services.openRate?.value;
     if (brewId == null || !mounted) return;
-    widget.openRate!.value = null;
+    services.openRate!.value = null;
     final brew = await repository.brew(brewId);
     if (brew == null || !mounted) return;
     final coffee = await repository.coffee(brew.coffeeId);
@@ -527,15 +499,15 @@ class _JournalShellState extends State<JournalShell>
 
   @override
   void showCoffeeDetails(Coffee coffee, JournalData data) =>
-      showCoffeeDetailsSheet(context, this, coffee, data);
+      showCoffeeDetailsSheet(context, actions, coffee, data);
 
   @override
   void showBrewDetails(Brew brew, Coffee? coffee, JournalData data) =>
-      showBrewDetailsSheet(context, this, brew, coffee, data);
+      showBrewDetailsSheet(context, actions, brew, coffee, data);
 
   @override
   Future<void> compareBrew(Brew brew, JournalData data) =>
-      showBrewComparison(context, this, brew, data);
+      showBrewComparison(context, actions, brew, data);
 
   @override
   void showAllBeans() => setState(() {
@@ -577,7 +549,7 @@ class _JournalShellState extends State<JournalShell>
       ),
     );
     if (decision == null || !mounted) return false;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       await repository.setCoffeeArchived(
         coffee.id,
@@ -597,7 +569,7 @@ class _JournalShellState extends State<JournalShell>
   Future<void> addTool() async {
     final saved = await showToolForm(context, repository);
     if (saved != null && mounted) {
-      message(AppLocalizations.of(context)!.toolSaved);
+      message(AppLocalizations.of(context).toolSaved);
     }
   }
 
@@ -632,14 +604,14 @@ class _JournalShellState extends State<JournalShell>
 
   @override
   void showRoasters({String? roaster}) =>
-      openRoasters(context, journal, this, roaster: roaster);
+      openRoasters(context, journal, actions.navigation, roaster: roaster);
 
   Widget _tabs(JournalData data) {
     final children = [
-      HomeTab(data: data, actions: this),
+      HomeTab(data: data, actions: actions),
       BeansTab(
         data: data,
-        actions: this,
+        actions: actions,
         tabs: beanTabs,
         onOpenCalendar: () => Navigator.of(context).push<void>(
           MaterialPageRoute(
@@ -657,7 +629,7 @@ class _JournalShellState extends State<JournalShell>
       ),
       HistoryTab(
         data: data,
-        actions: this,
+        actions: actions,
         filters: historyFilters,
         options: journal.listOptions,
         onOptionsChanged: journal.changeListOptions,
@@ -709,7 +681,7 @@ class _JournalShellState extends State<JournalShell>
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: journal,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       final (fabLabel, fabAction) = _floatingAction(s);
       // Back from another tab returns to Home instead of leaving the app.
       return PopScope(
@@ -726,7 +698,7 @@ class _JournalShellState extends State<JournalShell>
               MaterialPageRoute(
                 builder: (_) => CafesPage(
                   repository: repository.cafes,
-                  photos: widget.photos,
+                  photos: services.photos,
                 ),
               ),
             ),
@@ -764,16 +736,16 @@ class _JournalShellState extends State<JournalShell>
                       onManual: addCoffee,
                       actions: beanImportActions(
                         context,
-                        this,
+                        actions,
                         journal.coffees,
-                        widget.incoming,
-                        searchLoffee: widget.loffee == null
+                        services.incoming,
+                        searchLoffee: services.loffee == null
                             ? null
                             : () => importLoffeeBean(
                                 context,
-                                this,
+                                actions,
                                 journal.coffees,
-                                widget.loffee!,
+                                services.loffee!,
                               ),
                       ),
                     )

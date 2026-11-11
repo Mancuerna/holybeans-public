@@ -16,7 +16,7 @@ Future<void> openCupping(
   JournalRepository repository, {
   CuppingSession? session,
 }) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   try {
     session ??= await repository.cuppingSession(
       await repository.createCuppingSession(CuppingDraft()),
@@ -67,7 +67,7 @@ class _CuppingPageState extends State<CuppingPage> with WidgetsBindingObserver {
   }
 
   Future<void> _confirmReveal() async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -137,7 +137,7 @@ class _CuppingPageState extends State<CuppingPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return PopScope(
       canPop: allowPop,
       onPopInvokedWithResult: (didPop, _) {
@@ -215,7 +215,7 @@ class CuppingClock extends StatelessWidget {
   final CuppingModel model;
 
   Future<void> _editTarget(BuildContext context, bool infusion) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     var input = formatCuppingDuration(
       infusion ? model.draft.crustSeconds : model.draft.tastingSeconds,
     );
@@ -270,7 +270,7 @@ class CuppingClock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final infusion = model.draft.phase == CuppingPhase.infusion;
     final target = infusion
         ? model.draft.crustSeconds
@@ -360,7 +360,7 @@ class _CuppingGuideButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return IconButton(
       tooltip: s.cuppingGuide,
       icon: const Icon(Icons.help_outline),
@@ -389,7 +389,7 @@ class _CuppingErrorBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Material(
       color: Theme.of(context).colorScheme.errorContainer,
       child: Padding(
@@ -434,7 +434,7 @@ class _CuppingActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),

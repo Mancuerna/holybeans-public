@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/domain/brew_ratio.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
-import 'package:intl/intl.dart';
 
 class BrewRatioSlider extends StatefulWidget {
   const BrewRatioSlider({
@@ -43,7 +43,7 @@ class _BrewRatioSliderState extends State<BrewRatioSlider> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final espresso = widget.espresso;
     final selected = _selected;
     final min = espresso ? 1.0 : 12.0;
@@ -108,7 +108,7 @@ class _BrewRatioSliderState extends State<BrewRatioSlider> {
         if (espresso)
           Text(
             '${s.brewTargetBeverage}: '
-            '${target == null ? '—' : '${NumberFormat('0.#', regionalLocale.toString()).format(target)} g'}',
+            '${target == null ? '—' : '${formatDecimal(target, pattern: '0.#', locale: regionalLocale.toString())} g'}',
             key: const ValueKey('brew-ratio-target'),
           ),
       ],

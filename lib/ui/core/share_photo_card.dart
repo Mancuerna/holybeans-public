@@ -43,7 +43,7 @@ class SharePhotoCard extends StatelessWidget {
                 fit: BoxFit.contain,
                 errorBuilder: (_, error, stack) => Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Text(AppLocalizations.of(context)!.photoFailed),
+                  child: Text(AppLocalizations.of(context).photoFailed),
                 ),
               ),
             )

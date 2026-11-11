@@ -78,7 +78,7 @@ class _LabelEditorState extends State<LabelEditor> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final keyboardOpen = widget.keyboardInset > 0;
     final availableHeight =
         (MediaQuery.sizeOf(context).height -

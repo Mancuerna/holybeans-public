@@ -27,7 +27,7 @@ Map<WaterSalt, double> adjustWater({
   ];
   if (allowPartial) {
     for (var group = 0; group < 2; group++) {
-      if (!allowed.any((salt) => (salt.index < 3 ? 0 : 1) == group)) {
+      if (!allowed.any((salt) => (salt.contributesGh ? 0 : 1) == group)) {
         deficits[group] = 0;
       }
     }
@@ -35,7 +35,7 @@ Map<WaterSalt, double> adjustWater({
   const salts = WaterSalt.values;
   final factors = [
     for (final salt in salts)
-      salt.index < 3
+      salt.contributesGh
           ? saltContribution(salt, calcium, 1).gh!
           : saltContribution(salt, calcium, 1).kh!,
   ];
@@ -73,7 +73,9 @@ Map<WaterSalt, double> adjustWater({
         if ((mask & (1 << i)) != 0) i,
     ];
     if (active.any(
-      (i) => !allowed.contains(salts[i]) || deficits[i < 3 ? 0 : 1] < 1e-10,
+      (i) =>
+          !allowed.contains(salts[i]) ||
+          deficits[salts[i].contributesGh ? 0 : 1] < 1e-10,
     )) {
       continue;
     }
@@ -81,7 +83,11 @@ Map<WaterSalt, double> adjustWater({
       for (var g = 0; g < 2; g++)
         if (deficits[g] >= 1e-10) g,
     ];
-    if (groups.any((g) => !active.any((i) => (i < 3 ? 0 : 1) == g))) continue;
+    if (groups.any(
+      (g) => !active.any((i) => (salts[i].contributesGh ? 0 : 1) == g),
+    )) {
+      continue;
+    }
     if (active.isEmpty) {
       best = List.filled(5, 0);
       break;
@@ -96,7 +102,9 @@ Map<WaterSalt, double> adjustWater({
         matrix[a][c] = q[active[a]][active[c]];
       }
       for (var g = 0; g < groups.length; g++) {
-        final value = (active[a] < 3 ? 0 : 1) == groups[g] ? 1.0 : 0.0;
+        final value = (salts[active[a]].contributesGh ? 0 : 1) == groups[g]
+            ? 1.0
+            : 0.0;
         matrix[a][n + g] = value;
         matrix[n + g][a] = value;
       }
@@ -143,8 +151,8 @@ Map<WaterSalt, double> adjustWaterMixture({
   required WaterSalt khSource,
   Set<WaterSalt> allowed = const {...WaterSalt.values},
 }) {
-  if (magnesiumSource.index > 1 ||
-      khSource.index < 3 ||
+  if (magnesiumSource.group != WaterSaltGroup.magnesium ||
+      khSource.contributesGh ||
       !litres.isFinite ||
       litres <= 0 ||
       base.kh == null ||
@@ -214,21 +222,21 @@ Map<WaterSalt, double> adjustWaterToIons({
       goals.contains(null)) {
     throw ArgumentError('Missing primary water composition');
   }
-  int group(int i) => i < 2
-      ? 0
-      : i == 2
-      ? 1
-      : 2;
+  int group(WaterSalt salt) => switch (salt.group) {
+    WaterSaltGroup.magnesium => 0,
+    WaterSaltGroup.calcium => 1,
+    WaterSaltGroup.alkalinity => 2,
+  };
   final deficits = [
     for (var g = 0; g < 3; g++)
-      allowed.any((s) => group(s.index) == g)
+      allowed.any((s) => group(s) == g)
           ? math.max(0.0, goals[g]! - initial[g]!)
           : 0.0,
   ];
   const salts = WaterSalt.values;
   final factors = [
     for (final salt in salts)
-      switch (group(salt.index)) {
+      switch (group(salt)) {
         0 => saltContribution(salt, calcium, 1)[WaterIon.magnesium]!,
         1 => saltContribution(salt, calcium, 1)[WaterIon.calcium]!,
         _ => saltContribution(salt, calcium, 1).kh!,
@@ -258,7 +266,7 @@ Map<WaterSalt, double> adjustWaterToIons({
         if (mask & (1 << i) != 0) i,
     ];
     if (active.any(
-      (i) => !allowed.contains(salts[i]) || deficits[group(i)] < 1e-10,
+      (i) => !allowed.contains(salts[i]) || deficits[group(salts[i])] < 1e-10,
     )) {
       continue;
     }
@@ -266,7 +274,7 @@ Map<WaterSalt, double> adjustWaterToIons({
       for (var g = 0; g < 3; g++)
         if (deficits[g] >= 1e-10) g,
     ];
-    if (groups.any((g) => !active.any((i) => group(i) == g))) continue;
+    if (groups.any((g) => !active.any((i) => group(salts[i]) == g))) continue;
     if (active.isEmpty) {
       best = List.filled(5, 0);
       break;
@@ -286,7 +294,7 @@ Map<WaterSalt, double> adjustWaterToIons({
       }
       matrix[a][a] += 1e-9;
       for (var g = 0; g < groups.length; g++) {
-        final coefficient = group(active[a]) == groups[g] ? 1.0 : 0.0;
+        final coefficient = group(salts[active[a]]) == groups[g] ? 1.0 : 0.0;
         matrix[a][n + g] = coefficient;
         matrix[n + g][a] = coefficient;
       }

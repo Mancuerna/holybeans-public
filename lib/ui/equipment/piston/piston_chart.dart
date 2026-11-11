@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/domain/meticulous/piston_analysis.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -31,7 +32,7 @@ class _PistonChartState extends State<PistonChart> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final locale = regionalLocale.toString();
     final value = NumberFormat('0.000', locale);
     final unit = widget.speed ? 'mm/s' : 'A';
@@ -179,7 +180,7 @@ class _PistonPainter extends CustomPainter {
         Paint()..color = colors.outlineVariant.withValues(alpha: .5),
       );
       label(
-        NumberFormat('0.00', locale).format(v),
+        formatDecimal(v, pattern: '0.00', locale: locale),
         Offset(left - 6, y(v) - 6),
         end: true,
       );

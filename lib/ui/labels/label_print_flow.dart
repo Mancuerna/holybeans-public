@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/label_output_preferences.dart';
-import 'package:holybeans/data/preferences/share_template_settings.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/label_printer.dart';
 import 'package:holybeans/data/services/label_printer_cleanup.dart';
 import 'package:holybeans/data/services/marklife_printer.dart';
@@ -19,16 +17,16 @@ Future<void> showCoffeeLabelPage(
   Coffee coffee,
 ) async {
   final printers = <LabelPrinter>[];
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   try {
-    final repository = actions.repository;
-    final settings = ShareTemplateSettings(repository.database);
+    final repository = actions.read.queries;
+    final settings = actions.commands.templateSettings;
     final components = await repository.coffeeComponents(coffee.id);
     final lots = await repository.coffeeLots(coffee.id);
     final configuration = await settings.load();
     final outputPreferences = await LabelOutputPreferences.open();
     final lotIds = lots.map((l) => l.id).toSet();
-    final portions = actions.portions
+    final portions = actions.read.portions
         .where(
           (p) =>
               lotIds.contains(p.lotId) &&
@@ -70,7 +68,7 @@ Future<void> showCoffeeLabelPage(
     );
   } catch (error, stack) {
     reportError(error, stack);
-    actions.message(s.labelOpenFailed);
+    actions.navigation.message(s.labelOpenFailed);
   } finally {
     await closeLabelPrinters(printers);
   }

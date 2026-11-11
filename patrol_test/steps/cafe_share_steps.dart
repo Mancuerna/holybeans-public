@@ -10,6 +10,7 @@ import 'package:holybeans/data/repositories/cafe_repository.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/cafe_journal.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 Future<void> checkCafeShare(PatrolIntegrationTester $, AppDatabase db) async {
@@ -58,8 +59,7 @@ Future<void> checkCafeShare(PatrolIntegrationTester $, AppDatabase db) async {
   try {
     await $.pumpWidgetAndSettle(
       HolyBeansApp(
-        database: db,
-        photos: photos,
+        services: AppServices(database: db, photos: photos),
         initialLocale: const Locale('en'),
       ),
     );

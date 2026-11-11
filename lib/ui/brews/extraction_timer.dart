@@ -65,7 +65,7 @@ class _ExtractionTimerFieldState extends State<ExtractionTimerField> {
   String? _validate(String? value, {int? maximum}) =>
       isValidBrewDurationPart(value, maximum: maximum)
       ? null
-      : AppLocalizations.of(context)!.invalidDuration;
+      : AppLocalizations.of(context).invalidDuration;
 
   @override
   void dispose() {
@@ -77,7 +77,7 @@ class _ExtractionTimerFieldState extends State<ExtractionTimerField> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final timer = widget.timer;
     return ListenableBuilder(
       listenable: timer,

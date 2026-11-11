@@ -6,6 +6,7 @@ import 'package:holybeans/ui/beans/bean_card.dart';
 import 'package:holybeans/ui/beans/beans_tab.dart';
 import 'package:holybeans/ui/brews/brew_card.dart';
 import 'package:holybeans/ui/brews/history_tab.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/page_layout.dart';
 import 'package:holybeans/ui/core/swipe_actions.dart';
 
@@ -63,7 +64,10 @@ void main() {
       );
     }
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     await tapBottomDestination(tester, 2);
@@ -100,7 +104,10 @@ void main() {
       await repository.setCoffeeArchived(coffeeId, archived: true);
     }
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     await tapBottomDestination(tester, 1);

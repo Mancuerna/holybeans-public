@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:holybeans/data/services/journal_write_gate.dart';
+import 'package:holybeans/data/database/journal_write_gate.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 
 String journalWriteErrorText(
@@ -8,7 +8,7 @@ String journalWriteErrorText(
   String fallback,
 ) {
   if (error is! JournalReadOnlyException) return fallback;
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   return s.driveWriteChecking;
 }
 
@@ -19,7 +19,7 @@ void showOperationError(BuildContext context, Object error, String fallback) {
         .showSnackBar(SnackBar(content: Text(fallback)));
     return;
   }
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   final message = journalWriteErrorText(context, error, fallback);
   showDialog<void>(
     context: context,

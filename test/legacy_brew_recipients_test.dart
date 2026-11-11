@@ -235,6 +235,7 @@ void main() {
         Uint8List.fromList(utf8.encode(jsonEncode(export))),
       ),
       await repository.beanconquerorJournal(),
+      now: DateTime.utc(2026),
     );
     await repository.importBeanconqueror(plan);
 

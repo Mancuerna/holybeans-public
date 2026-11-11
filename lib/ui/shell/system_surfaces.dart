@@ -96,9 +96,9 @@ Future<void> runAppShortcut(
   final last = journal.latestUsableBrew;
   switch (shortcut) {
     case AppShortcut.brew:
-      await actions.openBrewForm(journal.coffees, seed: last);
+      await actions.navigation.openBrewForm(journal.coffees, seed: last);
     case AppShortcut.repeat:
-      await actions.openBrewForm(
+      await actions.navigation.openBrewForm(
         journal.coffees,
         seed: last,
         repeat: last != null,
@@ -107,7 +107,7 @@ Future<void> runAppShortcut(
       if (incoming == null) break;
       final text = await scanBeanQr(
         actions,
-        AppLocalizations.of(context)!,
+        AppLocalizations.of(context),
         incoming,
       );
       if (text != null && context.mounted) {

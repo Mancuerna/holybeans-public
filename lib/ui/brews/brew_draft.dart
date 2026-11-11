@@ -188,7 +188,7 @@ class BrewDraft {
     temperature.text = number(shot.temperatureC);
     pressure.text = number(shot.peakPressureBar);
     firstDrip.text = _integer(shot.firstDripSeconds);
-    preinfusion.text = _integer(shot.preinfusionSeconds);
+    preinfusion.clear();
     profile.text = shot.profileName;
     if (shot.doseGrams case final grams?) dose.text = fieldNumber(grams);
     if (shot.grindSetting case final grind?) grindSetting.text = grind;

@@ -51,7 +51,7 @@ class _FlavorNotesFieldState extends State<FlavorNotesField> {
   void _focusChanged() => setState(() {});
 
   String _newNote(String value) =>
-      flavorNoteLabel(value.trim(), AppLocalizations.of(context)!);
+      flavorNoteLabel(value.trim(), AppLocalizations.of(context));
 
   void _writeProfile() {
     // Include the unfinished note so Save and the exit guard see it immediately.
@@ -102,7 +102,7 @@ class _FlavorNotesFieldState extends State<FlavorNotesField> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final suggestions = _focus.hasFocus
         ? suggestFlavorNotes(_input.text, _notes)
         : const <FlavorDescriptor>[];

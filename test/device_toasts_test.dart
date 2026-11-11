@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/services/paired_device.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/device_toasts.dart';
 
 import 'helpers/fake_refractometer.dart';
@@ -37,10 +38,12 @@ void main() {
     addTearDown(refractometer.dispose);
     await tester.pumpWidget(
       HolyBeansApp(
-        database: database,
+        services: AppServices(
+          database: database,
+          scale: scale,
+          refractometer: refractometer,
+        ),
         initialLocale: const Locale('en'),
-        scale: scale,
-        refractometer: refractometer,
       ),
     );
     await tester.pump();
@@ -138,9 +141,8 @@ void main() {
     addTearDown(scale.dispose);
     await tester.pumpWidget(
       HolyBeansApp(
-        database: database,
+        services: AppServices(database: database, scale: scale),
         initialLocale: const Locale('en'),
-        scale: scale,
       ),
     );
     await tester.pump();

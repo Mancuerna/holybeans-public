@@ -7,24 +7,21 @@ import 'package:holybeans/app/startup_services.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/language_setting.dart';
-import 'package:holybeans/data/preferences/release_notes_settings.dart';
 import 'package:holybeans/data/services/export_folder.dart';
 import 'package:holybeans/data/services/incoming_shares.dart';
 import 'package:holybeans/data/services/loffee_api.dart';
 import 'package:holybeans/data/services/loffee_key_store.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/data/services/pressure_sensor.dart';
-import 'package:holybeans/data/services/rate_reminders.dart';
 import 'package:holybeans/data/services/refractometer.dart';
 import 'package:holybeans/data/services/scale.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
-import 'package:holybeans/ui/backup/backup_center.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/core/device_toasts.dart';
 import 'package:holybeans/ui/core/release_notes.dart';
 import 'package:holybeans/ui/shell/journal_shell.dart';
 import 'package:holybeans/ui/startup/startup_recovery.dart';
-import 'package:holybeans/ui/sync/drive_sync_model.dart';
 import 'package:holybeans/ui/sync/drive_sync_page.dart';
 import 'package:holybeans/ui/sync/drive_sync_scope.dart';
 
@@ -90,79 +87,34 @@ Future<Widget> prepareApp({
     () => services.releaseNotes(existingInstallation, launchBrew),
   );
   return HolyBeansApp(
-    database: database,
+    services: AppServices(
+      database: database,
+      photos: photos,
+      reminders: reminders,
+      openRate: openRate,
+      scale: scale,
+      pressureSensor: pressureSensor,
+      refractometer: refractometer,
+      exportFolder: android ? const AndroidExportFolder() : null,
+      incoming: android ? IncomingShares() : null,
+      loffee: android
+          ? LoffeeServices(
+              api: LoffeeClient(),
+              keys: const AndroidLoffeeKeyStore(),
+            )
+          : null,
+      backupServices: backupServices,
+      driveSync: driveSync,
+      releaseNotes: releaseNotes,
+    ),
     initialLocale: locale,
-    photos: photos,
-    reminders: reminders,
-    openRate: openRate,
-    scale: scale,
-    pressureSensor: pressureSensor,
-    refractometer: refractometer,
-    exportFolder: android ? const AndroidExportFolder() : null,
-    incoming: android ? IncomingShares() : null,
-    loffee: android
-        ? LoffeeServices(
-            api: LoffeeClient(),
-            keys: const AndroidLoffeeKeyStore(),
-          )
-        : null,
-    backupServices: backupServices,
-    driveSync: driveSync,
-    releaseNotes: releaseNotes,
   );
 }
 
 class HolyBeansApp extends StatefulWidget {
-  const HolyBeansApp({
-    super.key,
-    required this.database,
-    this.initialLocale,
-    this.photos,
-    this.reminders,
-    this.openRate,
-    this.scale,
-    this.pressureSensor,
-    this.refractometer,
-    this.exportFolder,
-    this.incoming,
-    this.loffee,
-    this.backupServices,
-    this.driveSync,
-    this.releaseNotes,
-  });
+  const HolyBeansApp({required this.services, super.key, this.initialLocale});
 
-  final AppDatabase database;
-  final DriveSyncModel? driveSync;
-  final ReleaseNotesSettings? releaseNotes;
-
-  /// Coffee cards opened, shared or scanned into the app; without it
-  /// (tests) nothing arrives from outside.
-  final IncomingShares? incoming;
-  final LoffeeServices? loffee;
-
-  /// Automatic and folder copies; without them (tests) they are hidden.
-  final BackupServices? backupServices;
-
-  /// Bluetooth scale; without it the scale controls are hidden.
-  final Scale? scale;
-
-  /// Bluetooth pressure sensor; without it its controls are hidden.
-  final PressureSensor? pressureSensor;
-
-  /// Bluetooth refractometer; without it the TDS has no measure button.
-  final Refractometer? refractometer;
-
-  /// Reads another app's export folder; without it imports take a file.
-  final ExportFolder? exportFolder;
-
-  /// Photo folder; without it the app hides photo controls (e.g. in tests).
-  final PhotoStore? photos;
-
-  /// Rating reminders; without them the reminder setting is hidden.
-  final RateReminders? reminders;
-
-  /// Brew IDs whose reminder was tapped, to open their rate sheet.
-  final ValueNotifier<String?>? openRate;
+  final AppServices services;
   final Locale? initialLocale;
 
   @override
@@ -172,9 +124,9 @@ class HolyBeansApp extends StatefulWidget {
 class _HolyBeansAppState extends State<HolyBeansApp>
     with WidgetsBindingObserver {
   Locale? locale;
-  late final releaseNotes = widget.releaseNotes == null
+  late final releaseNotes = widget.services.releaseNotes == null
       ? null
-      : ReleaseNotesObserver(widget.releaseNotes!);
+      : ReleaseNotesObserver(widget.services.releaseNotes!);
 
   /// How often the app looks again for paired devices that are not
   /// connected, while it is on screen.
@@ -187,20 +139,20 @@ class _HolyBeansAppState extends State<HolyBeansApp>
     locale = widget.initialLocale;
     WidgetsBinding.instance.addObserver(this);
     _reconnectDevices();
-    widget.driveSync?.lifecycle(AppLifecycleState.resumed);
+    widget.services.driveSync?.lifecycle(AppLifecycleState.resumed);
   }
 
   @override
   void dispose() {
     _retry?.cancel();
-    widget.driveSync?.dispose();
+    widget.services.driveSync?.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    widget.driveSync?.lifecycle(state);
+    widget.services.driveSync?.lifecycle(state);
     if (state == AppLifecycleState.resumed) {
       _reconnectDevices();
     } else {
@@ -215,9 +167,9 @@ class _HolyBeansAppState extends State<HolyBeansApp>
   /// the user disconnected and a denied permission are left alone.
   void _reconnectDevices() {
     for (final device in <PairedDevice?>[
-      widget.scale,
-      widget.pressureSensor,
-      widget.refractometer,
+      widget.services.scale,
+      widget.services.pressureSensor,
+      widget.services.refractometer,
     ]) {
       if (device == null || device.status == DeviceStatus.denied) continue;
       unawaited(device.connect(automatic: true));
@@ -226,58 +178,54 @@ class _HolyBeansAppState extends State<HolyBeansApp>
   }
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
-    debugShowCheckedModeBanner: false,
-    locale: locale,
-    supportedLocales: AppLocalizations.supportedLocales,
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    theme: AppTheme.light(),
-    darkTheme: AppTheme.dark(),
-    navigatorObservers: [
-      if (widget.driveSync != null) widget.driveSync!.observer,
-      ?releaseNotes,
-    ],
-    // Above every screen and sheet: the devices connecting by themselves.
-    builder: (context, child) {
-      return DeviceToasts(
-        devices: {
-          DeviceKind.scale: ?widget.scale,
-          DeviceKind.pressureSensor: ?widget.pressureSensor,
-          DeviceKind.refractometer: ?widget.refractometer,
-        },
-        child: widget.driveSync == null
-            ? child!
-            : DriveSyncScope(
-                model: widget.driveSync!,
-                child: DriveSyncNotice(model: widget.driveSync!, child: child!),
-              ),
-      );
-    },
-    home: JournalShell(
-      database: widget.database,
-      photos: widget.photos,
-      reminders: widget.reminders,
-      openRate: widget.openRate,
-      scale: widget.scale,
-      pressureSensor: widget.pressureSensor,
-      refractometer: widget.refractometer,
-      exportFolder: widget.exportFolder,
-      incoming: widget.incoming,
-      loffee: widget.loffee,
-      backupServices: widget.backupServices,
-      driveTile: widget.driveSync == null
-          ? null
-          : DriveSyncTile(model: widget.driveSync!),
+  Widget build(BuildContext context) => AppServicesScope(
+    services: widget.services,
+    child: MaterialApp(
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+      debugShowCheckedModeBanner: false,
       locale: locale,
-      onLocaleChanged: (value) async {
-        setState(() => locale = value);
-        try {
-          await LanguageSetting(widget.database).save(value);
-        } catch (error, stack) {
-          reportError(error, stack);
-        }
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      navigatorObservers: [
+        if (widget.services.driveSync != null)
+          widget.services.driveSync!.observer,
+        ?releaseNotes,
+      ],
+      // Above every screen and sheet: the devices connecting by themselves.
+      builder: (context, child) {
+        return DeviceToasts(
+          devices: {
+            DeviceKind.scale: ?widget.services.scale,
+            DeviceKind.pressureSensor: ?widget.services.pressureSensor,
+            DeviceKind.refractometer: ?widget.services.refractometer,
+          },
+          child: widget.services.driveSync == null
+              ? child!
+              : DriveSyncScope(
+                  model: widget.services.driveSync!,
+                  child: DriveSyncNotice(
+                    model: widget.services.driveSync!,
+                    child: child!,
+                  ),
+                ),
+        );
       },
+      home: JournalShell(
+        driveTile: widget.services.driveSync == null
+            ? null
+            : DriveSyncTile(model: widget.services.driveSync!),
+        locale: locale,
+        onLocaleChanged: (value) async {
+          setState(() => locale = value);
+          try {
+            await LanguageSetting(widget.services.database).save(value);
+          } catch (error, stack) {
+            reportError(error, stack);
+          }
+        },
+      ),
     ),
   );
 }

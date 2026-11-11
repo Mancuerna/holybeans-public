@@ -26,7 +26,7 @@ class WaterProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -116,7 +116,7 @@ class _WaterSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final small = Theme.of(context).textTheme.bodySmall
         ?.copyWith(color: colors.onSurfaceVariant);

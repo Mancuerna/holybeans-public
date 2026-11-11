@@ -33,7 +33,7 @@ class YearReviewEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Card(
       color: yearLime,
       clipBehavior: Clip.antiAlias,

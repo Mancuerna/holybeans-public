@@ -1,6 +1,6 @@
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_data.dart';
-import 'package:holybeans/domain/stock.dart';
+import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/domain/text_suggestions.dart';
 
 /// Date-independent list inputs, reused until the journal or freezer changes.

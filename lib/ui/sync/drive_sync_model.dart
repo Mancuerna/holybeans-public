@@ -1,25 +1,22 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/services/atomic_json_file.dart';
 import 'package:holybeans/data/services/drive_backups.dart';
-import 'package:holybeans/data/services/drive_sync_coordinator.dart';
+import 'package:holybeans/data/services/drive_failure.dart';
+import 'package:holybeans/data/services/drive_storage.dart';
+import 'package:holybeans/data/services/drive_sync_contracts.dart';
 import 'package:holybeans/data/services/drive_sync_remote.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/data/services/photo_store.dart';
-import 'package:path/path.dart' as path;
-import 'package:share_plus/share_plus.dart';
-import 'package:uuid/uuid.dart';
 
 // The existing name and config path preserve installed users' Google opt-in.
 class DriveSyncModel extends ChangeNotifier {
   DriveSyncModel._(
     this.backup,
     this.photos,
-    this.directory,
-    this.config,
+    this.storage,
     this.deviceId,
     this.account,
     this.enabled,
@@ -44,39 +41,18 @@ class DriveSyncModel extends ChangeNotifier {
     PhotoStore photos, {
     Duration connectTimeout = const Duration(seconds: 30),
   }) async {
-    final directory = Directory(
-      path.join(path.dirname(photos.directory.path), 'drive-sync'),
-    );
-    final config = AtomicJsonFile(
-      File(path.join(directory.path, 'config.json')),
-    );
+    final storage = DriveStorage.forPhotos(photos);
     try {
-      final saved = await config.read();
-      if (saved != null && saved is! Map<String, dynamic>) {
-        throw const FormatException('Invalid Drive configuration');
-      }
-      final value = saved as Map<String, dynamic>?;
-      if (value != null &&
-          (value['version'] != 1 ||
-              value['enabled'] is! bool ||
-              value['device'] is! String ||
-              (value['account'] != null && value['account'] is! String))) {
-        throw const FormatException('Unsupported Drive configuration');
-      }
-      final device = value?['device'] as String? ?? const Uuid().v4();
-      final account = value?['account'] as String?;
-      if (!RegExp(r'^[a-zA-Z0-9_-]{1,128}$').hasMatch(device) ||
-          (account != null && !RegExp(r'^[a-f0-9]{64}$').hasMatch(account))) {
-        throw const FormatException('Invalid Drive identity');
-      }
+      final value = await storage.read();
+      final device = value.deviceId;
+      final account = value.account;
       final model = DriveSyncModel._(
         backup,
         photos,
-        directory,
-        config,
+        storage,
         device,
         account,
-        value?['enabled'] == true,
+        value.enabled,
         connectTimeout,
       );
       if (account != null) {
@@ -86,6 +62,7 @@ class DriveSyncModel extends ChangeNotifier {
         } catch (error, stack) {
           reportError(error, stack);
           model.status = DriveSyncStatus.unavailable;
+          model.lastError = DriveFailure.from(error, stack);
         }
       }
       await model._saveConfig();
@@ -94,22 +71,23 @@ class DriveSyncModel extends ChangeNotifier {
       reportError(error, stack);
       // Keep unreadable old files for recovery, but never make the diary read-only.
       return DriveSyncModel._(
-        backup,
-        photos,
-        directory,
-        config,
-        const Uuid().v4(),
-        null,
-        false,
-        connectTimeout,
-      )..status = DriveSyncStatus.unavailable;
+          backup,
+          photos,
+          storage,
+          storage.newDeviceId(),
+          null,
+          false,
+          connectTimeout,
+        )
+        ..status = DriveSyncStatus.unavailable
+        ..lastError = DriveFailure.from(error, stack);
     }
   }
 
   final JournalBackup backup;
   final PhotoStore photos;
-  final Directory directory;
-  final AtomicJsonFile config;
+  final DriveStorage storage;
+  AtomicJsonFile get config => storage.config;
   final String deviceId;
   Duration connectTimeout;
   final client = const DriveNativeClient();
@@ -128,26 +106,22 @@ class DriveSyncModel extends ChangeNotifier {
   StreamSubscription<void>? _changes;
   DriveBackups? _service;
   DriveSyncStatus status = DriveSyncStatus.pending;
+  DriveFailure? lastError;
   List<DriveBackupCopy> copies = [];
   bool get applying => _applying;
   DateTime? get lastBackupAt => _service?.lastBackupAt;
 
-  DriveBackups _createService(String account) => DriveBackups(
+  DriveBackups _createService(String account) => storage.backups(
     backup: backup,
     photos: photos,
-    directory: directory,
     deviceId: deviceId,
     account: account,
     client: client,
   );
 
-  Future<void> _saveConfig() => config.write({
-    'version': 1,
-    'device': deviceId,
-    'account': account,
-    'enabled': enabled,
-    'mode': 'backup',
-  });
+  Future<void> _saveConfig() => storage.save(
+    DriveConfiguration(deviceId: deviceId, account: account, enabled: enabled),
+  );
 
   void _notify() {
     if (!_disposed) notifyListeners();
@@ -189,6 +163,7 @@ class DriveSyncModel extends ChangeNotifier {
   Future<void> _operation(Future<void> Function() action) async {
     if (busy || _disposed) return;
     busy = true;
+    lastError = null;
     status = DriveSyncStatus.checking;
     _notify();
     try {
@@ -196,6 +171,7 @@ class DriveSyncModel extends ChangeNotifier {
     } catch (error, stack) {
       reportError(error, stack);
       status = DriveSyncStatus.unavailable;
+      lastError = DriveFailure.from(error, stack);
       _dirty = true;
     } finally {
       busy = false;
@@ -289,16 +265,7 @@ class DriveSyncModel extends ChangeNotifier {
     await _operation(() async {
       await _prepare(interactive: true);
       final payload = await _service!.read(copy);
-      final bytes = await payload.archive();
-      final file = File(
-        path.join(directory.path, 'holybeans-drive-backup.zip'),
-      );
-      try {
-        await file.writeAsBytes(bytes, flush: true);
-        await SharePlus.instance.share(ShareParams(files: [XFile(file.path)]));
-      } finally {
-        if (file.existsSync()) await file.delete();
-      }
+      await storage.share(payload);
       status = _dirty ? DriveSyncStatus.pending : DriveSyncStatus.current;
     });
   }

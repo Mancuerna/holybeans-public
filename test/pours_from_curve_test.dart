@@ -11,6 +11,7 @@ import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_pours_draft.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
@@ -46,8 +47,11 @@ void main() {
     final repository = JournalRepository(database);
     await repository.createCoffee(name: 'Kenya', roaster: 'R');
     model = BrewFormModel(
-      repository: repository,
-      settings: BrewParameterSettings(database),
+      services: AppServices.forJournal(
+        repository,
+        parameterSettings: BrewParameterSettings(database),
+      ),
+
       coffees: await database.select(database.coffees).get(),
     );
     model.draft.dose.text = '15';
@@ -235,8 +239,11 @@ void main() {
       pours: BrewPours(bloomCount: 1, pourCount: 3),
     );
     final repeated = BrewFormModel(
-      repository: repository,
-      settings: BrewParameterSettings(database),
+      services: AppServices.forJournal(
+        repository,
+        parameterSettings: BrewParameterSettings(database),
+      ),
+
       coffees: [coffee],
       seed: await repository.brew(id),
       repeat: true,
@@ -425,7 +432,10 @@ void main() {
       }
     });
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await settleWithWorkers(tester);
     await tester.tap(find.text('Brews').last);

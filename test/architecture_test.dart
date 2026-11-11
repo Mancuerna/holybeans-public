@@ -69,20 +69,6 @@ void main() {
 
   test('application files stay small and data/domain do not depend on presentation', () {
     final violations = <String>[];
-    // Existing domain adapters use the immutable generated journal rows.
-    // This documented exception does not permit new database dependencies.
-    const journalRowAdapters = {
-      'bean_exchange.dart',
-      'brew_comparison.dart',
-      'brew_csv.dart',
-      'brew_stats.dart',
-      'coffee_suggestions.dart',
-      'stats_insights.dart',
-      'brew_ratio.dart',
-      'backup_reminder.dart',
-      'stock.dart',
-      'tool_catalog.dart',
-    };
     final imports = RegExp(r'''(?:import|export)\s+['"]([^'"]+)['"]''');
     for (final file in Directory(
       'lib',
@@ -95,6 +81,9 @@ void main() {
       final source = file.readAsStringSync();
       final segments = path.split(file.path);
       final layer = segments[1];
+      if (layer == 'domain' && source.contains('DateTime.now(')) {
+        violations.add('${file.path}: pass the current time into domain logic');
+      }
       if (source.split('\n').length - 1 > 800) {
         violations.add('${file.path}: over 800 lines');
       }
@@ -120,9 +109,7 @@ void main() {
           if (uri == 'dart:io') {
             violations.add('${file.path}: platform I/O belongs in data');
           }
-          if (uri.contains('/data/') &&
-              !(uri.endsWith('/data/database/app_database.dart') &&
-                  journalRowAdapters.contains(path.basename(file.path)))) {
+          if (uri.contains('/data/')) {
             violations.add('${file.path}: undocumented data dependency $uri');
           }
         }

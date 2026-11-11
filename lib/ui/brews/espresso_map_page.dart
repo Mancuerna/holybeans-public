@@ -30,7 +30,7 @@ class EspressoMapPage extends StatefulWidget {
 class _EspressoMapPageState extends State<EspressoMapPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(AppLocalizations.of(context)!.espressoMap)),
+    appBar: AppBar(title: Text(AppLocalizations.of(context).espressoMap)),
     body: SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
@@ -78,7 +78,7 @@ class _EspressoMapContentState extends State<EspressoMapContent> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final suggested = EspressoStyle.forRatio(widget.ratio);
     final style = selectedStyle ?? suggested;
     String suggestion(double ratio) => s.espressoStyleByRatio(
@@ -138,7 +138,7 @@ class EspressoMapChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final first = (eyPercent: eyPercent, tdsPercent: tdsPercent, ratio: ratio);
     final ey = style.eyAxis;

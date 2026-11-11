@@ -23,7 +23,7 @@ class CoffeeCountryField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: controller,
       builder: (context, _, _) => RawAutocomplete<CoffeeCountry>(

@@ -100,6 +100,7 @@ void main() {
     final plan = planBeanconquerorImport(
       export,
       await repository.beanconquerorJournal(),
+      now: DateTime.utc(2026),
     );
     expect(plan.warnings[BqWarning.brewWithoutBean], 1);
     expect(plan.photoNames, {'photo_abc.jpg'});
@@ -202,6 +203,7 @@ void main() {
     final again = planBeanconquerorImport(
       export,
       await repository.beanconquerorJournal(),
+      now: DateTime.utc(2026),
     );
     expect(again.isEmpty, isTrue);
     expect(again.skipped[BqKind.brew], 2);
@@ -219,6 +221,7 @@ void main() {
         Uint8List.fromList(utf8.encode(jsonEncode(json))),
       ),
       await repository.beanconquerorJournal(),
+      now: DateTime.utc(2026),
     );
     expect(withPhotos.isEmpty, isFalse);
     // The bean has a photo here already, so only the brew's is asked for.
@@ -254,6 +257,7 @@ void main() {
       planBeanconquerorImport(
         BeanconquerorArchive.read(zip()),
         await repository.beanconquerorJournal(),
+        now: DateTime.utc(2026),
       ),
     );
     Future<Brew> brew(String method) async =>
@@ -306,6 +310,7 @@ void main() {
         Uint8List.fromList(ZipEncoder().encode(archive)),
       ),
       await repository.beanconquerorJournal(),
+      now: DateTime.utc(2026),
     );
     expect(plan.changedBrews, hasLength(1));
     expect(plan.changedCoffees, hasLength(1));
@@ -342,6 +347,7 @@ void main() {
         Uint8List.fromList(ZipEncoder().encode(archive)),
       ),
       await repository.beanconquerorJournal(),
+      now: DateTime.utc(2026),
     );
     expect(again.changedBrews, isEmpty);
     expect(again.changedCoffees, isEmpty);

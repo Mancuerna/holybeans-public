@@ -10,6 +10,7 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 Future<void> checkShareImage(
@@ -73,7 +74,10 @@ Future<void> checkShareImage(
       });
   try {
     await $.pumpWidgetAndSettle(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     final navigation = $.tester.getRect(find.byType(NavigationBar));
     await $.tester.tapAt(

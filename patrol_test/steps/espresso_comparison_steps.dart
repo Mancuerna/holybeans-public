@@ -7,6 +7,7 @@ import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_comparison_page.dart';
 import 'package:holybeans/ui/brews/comparison_plot.dart';
 import 'package:holybeans/ui/brews/espresso_combined_plot.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 import '../support/smoke_support.dart';
@@ -58,7 +59,10 @@ Future<void> checkEspressoComparison(
   final lots = await db.select(db.coffeeLots).get();
   final curves = await db.select(db.brewCurves).get();
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: db, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: db),
+      initialLocale: const Locale('en'),
+    ),
   );
   await $.tap(
     find.descendant(

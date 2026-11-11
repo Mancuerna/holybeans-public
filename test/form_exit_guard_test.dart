@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 
@@ -22,7 +23,10 @@ void main() {
           addTearDown(tester.view.resetPhysicalSize);
           addTearDown(tester.view.resetDevicePixelRatio);
           await tester.pumpWidget(
-            HolyBeansApp(database: db, initialLocale: Locale(language)),
+            HolyBeansApp(
+              services: AppServices(database: db),
+              initialLocale: Locale(language),
+            ),
           );
           await tester.pumpAndSettle();
           await tester.tap(
@@ -84,7 +88,10 @@ void main() {
         await db.close();
       });
       await tester.pumpWidget(
-        HolyBeansApp(database: db, initialLocale: const Locale('en')),
+        HolyBeansApp(
+          services: AppServices(database: db),
+          initialLocale: const Locale('en'),
+        ),
       );
       await tester.pumpAndSettle();
       Future<void> open() async {

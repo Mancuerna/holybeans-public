@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/equipment_overview.dart';
@@ -10,7 +11,7 @@ import 'package:intl/intl.dart';
 
 /// "Kinto SCS-S02 (179.3 g)": the vessel and its empty weight.
 String recipientLabel(Recipient row, AppLocalizations s) =>
-    '${row.name} (${NumberFormat('0.#', regionalLocale.toString()).format(row.emptyGrams)} g)';
+    '${row.name} (${formatDecimal(row.emptyGrams, pattern: '0.#', locale: regionalLocale.toString())} g)';
 
 Future<Recipient?> showRecipientForm(
   BuildContext context,
@@ -70,7 +71,7 @@ class _RecipientFormState extends State<_RecipientForm> {
         showOperationError(
           context,
           error,
-          AppLocalizations.of(context)!.saveFailed,
+          AppLocalizations.of(context).saveFailed,
         );
       }
     } finally {
@@ -80,7 +81,7 @@ class _RecipientFormState extends State<_RecipientForm> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return SheetFrame(
       title: widget.isPortafilter
           ? (widget.existing == null ? s.addPortafilter : s.editPortafilter)
@@ -152,7 +153,7 @@ class _RecipientsListState extends State<RecipientsList> {
         showOperationError(
           context,
           error,
-          AppLocalizations.of(context)!.saveFailed,
+          AppLocalizations.of(context).saveFailed,
         );
       }
     }
@@ -160,7 +161,7 @@ class _RecipientsListState extends State<RecipientsList> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return StreamBuilder<List<Recipient>>(
       stream: rows,
       builder: (context, snapshot) {
@@ -275,7 +276,7 @@ class _RecipientPickerState extends State<RecipientPicker> {
   late final rows = widget.repository.watchRecipients(includeArchived: true);
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return StreamBuilder<List<Recipient>>(
       stream: rows,
       builder: (context, snapshot) {

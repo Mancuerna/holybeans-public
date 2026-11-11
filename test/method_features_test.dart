@@ -7,6 +7,7 @@ import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/equipment/equipment_page.dart';
 
 import 'helpers/test_database.dart';
@@ -260,7 +261,10 @@ void main() {
     );
     await repository.setBrewArchived(archived, archived: true);
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     final bounds = tester.getRect(find.byType(NavigationBar));
@@ -363,7 +367,10 @@ void main() {
     await repository.updateMethod(id: methodId, name: 'New name');
 
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     final navigation = find.byType(NavigationBar);
@@ -417,8 +424,13 @@ Future<void> _openForm(
                 context: context,
                 isScrollControlled: true,
                 builder: (_) => BrewForm(
-                  repository: repository,
-                  settings: BrewParameterSettings(repository.database),
+                  services: AppServices.forJournal(
+                    repository,
+                    parameterSettings: BrewParameterSettings(
+                      repository.database,
+                    ),
+                  ),
+
                   coffees: coffees,
                 ),
               ),

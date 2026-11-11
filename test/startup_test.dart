@@ -38,7 +38,7 @@ void main() {
       final app = await tester.runAsync(() => prepareApp(services: services));
       expect(app, isA<HolyBeansApp>());
       expect(
-        (app as HolyBeansApp).scale,
+        (app as HolyBeansApp).services.scale,
         failure == 'scale' ? isNull : same(services.workingScale),
       );
       await tester.pumpWidget(app);

@@ -37,7 +37,7 @@ class _CafeShareSheetState extends State<CafeShareSheet> {
   Future<void> _share(String source) async {
     if (busy || source.isEmpty) return;
     setState(() => busy = true);
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       final photo = includePhoto ? widget.initialPhoto : null;
       final bytes = asImage
@@ -60,7 +60,7 @@ class _CafeShareSheetState extends State<CafeShareSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final source = cafeShareText(widget.rows, selected);
     final photo = includePhoto ? widget.initialPhoto : null;
     return SafeArea(
@@ -175,7 +175,7 @@ class _Fields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return ExpansionTile(
       title: Text(s.shareFields),
       children: [

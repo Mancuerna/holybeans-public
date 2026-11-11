@@ -4,12 +4,13 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/photo_resizer.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/bean_exchange.dart';
-import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/coffee_suggestions.dart';
+import 'package:holybeans/domain/journal_codes.dart';
 import 'package:holybeans/domain/web_link.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/coffee_form_model.dart';
@@ -93,7 +94,7 @@ class _CoffeeFormState extends State<CoffeeForm> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.loffeePhotoFailed),
+            content: Text(AppLocalizations.of(context).loffeePhotoFailed),
           ),
         );
       }
@@ -131,7 +132,7 @@ class _CoffeeFormState extends State<CoffeeForm> {
         showOperationError(
           context,
           error,
-          AppLocalizations.of(context)!.dataError,
+          AppLocalizations.of(context).dataError,
         );
       }
     }
@@ -193,7 +194,7 @@ class _CoffeeFormState extends State<CoffeeForm> {
   }
 
   List<CoffeeComponentInput>? _originInputs() {
-    final strings = AppLocalizations.of(context)!;
+    final strings = AppLocalizations.of(context);
     final inputs = <CoffeeComponentInput>[];
     for (final origin in model.origins) {
       if (origin.isBlank) {
@@ -241,7 +242,7 @@ class _CoffeeFormState extends State<CoffeeForm> {
         showOperationError(
           context,
           error,
-          AppLocalizations.of(context)!.saveFailed,
+          AppLocalizations.of(context).saveFailed,
         );
       }
     }
@@ -249,7 +250,7 @@ class _CoffeeFormState extends State<CoffeeForm> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return FormExitGuard(
       hasChanges: () => model.changed,
       busy: () => model.saving || importingPhoto || model.photos.picking,
@@ -306,19 +307,13 @@ class _CoffeeFormState extends State<CoffeeForm> {
         spacing: 8,
         runSpacing: 4,
         children: [
-          for (final (code, label) in [
-            ('ultra_light', s.roastUltraLight),
-            ('light', s.roastLight),
-            ('omni', s.roastOmni),
-            ('medium', s.roastMedium),
-            ('dark', s.roastDark),
-          ])
+          for (final level in RoastLevel.values.reversed)
             ChoiceChip(
-              key: ValueKey('roast-level-$code'),
-              label: Text(label),
-              selected: model.roastLevel == code,
+              key: ValueKey('roast-level-${level.code}'),
+              label: Text(roastLevelLabel(s, level.code)),
+              selected: model.roastLevel == level.code,
               onSelected: (selected) => setState(() {
-                model.roastLevel = selected ? code : null;
+                model.roastLevel = selected ? level.code : null;
                 model.roastLevelChanged = true;
               }),
             ),
@@ -514,12 +509,14 @@ class _CoffeeFormState extends State<CoffeeForm> {
             spacing: 8,
             runSpacing: 4,
             children: [
-              for (final code in JournalRepository.frozenContainers)
+              for (final containerType in FrozenContainer.values)
                 ChoiceChip(
-                  label: Text(frozenContainerLabel(s, code)),
-                  selected: model.frozenContainer == code,
+                  label: Text(frozenContainerLabel(s, containerType.code)),
+                  selected: model.frozenContainer == containerType.code,
                   onSelected: (selected) => setState(
-                    () => model.frozenContainer = selected ? code : null,
+                    () => model.frozenContainer = selected
+                        ? containerType.code
+                        : null,
                   ),
                 ),
             ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/domain/coffee_countries.dart';
 import 'package:holybeans/domain/roaster_profile.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -20,7 +21,7 @@ class RoasterProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final p = profile;
     final number = NumberFormat.decimalPattern(regionalLocale.toString());
@@ -30,7 +31,7 @@ class RoasterProfilePage extends StatelessWidget {
         : s.roasterCoverage(known, p.coffees.length);
     String rating(double? value) => value == null
         ? '—'
-        : '${NumberFormat('0.#', regionalLocale.toString()).format(value)} / 10';
+        : '${formatDecimal(value, pattern: '0.#', locale: regionalLocale.toString())} / 10';
     final countries = [
       for (final country
           in p?.countries.entries ?? const <MapEntry<String, String>>[])

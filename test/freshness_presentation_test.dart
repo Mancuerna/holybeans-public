@@ -113,7 +113,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       const window = FreshnessWindow(
         primeStart: 10,
         primeEnd: 20,

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/brew_comparison.dart';
+import 'package:holybeans/data/repositories/brew_ratio.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/domain/brew_comparison.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
-import 'package:holybeans/domain/brew_ratio.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_differences_summary.dart';
 import 'package:holybeans/ui/brews/comparison_curves.dart';
@@ -30,7 +31,7 @@ class BrewComparisonPage extends StatefulWidget {
   final Brew a;
   final Brew b;
   final JournalData data;
-  final JournalActions actions;
+  final JournalRead actions;
 
   @override
   State<BrewComparisonPage> createState() => _BrewComparisonPageState();
@@ -45,7 +46,7 @@ class _BrewComparisonPageState extends State<BrewComparisonPage> {
 
   Future<ComparisonCurve?> _loadCurve(Brew brew) async {
     try {
-      final row = await widget.actions.repository.brewCurve(brew.id);
+      final row = await widget.actions.queries.brewCurve(brew.id);
       if (row == null || row.curve.isEmpty) return null;
       return ComparisonCurve(
         row.curve,
@@ -59,7 +60,7 @@ class _BrewComparisonPageState extends State<BrewComparisonPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final a = widget.a;
     final b = widget.b;
     final rows = _ComparisonRows(s, a, b, widget.actions);
@@ -103,7 +104,7 @@ class _BrewComparisonPageState extends State<BrewComparisonPage> {
             ),
           BrewDifferencesSummary(
             comparison: comparison,
-            repository: widget.actions.repository,
+            repository: widget.actions.queries,
             hidden: widget.actions.hiddenParameters,
             coffeeA: coffeeName(a),
             coffeeB: coffeeName(b),
@@ -290,7 +291,7 @@ class _BrewComparisonPageState extends State<BrewComparisonPage> {
       Text(brew.methodName),
       if (brew.doseGrams != null && brew.beverageGrams != null)
         Text(
-          '${NumberFormat('0.##', regionalLocale.toString()).format(brew.doseGrams)} g → ${NumberFormat('0.##', regionalLocale.toString()).format(brew.beverageGrams)} g',
+          '${formatDecimal(brew.doseGrams, pattern: '0.##', locale: regionalLocale.toString())} g → ${formatDecimal(brew.beverageGrams, pattern: '0.##', locale: regionalLocale.toString())} g',
           style: Theme.of(context).textTheme.bodySmall,
         ),
       Text(
@@ -331,11 +332,11 @@ class _ComparisonRows {
   final AppLocalizations s;
   final Brew a;
   final Brew b;
-  final JournalActions actions;
+  final JournalRead actions;
   final BrewComparison comparison;
   final NumberFormat number;
 
-  static String? _category(JournalActions actions, Brew brew) => actions.methods
+  static String? _category(JournalRead actions, Brew brew) => actions.methods
       .where((method) => method.id == brew.methodId)
       .firstOrNull
       ?.category;

@@ -144,7 +144,7 @@ class _CoffeeMazePageState extends State<CoffeeMazePage>
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     const cream = CoffeeMazePainter.cream;
     return Theme(
       data: Theme.of(context).copyWith(

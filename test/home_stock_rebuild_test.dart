@@ -4,7 +4,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/freezer_repository.dart';
+import 'package:holybeans/data/repositories/journal_mutations.dart';
+import 'package:holybeans/data/repositories/journal_queries.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/data/repositories/stock_adjustment_repository.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/freshness.dart';
@@ -42,10 +46,21 @@ class _Data extends JournalData {
   List<Coffee> get coffees => counted;
 }
 
-class _Actions extends Fake implements JournalActions {
+class _Actions extends Fake
+    implements JournalRead, JournalNavigation, JournalCommands {
   _Actions(this.repository, this.backupCenter);
-  @override
+  JournalActions get actions =>
+      JournalActions(read: this, navigation: this, commands: this);
+
   final JournalRepository repository;
+  @override
+  late final queries = JournalQueries(repository);
+  @override
+  late final mutations = JournalMutations(repository);
+  @override
+  StockAdjustmentRepository get stockEdits => repository.stockEdits;
+  @override
+  FreezerRepository get freezer => repository.freezer;
   @override
   final BackupCenter backupCenter;
   @override
@@ -102,7 +117,7 @@ void main() {
             body: ValueListenableBuilder(
               valueListenable: refresh,
               builder: (_, _, _) =>
-                  HomeTab(data: data, actions: actions, now: now),
+                  HomeTab(data: data, actions: actions.actions, now: now),
             ),
           ),
         ),

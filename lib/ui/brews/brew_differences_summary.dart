@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/data/repositories/journal_queries.dart';
 import 'package:holybeans/domain/brew_comparison.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_ratio.dart';
@@ -21,7 +21,7 @@ class BrewDifferencesSummary extends StatefulWidget {
     this.coffeeB,
   });
   final BrewComparison comparison;
-  final JournalRepository repository;
+  final JournalQueries repository;
   final Set<BrewParameter> hidden;
   final String? coffeeA;
   final String? coffeeB;
@@ -66,7 +66,7 @@ class _BrewDifferencesSummaryState extends State<BrewDifferencesSummary> {
   Widget build(BuildContext context) => FutureBuilder<List<String?>>(
     future: tools,
     builder: (context, snapshot) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       final theme = Theme.of(context);
       final rows = widget.comparison
           .differences(
@@ -148,7 +148,7 @@ List<Widget> _group(
   List<BrewDifference> rows,
   String? Function(BrewDifference row, Object? v) value,
 ) {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   final emptyA = rows.every((row) => row.a == null);
   final emptyB = rows.every((row) => row.b == null);
   String? difference(BrewDifference row) {

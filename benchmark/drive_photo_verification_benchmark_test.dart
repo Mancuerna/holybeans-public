@@ -70,6 +70,7 @@ void main() {
           id: await remote.reserveId(),
           deviceId: 'fixture',
           contentHash: payload.hash,
+          createdAt: DateTime.utc(2026),
         );
         await remote.payloads.write(snapshot.id, payload);
         await remote.publish(snapshot);

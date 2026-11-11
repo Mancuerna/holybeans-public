@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/domain/water_chemistry.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/equipment/water_alternatives_picker.dart';
 import 'package:holybeans/ui/equipment/water_calculator_result.dart';
@@ -15,7 +16,10 @@ Future<void> checkWaterCalculator(
   AppDatabase database,
 ) async {
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: database, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: database),
+      initialLocale: const Locale('en'),
+    ),
   );
   final navigation = $.tester.getRect(find.byType(NavigationBar));
   await $.tester.tapAt(

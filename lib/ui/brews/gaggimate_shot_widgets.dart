@@ -94,7 +94,7 @@ class _PickerState extends State<_Picker> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height * 0.88,
@@ -175,7 +175,7 @@ class GaggimateShotCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final picked = shot;
     return Card(
       key: const ValueKey('brew-gaggimate'),

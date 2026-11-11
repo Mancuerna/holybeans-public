@@ -150,7 +150,7 @@ class DevicePairingSection extends StatelessWidget {
                   onPressed: const DeviceFeedback().openBluetoothSettings,
                   icon: const Icon(Icons.settings_bluetooth_rounded),
                   label: Text(
-                    AppLocalizations.of(context)!.openBluetoothSettings,
+                    AppLocalizations.of(context).openBluetoothSettings,
                   ),
                 ),
               ),

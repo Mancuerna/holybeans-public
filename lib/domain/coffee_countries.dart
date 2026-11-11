@@ -1,3 +1,5 @@
+import 'package:holybeans/domain/text_folding.dart';
+
 /// Coffee-producing countries with their ISO 3166-1 alpha-2 code, so a
 /// free-text origin like "Etiopía" or "ethiopia" can show a flag.
 class CoffeeCountry {
@@ -80,12 +82,9 @@ const coffeeCountries = <CoffeeCountry>[
 
 /// Lowercase, accent-free form used to compare country names.
 String foldCountryName(String text) {
-  const from = 'áàäâãéèëêíìïîóòöôõúùüûñç';
-  const to = 'aaaaaeeeeiiiiooooouuuunc';
   final buffer = StringBuffer();
-  for (final char in text.trim().toLowerCase().split('')) {
-    final index = from.indexOf(char);
-    buffer.write(index < 0 ? char : to[index]);
+  for (final unit in text.trim().toLowerCase().codeUnits) {
+    buffer.writeCharCode(foldLatinAccent(unit));
   }
   return buffer.toString().replaceAll(RegExp(r'[\s\-.]+'), ' ');
 }

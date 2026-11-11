@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/equipment/water_profile_card.dart';
@@ -43,7 +44,10 @@ Future<void> checkWaterCards(
   );
   final before = await database.select(database.waterProfiles).get();
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: database, initialLocale: const Locale('es')),
+    HolyBeansApp(
+      services: AppServices(database: database),
+      initialLocale: const Locale('es'),
+    ),
   );
   final nav = $.tester.getRect(find.byType(NavigationBar));
   await $.tester.tapAt(Offset(nav.left + nav.width * 3.5 / 4, nav.center.dy));

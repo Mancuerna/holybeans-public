@@ -5,6 +5,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 /// The interface review on the phone: Up next on Home, tuning the last brew
@@ -38,7 +39,10 @@ Future<void> checkInterfaceReview(
     brewedAt: DateTime.now().subtract(const Duration(hours: 2)),
   );
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: database, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: database),
+      initialLocale: const Locale('en'),
+    ),
   );
 
   // Each coffee on Home has Repeat and Adjust.

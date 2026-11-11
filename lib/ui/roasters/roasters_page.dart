@@ -20,7 +20,7 @@ class _RoastersPageState extends State<RoastersPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final query = roasterKey(search.text);
     final visible = widget.profiles
         .where((p) => p.key.contains(query))

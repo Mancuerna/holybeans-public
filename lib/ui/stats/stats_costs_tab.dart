@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:holybeans/domain/stats_insights.dart';
+import 'package:holybeans/data/repositories/stats_insights.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
 import 'package:holybeans/ui/core/formatters.dart';
@@ -19,7 +19,7 @@ class StatsCostsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final stats = data.stats;
     final euros = euroNumberFormat(regionalLocale.toString());
@@ -201,7 +201,7 @@ class _RoasterPriceList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final euros = euroNumberFormat(regionalLocale.toString());
     return Column(

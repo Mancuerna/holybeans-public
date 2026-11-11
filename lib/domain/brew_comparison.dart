@@ -1,7 +1,31 @@
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_ratio.dart';
 import 'package:holybeans/domain/shot_curve.dart';
+
+typedef ComparisonBrew = ({
+  double? beverageGrams,
+  int? bloomCount,
+  int? bloomSeconds,
+  double? doseGrams,
+  int? feederRpm,
+  int? firstDripSeconds,
+  int? grindRpm,
+  String? grindSetting,
+  String? grinderName,
+  String id,
+  bool isPreGround,
+  String methodName,
+  int? pourCount,
+  int? preinfusionSeconds,
+  double? pressureBar,
+  String? profileName,
+  double? rating,
+  double? tdsPercent,
+  double? temperatureC,
+  int? timeSeconds,
+  double? waterGrams,
+  String? waterProfileName,
+});
 
 class BrewComparisonValue {
   const BrewComparisonValue(this.parameter, this.a, this.b, this.unit);
@@ -40,12 +64,12 @@ class BrewComparison {
         methodName: b.methodName,
       );
 
-  final Brew a;
-  final Brew b;
+  final ComparisonBrew a;
+  final ComparisonBrew b;
   final bool espressoA;
   final bool espressoB;
 
-  static double? _ratio(Brew brew, bool espresso) {
+  static double? _ratio(ComparisonBrew brew, bool espresso) {
     final output = espresso ? brew.beverageGrams : brew.waterGrams;
     final dose = brew.doseGrams;
     if (output == null || dose == null || output <= 0 || dose <= 0) return null;
@@ -210,17 +234,29 @@ class BrewComparison {
     BrewComparisonValue(BrewParameter.tds, a.tdsPercent, b.tdsPercent, '%'),
     BrewComparisonValue(
       BrewParameter.ey,
-      brewExtractionYield(a),
-      brewExtractionYield(b),
+      extractionYieldPercent(
+        doseGrams: a.doseGrams,
+        beverageGrams: a.beverageGrams,
+        tdsPercent: a.tdsPercent,
+      ),
+      extractionYieldPercent(
+        doseGrams: b.doseGrams,
+        beverageGrams: b.beverageGrams,
+        tdsPercent: b.tdsPercent,
+      ),
       '%',
     ),
     BrewComparisonValue(BrewParameter.rating, a.rating, b.rating, '/ 10'),
   ];
 }
 
-bool hasSensoryComparison(Brew a, Brew b) {
-  bool complete(Brew brew) {
-    final ey = brewExtractionYield(brew);
+bool hasSensoryComparison(ComparisonBrew a, ComparisonBrew b) {
+  bool complete(ComparisonBrew brew) {
+    final ey = extractionYieldPercent(
+      doseGrams: brew.doseGrams,
+      beverageGrams: brew.beverageGrams,
+      tdsPercent: brew.tdsPercent,
+    );
     final tds = brew.tdsPercent;
     return ey != null &&
         ey.isFinite &&

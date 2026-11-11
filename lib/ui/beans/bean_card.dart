@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/domain/altitude.dart';
 import 'package:holybeans/domain/coffee_countries.dart';
 import 'package:holybeans/domain/freshness.dart';
-import 'package:holybeans/domain/stock.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/bean_menu.dart';
 import 'package:holybeans/ui/beans/freshness_widgets.dart';
@@ -41,7 +42,7 @@ class BeanCard extends StatelessWidget {
     id: coffee.id,
     createdAtMs: coffee.createdAtMs,
     builder: (context, reveal, fill) {
-      final facts = _BeanFacts(coffee, data, actions.portions);
+      final facts = _BeanFacts(coffee, data, actions.read.portions);
       return SettleIn.open(
         reveal,
         compact
@@ -133,7 +134,7 @@ class _CompactBeanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final coffee = facts.coffee;
     final stock = facts.stock;
     final details = [
@@ -154,7 +155,7 @@ class _CompactBeanCard extends StatelessWidget {
       key: ValueKey('bean-card-${coffee.id}'),
       // Holding it edits the bean, like Edit in its menu.
       child: Semantics(
-        onLongPressHint: AppLocalizations.of(context)!.editBean,
+        onLongPressHint: AppLocalizations.of(context).editBean,
         child: ListTile(
           title: Row(
             children: [
@@ -187,8 +188,8 @@ class _CompactBeanCard extends StatelessWidget {
               ),
             ],
           ),
-          onTap: () => actions.showCoffeeDetails(coffee, data),
-          onLongPress: () => actions.addCoffee(coffee),
+          onTap: () => actions.navigation.showCoffeeDetails(coffee, data),
+          onLongPress: () => actions.navigation.addCoffee(coffee),
         ),
       ),
     );
@@ -219,7 +220,7 @@ class _InformativeBeanCard extends StatelessWidget {
     final flags = facts.flags;
     final farmDetails = originDetails(
       facts.components,
-      AppLocalizations.of(context)!.localeName,
+      AppLocalizations.of(context).localeName,
     );
     final stockLevel = switch (facts.stockLevel) {
       final level? => level * fill,
@@ -230,11 +231,11 @@ class _InformativeBeanCard extends StatelessWidget {
       key: ValueKey('bean-card-${coffee.id}'),
       // Holding it edits the bean, like Edit in its menu.
       child: Semantics(
-        onLongPressHint: AppLocalizations.of(context)!.editBean,
+        onLongPressHint: AppLocalizations.of(context).editBean,
         child: InkWell(
           customBorder: theme.cardTheme.shape,
-          onTap: () => actions.showCoffeeDetails(coffee, data),
-          onLongPress: () => actions.addCoffee(coffee),
+          onTap: () => actions.navigation.showCoffeeDetails(coffee, data),
+          onLongPress: () => actions.navigation.addCoffee(coffee),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
             child: Column(
@@ -285,7 +286,7 @@ class _InformativeBeanCard extends StatelessWidget {
                 ],
                 _BeanFactChips(
                   facts: facts,
-                  freshness: actions.freshnessToday(facts.coffee),
+                  freshness: actions.read.freshnessToday(facts.coffee),
                   fill: fill,
                 ),
                 if (stockLevel != null) ...[
@@ -336,7 +337,7 @@ class _Heading extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if ((actions.photos, data.coverOf(coffee.id)) case (
+        if ((actions.read.photos, data.coverOf(coffee.id)) case (
           final store?,
           final photo?,
         ))
@@ -406,7 +407,7 @@ class _BeanFactChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final coffee = facts.coffee;
     final stock = facts.stock;
     final remaining = stock.remainingGrams;
@@ -455,7 +456,7 @@ class _BeanFactChips extends StatelessWidget {
     };
     String stockText(double grams) => initial == null
         ? formatGrams(grams, regionalLocale.toString())
-        : '${NumberFormat('0.#', regionalLocale.toString()).format(grams)} / ${formatGrams(initial, regionalLocale.toString())}';
+        : '${formatDecimal(grams, pattern: '0.#', locale: regionalLocale.toString())} / ${formatGrams(initial, regionalLocale.toString())}';
     final chips = [
       if (remaining != null)
         CardFact(
@@ -519,7 +520,7 @@ class _FreshnessChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final color = freshnessPhaseColor(context, phase);
     final label = freshnessPhaseLabel(s, phase);
     final styleName = brewStyleLabel(s, style);
@@ -568,7 +569,7 @@ class _FavoriteIcon extends StatelessWidget {
       Icons.favorite_rounded,
       size: 18,
       color: Theme.of(context).colorScheme.primary,
-      semanticLabel: AppLocalizations.of(context)!.favorite,
+      semanticLabel: AppLocalizations.of(context).favorite,
     ),
   );
 }
@@ -580,12 +581,12 @@ class _CoffeeRating extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return RatingBadge(
       rating: rating,
       localeName: regionalLocale.toString(),
       semanticLabel:
-          '${s.rating}: ${NumberFormat('0.#', regionalLocale.toString()).format(rating)} / 10',
+          '${s.rating}: ${formatDecimal(rating, pattern: '0.#', locale: regionalLocale.toString())} / 10',
     );
   }
 }

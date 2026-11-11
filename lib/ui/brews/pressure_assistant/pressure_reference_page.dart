@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -9,7 +10,6 @@ import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/flow_guide_page.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/pressure_guide_page.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
-import 'package:intl/intl.dart';
 
 class PressureAssistantButton extends StatelessWidget {
   const PressureAssistantButton({super.key, required this.model});
@@ -26,7 +26,7 @@ class PressureAssistantButton extends StatelessWidget {
             ),
           ),
     icon: const Icon(Icons.show_chart),
-    label: Text(AppLocalizations.of(context)!.shotAssistant),
+    label: Text(AppLocalizations.of(context).shotAssistant),
   );
 }
 
@@ -89,7 +89,7 @@ class _PressureReferencePageState extends State<PressureReferencePage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toString();
     return Scaffold(
       appBar: AppBar(title: Text(s.pressureGuideChoose)),
@@ -190,7 +190,7 @@ class _PressureReferencePageState extends State<PressureReferencePage> {
                         title: Text(_name(item.brew)),
                         subtitle: Text(
                           '$date · ${item.brew.methodName}\n'
-                          '${NumberFormat('0.#', locale).format((item.pressure?.endMs ?? item.flow!.endMs) / 1000)} s',
+                          '${formatDecimal((item.pressure?.endMs ?? item.flow!.endMs) / 1000, pattern: '0.#', locale: locale)} s',
                         ),
                         isThreeLine: true,
                         trailing: const Icon(Icons.chevron_right),

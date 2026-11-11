@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/history_filters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
-import 'package:intl/intl.dart';
 
 /// Active filters with their values and individual clear actions.
 class HistoryFilterChips extends StatelessWidget {
@@ -18,7 +18,7 @@ class HistoryFilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final coffee = coffees
         .where((coffee) => coffee.id == filters.coffeeId)
         .firstOrNull;
@@ -68,7 +68,7 @@ class HistoryFilterChips extends StatelessWidget {
                   maxLabelWidth: (constraints.maxWidth - 88).clamp(48, 220),
                   id: 'rating',
                   label:
-                      '${NumberFormat('0.#', regionalLocale.toString()).format(rating)}+ ★',
+                      '${formatDecimal(rating, pattern: '0.#', locale: regionalLocale.toString())}+ ★',
                   clearLabel: s.historyClearFilter,
                   onDeleted: () => clear(() => filters.minimumRating = null),
                 ),

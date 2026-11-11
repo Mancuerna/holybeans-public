@@ -6,6 +6,7 @@ import 'package:holybeans/data/services/meticulous_client.dart';
 import 'package:holybeans/domain/brew_input.dart';
 import 'package:holybeans/domain/gaggimate/binary.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/gaggimate_fixture.dart';
 import 'helpers/test_database.dart';
@@ -30,8 +31,11 @@ void main() {
         category: 'espresso',
       );
       final model = BrewFormModel(
-        repository: repo,
-        settings: BrewParameterSettings(db),
+        services: AppServices.forJournal(
+          repo,
+          parameterSettings: BrewParameterSettings(db),
+        ),
+
         coffees: await repo.allCoffees(),
         initialCoffeeId: coffee,
         initialMethodId: gm,

@@ -109,7 +109,7 @@ class _DeviceToastsState extends State<DeviceToasts> {
   @override
   Widget build(BuildContext context) {
     final notice = _notice;
-    final s = AppLocalizations.of(context);
+    final s = Localizations.of<AppLocalizations>(context, AppLocalizations);
     final theme = Theme.of(context);
     return Stack(
       children: [

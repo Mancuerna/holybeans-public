@@ -9,6 +9,7 @@ import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/domain/coffee_maze.dart';
 import 'package:holybeans/ui/coffee_maze/coffee_maze_page.dart';
 import 'package:holybeans/ui/coffee_maze/coffee_maze_painter.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/settings/settings_page.dart';
 
@@ -73,8 +74,10 @@ void main() {
           onExportBackup: () async {},
           onExportCsv: () {},
           onImportBackup: () async {},
-          parameterSettings: BrewParameterSettings(db),
-          templateSettings: ShareTemplateSettings(db),
+          services: AppServices.forPreferences(
+            BrewParameterSettings(db),
+            templateSettings: ShareTemplateSettings(db),
+          ),
         ),
       ),
     );

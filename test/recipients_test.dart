@@ -9,6 +9,7 @@ import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/domain/brew_input.dart';
 import 'package:holybeans/domain/recipient_snapshot.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/legacy_schema.dart';
 import 'helpers/test_database.dart';
@@ -83,8 +84,11 @@ void main() {
         emptyGrams: 150,
       );
       final model = BrewFormModel(
-        repository: repo,
-        settings: BrewParameterSettings(db),
+        services: AppServices.forJournal(
+          repo,
+          parameterSettings: BrewParameterSettings(db),
+        ),
+
         coffees: await db.select(db.coffees).get(),
         initialMethodId: method,
       );
@@ -119,8 +123,11 @@ void main() {
         emptyGrams: 170,
       );
       final edited = BrewFormModel(
-        repository: repo,
-        settings: BrewParameterSettings(db),
+        services: AppServices.forJournal(
+          repo,
+          parameterSettings: BrewParameterSettings(db),
+        ),
+
         coffees: await db.select(db.coffees).get(),
         existing: brew,
       );

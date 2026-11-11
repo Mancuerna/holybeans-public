@@ -83,7 +83,7 @@ class _LoffeeKeyDialogState extends State<_LoffeeKeyDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return PopScope(
       canPop: !_busy,
       child: AlertDialog(

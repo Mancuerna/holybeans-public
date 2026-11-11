@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/data/services/refractometer.dart';
@@ -29,7 +30,6 @@ import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/core/suggested_text_field.dart';
 import 'package:holybeans/ui/equipment/recipients_page.dart';
 import 'package:holybeans/ui/scale/scale_compact.dart';
-import 'package:intl/intl.dart';
 
 /// The brew form in the order of brewing: what is brewed, the equipment,
 /// the recipe, the timing with its devices, and the result. Each section
@@ -105,7 +105,7 @@ class BrewChoiceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final draft = model.draft;
     final activeMethods = [
       for (final row in model.methods)
@@ -295,7 +295,7 @@ class BrewEquipmentSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     const preGround = BrewFormModel.preGroundChoice;
     return _Section([
       if (model.shows(BrewParameter.grinder))
@@ -421,7 +421,7 @@ class BrewRecipeSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final draft = model.draft;
     final dose = numberField(
       context,
@@ -525,7 +525,7 @@ class BrewTimingSection extends StatelessWidget {
   );
 
   Widget _content(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final draft = model.draft;
     final espresso = model.isEspresso;
     final scale = model.scaleSession;
@@ -596,10 +596,11 @@ class BrewTimingSection extends StatelessWidget {
               ? s.scaleRecording
               : switch (scale.curve) {
                   final curve? => s.scaleCurveRecorded(
-                    NumberFormat(
-                      '0',
-                      regionalLocale.toString(),
-                    ).format(curve.durationMs / 1000),
+                    formatDecimal(
+                      curve.durationMs / 1000,
+                      pattern: '0',
+                      locale: regionalLocale.toString(),
+                    ),
                   ),
                   null => null,
                 },
@@ -611,7 +612,11 @@ class BrewTimingSection extends StatelessWidget {
               ? s.sensorRecording
               : switch (session.peakBar) {
                   final peak? => s.sensorPeak(
-                    NumberFormat('0.0', regionalLocale.toString()).format(peak),
+                    formatDecimal(
+                      peak,
+                      pattern: '0.0',
+                      locale: regionalLocale.toString(),
+                    ),
                   ),
                   null => null,
                 },
@@ -641,7 +646,7 @@ class BrewResultSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final draft = model.draft;
     final espresso = model.isEspresso;
     final ratio = _ratio(model, s);
@@ -690,7 +695,7 @@ class BrewResultSection extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            '${s.estimatedTds}: ${draft.effectiveTds == null ? '—' : NumberFormat('0.00', regionalLocale.toString()).format(draft.effectiveTds)} %',
+            '${s.estimatedTds}: ${draft.effectiveTds == null ? '—' : formatDecimal(draft.effectiveTds, pattern: '0.00', locale: regionalLocale.toString())} %',
           ),
           Text(s.brixHint),
         ] else
@@ -702,10 +707,11 @@ class BrewResultSection extends StatelessWidget {
             helperText: switch (model.devices.measureProblem.value) {
               R2Failed() => s.refractometerFailed,
               R2Result(:final tdsPercent) => s.refractometerBelowZero(
-                NumberFormat(
-                  '0.00',
-                  regionalLocale.toString(),
-                ).format(tdsPercent),
+                formatDecimal(
+                  tdsPercent,
+                  pattern: '0.00',
+                  locale: regionalLocale.toString(),
+                ),
               ),
               _ => null,
             },
@@ -751,7 +757,11 @@ class BrewResultSection extends StatelessWidget {
             suffix: _scaleFill(model, draft.jugTotal, 'scale-to-jug-total'),
             helperText: s.jugTare(
               model.recipient?.name ?? s.jug,
-              NumberFormat('0.#', regionalLocale.toString()).format(jug),
+              formatDecimal(
+                jug,
+                pattern: '0.#',
+                locale: regionalLocale.toString(),
+              ),
             ),
           ),
         ),
@@ -767,7 +777,7 @@ class BrewResultSection extends StatelessWidget {
         Text('${s.ratio}: $ratio'),
       if (ey != null && model.shows(BrewParameter.ey))
         Text(
-          '${s.ey}${draft.brixMode ? ' ≈' : ''}: ${NumberFormat('0.#', regionalLocale.toString()).format(ey)} %',
+          '${s.ey}${draft.brixMode ? ' ≈' : ''}: ${formatDecimal(ey, pattern: '0.#', locale: regionalLocale.toString())} %',
         ),
       if (model.shows(BrewParameter.rating))
         OptionalRatingSlider(value: model.rating, onChanged: model.setRating),

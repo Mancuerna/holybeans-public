@@ -10,6 +10,7 @@ import 'package:holybeans/data/services/journal_restore.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:patrol/patrol.dart';
@@ -39,9 +40,8 @@ Future<void> checkArchitectureFlows(
   final archive = await JournalBackup(db).exportArchive(photos);
   await $.pumpWidgetAndSettle(
     HolyBeansApp(
-      database: db,
+      services: AppServices(database: db, photos: photos),
       initialLocale: const Locale('en'),
-      photos: photos,
     ),
   );
   await $.tap(

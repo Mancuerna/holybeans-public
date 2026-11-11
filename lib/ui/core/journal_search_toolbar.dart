@@ -16,7 +16,7 @@ class JournalSearchToolbar extends StatelessWidget {
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
       final search = SearchField(
-        label: AppLocalizations.of(context)!.search,
+        label: AppLocalizations.of(context).search,
         controller: controller,
         compact: true,
       );

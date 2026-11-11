@@ -76,7 +76,7 @@ class _YearPhotoState extends State<_YearPhoto> {
           height: 230,
           fit: BoxFit.cover,
           cacheWidth: 800,
-          semanticLabel: AppLocalizations.of(context)!.yearReviewPhoto,
+          semanticLabel: AppLocalizations.of(context).yearReviewPhoto,
           errorBuilder: (_, error, stack) => const SizedBox.shrink(),
         ),
       );

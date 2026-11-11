@@ -177,7 +177,7 @@ class _ExtractionChartState extends State<ExtractionChart>
   }
 
   Widget _controls(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     if (!widget.interactive) {
       return Wrap(
         spacing: 12,
@@ -247,7 +247,7 @@ class _ExtractionChartState extends State<ExtractionChart>
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final prepared = model.value;
     if (prepared == null) {

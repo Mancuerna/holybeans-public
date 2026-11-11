@@ -15,7 +15,7 @@ class StatsConsumption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     // Grams, like the coffee ground above and every bag.
     final grams = NumberFormat('0', regionalLocale.toString());
     final percent = NumberFormat.percentPattern(regionalLocale.toString());

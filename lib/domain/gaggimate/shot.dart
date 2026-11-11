@@ -12,7 +12,6 @@ class GaggimateShot {
     this.temperatureC,
     this.peakPressureBar,
     this.firstDripSeconds,
-    this.preinfusionSeconds,
     this.doseGrams,
     this.grindSetting,
     this.notes,
@@ -28,7 +27,6 @@ class GaggimateShot {
   final double? temperatureC;
   final double? peakPressureBar;
   final int? firstDripSeconds;
-  final int? preinfusionSeconds;
   final double? doseGrams;
   final String? grindSetting;
   final String? notes;

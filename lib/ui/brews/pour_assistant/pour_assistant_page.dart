@@ -9,6 +9,7 @@ import 'package:holybeans/ui/brews/pour_assistant/pour_chart.dart';
 import 'package:holybeans/ui/brews/pour_assistant/pour_run.dart';
 import 'package:holybeans/ui/core/form_exit_guard.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
+import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/scale/scale_readout.dart';
 import 'package:intl/intl.dart';
@@ -70,7 +71,7 @@ class _PourAssistantPageState extends State<PourAssistantPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final page = Scaffold(
       appBar: AppBar(title: Text(s.pourAssistant)),
       body: SafeArea(
@@ -341,7 +342,7 @@ class _PlanEditorState extends State<_PlanEditor> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final plan = widget.plan;
     final problem = plan.problem;
@@ -349,8 +350,7 @@ class _PlanEditorState extends State<_PlanEditor> {
     final firstPour = problem == null
         ? plan.steps.firstWhere((step) => step.kind == PourStepKind.pour)
         : null;
-    String clock(int seconds) =>
-        '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
+    String clock(int seconds) => formatDuration(seconds);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),

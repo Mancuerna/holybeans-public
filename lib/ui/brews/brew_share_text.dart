@@ -1,8 +1,9 @@
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/brew_ratio.dart';
 import 'package:holybeans/domain/altitude.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_pours.dart';
-import 'package:holybeans/domain/brew_ratio.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/brew_parameter_labels.dart';
 import 'package:holybeans/ui/core/formatters.dart';
@@ -64,8 +65,11 @@ class BrewShareText {
       }
     }
 
-    String number(double value) =>
-        NumberFormat('0.##', regionalLocale.toString()).format(value);
+    String number(double value) => formatDecimal(
+      value,
+      pattern: '0.##',
+      locale: regionalLocale.toString(),
+    );
     String? grams(double? value) => value == null ? null : '${number(value)} g';
     String? percent(double? value) =>
         value == null ? null : '${number(value)} %';
@@ -151,9 +155,7 @@ class BrewShareText {
     add(
       brewLines,
       BrewParameter.time,
-      time == null
-          ? null
-          : '${time ~/ 60}:${(time % 60).toString().padLeft(2, '0')}',
+      time == null ? null : formatDuration(time),
     );
     add(brewLines, BrewParameter.preinfusion, seconds(brew.preinfusionSeconds));
     add(brewLines, BrewParameter.firstDrip, seconds(brew.firstDripSeconds));
@@ -189,10 +191,11 @@ class BrewShareText {
                       strings.pourDurationValue(seconds),
                     if (phase.flowGramsPerSecond case final flow?)
                       strings.pourFlowValue(
-                        NumberFormat(
-                          '0.0',
-                          regionalLocale.toString(),
-                        ).format(flow),
+                        formatDecimal(
+                          flow,
+                          pattern: '0.0',
+                          locale: regionalLocale.toString(),
+                        ),
                       ),
                     if (phase.restSeconds case final seconds?)
                       strings.bloomRestValue(seconds),
@@ -214,7 +217,7 @@ class BrewShareText {
       BrewParameter.ey,
       ey == null
           ? null
-          : '${brew.brix != null ? '≈ ' : ''}${NumberFormat('0.#', regionalLocale.toString()).format(ey)} %',
+          : '${brew.brix != null ? '≈ ' : ''}${formatDecimal(ey, pattern: '0.#', locale: regionalLocale.toString())} %',
     );
     add(
       brewLines,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 
@@ -48,7 +49,10 @@ void main() {
       );
       ids.add(await repository.createBrew(coffeeId: blend, methodName: 'V60'));
       await tester.pumpWidget(
-        HolyBeansApp(database: db, initialLocale: Locale(language)),
+        HolyBeansApp(
+          services: AppServices(database: db),
+          initialLocale: Locale(language),
+        ),
       );
       await tester.pumpAndSettle();
       final nav = tester.getRect(find.byType(NavigationBar));

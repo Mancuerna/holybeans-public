@@ -1,6 +1,7 @@
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/freshness.dart';
+import 'package:holybeans/domain/statistics.dart';
+import 'package:holybeans/domain/stats_inputs.dart';
 
 /// How long each bar of a chart over time lasts.
 enum StatsPeriod { day, week, month }
@@ -95,7 +96,10 @@ class RatedGroup {
 
 /// Average rating per brew temperature, in steps of [step] °C; only rated
 /// brews with a temperature count.
-Map<int, RatedGroup> ratingByTemperature(Iterable<Brew> brews, {int step = 2}) {
+Map<int, RatedGroup> ratingByTemperature(
+  Iterable<StatsBrew> brews, {
+  int step = 2,
+}) {
   final groups = <int, List<double>>{};
   for (final brew in brews) {
     final (rating, celsius) = (brew.rating, brew.temperatureC);
@@ -113,12 +117,12 @@ Map<int, RatedGroup> ratingByTemperature(Iterable<Brew> brews, {int step = 2}) {
 /// ([allBrews]), for the rated ones among [inRange]. Brews after the
 /// [cap]th count with the [cap]th.
 Map<int, RatedGroup> learningCurve(
-  Iterable<Brew> allBrews,
-  Iterable<Brew> inRange, {
+  Iterable<StatsBrew> allBrews,
+  Iterable<StatsBrew> inRange, {
   int cap = 8,
 }) {
   final order = <String, int>{};
-  final byCoffee = <String, List<Brew>>{};
+  final byCoffee = <String, List<StatsBrew>>{};
   for (final brew in allBrews) {
     byCoffee.putIfAbsent(brew.coffeeId, () => []).add(brew);
   }
@@ -153,7 +157,7 @@ class CoffeeValue {
     required this.averageRating,
   });
 
-  final Coffee coffee;
+  final StatsCoffee coffee;
   final int brewCount;
 
   /// The average cost of the coffee in its brews with a dose; null without
@@ -165,11 +169,11 @@ class CoffeeValue {
 
 /// Cost per cup and rating of each coffee brewed in [brews].
 List<CoffeeValue> coffeeValues(
-  Iterable<Brew> brews,
-  Iterable<Coffee> coffees,
+  Iterable<StatsBrew> brews,
+  Iterable<StatsCoffee> coffees,
   Map<String, double> pricePerKg,
 ) {
-  final byCoffee = <String, List<Brew>>{};
+  final byCoffee = <String, List<StatsBrew>>{};
   for (final brew in brews) {
     byCoffee.putIfAbsent(brew.coffeeId, () => []).add(brew);
   }
@@ -177,7 +181,10 @@ List<CoffeeValue> coffeeValues(
     for (final coffee in coffees)
       if (byCoffee[coffee.id] case final brews?)
         () {
-          final costs = [for (final brew in brews) ?brewCost(brew, pricePerKg)];
+          final costs = [
+            for (final brew in brews)
+              ?brewCost(brew.coffeeId, brew.doseGrams, pricePerKg),
+          ];
           final ratings = [for (final brew in brews) ?brew.rating];
           return CoffeeValue(
             coffee: coffee,
@@ -200,11 +207,13 @@ List<CoffeeValue> bestValue(Iterable<CoffeeValue> values, {int take = 5}) {
       if (value.costPerCup != null && value.averageRating != null) value,
   ];
   if (rated.isEmpty) return const [];
-  final median = _median([for (final value in rated) value.averageRating!])!;
+  final medianRating = median([
+    for (final value in rated) value.averageRating!,
+  ])!;
   final good =
       [
         for (final value in rated)
-          if (value.averageRating! >= median) value,
+          if (value.averageRating! >= medianRating) value,
       ]..sort((a, b) {
         final byCost = a.costPerCup!.compareTo(b.costPerCup!);
         return byCost != 0
@@ -219,7 +228,7 @@ typedef Purchase = ({DateTime date, double price, double grams});
 
 /// When [lot] was bought: its purchase date, else its roast date, else when
 /// it was added.
-DateTime purchaseDate(CoffeeLot lot) =>
+DateTime purchaseDate(StatsLot lot) =>
     DateTime.tryParse(lot.purchaseDate ?? '') ??
     DateTime.tryParse(lot.roastDate ?? '') ??
     DateTime.fromMillisecondsSinceEpoch(lot.createdAtMs);
@@ -228,7 +237,7 @@ DateTime purchaseDate(CoffeeLot lot) =>
 /// bought from [from] on, when given. Bags without a price or weight are
 /// left out.
 List<Purchase> purchases(
-  Iterable<CoffeeLot> lots,
+  Iterable<StatsLot> lots,
   Map<String, double> pricePerKg, {
   DateTime? from,
 }) => [
@@ -253,8 +262,8 @@ class RoasterPrice {
 /// Average price per kilo of each roaster, weighted by the grams of each
 /// bag, dearest first; only bags dated from [from] on, when given.
 List<RoasterPrice> pricePerKgByRoaster(
-  Iterable<Coffee> coffees,
-  Iterable<CoffeeLot> lots,
+  Iterable<StatsCoffee> coffees,
+  Iterable<StatsLot> lots,
   Map<String, double> pricePerKg, {
   DateTime? from,
 }) {
@@ -292,14 +301,14 @@ List<RoasterPrice> pricePerKgByRoaster(
 /// The median days from roasting to the first brew of each coffee first
 /// brewed in [inRange], from the bag that brew used; null without any.
 double? medianDaysToFirstBrew(
-  Iterable<Brew> allBrews,
-  Iterable<Brew> inRange,
-  Iterable<CoffeeLot> lots,
+  Iterable<StatsBrew> allBrews,
+  Iterable<StatsBrew> inRange,
+  Iterable<StatsLot> lots,
 ) {
   final roastOf = {
     for (final lot in lots) lot.id: ?DateTime.tryParse(lot.roastDate ?? ''),
   };
-  final first = <String, Brew>{};
+  final first = <String, StatsBrew>{};
   for (final brew in allBrews) {
     final known = first[brew.coffeeId];
     if (known == null || brew.brewedAtMs < known.brewedAtMs) {
@@ -317,7 +326,7 @@ double? medianDaysToFirstBrew(
               case final age when age >= 0)
             age,
   ];
-  return _median(days);
+  return median(days);
 }
 
 /// Typical figures for one brewing style, as medians so a cold brew or a
@@ -335,14 +344,11 @@ class StyleAverages {
 
 /// [StyleAverages] for each style among [brews]: filter compares the water
 /// with the dose; espresso, the yield.
-Map<BrewStyle, StyleAverages> styleAverages(
-  Iterable<Brew> brews,
-  BrewStyle Function(Brew brew) styleOf,
-) {
+Map<BrewStyle, StyleAverages> styleAverages(Iterable<StatsBrew> brews) {
   final ratios = <BrewStyle, List<double>>{};
   final times = <BrewStyle, List<int>>{};
   for (final brew in brews) {
-    final style = styleOf(brew);
+    final style = brew.style;
     final dose = brew.doseGrams;
     final out = style == BrewStyle.espresso
         ? brew.beverageGrams
@@ -358,20 +364,9 @@ Map<BrewStyle, StyleAverages> styleAverages(
     for (final style in BrewStyle.values)
       if (ratios.containsKey(style) || times.containsKey(style))
         style: StyleAverages(
-          ratio: _median(ratios[style] ?? const []),
-          timeSeconds: _median(times[style] ?? const []),
+          ratio: median(ratios[style] ?? const []),
+          timeSeconds: median(times[style] ?? const []),
           times: times[style] ?? const [],
         ),
   };
-}
-
-/// The middle of [values], or the mean of the two middle ones; null when
-/// there are none.
-double? _median(Iterable<num> values) {
-  final sorted = [...values]..sort();
-  if (sorted.isEmpty) return null;
-  final middle = sorted.length ~/ 2;
-  return sorted.length.isOdd
-      ? sorted[middle].toDouble()
-      : (sorted[middle - 1] + sorted[middle]) / 2;
 }

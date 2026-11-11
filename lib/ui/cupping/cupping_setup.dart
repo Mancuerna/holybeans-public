@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/domain/cupping.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/coffee_picker.dart';
@@ -15,7 +16,7 @@ class CuppingSetup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final d = model.draft;
     final number = NumberFormat('0.##', regionalLocale.toString());
     return Form(
@@ -157,14 +158,18 @@ class CuppingNumber extends StatelessWidget {
   bool valid(double? v) => v != null && v.isFinite && v > 0 && v <= max;
   @override
   Widget build(BuildContext context) => TextFormField(
-    initialValue: NumberFormat('0.##', regionalLocale.toString()).format(value),
+    initialValue: formatDecimal(
+      value,
+      pattern: '0.##',
+      locale: regionalLocale.toString(),
+    ),
     decoration: InputDecoration(labelText: label),
     inputFormatters: [decimalInputFormatter],
     keyboardType: const TextInputType.numberWithOptions(decimal: true),
     autovalidateMode: AutovalidateMode.onUserInteraction,
     validator: (text) => valid(parse(text))
         ? null
-        : AppLocalizations.of(context)!.cuppingSetupError,
+        : AppLocalizations.of(context).cuppingSetupError,
     onChanged: (text) {
       final v = parse(text);
       if (valid(v)) onChanged(v!);
@@ -178,7 +183,7 @@ class CuppingEquipment extends StatelessWidget {
   final CuppingCupDraft? cup;
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final d = model.draft;
     final c = cup;
     return Column(
@@ -253,7 +258,7 @@ class CuppingCupSetup extends StatelessWidget {
   final bool identifying;
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final c = model.draft.cups[index];
     final lots = model.lots
         .where((l) => l.coffeeId == c.coffeeId && l.archivedAtMs == null)
@@ -409,7 +414,7 @@ class CuppingChoice extends StatelessWidget {
       if (value != null && !choices.containsKey(value))
         DropdownMenuItem(
           value: value,
-          child: Text(AppLocalizations.of(context)!.archivedStatus),
+          child: Text(AppLocalizations.of(context).archivedStatus),
         ),
       for (final entry in choices.entries)
         DropdownMenuItem(

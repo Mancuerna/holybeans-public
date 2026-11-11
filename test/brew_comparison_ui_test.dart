@@ -8,6 +8,7 @@ import 'package:holybeans/ui/brews/brew_comparison_page.dart';
 import 'package:holybeans/ui/brews/comparison_curves.dart';
 import 'package:holybeans/ui/brews/comparison_values_row.dart';
 import 'package:holybeans/ui/brews/espresso_map_page.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
@@ -73,7 +74,10 @@ void main() {
             await repository.saveScaleCurve(id, curve);
           }
           await tester.pumpWidget(
-            HolyBeansApp(database: db, initialLocale: Locale(language)),
+            HolyBeansApp(
+              services: AppServices(database: db),
+              initialLocale: Locale(language),
+            ),
           );
           await tester.pumpAndSettle();
           await tapBottomDestination(tester, 2);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/domain/brew_stats.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/tasting_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -74,7 +74,7 @@ class ActivityCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final counts = preparedCounts ?? brewsPerDay(brews);
     final day = statsDay(today);
@@ -263,7 +263,7 @@ class _ActivityLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final style = Theme.of(context).textTheme.labelSmall;
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -316,7 +316,7 @@ class ExtractionMapGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final number = NumberFormat('0.#', regionalLocale.toString());
@@ -443,7 +443,7 @@ class RankedBars extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final number = NumberFormat('0.#', regionalLocale.toString());
