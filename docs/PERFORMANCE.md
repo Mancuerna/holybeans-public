@@ -929,6 +929,25 @@ precisions, exact saved values and locale changes. These are host microbenchmark
 results, not Android frame-time or end-to-end typing latency measurements; no
 timing threshold is enforced.
 
+## Offline cafe catalog reuse (November 2026)
+
+Catalog loads share one pending/completed future per asset bundle. JSON decoding
+and venue mapping run in a worker; the retained result is immutable. Failed loads
+clear the future so a later opening can retry. The bundled catalog and every
+venue field remain unchanged.
+
+`benchmark/cafe_catalog_benchmark_test.dart` compares `09bc17d` with this change,
+using the same warmed asset string and all 2,253 venues. Two warmups and nine
+samples of 20 opens make 220 calls: distinct consecutive returned lists fall
+from **220 to 1**. The median sample falls from **204.470 to 0.475 ms**, and p95
+from **210.058 to 0.960 ms**, in host Flutter tests. The driver verifies every
+venue's name, city, country, coordinates, source key, category and source URL.
+
+These are repeated-load microbenchmarks, excluding initial loading/worker
+startup; they do not measure Android screen-opening latency. One parsed catalog
+is retained for the bundle's lifetime. Tests cover simultaneous opens, load and
+decode retries, independent bundles, and existing offline picker behavior.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
