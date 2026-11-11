@@ -94,6 +94,7 @@
   "backup": "Backup",
   "exportBackup": "Share backup",
   "importBackup": "Restore backup",
+  "backupWorking": "Processing backup…",
   "backupFailed": "Could not prepare backup",
   "restoreFailed": "Could not restore backup",
   "restoreTitle": "Restore journal",

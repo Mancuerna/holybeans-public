@@ -43,9 +43,9 @@ void main() {
                 home: SettingsPage(
                   locale: Locale(locale),
                   onLocaleChanged: (_) {},
-                  onExportBackup: () {},
+                  onExportBackup: () async {},
                   onExportCsv: () {},
-                  onImportBackup: () {},
+                  onImportBackup: () async {},
                   parameterSettings: BrewParameterSettings(db),
                   templateSettings: ShareTemplateSettings(db),
                   scale: device == 'scale' ? scale : null,
