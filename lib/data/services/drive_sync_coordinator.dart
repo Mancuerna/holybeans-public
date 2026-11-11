@@ -169,6 +169,7 @@ class DriveSyncCoordinator {
             deviceId: deviceId,
             contentHash: stagedHash,
             baseId: state.anchor?.id,
+            createdAt: DateTime.now(),
           );
           await store.write(
             DriveSyncState(

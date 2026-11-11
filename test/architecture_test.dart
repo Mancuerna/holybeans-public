@@ -72,14 +72,8 @@ void main() {
     // Existing domain adapters use the immutable generated journal rows.
     // This documented exception does not permit new database dependencies.
     const journalRowAdapters = {
-      'bean_exchange.dart',
-      'brew_comparison.dart',
-      'brew_csv.dart',
       'brew_stats.dart',
-      'coffee_suggestions.dart',
       'stats_insights.dart',
-      'brew_ratio.dart',
-      'backup_reminder.dart',
       'stock.dart',
       'tool_catalog.dart',
     };
@@ -95,6 +89,9 @@ void main() {
       final source = file.readAsStringSync();
       final segments = path.split(file.path);
       final layer = segments[1];
+      if (layer == 'domain' && source.contains('DateTime.now(')) {
+        violations.add('${file.path}: pass the current time into domain logic');
+      }
       if (source.split('\n').length - 1 > 800) {
         violations.add('${file.path}: over 800 lines');
       }

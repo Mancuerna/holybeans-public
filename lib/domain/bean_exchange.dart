@@ -1,9 +1,21 @@
 import 'dart:convert';
 
 import 'package:archive/archive.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/domain/altitude.dart';
 import 'package:holybeans/domain/https_link.dart';
+
+typedef SharedCoffee = ({
+  String name,
+  String roaster,
+  String? roastLevel,
+  bool isDecaf,
+  String? flavorProfile,
+  String? shopUrl,
+  int? paidPriceCents,
+});
+typedef SharedComponent = ({int position, SharedOrigin origin});
+typedef SharedLot = ({double? initialGrams, int createdAtMs});
+typedef ExistingCoffee = ({String id, String name, String roaster});
 
 /// Coffee cards passed between people and apps: a `.holybeans` file, a QR
 /// code or text an AI filled in. A card describes the coffee and one bag of
@@ -43,18 +55,6 @@ class SharedOrigin {
     this.altitudeMaxMeters,
     this.harvest,
   });
-
-  factory SharedOrigin.fromComponent(CoffeeComponent component) => SharedOrigin(
-    country: component.country,
-    region: component.region,
-    farm: component.farm,
-    producer: component.producer,
-    variety: component.variety,
-    process: component.process,
-    altitudeMeters: component.altitudeMeters,
-    altitudeMaxMeters: component.altitudeMaxMeters,
-    harvest: component.harvest,
-  );
 
   final String? country;
   final String? region;
@@ -109,10 +109,10 @@ class SharedBean {
 
   /// The card of [coffee]: its origins, and the price and weight of its
   /// latest bag. The roast date stays out: the receiver's bag has its own.
-  factory SharedBean.fromCoffee(
-    Coffee coffee,
-    List<CoffeeComponent> components,
-    List<CoffeeLot> lots,
+  factory SharedBean.fromFacts(
+    SharedCoffee coffee,
+    List<SharedComponent> components,
+    List<SharedLot> lots,
   ) {
     final weighed = [
       for (final lot in lots)
@@ -141,8 +141,7 @@ class SharedBean {
       bagGrams: bagGrams,
       origins: [
         for (final component in sorted)
-          if (!SharedOrigin.fromComponent(component).isEmpty)
-            SharedOrigin.fromComponent(component),
+          if (!component.origin.isEmpty) component.origin,
       ],
     );
   }
@@ -594,7 +593,10 @@ List<String> _notesFrom(String? profile) => [
 
 /// The coffee in [coffees] that [bean] already is: same name and roaster,
 /// ignoring case, accents and spacing.
-Coffee? existingCoffee(SharedBean bean, List<Coffee> coffees) {
+ExistingCoffee? existingCoffee(
+  SharedBean bean,
+  Iterable<ExistingCoffee> coffees,
+) {
   final key = (_plain(bean.name), _plain(bean.roaster));
   return coffees
       .where((coffee) => (_plain(coffee.name), _plain(coffee.roaster)) == key)

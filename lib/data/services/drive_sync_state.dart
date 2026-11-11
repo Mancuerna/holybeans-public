@@ -5,7 +5,12 @@ class DriveSyncAnchor {
   factory DriveSyncAnchor.fromJson(Object? value) {
     if (value case {'id': final String id, 'hash': final String hash}) {
       // Reuse the protocol's identifier and digest validation.
-      DriveSnapshot(id: id, deviceId: 'validation', contentHash: hash);
+      DriveSnapshot(
+        id: id,
+        deviceId: 'validation',
+        contentHash: hash,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+      );
       return DriveSyncAnchor(id, hash);
     }
     throw const FormatException('Invalid synchronization anchor');
@@ -29,6 +34,7 @@ class DriveApplyIntent {
         id: 'validation',
         deviceId: 'validation',
         contentHash: hash,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
       );
       return DriveApplyIntent(
         target: DriveSyncAnchor.fromJson(target),
@@ -74,7 +80,12 @@ class DriveSyncState {
     this.pending,
     this.applying,
   }) {
-    DriveSnapshot(id: accountKey, deviceId: deviceId, contentHash: '0' * 64);
+    DriveSnapshot(
+      id: accountKey,
+      deviceId: deviceId,
+      contentHash: '0' * 64,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+    );
     if (pending != null && applying != null) {
       throw const FormatException('Conflicting pending operations');
     }

@@ -61,7 +61,7 @@ CoffeeFreshness? coffeeFreshnessFacts({
   required List<FreshnessBrew> brews,
   required List<FreshnessLot> allLots,
   int? frozenOnlyAge,
-  DateTime? now,
+  required DateTime now,
 }) {
   final ratedDays = <RatedDay>[];
   FreshnessLot? newest;
@@ -75,7 +75,7 @@ CoffeeFreshness? coffeeFreshnessFacts({
   }
   if (roastDate == null || newest == null) return null;
   final pause = newest.frozenPauseDays ?? 0;
-  final today = now ?? DateTime.now();
+  final today = now;
   final openedDate = frozenOnlyAge == null
       ? DateTime.tryParse(newest.openedDate ?? '')
       : null;

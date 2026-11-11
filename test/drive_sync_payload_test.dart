@@ -100,7 +100,12 @@ void main() {
       await repository.createCoffee(name: 'Later coffee', roaster: 'Roaster');
       await LanguageSetting(database).save(const Locale('es'));
       await adapter.apply(
-        DriveSnapshot(id: 'snapshot', deviceId: 'other', contentHash: hash),
+        DriveSnapshot(
+          id: 'snapshot',
+          deviceId: 'other',
+          contentHash: hash,
+          createdAt: DateTime.utc(2026),
+        ),
       );
       expect(await adapter.currentHash(), hash);
       expect((await LanguageSetting(database).load())?.languageCode, 'es');
@@ -126,6 +131,7 @@ void main() {
       id: 'apply-state',
       deviceId: 'other',
       contentHash: hash,
+      createdAt: DateTime.utc(2026),
     );
     await adapter.capture();
     expect(events, isEmpty);

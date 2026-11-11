@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/domain/backup_reminder.dart';
+import 'package:holybeans/data/repositories/backup_reminder.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/backup/backup_center.dart';
 

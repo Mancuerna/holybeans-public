@@ -26,7 +26,11 @@ void main() {
           Uint8List.fromList(utf8.encode(jsonEncode(payload))),
         );
         await repo.importBeanconqueror(
-          planBeanconquerorImport(archive, await repo.beanconquerorJournal()),
+          planBeanconquerorImport(
+            archive,
+            await repo.beanconquerorJournal(),
+            now: DateTime.utc(2026),
+          ),
         );
       }
 

@@ -1,8 +1,8 @@
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/brew_ratio.dart';
 import 'package:holybeans/domain/altitude.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_pours.dart';
-import 'package:holybeans/domain/brew_ratio.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/brew_parameter_labels.dart';
 import 'package:holybeans/ui/core/formatters.dart';

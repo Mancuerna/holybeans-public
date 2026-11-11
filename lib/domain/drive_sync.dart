@@ -33,9 +33,9 @@ class DriveSnapshot {
     required this.deviceId,
     required this.contentHash,
     this.baseId,
-    DateTime? createdAt,
+    required DateTime createdAt,
     Iterable<String> resolvedHeads = const [],
-  }) : createdAt = (createdAt ?? DateTime.now()).toUtc(),
+  }) : createdAt = createdAt.toUtc(),
        resolvedHeads = Set.unmodifiable(resolvedHeads) {
     if (!_identifier.hasMatch(id) ||
         !_identifier.hasMatch(deviceId) ||

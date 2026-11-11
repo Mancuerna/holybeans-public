@@ -96,7 +96,7 @@ CoffeeFreshness? coffeeFreshness({
   ],
   allLots: allLots.map(_lot).toList(),
   frozenOnlyAge: frozenOnlyAge,
-  now: now,
+  now: now ?? DateTime.now(),
 );
 
 FreshnessCoffee _coffee(Coffee row) => (

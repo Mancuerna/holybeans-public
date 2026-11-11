@@ -1,11 +1,20 @@
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/domain/text_suggestions.dart';
+
+typedef SuggestionCoffee = ({String name, String roaster});
+typedef SuggestionOrigin = ({
+  String? region,
+  String? variety,
+  String? process,
+  String? farm,
+  String? producer,
+  String? harvest,
+});
 
 /// Suggestions from the user's own coffees, including archived ones.
 class CoffeeSuggestions {
   CoffeeSuggestions(
-    List<Coffee> coffees,
-    List<CoffeeComponent> origins, {
+    Iterable<SuggestionCoffee> coffees,
+    Iterable<SuggestionOrigin> origins, {
     Iterable<String> roasterNames = const [],
   }) : names = uniqueSuggestions(coffees.map((coffee) => coffee.name)),
        roasters = uniqueSuggestions([

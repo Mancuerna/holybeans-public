@@ -1,4 +1,3 @@
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:intl/intl.dart';
 
 /// Extraction yield in percent: the share of the dose that ended up
@@ -18,13 +17,6 @@ double? extractionYieldPercent({
   }
   return beverageGrams * tdsPercent / doseGrams;
 }
-
-/// [extractionYieldPercent] of a saved brew.
-double? brewExtractionYield(Brew brew) => extractionYieldPercent(
-  doseGrams: brew.doseGrams,
-  beverageGrams: brew.beverageGrams,
-  tdsPercent: brew.tdsPercent,
-);
 
 /// Current recipe ratio, without rounding or changing manually entered water.
 double? filterRecipeRatio(double? dose, double? water) =>

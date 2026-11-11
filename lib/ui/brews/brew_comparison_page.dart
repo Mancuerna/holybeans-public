@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/brew_comparison.dart';
+import 'package:holybeans/data/repositories/brew_ratio.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/domain/brew_comparison.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
-import 'package:holybeans/domain/brew_ratio.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_differences_summary.dart';
 import 'package:holybeans/ui/brews/comparison_curves.dart';
