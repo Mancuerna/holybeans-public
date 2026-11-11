@@ -2,7 +2,6 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:drift/drift.dart' show Value;
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -14,6 +13,8 @@ import 'package:holybeans/ui/cupping/cupping_share_sheet.dart';
 import 'package:intl/intl.dart';
 
 import 'helpers/cupping_share_fixture.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 class _Pops extends NavigatorObserver {
   int pops = 0;
@@ -28,7 +29,7 @@ void main() {
   late AppDatabase db;
   late JournalRepository r;
   setUp(() {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     r = JournalRepository(db);
   });
   tearDown(() => db.close());
@@ -82,10 +83,8 @@ void main() {
     await expectLater(r.cuppingShareData('missing'), throwsStateError);
   });
 
-  Widget app(Widget page, String language, {double scale = 1}) => MaterialApp(
+  Widget app(Widget page, String language, {double scale = 1}) => localizedApp(
     locale: Locale(language),
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
     builder: (context, child) => MediaQuery(
       data: MediaQuery.of(context)
           .copyWith(textScaler: TextScaler.linear(scale)),
@@ -240,10 +239,8 @@ void main() {
     final observer = _Pops();
     List<int>? png;
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         navigatorObservers: [observer],
         home: Scaffold(
           body: Builder(

@@ -1,4 +1,3 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -7,6 +6,9 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/dial_in_card.dart';
+
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 const _longNote =
     'Bright and juicy but a little thin at the end; try a slower second '
@@ -21,7 +23,7 @@ Future<Finder> _openKenyaV60(
   WidgetTester tester, {
   bool favorite = false,
 }) async {
-  final database = AppDatabase.forTesting(NativeDatabase.memory());
+  final database = memoryDatabase();
   addTearDown(database.close);
   tester.view.physicalSize = const Size(360, 800);
   tester.view.devicePixelRatio = 1;
@@ -141,10 +143,8 @@ void main() {
           );
           final rated = row('rated', 7);
           await tester.pumpWidget(
-            MaterialApp(
+            localizedApp(
               locale: Locale(language),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
               builder: (context, child) => MediaQuery(
                 data: MediaQuery.of(context)
                     .copyWith(textScaler: const TextScaler.linear(2)),
@@ -315,9 +315,7 @@ void main() {
       isFavorite: false,
     );
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+      localizedApp(
         locale: const Locale('es'),
         home: Scaffold(
           body: DialInCard(

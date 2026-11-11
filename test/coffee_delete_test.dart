@@ -1,18 +1,19 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show Value;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   late AppDatabase database;
   late JournalRepository repository;
 
   setUp(() {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     repository = JournalRepository(database);
   });
   tearDown(() => database.close());
@@ -92,7 +93,7 @@ void main() {
         await database.customSelect('PRAGMA foreign_key_check').get(),
         isEmpty,
       );
-      final target = AppDatabase.forTesting(NativeDatabase.memory());
+      final target = memoryDatabase();
       try {
         // Current copies restore the original coffee and inventory.
         expect(jsonDecode(before)['version'], JournalBackup.version);

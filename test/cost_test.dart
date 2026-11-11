@@ -1,15 +1,15 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/main.dart';
 
+import 'helpers/test_database.dart';
+
 void main() {
   test('brew cost follows the price per kilo of the whole purchase', () async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     final priced = await repository.createCoffee(
@@ -61,7 +61,7 @@ void main() {
   });
 
   testWidgets('brew details show the cost of the coffee used', (tester) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;

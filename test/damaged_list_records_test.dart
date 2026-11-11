@@ -1,4 +1,3 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -8,12 +7,11 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/freezer_widgets.dart';
 import 'package:holybeans/ui/cupping/cupping_sessions_page.dart';
 
-Widget _app(Widget page) => MaterialApp(
-  locale: const Locale('en'),
-  localizationsDelegates: AppLocalizations.localizationsDelegates,
-  supportedLocales: AppLocalizations.supportedLocales,
-  home: page,
-);
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
+
+Widget _app(Widget page) =>
+    localizedApp(locale: const Locale('en'), home: page);
 
 void main() {
   testWidgets('an invalid frozen date keeps the portion visible and editable', (
@@ -61,7 +59,7 @@ void main() {
     testWidgets('a damaged cupping draft keeps the list usable ($damaged)', (
       tester,
     ) async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repository = JournalRepository(db);
       await repository.createCuppingSession(CuppingDraft()..name = 'Healthy');

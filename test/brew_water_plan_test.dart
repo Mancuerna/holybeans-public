@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_pours_draft.dart';
 import 'package:holybeans/ui/brews/brew_timer.dart';
 import 'package:holybeans/ui/brews/brew_water_plan.dart';
+
+import 'helpers/ui_test_support.dart';
 
 void main() {
   testWidgets(
@@ -27,9 +28,7 @@ void main() {
         seconds.dispose();
       });
       await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
+        localizedApp(
           locale: const Locale('es'),
           home: Scaffold(
             body: SizedBox(

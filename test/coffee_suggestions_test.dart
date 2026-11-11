@@ -1,18 +1,17 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
 
+import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 void main() {
   testWidgets('new beans reuse roaster and producer from archived beans', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     final archived = await repository.createCoffeeWithComponents(

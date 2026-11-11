@@ -1,4 +1,3 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -9,11 +8,14 @@ import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/extraction_timer.dart';
 import 'package:holybeans/ui/core/optional_rating_slider.dart';
 
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
+
 void main() {
   testWidgets(
     'extraction timer fills minutes and seconds, pauses, resumes and resets',
     (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       final repository = JournalRepository(database);
       await repository.createCoffee(name: 'Timer coffee', roaster: 'Test');
       final coffees = await database.select(database.coffees).get();
@@ -67,7 +69,7 @@ void main() {
   testWidgets('timer keeps running offscreen and saves the full duration', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     final repository = JournalRepository(database);
     await repository.createCoffee(name: 'Scroll coffee', roaster: 'Test');
     final methodId = await repository.createMethod(
@@ -127,7 +129,7 @@ void main() {
   testWidgets(
     'timer start preserves invalid input and shows its inline error',
     (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       final repository = JournalRepository(database);
       await repository.createCoffee(name: 'Timer coffee', roaster: 'Test');
       final coffees = await database.select(database.coffees).get();
@@ -171,7 +173,7 @@ void main() {
   testWidgets('rating starts unset, is set by the slider and can be cleared', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     final repository = JournalRepository(database);
     await repository.createCoffee(name: 'Rating coffee', roaster: 'Test');
     final coffees = await database.select(database.coffees).get();
@@ -225,10 +227,8 @@ Future<void> _openBrewForm(
   String? methodId,
 }) async {
   await tester.pumpWidget(
-    MaterialApp(
+    localizedApp(
       locale: const Locale('en'),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
         body: Builder(
           builder: (context) => Center(

@@ -1,11 +1,12 @@
 import 'dart:async';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
+
+import 'helpers/test_database.dart';
 
 Future<void> ready(BrewFormModel model) async {
   for (var i = 0; i < 500 && model.busy; i++) {
@@ -20,7 +21,7 @@ void main() {
     test(
       'direct Brew with $fresh fresh grams preserves stock and origin',
       () async {
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         final repo = JournalRepository(db);
         final coffee = await repo.createCoffee(
           name: 'Frozen',
@@ -79,7 +80,7 @@ void main() {
     );
   }
   test('cancel and double save leave all frozen coffee untouched', () async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
     final repo = JournalRepository(db);
     final coffee = await repo.createCoffeeWithComponents(
       name: 'Frozen',

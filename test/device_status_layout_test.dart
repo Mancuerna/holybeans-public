@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/services/scale.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/scale/scale_compact.dart';
 
 import 'helpers/fake_pressure_sensor.dart';
 import 'helpers/fake_scale.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   for (final locale in ['es', 'en']) {
@@ -24,10 +24,8 @@ void main() {
             addTearDown(scale.dispose);
             addTearDown(sensor.dispose);
             await tester.pumpWidget(
-              MaterialApp(
+              localizedApp(
                 locale: Locale(locale),
-                localizationsDelegates: AppLocalizations.localizationsDelegates,
-                supportedLocales: AppLocalizations.supportedLocales,
                 builder: (context, child) => MediaQuery(
                   data: MediaQuery.of(context)
                       .copyWith(textScaler: TextScaler.linear(textScale)),

@@ -1,19 +1,19 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   testWidgets('a long press on a unified brew card opens it to edit', (
     tester,
   ) async {
     final semantics = tester.ensureSemantics();
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(400, 900);
     tester.view.devicePixelRatio = 1;
@@ -62,7 +62,7 @@ void main() {
   testWidgets('a long press on a bean card opens it to edit, in both '
       'densities', (tester) async {
     final semantics = tester.ensureSemantics();
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(400, 900);
     tester.view.devicePixelRatio = 1;

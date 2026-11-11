@@ -1,8 +1,6 @@
 import 'dart:convert';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/data/services/refractometer.dart';
@@ -13,6 +11,7 @@ import 'package:holybeans/ui/brews/brew_draft.dart';
 import 'package:holybeans/ui/brews/brew_timer.dart';
 
 import 'helpers/fake_refractometer.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -64,7 +63,7 @@ void main() {
   test(
     'feeder and original Brix survive repository and backup restore',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       final repo = JournalRepository(db);
       try {
         final coffee = await repo.createCoffee(name: 'Test', roaster: 'Test');

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -12,6 +11,7 @@ import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_share_text.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 void main() {
@@ -97,7 +97,7 @@ void main() {
     });
 
     test('settings keep both lists in the preferences row', () async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       final settings = BrewParameterSettings(database);
       expect(await settings.loadHidden(), isEmpty);
@@ -122,7 +122,7 @@ void main() {
   });
 
   test('the shared text includes ratio, grinding and espresso times', () async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     final coffeeId = await repository.createCoffee(name: 'Kenya', roaster: 'R');
@@ -180,7 +180,7 @@ void main() {
 
   group('hidden parameters', () {
     Future<(AppDatabase, JournalRepository)> journal() async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       final repository = JournalRepository(database);
       final coffeeId = await repository.createCoffee(
@@ -295,7 +295,7 @@ void main() {
   testWidgets('the last shared field explains why it stays selected', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final settings = BrewParameterSettings(database);
     await settings.saveShared({BrewParameter.dose});
@@ -339,7 +339,7 @@ void main() {
   testWidgets('presets hide the finer fields in one tap and show all back', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     await tester.pumpWidget(
       HolyBeansApp(database: database, initialLocale: const Locale('en')),

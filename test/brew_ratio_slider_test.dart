@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_ratio_slider.dart';
 import 'package:holybeans/ui/brews/espresso_brew_readout.dart';
+
+import 'helpers/ui_test_support.dart';
 
 void main() {
   for (final locale in ['es', 'en']) {
@@ -14,10 +15,8 @@ void main() {
       var espresso = true;
       late StateSetter rebuild;
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: Locale(locale),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: Center(
               child: SizedBox(

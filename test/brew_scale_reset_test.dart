@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/domain/scale_recording.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_devices.dart';
 import 'package:holybeans/ui/brews/brew_draft.dart';
 import 'package:holybeans/ui/brews/brew_scale_reset_button.dart';
@@ -11,6 +10,7 @@ import 'package:holybeans/ui/brews/brew_timer.dart';
 import 'package:holybeans/ui/scale/scale_compact.dart';
 
 import 'helpers/fake_scale.dart';
+import 'helpers/ui_test_support.dart';
 
 class _ResetScale extends FakeScale {
   _ResetScale() : super(name: 'Test scale', connected: true);
@@ -62,10 +62,8 @@ void main() {
 
   Future<void> mount(WidgetTester tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: Center(
             child: SizedBox(

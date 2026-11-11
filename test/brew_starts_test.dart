@@ -1,7 +1,8 @@
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   late AppDatabase database;
@@ -11,7 +12,7 @@ void main() {
   late String v60;
 
   setUp(() async {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     repository = JournalRepository(database);
     kenya = await repository.createCoffee(name: 'Kenya', roaster: 'R');
     brazil = await repository.createCoffee(name: 'Brazil', roaster: 'R');

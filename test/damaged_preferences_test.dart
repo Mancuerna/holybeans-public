@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show Value;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/preferences_row.dart';
@@ -10,6 +9,8 @@ import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   final validShare = ShareConfiguration(fields: {BrewParameter.notes}).toJson();
@@ -39,7 +40,7 @@ void main() {
     test(
       'share settings recover from ${entry.key} and remain writable',
       () async {
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(db.close);
         await db.savePreferences(
           AppPreferencesCompanion(shareFieldsJson: Value(entry.value)),
@@ -65,7 +66,7 @@ void main() {
     test(
       'restore rejects share ${entry.key} before replacing the journal',
       () async {
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(db.close);
         final coffee = await JournalRepository(db)
             .createCoffee(name: 'Keep me', roaster: 'Test');
@@ -102,7 +103,7 @@ void main() {
       test(
         'damaged scales $source recover with legacy=$legacy and remain writable',
         () async {
-          final db = AppDatabase.forTesting(NativeDatabase.memory());
+          final db = memoryDatabase();
           addTearDown(db.close);
           await db.savePreferences(
             AppPreferencesCompanion(
@@ -137,7 +138,7 @@ void main() {
   test(
     'a valid empty scale list takes precedence over the legacy pair',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       await db.savePreferences(
         const AppPreferencesCompanion(
