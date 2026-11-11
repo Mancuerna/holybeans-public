@@ -705,6 +705,20 @@ excluding initial preparation. It verifies changed lots, frozen age and history;
 `freshness_day_test.dart` verifies same-day reuse and next-day recalculation.
 These are calculation counts, not device latency measurements.
 
+## Cupping score timer isolation (November 2026)
+
+Cupping timer ticks notify the page only during infusion and cooling, where the
+clock and its alerts are visible. Tasting and review continue to derive elapsed
+time from the stored timestamps without rebuilding their scoring controls.
+Edits, saves and phase changes keep their existing notifications.
+
+`cupping_tick_rebuild_test.dart` opens the real page with six cups and its
+36-control matrix, then pumps 100 one-second ticks in each of tasting and review.
+The same driver on `1ed5964` and after this change measures **100 → 0 CuppingScores
+builds** and **3,600 → 0 dropdown builds** per phase. It then edits a rating and
+verifies the persisted draft. Existing clock, pause, alert and blind-cupping tests
+remain unchanged. These are host build counts, not device timing measurements.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

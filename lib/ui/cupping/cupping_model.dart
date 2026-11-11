@@ -169,8 +169,12 @@ class CuppingModel extends ChangeNotifier {
 
   /// The clock continues from a timestamp across navigation and app restarts.
   void tick() {
-    if (_disposed || completed || draft.phase == CuppingPhase.setup) return;
-    if (clockPaused) return;
+    if (_disposed || completed || clockPaused) return;
+    // Only timed phases show elapsed time or trigger clock alerts.
+    if (draft.phase != CuppingPhase.infusion &&
+        draft.phase != CuppingPhase.cooling) {
+      return;
+    }
     if (draft.phase == CuppingPhase.infusion &&
         elapsed >= draft.crustSeconds &&
         !draft.crustAlerted) {
