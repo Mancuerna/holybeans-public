@@ -5,10 +5,10 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/bean_roaster_groups.dart';
 import 'package:holybeans/domain/freshness_order.dart';
 import 'package:holybeans/domain/list_options.dart';
-import 'package:holybeans/domain/stock.dart';
 import 'package:holybeans/domain/text_suggestions.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/bean_card.dart';
+import 'package:holybeans/ui/beans/bean_list_data.dart';
 import 'package:holybeans/ui/beans/roaster_group_header.dart';
 import 'package:holybeans/ui/core/journal_search_toolbar.dart';
 import 'package:holybeans/ui/core/page_layout.dart';
@@ -47,6 +47,8 @@ class BeansTab extends StatefulWidget {
 class _BeansTabState extends State<BeansTab> {
   final search = TextEditingController();
   final _expandedRoasters = <(int, String)>{};
+  (JournalData, List<FrozenPortion>)? _listKey;
+  late BeanListData _aggregates;
 
   ListOptions get options => widget.options;
   bool get archivedTab => widget.tabs.index == 2;
@@ -102,59 +104,20 @@ class _BeansTabState extends State<BeansTab> {
 
   @override
   Widget build(BuildContext context) {
-    final coffees = widget.data.coffees;
-    final lots = widget.data.lots;
-    final components = widget.data.components;
+    final key = (widget.data, actions.portions);
+    if (key != _listKey) {
+      _listKey = key;
+      _aggregates = BeanListData(key.$1, key.$2);
+    }
     final s = AppLocalizations.of(context)!;
     final query = foldSuggestion(search.text);
-    final mostRecentBrewByCoffee = widget.data.lastBrewAt;
-    final latestRoastDateByCoffee = <String, DateTime>{};
-    for (final lot in lots) {
-      final roastDate = lot.roastDate == null
-          ? null
-          : DateTime.tryParse(lot.roastDate!);
-      if (roastDate == null) continue;
-      final previous = latestRoastDateByCoffee[lot.coffeeId];
-      if (previous == null || roastDate.isAfter(previous)) {
-        latestRoastDateByCoffee[lot.coffeeId] = roastDate;
-      }
-    }
-    final oldestFrozenDates = oldestFrozenDatesByCoffee(lots, actions.portions);
-    final frozenByCoffee = frozenGramsByCoffee(lots, actions.portions);
-    final freshByCoffee = unfrozenGramsByCoffee(lots);
-    bool isFrozen(Coffee coffee) =>
-        coffee.archivedAtMs == null && (frozenByCoffee[coffee.id] ?? 0) > 0;
-    // A coffee whose only remaining stock is frozen lives in the Frozen tab.
-    bool isAvailable(Coffee coffee) =>
-        coffee.archivedAtMs == null &&
-        !(isFrozen(coffee) && freshByCoffee[coffee.id] == 0);
-    final inView = switch (widget.tabs.index) {
-      1 => isFrozen,
-      2 => (Coffee coffee) => coffee.archivedAtMs != null,
-      _ => isAvailable,
-    };
-    final counts = [
-      coffees.where(isAvailable).length,
-      coffees.where(isFrozen).length,
-      coffees.where((coffee) => coffee.archivedAtMs != null).length,
-    ];
-    final visible = coffees.where((coffee) {
-      if (!inView(coffee)) return false;
-      if (query.isEmpty) return true;
-      final origin = components
-          .where((component) => component.coffeeId == coffee.id)
-          .map(
-            (component) => [
-              component.country,
-              component.region,
-              component.variety,
-              component.process,
-            ].whereType<String>().join(' '),
-          )
-          .join(' ');
-      return foldSuggestion(
-        '${coffee.name} ${coffee.roaster} $origin ${coffee.flavorProfile ?? ''}',
-      ).contains(query);
+    final mostRecentBrewByCoffee = _aggregates.lastBrewAt;
+    final latestRoastDateByCoffee = _aggregates.latestRoastDates;
+    final oldestFrozenDates = _aggregates.oldestFrozenDates;
+    final counts = _aggregates.tabs.map((coffees) => coffees.length).toList();
+    final visible = _aggregates.tabs[widget.tabs.index].where((coffee) {
+      return query.isEmpty ||
+          _aggregates.searchText[coffee.id]!.contains(query);
     }).toList();
     int compareName(Coffee first, Coffee second) {
       final byName = first.name.toLowerCase().compareTo(
@@ -238,8 +201,8 @@ class _BeansTabState extends State<BeansTab> {
   Widget _beanList(BuildContext context, List<Coffee> visible, String query) {
     final rows = <Object>[];
     if (options.beansByRoaster) {
-      final fresh = unfrozenGramsByCoffee(widget.data.lots);
-      final frozen = frozenGramsByCoffee(widget.data.lots, actions.portions);
+      final fresh = _aggregates.freshGrams;
+      final frozen = _aggregates.frozenGrams;
       final byId = {for (final coffee in visible) coffee.id: coffee};
       final groups = groupBeansByRoaster([
         for (final coffee in visible)
