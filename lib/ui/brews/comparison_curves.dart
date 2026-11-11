@@ -9,6 +9,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/comparison_playback.dart';
 import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
+import 'package:holybeans/ui/core/regional_numbers.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 
 class ComparisonCurves extends StatefulWidget {
@@ -74,8 +75,7 @@ class _ComparisonCurvesState extends State<ComparisonCurves>
           ),
         )
         .toDouble();
-    final number = NumberFormat('0.#', regionalLocale.toString())
-      ..turnOffGrouping();
+    final number = RegionalNumberFormat('0.#');
     String at(ComparisonCurve? curve, double timeMs) {
       if (curve == null) return s.comparisonMissing;
       final samples = curve.samples(series);

@@ -27,6 +27,8 @@ void main() {
     testWidgets(
       '${espresso ? 'espresso' : 'filter'} replay retains static controls',
       (tester) async {
+        tester.platformDispatcher.localeTestValue = const Locale('en', 'US');
+        addTearDown(tester.platformDispatcher.clearLocaleTestValue);
         tester.view.physicalSize = const Size(800, 1600);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.resetPhysicalSize);
@@ -37,8 +39,8 @@ void main() {
             home: Scaffold(
               body: SingleChildScrollView(
                 child: espresso
-                    ? EspressoComparisonCurves(a: _curve(20), b: _curve(25))
-                    : ComparisonCurves(a: _curve(20), b: _curve(25)),
+                    ? EspressoComparisonCurves(a: _curve(20.5), b: _curve(25))
+                    : ComparisonCurves(a: _curve(20.5), b: _curve(25)),
               ),
             ),
           ),
@@ -101,6 +103,14 @@ void main() {
         final paused = tester.widget<Slider>(slider).value;
         await tester.pump(const Duration(milliseconds: 500));
         expect(tester.widget<Slider>(slider).value, paused);
+        tester.platformDispatcher.localeTestValue = const Locale('es', 'ES');
+        tester.widget<Slider>(slider).onChanged!(1950);
+        await tester.pump();
+        if (espresso) {
+          expect(tester.widget<Slider>(slider).label, '1,95 s');
+        } else {
+          expect(tester.widget<Text>(readout).data, contains('10,3 g'));
+        }
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
         for (final name in controls.keys) {

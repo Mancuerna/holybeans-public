@@ -11,6 +11,7 @@ import 'package:holybeans/ui/brews/espresso_combined_plot.dart';
 import 'package:holybeans/ui/brews/extraction_chart.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
+import 'package:holybeans/ui/core/regional_numbers.dart';
 import 'package:intl/intl.dart';
 
 class EspressoComparisonCurves extends StatefulWidget {
@@ -393,8 +394,7 @@ class _EspressoComparisonCurvesState extends State<EspressoComparisonCurves>
         value.clamp(timeline.minMs.toDouble(), timeline.maxMs.toDouble()),
       ),
     );
-    final number = NumberFormat('0.##', regionalLocale.toString())
-      ..turnOffGrouping();
+    final number = RegionalNumberFormat('0.##');
     final hasCurve = CurveSeries.values.any(
       (series) =>
           timeline.samples(series, second: false).isNotEmpty ||
