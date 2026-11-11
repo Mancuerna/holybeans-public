@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:holybeans/domain/label_graphic.dart';
+import 'package:holybeans/domain/label_raster.dart';
 import 'package:holybeans/domain/label_template.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/labels/label_text.dart';
@@ -241,7 +241,7 @@ class LabelLayout {
     picture.dispose();
     final rgba = (await image.toByteData())!;
     image.dispose();
-    final converted = LabelGraphic.monochrome(
+    final (:pixels, rgba: monochrome) = await compute(prepareLabelRaster, (
       rgba: rgba.buffer.asUint8List(rgba.offsetInBytes, rgba.lengthInBytes),
       width: width,
       options: imageOptions,
@@ -253,15 +253,8 @@ class LabelLayout {
               right: (graphicRect.right * scale).round(),
               bottom: (graphicRect.bottom * scale).round(),
             ),
-    );
-    final pixels = upsideDown
-        ? Uint8List.fromList(converted.reversed.toList())
-        : converted;
-    final monochrome = Uint8List(width * height * 4);
-    for (var i = 0; i < pixels.length; i++) {
-      final value = pixels[i] == 1 ? 0 : 255;
-      monochrome.setRange(i * 4, i * 4 + 4, [value, value, value, 255]);
-    }
+      upsideDown: upsideDown,
+    ), debugLabel: 'label-raster');
     final buffer = await ui.ImmutableBuffer.fromUint8List(monochrome);
     final descriptor = ui.ImageDescriptor.raw(
       buffer,
