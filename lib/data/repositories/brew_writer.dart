@@ -1,8 +1,21 @@
-part of '../journal_repository.dart';
+import 'package:drift/drift.dart';
+import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/catalog_validation.dart';
+import 'package:holybeans/data/repositories/equipment_repository.dart';
+import 'package:holybeans/data/repositories/journal_inputs.dart';
+import 'package:holybeans/data/repositories/journal_record_queries.dart';
+import 'package:holybeans/data/repositories/photos_repository.dart';
+import 'package:holybeans/data/repositories/recordings_repository.dart';
+import 'package:holybeans/data/repositories/tools_repository.dart';
+import 'package:holybeans/data/services/meticulous_client.dart';
+import 'package:holybeans/data/services/meticulous_free_pour.dart';
+import 'package:holybeans/domain/brew_input.dart';
+import 'package:holybeans/domain/gaggimate/shot.dart';
+import 'package:holybeans/domain/shot_curve.dart';
 
 /// Method, grinder and tools a brew is saved with, resolved from what the
 /// form gave (IDs or names) and from the brew being edited.
-typedef _BrewCatalog = ({
+typedef BrewCatalog = ({
   String methodId,
   BrewMethod method,
   bool methodMatchesPrevious,
@@ -12,13 +25,26 @@ typedef _BrewCatalog = ({
   List<String> toolIds,
 });
 
-/// The steps of [BrewOperations.saveBrewWithOutcome], in the order it runs
-/// them inside its transaction: what may be saved, what it refers to, the
-/// stock it moves, the row and what is attached to it.
-extension _BrewSaveSteps on JournalRepository {
+/// Resolves brew references and writes the row with its attached records.
+class BrewWriter {
+  BrewWriter(
+    this.database,
+    this._equipment,
+    this._photos,
+    this._recordings,
+    this._records,
+    this._tools,
+  );
+  final AppDatabase database;
+  final EquipmentRepository _equipment;
+  final PhotoRepository _photos;
+  final RecordingRepository _recordings;
+  final JournalRecordQueries _records;
+  final ToolRepository _tools;
+
   /// The brew being edited, after checking that its coffee and stock may
   /// change as asked; null for a new brew.
-  Future<Brew?> _brewTarget(
+  Future<Brew?> brewTarget(
     String? id, {
     required String coffeeId,
     required String? lotId,
@@ -51,7 +77,7 @@ extension _BrewSaveSteps on JournalRepository {
     if (stockChanged) {
       final sourceCoffee = previous.coffeeId == coffeeId
           ? coffee
-          : await this.coffee(previous.coffeeId);
+          : await _records.coffee(previous.coffeeId);
       if (sourceCoffee?.archivedAtMs != null ||
           previous.archivedByCoffee == true) {
         throw const BrewArchivedWithCoffeeException();
@@ -62,7 +88,7 @@ extension _BrewSaveSteps on JournalRepository {
 
   /// The water profile chosen, which must exist and, unless the brew
   /// already had it, not be archived.
-  Future<WaterProfile?> _brewWaterProfile(
+  Future<WaterProfile?> brewWaterProfile(
     String? waterProfileId,
     Brew? previous,
   ) async {
@@ -79,7 +105,7 @@ extension _BrewSaveSteps on JournalRepository {
   }
 
   /// The bag chosen, which must belong to the coffee.
-  Future<CoffeeLot?> _brewLot(String? lotId, String coffeeId) async {
+  Future<CoffeeLot?> brewLot(String? lotId, String coffeeId) async {
     if (lotId == null) return null;
     final lot = await (database.select(
       database.coffeeLots,
@@ -93,12 +119,12 @@ extension _BrewSaveSteps on JournalRepository {
   /// Method, grinder and tools, creating a method or grinder named in the
   /// form when the catalog has none; an edit that keeps its method keeps
   /// its tools when none are given.
-  Future<_BrewCatalog> _brewCatalog(BrewInput input, Brew? previous) async {
+  Future<BrewCatalog> brewCatalog(BrewInput input, Brew? previous) async {
     final cleanMethod = input.methodName.trim();
     final methodId = input.methodId == null
-        ? await _findOrCreateMethod(cleanMethod, previous: previous)
-        : await _requireMethod(input.methodId!);
-    final method = await _requireMethodRow(methodId);
+        ? await _equipment.findOrCreateMethod(cleanMethod, previous: previous)
+        : await _equipment.requireMethod(input.methodId!);
+    final method = await _equipment.requireMethodRow(methodId);
     // An edit that keeps its method keeps the name it was saved with.
     final methodMatchesPrevious =
         previous != null &&
@@ -111,11 +137,14 @@ extension _BrewSaveSteps on JournalRepository {
         input.grinderId ??
         (cleanGrinderName == null
             ? null
-            : await _findOrCreateGrinder(cleanGrinderName, previous: previous));
+            : await _equipment.findOrCreateGrinder(
+                cleanGrinderName,
+                previous: previous,
+              ));
     final grinder = grinderId == null
         ? null
-        : await _requireGrinderRow(grinderId);
-    final toolIds = await _resolveBrewTools(
+        : await _equipment.requireGrinderRow(grinderId);
+    final toolIds = await _tools.resolveBrewTools(
       methodId,
       input.methodToolIds,
       previous: previous,
@@ -135,11 +164,11 @@ extension _BrewSaveSteps on JournalRepository {
   /// The row to write: what the form gave, the names the brew keeps for its
   /// method and grinder, and what an edit does not change (tasting, photos,
   /// archive, stock review).
-  Brew _brewRow(
+  Brew brewRow(
     BrewInput input, {
     required String id,
     required Brew? previous,
-    required _BrewCatalog catalog,
+    required BrewCatalog catalog,
     required WaterProfile? waterProfile,
     required ({String? portionId, double? grams}) source,
   }) {
@@ -273,7 +302,7 @@ extension _BrewSaveSteps on JournalRepository {
 
   /// Writes [row] and what goes with it: the bag opened, the tools, the
   /// curve or machine record and the photos.
-  Future<void> _writeBrew(
+  Future<void> writeBrew(
     Brew row, {
     required Brew? previous,
     required List<String> toolIds,
@@ -296,14 +325,47 @@ extension _BrewSaveSteps on JournalRepository {
     }
     await _replaceBrewTools(row.id, toolIds);
     if (gaggimateShot != null) {
-      await attachGaggimateShot(row.id, gaggimateShot);
+      await _recordings.attachGaggimateShot(row.id, gaggimateShot);
     } else if (shot != null) {
-      await attachMeticulousShot(row.id, shot);
+      await _recordings.attachMeticulousShot(row.id, shot);
     } else if (freePour != null) {
-      await attachMeticulousFreePour(row.id, freePour);
+      await _recordings.attachMeticulousFreePour(row.id, freePour);
     } else if (curve != null) {
-      await saveScaleCurve(row.id, curve);
+      await _recordings.saveScaleCurve(row.id, curve);
     }
-    if (photos != null) await setBrewPhotos(row.id, photos);
+    if (photos != null) await _photos.setBrewPhotos(row.id, photos);
+  }
+
+  /// Makes [toolIds] the tools selected for [brewId].
+  Future<void> _replaceBrewTools(String brewId, List<String> toolIds) async {
+    await (database.delete(
+      database.brewToolSelections,
+    )..where((selection) => selection.brewId.equals(brewId))).go();
+    if (toolIds.isEmpty) return;
+    await database.batch((batch) {
+      batch.insertAll(database.brewToolSelections, [
+        for (final toolId in toolIds)
+          BrewToolSelection(brewId: brewId, toolId: toolId),
+      ]);
+    });
+  }
+
+  /// Records the first brew from a bag as the day it was opened, which
+  /// speeds up its aging (see effectiveRoastAge).
+  Future<void> _markLotOpened(String lotId, DateTime brewedAt) async {
+    final lot = await (database.select(
+      database.coffeeLots,
+    )..where((row) => row.id.equals(lotId))).getSingleOrNull();
+    if (lot == null) return;
+    final day = DateTime.utc(brewedAt.year, brewedAt.month, brewedAt.day);
+    final opened = DateTime.tryParse(lot.openedDate ?? '');
+    if (opened != null && !day.isBefore(opened)) return;
+    await (database.update(
+      database.coffeeLots,
+    )..where((row) => row.id.equals(lotId))).write(
+      CoffeeLotsCompanion(
+        openedDate: Value(day.toIso8601String().substring(0, 10)),
+      ),
+    );
   }
 }

@@ -124,14 +124,4 @@ extension EquipmentOperations on JournalRepository {
   );
   Future<void> setGrinderArchived(String id, {required bool archived}) =>
       equipment.setGrinderArchived(id, archived: archived);
-  Future<String> _findOrCreateMethod(String name, {Brew? previous}) =>
-      equipment.findOrCreateMethod(name, previous: previous);
-  Future<String> _findOrCreateGrinder(String name, {Brew? previous}) =>
-      equipment.findOrCreateGrinder(name, previous: previous);
-  Future<String> _requireMethod(String id) => equipment.requireMethod(id);
-  Future<BrewMethod> _requireMethodRow(String id) =>
-      equipment.requireMethodRow(id);
-  Future<String> _requireGrinder(String id) => equipment.requireGrinder(id);
-  Future<Grinder> _requireGrinderRow(String id) =>
-      equipment.requireGrinderRow(id);
 }
