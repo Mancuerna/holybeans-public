@@ -746,6 +746,21 @@ accesses** during progress. It completes the sync with 41 readings and verifies
 the updated chart and speed view. Initial analysis, filtered chart points and
 device/network timings are outside this measurement; the transport is simulated.
 
+## Statistics aggregation reuse (November 2026)
+
+Statistics snapshots retain shot/filter histograms, the preferred shot-time
+band, purchase totals, rated/best-value coffees and spending-period counts.
+The existing worker prepares these results for large histories; tabs reuse them
+until their input snapshot changes.
+
+`stats_aggregation_reuse_test.dart` opens the brew and cost tabs with three
+coffees and nine brews. Across 100 parent rebuilds after warmup, the same driver
+on `5466720` and this change measures **900 → 0 style classifications** and
+**600 → 0 purchase element reads**, plus **600 → 0 coffee-value element reads**.
+It verifies that the cost summary stays unchanged. Initial preparation and
+chart-point construction remain outside this counter measurement; this is not
+a device frame-time result.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

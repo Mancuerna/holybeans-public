@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:holybeans/domain/stats_insights.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -27,14 +25,10 @@ class StatsCostsTab extends StatelessWidget {
     final euros = euroNumberFormat(regionalLocale.toString());
     final number = NumberFormat('0.#', regionalLocale.toString());
     final bought = data.bought;
-    final spent = bought.fold<double>(0, (sum, bag) => sum + bag.price);
-    final boughtGrams = bought.fold<double>(0, (sum, bag) => sum + bag.grams);
-    final values = data.values;
-    final rated = [
-      for (final value in values)
-        if (value.costPerCup != null && value.averageRating != null) value,
-    ];
-    final best = bestValue(values);
+    final spent = data.spent;
+    final boughtGrams = data.boughtGrams;
+    final rated = data.ratedValues;
+    final best = data.bestValues;
     final roasters = data.roasterPrices;
     final spending = data.spending;
     final periodName = data.period.name;
@@ -94,13 +88,7 @@ class StatsCostsTab extends StatelessWidget {
                   yFormat: number.format,
                   // From just under the lowest rating, so close ratings
                   // still spread apart.
-                  yMin:
-                      rated
-                          .map((value) => value.averageRating!)
-                          .reduce(math.min)
-                          .floorToDouble()
-                          .clamp(1, 9) -
-                      1,
+                  yMin: data.costRatingMinimum!.floorToDouble().clamp(1, 9) - 1,
                   points: [
                     for (final value in rated)
                       (
@@ -120,7 +108,7 @@ class StatsCostsTab extends StatelessWidget {
             subtitle: s.statsBestValueHint,
             child: _BestValueList(values: best, perCup: perCup),
           ),
-        if (spending.where((total) => total.value > 0).length > 1)
+        if (data.spendingPeriods > 1)
           StatsSection(
             title: s.statsSpendingPerPeriod(periodName),
             child: StatsBarChart(

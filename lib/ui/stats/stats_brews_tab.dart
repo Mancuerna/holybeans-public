@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/domain/freshness.dart';
-import 'package:holybeans/domain/stats_comparison.dart';
 import 'package:holybeans/domain/stats_insights.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/freshness_widgets.dart';
@@ -74,8 +73,8 @@ class StatsBrewsTab extends StatelessWidget {
             subtitle: s.statsExtractionHint,
             child: ExtractionMapGrid(cells: stats.compass),
           ),
-        ?_shotTimes(s, espresso),
-        ?_filterTimes(s, filter),
+        ?_shotTimes(s),
+        ?_filterTimes(s),
         if (curve.length > 1)
           StatsSection(
             title: s.statsLearningCurve,
@@ -125,19 +124,10 @@ class StatsBrewsTab extends StatelessWidget {
   /// How long shots take, with the band where the well-rated ones land;
   /// null with too few to draw. Shots over two minutes are typos or a timer
   /// left running and would stretch the chart.
-  StatsSection? _shotTimes(AppLocalizations s, StyleAverages? espresso) {
-    final shots = histogram([
-      for (final seconds in espresso?.times ?? const <int>[])
-        if (seconds <= 120) seconds,
-    ], 5);
+  StatsSection? _shotTimes(AppLocalizations s) {
+    final shots = data.espressoHistogram;
     if (shots.length < 2) return null;
-    // The user's own reference: where their well-rated shots land.
-    final best = bestShotTimes([
-      for (final brew in data.stats.brews)
-        if (data.styleOf(brew) == BrewStyle.espresso)
-          if (brew.timeSeconds case final seconds? when seconds <= 120)
-            (seconds: seconds, rating: brew.rating),
-    ]);
+    final best = data.bestEspressoTimes;
     return StatsSection(
       title: s.statsShotTimes,
       subtitle: best == null
@@ -168,11 +158,8 @@ class StatsBrewsTab extends StatelessWidget {
 
   /// How long filters take, in half minutes; null with too few to draw.
   /// Filters over twenty minutes are left out, like long shots.
-  StatsSection? _filterTimes(AppLocalizations s, StyleAverages? filter) {
-    final filters = histogram([
-      for (final seconds in filter?.times ?? const <int>[])
-        if (seconds <= 1200) seconds,
-    ], 30);
+  StatsSection? _filterTimes(AppLocalizations s) {
+    final filters = data.filterHistogram;
     if (filters.length < 2) return null;
     return StatsSection(
       title: s.statsFilterTimes,
