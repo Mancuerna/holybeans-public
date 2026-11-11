@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show listEquals, setEquals;
 import 'package:flutter/material.dart';
 import 'package:holybeans/domain/water_chemistry.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -101,10 +102,12 @@ class _WaterChartState extends State<WaterChart> {
                           },
                         );
                       },
-                      child: CustomPaint(
-                        key: const ValueKey('water-scatter-chart'),
-                        size: size,
-                        painter: painter,
+                      child: RepaintBoundary(
+                        child: CustomPaint(
+                          key: const ValueKey('water-scatter-chart'),
+                          size: size,
+                          painter: painter,
+                        ),
                       ),
                     ),
                   ),
@@ -176,8 +179,12 @@ class _WaterChartPainter extends CustomPainter {
     required this.khLabel,
     required this.number,
     required this.textScaler,
-  });
+  }) : _pointValues = [
+         for (final p in points) (p.id, p.water.gh, p.water.kh, p.kind),
+       ];
   final List<WaterChartPoint> points;
+  // Compare captured values even if a caller later replaces items in its list.
+  final List<(String, double?, double?, WaterPointKind)> _pointValues;
   final double maximum;
   final ColorScheme colors;
   final Set<String> selected;
@@ -214,6 +221,7 @@ class _WaterChartPainter extends CustomPainter {
       textScaler: textScaler,
     )..layout();
     painter.paint(canvas, centered ? at - Offset(painter.width / 2, 0) : at);
+    painter.dispose();
   }
 
   @override
@@ -302,5 +310,13 @@ class _WaterChartPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_WaterChartPainter oldDelegate) => true;
+  bool shouldRepaint(_WaterChartPainter old) =>
+      !listEquals(old._pointValues, _pointValues) ||
+      old.maximum != maximum ||
+      old.colors != colors ||
+      !setEquals(old.selected, selected) ||
+      old.ghLabel != ghLabel ||
+      old.khLabel != khLabel ||
+      old.number.locale != number.locale ||
+      old.textScaler != textScaler;
 }
