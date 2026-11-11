@@ -1,5 +1,79 @@
 # Changelog
 
+## [1.8.0](https://github.com/Mancuerna/holybeans-public/compare/v1.7.0...v1.8.0) (2026-11-11)
+
+
+### Features
+
+* **share:** add adjustable photo overlay background opacity ([#39](https://github.com/Mancuerna/holybeans-public/issues/39)) ([0f0c69e](https://github.com/Mancuerna/holybeans-public/commit/0f0c69e750163fb02eaf99902000c21c8eaae40f))
+* **share:** overlay charts in separate photo panels ([#41](https://github.com/Mancuerna/holybeans-public/issues/41)) ([baa0428](https://github.com/Mancuerna/holybeans-public/commit/baa04284bd3042ae43f46ab8748db037b496bd92))
+
+
+### Bug Fixes
+
+* **android:** guard live updates below API 26 ([e0d9fa1](https://github.com/Mancuerna/holybeans-public/commit/e0d9fa16167a1bdb6976ee3d21f7a9460bf07446))
+* **android:** validate incoming cards and read content off the UI thread ([4444981](https://github.com/Mancuerna/holybeans-public/commit/4444981e55023bafc671c17f60e47cfd94a02c46))
+* **backup:** guard manual actions and show progress ([5e85a63](https://github.com/Mancuerna/holybeans-public/commit/5e85a635af6cfaf46208ae32d8667e13dd34da04))
+* **backup:** retain recovery copies and clean temporary files ([2c7baf1](https://github.com/Mancuerna/holybeans-public/commit/2c7baf11a50cffb86f40eb90edf3f7ca4b9e7577))
+* **backup:** validate before replacing the journal ([fd4a5db](https://github.com/Mancuerna/holybeans-public/commit/fd4a5dbe53175d969694bdb371115dc739da0b90))
+* **ble:** abort pending connections before switching devices ([949adf8](https://github.com/Mancuerna/holybeans-public/commit/949adf824cb129d808d3af3a6ac6376441f6a161))
+* **ble:** share scans and reset interrupted measurements ([defd1c4](https://github.com/Mancuerna/holybeans-public/commit/defd1c42c9ebedc745690c4676ea32c847cea6e7))
+* **brews:** show failures when saving curve pours ([c451aa4](https://github.com/Mancuerna/holybeans-public/commit/c451aa4617de9dcf9c4281cb2f7c7bbabf8fbec5))
+* **database:** make the roaster backfill schema-independent ([a76c482](https://github.com/Mancuerna/holybeans-public/commit/a76c4826546b7b899aba17591e60cfca9170e8ca))
+* **export:** neutralise spreadsheet formulas in CSV ([de948e5](https://github.com/Mancuerna/holybeans-public/commit/de948e50cc65e820c6ef2cbb1f9ab25905a2ea66))
+* guard damaged lists and report recovered errors ([19d4b00](https://github.com/Mancuerna/holybeans-public/commit/19d4b00ef1a003950143c32af9a45a5de41c11b1))
+* **import:** bound QR expansion and parse cards off the UI isolate ([85998a7](https://github.com/Mancuerna/holybeans-public/commit/85998a75362a3d6f050156984bc78ba3b39f318f))
+* **import:** keep the import page open until it finishes ([34887b6](https://github.com/Mancuerna/holybeans-public/commit/34887b6b3c3ab7e6facd112afafaa9009bf7a3c4))
+* **import:** validate external data and calendar dates ([bea8a36](https://github.com/Mancuerna/holybeans-public/commit/bea8a361515ce69f8d964c3a51af9412bdbcd126))
+* **labels:** release every printer on close ([063e208](https://github.com/Mancuerna/holybeans-public/commit/063e208ee4b0b0ee56e0ae516b6329e2daa0fcdf))
+* **meticulous:** bound and isolate machine responses ([b1f098e](https://github.com/Mancuerna/holybeans-public/commit/b1f098e89f61333f9c55dca276e2b62e0f442c9c))
+* **preferences:** tolerate damaged stored JSON ([6daacd4](https://github.com/Mancuerna/holybeans-public/commit/6daacd4ebe2e474d04314d585dac0cfc083534b3))
+* **startup:** isolate optional service failures ([#49](https://github.com/Mancuerna/holybeans-public/issues/49)) ([b12418b](https://github.com/Mancuerna/holybeans-public/commit/b12418b62578ddac04c864e475c67eba1f4fca24))
+* **startup:** report framework and asynchronous failures ([#48](https://github.com/Mancuerna/holybeans-public/issues/48)) ([bc4a7f6](https://github.com/Mancuerna/holybeans-public/commit/bc4a7f690a912bc7811fba0f76f54de0a41e1e1a))
+* **startup:** show recovery when the journal cannot open ([#50](https://github.com/Mancuerna/holybeans-public/issues/50)) ([a349d86](https://github.com/Mancuerna/holybeans-public/commit/a349d86e47dd86eaf1372ec4ddbd60addbe1f3cd))
+* **stock:** thaw portions emptied within tolerance ([f055e37](https://github.com/Mancuerna/holybeans-public/commit/f055e377c662f39b8456e034cef9ed00e969ecb0))
+* **sync:** ignore stale Drive authorization results ([5f66d29](https://github.com/Mancuerna/holybeans-public/commit/5f66d2983c2551052969c7068e3605a6a87cbbb9))
+* **ui:** handle failed asynchronous operations ([76d5a02](https://github.com/Mancuerna/holybeans-public/commit/76d5a02e7b6ca0cebd8e94b947ade7128be93780))
+
+
+### Performance Improvements
+
+* **assistant:** isolate flow guide updates ([561ff65](https://github.com/Mancuerna/holybeans-public/commit/561ff6564c263ad8e633f2757585fa2c71360368))
+* **assistant:** isolate pressure guide updates ([4e995bb](https://github.com/Mancuerna/holybeans-public/commit/4e995bb61e8e7b9bae644aa92d2c75dba94cfc54))
+* **assistant:** retain guide chart backgrounds ([9e31356](https://github.com/Mancuerna/holybeans-public/commit/9e31356543a39e6afe3ccc2af736753143103cce))
+* **assistant:** reuse pressure guide chart points ([4fb832a](https://github.com/Mancuerna/holybeans-public/commit/4fb832aa47549e9f9d994b33f2826be1a9d180e8))
+* **backup:** encode manual exports in workers ([dc4dffa](https://github.com/Mancuerna/holybeans-public/commit/dc4dffa1340da4cc4ef94e6ead8a3124817470cd))
+* **backup:** prepare restores in workers ([8393681](https://github.com/Mancuerna/holybeans-public/commit/839368196e02e2e06935c2310405f028bd0aa876))
+* **beans:** reuse stock and search aggregations ([34e93e9](https://github.com/Mancuerna/holybeans-public/commit/34e93e9622fbaa2a7c9ccaebdbc7e4b909beddef))
+* **brews:** isolate comparison playback updates ([7993e70](https://github.com/Mancuerna/holybeans-public/commit/7993e7062a209f3ac38404c9245b6e7f9e2ee6bc))
+* **brews:** isolate controls from scale readings ([87f2869](https://github.com/Mancuerna/holybeans-public/commit/87f28692ff38f4ea3a400448c1efb3dc4cc48b69))
+* **brews:** isolate water plan controls from readings ([7ff2bef](https://github.com/Mancuerna/holybeans-public/commit/7ff2befff48e8a7fedd41e7aa7481934797e128b))
+* **brews:** retain extraction plots with complete repaint checks ([c77e36b](https://github.com/Mancuerna/holybeans-public/commit/c77e36b58fe8dbba015c21737741f4e3a4ad5db3))
+* **brews:** retain unchanged comparison chart paints ([282fd69](https://github.com/Mancuerna/holybeans-public/commit/282fd69edaa7d92bd2b1eda2c10f5cf2dc063355))
+* **cafes:** cache catalog decoding off the UI isolate ([614b512](https://github.com/Mancuerna/holybeans-public/commit/614b512bd2882b6ea87613b6df51e0b0c7c07009))
+* **cafes:** reuse picker search data and preserve load retries ([c6aeb6b](https://github.com/Mancuerna/holybeans-public/commit/c6aeb6ba288bae87c64b5961c630e2f8eeb28061))
+* **cupping:** stop timer rebuilds while scoring ([a0a37f3](https://github.com/Mancuerna/holybeans-public/commit/a0a37f3b02683ce7299f36fb2169216f9b3b4f0e))
+* **database:** add journal lookup indexes ([54b4b1f](https://github.com/Mancuerna/holybeans-public/commit/54b4b1fd6111c90c97dd2c9ef61f19b7d4bb14ed))
+* **database:** narrow photo cleanup and archive queries ([a1f9458](https://github.com/Mancuerna/holybeans-public/commit/a1f9458e58aa738040cfaedc0692b588a0b4f60f))
+* **database:** narrow tool lookup reads ([287d578](https://github.com/Mancuerna/holybeans-public/commit/287d5781d811cca215d4f6dce46e00c003bd02f1))
+* **database:** project import metadata columns ([1242719](https://github.com/Mancuerna/holybeans-public/commit/12427191f559552bf0d6cbcef25e9cd3c7a34fb3))
+* **database:** scope stock adjustment streams ([d85bd29](https://github.com/Mancuerna/holybeans-public/commit/d85bd29fe8bb57c60ab15c3d17bf7a333eafc32a))
+* **drive:** verify unchanged photos by checksum ([e15f13c](https://github.com/Mancuerna/holybeans-public/commit/e15f13c62f66d2e1486f9824343e1d4c1e18b3af))
+* **freshness:** reuse calculations for unchanged lots ([1ed5964](https://github.com/Mancuerna/holybeans-public/commit/1ed5964db111121ce7c3b12011645ec3edda57bd))
+* **home:** reuse stock and recipe aggregations ([4ef029a](https://github.com/Mancuerna/holybeans-public/commit/4ef029a657bc8c1f45762ab47c26a84f2ba5554d))
+* **labels:** convert raster pixels in a worker ([fd128a8](https://github.com/Mancuerna/holybeans-public/commit/fd128a8bfa6db168403a7f9c09b87bea9a3fa091))
+* **labels:** debounce preview raster requests ([e4675f8](https://github.com/Mancuerna/holybeans-public/commit/e4675f8070f47e9f5a2de7461dcce938fdb6b023))
+* **piston:** reuse analysis during sync progress ([5466720](https://github.com/Mancuerna/holybeans-public/commit/54667200e7c2ea78d1d8b1014aa1a79ece2401dd))
+* **roasters:** reuse profiles for unchanged snapshots ([340acf7](https://github.com/Mancuerna/holybeans-public/commit/340acf7900c9cc87c0a68228b8bc5bd04f9faf4d))
+* **shell:** retain unchanged offscreen journal tabs ([d711fdf](https://github.com/Mancuerna/holybeans-public/commit/d711fdfbfd74fd311a6c54484f0f18375aded096))
+* **stats:** retain content while refreshing large histories ([0d09cf7](https://github.com/Mancuerna/holybeans-public/commit/0d09cf75dee504bdb60272410f0bb7d3133b19b1))
+* **stats:** retain unchanged chart paints ([16dd684](https://github.com/Mancuerna/holybeans-public/commit/16dd684962c3ec8d952686f7d7a67223bc81b458))
+* **stats:** reuse snapshot aggregates across tab builds ([b1e33c5](https://github.com/Mancuerna/holybeans-public/commit/b1e33c5d9cf83f1475eeba75d825c7796b21bf1a))
+* **ui:** cache numeric field formatters ([09bc17d](https://github.com/Mancuerna/holybeans-public/commit/09bc17d9d7191b8fad5389220f2c4c65e6a1e816))
+* **ui:** complete audit rendering optimizations ([ced6e0b](https://github.com/Mancuerna/holybeans-public/commit/ced6e0b3838c5c2fa98dd65baabc705692795ba0))
+* **ui:** retain unchanged equipment chart paints ([8583185](https://github.com/Mancuerna/holybeans-public/commit/858318502f0200aed23b90aa4ad41d06a57d35bc))
+* **year-review:** prepare large histories in a worker ([8036f31](https://github.com/Mancuerna/holybeans-public/commit/8036f31ed97a23960c9994d99e195650794b4ee5))
+
 ## [1.7.0](https://github.com/Mancuerna/holybeans-public/compare/v1.6.0...v1.7.0) (2026-11-09)
 
 
