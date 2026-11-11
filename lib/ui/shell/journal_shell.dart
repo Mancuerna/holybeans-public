@@ -64,6 +64,7 @@ import 'package:holybeans/ui/shell/journal_actions.dart';
 import 'package:holybeans/ui/shell/journal_app_bar.dart';
 import 'package:holybeans/ui/shell/journal_navigation_bar.dart';
 import 'package:holybeans/ui/shell/journal_view_model.dart';
+import 'package:holybeans/ui/shell/retained_journal_tab.dart';
 import 'package:holybeans/ui/shell/system_surfaces.dart';
 import 'package:holybeans/ui/stats/live_stats_page.dart';
 
@@ -633,9 +634,8 @@ class _JournalShellState extends State<JournalShell>
   void showRoasters({String? roaster}) =>
       openRoasters(context, journal, this, roaster: roaster);
 
-  Widget _tabs(JournalData data) => LazyIndexedStack(
-    index: tab,
-    children: [
+  Widget _tabs(JournalData data) {
+    final children = [
       HomeTab(data: data, actions: this),
       BeansTab(
         data: data,
@@ -682,8 +682,28 @@ class _JournalShellState extends State<JournalShell>
         onBrewWithMethod: (method) =>
             openBrewForm(journal.coffees, initialMethodId: method.id),
       ),
-    ],
-  );
+    ];
+    return LazyIndexedStack(
+      index: tab,
+      children: children.indexed
+          .map(
+            (entry) => RetainedJournalTab(
+              revision: (
+                data,
+                methods,
+                portions,
+                hiddenParameters,
+                journal.listOptions,
+                equipmentSection,
+                showArchivedEquipment,
+              ),
+              selected: tab == entry.$1,
+              child: entry.$2,
+            ),
+          )
+          .toList(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
