@@ -854,6 +854,21 @@ those indexes absent, verifying automatic installation, unchanged saved rows
 and unchanged version. Existing migration tests from schemas 19–37 pass.
 These are query-plan observations, not elapsed-time or storage-size benchmarks.
 
+## BeanConqueror import metadata (November 2026)
+
+Import preparation now selects IDs and update timestamps for edit detection,
+IDs and names for reusable catalogs, and distinct owner IDs or freezer labels
+for attachment and label presence. It does not materialize notes, curve samples
+or unrelated row columns just to decide what the import should add or preserve.
+
+`beanconqueror_metadata_reads_test.dart` uses the same SQLite interceptor and
+fixture on `54b4b1f` and this change: returned notes and curve payloads total
+**36,906 → 0 characters**. The fixture checks edited versus unchanged and local
+records, source filtering, fingerprints, normalized catalog names, freezer
+labels and duplicate photo ownership. Existing import and update assertions
+remain unchanged. This measures returned payload volume, not query latency;
+edit detection still visits the IDs and timestamps of coffees and brews.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
