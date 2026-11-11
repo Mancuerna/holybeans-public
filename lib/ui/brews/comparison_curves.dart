@@ -25,21 +25,27 @@ class _ComparisonCurvesState extends State<ComparisonCurves>
   CurveSeries selected = CurveSeries.weight;
   bool showA = true;
   bool showB = true;
-  double timeMs = 0;
+  final cursor = ValueNotifier(0.0);
 
   @override
-  double get playbackPosition => timeMs;
+  double get playbackPosition => cursor.value;
 
   @override
-  void updatePlaybackPosition(double value) => setState(() => timeMs = value);
+  void updatePlaybackPosition(double value) => cursor.value = value;
 
   @override
   void didUpdateWidget(ComparisonCurves oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.a != oldWidget.a || widget.b != oldWidget.b) {
       pausePlayback();
-      timeMs = 0;
+      cursor.value = 0;
     }
+  }
+
+  @override
+  void dispose() {
+    cursor.dispose();
+    super.dispose();
   }
 
   @override
@@ -70,7 +76,7 @@ class _ComparisonCurvesState extends State<ComparisonCurves>
         .toDouble();
     final number = NumberFormat('0.#', regionalLocale.toString())
       ..turnOffGrouping();
-    String at(ComparisonCurve? curve) {
+    String at(ComparisonCurve? curve, double timeMs) {
       if (curve == null) return s.comparisonMissing;
       final samples = curve.samples(series);
       if (samples.isEmpty ||
@@ -94,18 +100,21 @@ class _ComparisonCurvesState extends State<ComparisonCurves>
       ),
       height: 240,
       child: RepaintBoundary(
-        child: CustomPaint(
-          painter: _ComparisonPainter(
-            a: first,
-            b: second,
-            series: series,
-            durationMs: duration,
-            cursorMs: timeMs,
-            colorA: colorA,
-            colorB: colorB,
-            grid: theme.colorScheme.outlineVariant,
-            textColor: theme.colorScheme.onSurfaceVariant,
-            locale: regionalLocale.toString(),
+        child: ValueListenableBuilder(
+          valueListenable: cursor,
+          builder: (_, timeMs, _) => CustomPaint(
+            painter: _ComparisonPainter(
+              a: first,
+              b: second,
+              series: series,
+              durationMs: duration,
+              cursorMs: timeMs,
+              colorA: colorA,
+              colorB: colorB,
+              grid: theme.colorScheme.outlineVariant,
+              textColor: theme.colorScheme.onSurfaceVariant,
+              locale: regionalLocale.toString(),
+            ),
           ),
         ),
       ),
@@ -175,23 +184,29 @@ class _ComparisonCurvesState extends State<ComparisonCurves>
           children: [
             playbackButton(min: 0, max: duration),
             Expanded(
-              child: Slider(
-                key: const ValueKey('comparison-curve-time'),
-                value: timeMs.clamp(0, duration),
-                max: duration,
-                label: formatDuration((timeMs / 1000).round()),
-                onChangeStart: (_) => pausePlayback(),
-                onChanged: (value) {
-                  pausePlayback();
-                  updatePlaybackPosition(value);
-                },
+              child: ValueListenableBuilder(
+                valueListenable: cursor,
+                builder: (_, timeMs, _) => Slider(
+                  key: const ValueKey('comparison-curve-time'),
+                  value: timeMs.clamp(0, duration),
+                  max: duration,
+                  label: formatDuration((timeMs / 1000).round()),
+                  onChangeStart: (_) => pausePlayback(),
+                  onChanged: (value) {
+                    pausePlayback();
+                    updatePlaybackPosition(value);
+                  },
+                ),
               ),
             ),
           ],
         ),
-        Text(
-          '${formatDuration((timeMs / 1000).round())}    '
-          'A: ${at(a)}    B: ${at(b)}',
+        ValueListenableBuilder(
+          valueListenable: cursor,
+          builder: (_, timeMs, _) => Text(
+            '${formatDuration((timeMs / 1000).round())}    '
+            'A: ${at(a, timeMs)}    B: ${at(b, timeMs)}',
+          ),
         ),
       ],
     );

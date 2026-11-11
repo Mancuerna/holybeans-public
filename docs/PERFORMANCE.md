@@ -1032,6 +1032,21 @@ of them, plus existing curve/visibility/weight/grid/background invalidation.
 Existing curve marker, readout and water-target assertions are unchanged.
 These are widget-test paint counts, not device frame-time measurements.
 
+## Filter comparison playback isolation (November 2026)
+
+Filter comparison playback notifies only the plots, time slider and value
+readout for cursor changes. Series and curve selectors stay outside those
+listeners. Playback status, input curves and selection changes still rebuild
+the controls; the shared pause/lifecycle behavior is unchanged.
+
+The same `test/filter_comparison_playback_rebuild_test.dart` driver on `c77e36b`
+and this change advances 100 frames of 16 ms after playback starts. Rebuilds of
+the series selector and each curve selector go **100 → 0**, while the live
+slider remains **100 → 100**. The cursor advances 1,600 ms, its value readout
+changes and pausing freezes it. Existing playback, seek, restart, lifecycle,
+alignment and comparison assertions remain unchanged. These widget rebuild
+counts are not device frame-time measurements.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
