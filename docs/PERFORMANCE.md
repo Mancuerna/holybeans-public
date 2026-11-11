@@ -792,6 +792,21 @@ is evidence of moving aggregation off the UI, not a frame-time speedup.
 The test checks totals, rapid selection, failure recovery and closure during
 work; existing bilingual, large-text and sharing assertions remain unchanged.
 
+## Label preview debounce (November 2026)
+
+The first label preview starts immediately. Later layout changes wait for a
+100 ms pause before requesting their raster, retaining the previous preview in
+the meantime. Explicit output still requests the current layout immediately
+and shares its cached future; closing the preview cancels pending work.
+
+`label_preview_debounce_test.dart` exercises the real preview widget with
+counted raster-future fixtures. Across 100 layouts arriving 10 ms apart, the
+same driver on `8036f31` and this change measures **100 → 1 new preview raster
+requests**, excluding the initial preview. It verifies the latest image,
+explicit output before the delay and cancellation on disposal. These are
+request counts, not pixel-conversion timings; text layout remains immediate.
+Existing printer tests use simulated transports and preserve their assertions.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
