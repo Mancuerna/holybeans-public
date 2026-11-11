@@ -18,7 +18,12 @@ class WaterPlanTimer extends StatelessWidget {
   final TextEditingController? bloom;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: timer,
+    builder: (context, _) => _content(context),
+  );
+
+  Widget _content(BuildContext context) {
     final s = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
