@@ -1032,20 +1032,20 @@ of them, plus existing curve/visibility/weight/grid/background invalidation.
 Existing curve marker, readout and water-target assertions are unchanged.
 These are widget-test paint counts, not device frame-time measurements.
 
-## Filter comparison playback isolation (November 2026)
+## Comparison playback isolation (November 2026)
 
-Filter comparison playback notifies only the plots, time slider and value
-readout for cursor changes. Series and curve selectors stay outside those
-listeners. Playback status, input curves and selection changes still rebuild
-the controls; the shared pause/lifecycle behavior is unchanged.
+Filter and espresso comparisons notify plots, time sliders and value readouts
+for cursor changes. Series/curve selectors, espresso mode/alignment controls
+and highlights stay outside those listeners. Playback status, input curves and
+selection changes still rebuild controls; pause/lifecycle behavior is unchanged.
 
-The same `test/filter_comparison_playback_rebuild_test.dart` driver on `c77e36b`
-and this change advances 100 frames of 16 ms after playback starts. Rebuilds of
-the series selector and each curve selector go **100 → 0**, while the live
-slider remains **100 → 100**. The cursor advances 1,600 ms, its value readout
-changes and pausing freezes it. Existing playback, seek, restart, lifecycle,
-alignment and comparison assertions remain unchanged. These widget rebuild
-counts are not device frame-time measurements.
+The same `test/comparison_playback_rebuild_test.dart` driver on `c77e36b` and
+this change advances 100 frames of 16 ms after playback starts. Rebuilds of the
+filter series/curve selectors and espresso mode/alignment controls and
+peak-pressure label each go **100 → 0**. Both live sliders remain **100 → 100**;
+cursors advance 1,600 ms, readouts change and pausing freezes the position.
+Existing playback, seek, restart, lifecycle, alignment and comparison assertions
+remain unchanged. These widget rebuild counts are not device frame timings.
 
 ## Reproduce the measurements
 
