@@ -11,6 +11,7 @@ class FakeNiimbotBlePlatform extends UniversalBlePlatform {
   final chunks = <Uint8List>[];
   final events = <String>[];
   int model = 2304;
+  int hello = 1;
   int revision = 302;
   bool shortStatus = false;
   bool shortModel = false;
@@ -143,7 +144,7 @@ class FakeNiimbotBlePlatform extends UniversalBlePlatform {
               : [...List.filled(11, 0), revision ~/ 100, revision % 100],
         ),
         0x86 => NiimbotPacket(0xd3, p.payload.take(2).toList()),
-        0xc1 => NiimbotPacket(0xc2, [1]),
+        0xc1 => NiimbotPacket(0xc2, [hello]),
         0x40 => NiimbotPacket(
           0x48,
           shortModel ? [model >> 8] : niimbotU16(model),

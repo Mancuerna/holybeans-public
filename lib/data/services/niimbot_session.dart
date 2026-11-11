@@ -189,6 +189,20 @@ class NiimbotSession {
       }
       version = hello.payload.single == 1 ? 0 : 1;
     }
+    if (model == LabelPrinterModel.d110M) {
+      // Follow connectNegotiate: only greeting 3 requests status. Older
+      // D110_M greetings select the B1 task without a status query.
+      if (hello.payload.length != 1) {
+        throw const LabelPrintException(LabelPrintFailure.unsupported);
+      }
+      version = hello.payload.single - 1;
+      if (hello.payload.single == 3) {
+        version = niimbotProtocolVersion((await _request(0xa5, 0xb5)).payload);
+        if (version == 0) {
+          throw const LabelPrintException(LabelPrintFailure.unsupported);
+        }
+      }
+    }
     if (protocolFirst) {
       version = niimbotProtocolVersion((await _request(0xa5, 0xb5)).payload);
     }

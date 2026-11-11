@@ -39,6 +39,15 @@ and broader reliability still need validation. D11, B21 variants, B2 and other
 listed models without confirmed physical tests remain unverified. A selectable
 model is not a guarantee of compatibility.
 
+Select **D110_M** for devices advertising `D110_M-…` or `D110M-…`; the D110
+profile deliberately excludes this different model. D110_M support checks model
+ID 2320 and negotiates the print task using the printer's protocol response,
+following [NiimBlueLib's task mapping](https://github.com/MultiMote/niimbluelib/blob/35110a716c960448ee17a9270e4c3a131149866f/src/print_tasks/index.ts).
+It uses a 96-dot, 203 dpi head and remains unverified on physical hardware in
+HolyBeans. Disconnect the official Niimbot app before searching in HolyBeans.
+Connection reports include scan start, failure and supported-device count,
+without advertised names, addresses or label contents.
+
 Pristar / Marklife P12 support is experimental. A user confirmed a legible
 40 mm test design on continuous 15 mm tape. The printable height is 12 mm;
 30, 40 (default) and 50 mm design lengths are available, followed by about
