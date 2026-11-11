@@ -86,9 +86,29 @@ void main() {
     brews.fail = true;
     select(2025);
     await tester.pump();
+    expect(
+      tester
+          .widget<FilledButton>(find.byKey(const ValueKey('year-share')))
+          .onPressed,
+      isNull,
+    );
+    expect(
+      tester
+          .widget<PopupMenuButton<String>>(
+            find.byKey(const ValueKey('year-menu')),
+          )
+          .enabled,
+      isFalse,
+    );
     await settleWithWorkers(tester);
     expect(find.byKey(const ValueKey('year-review-error')), findsOneWidget);
     expect(story().year.year, 2026);
+    expect(
+      tester
+          .widget<FilledButton>(find.byKey(const ValueKey('year-share')))
+          .onPressed,
+      isNull,
+    );
     brews.fail = false;
     select(2026);
     await tester.pump();

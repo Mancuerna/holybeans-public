@@ -780,7 +780,8 @@ This measures widget retention, not worker latency or device frame time.
 Year reviews with more than 200 brews prepare their aggregation in a worker.
 Only one request runs at a time and the newest pending selection replaces older
 ones. The last complete review stays visible while switching years; failures
-are reported and shown without replacing it. Small journals remain synchronous.
+are reported and shown without replacing it. Sharing and detail actions wait
+for the selected year to finish successfully. Small journals remain synchronous.
 
 `year_review_worker_test.dart` opens the real page with 300 brews split across
 two years and changes year ten times. The same driver on `0d09cf7` and this

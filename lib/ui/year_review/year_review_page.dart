@@ -205,6 +205,7 @@ class _YearReviewPageState extends State<YearReviewPage> {
         actions: [
           PopupMenuButton<String>(
             key: const ValueKey('year-menu'),
+            enabled: !updating && error == null,
             tooltip: s.yearReviewAbout,
             icon: const Icon(Icons.more_horiz),
             onSelected: (value) {
@@ -335,7 +336,10 @@ class _YearReviewPageState extends State<YearReviewPage> {
                         foregroundColor: yearPaper,
                       ),
                       onPressed:
-                          review.count == 0 && review.costs.costedCoffees == 0
+                          updating ||
+                              error != null ||
+                              (review.count == 0 &&
+                                  review.costs.costedCoffees == 0)
                           ? null
                           : () => shareCoffeeYear(
                               context,
