@@ -962,6 +962,8 @@ updated names/cities, all saved rows, the existing 60-suggestion limit and
 selection after scrolling to the last saved venue. Existing picker tests retain
 their city-fallback, offline-search and empty-result assertions. This measures
 row accesses, not Android frame times or the number of mounted list elements.
+The catalog retry regression also covers a bundle that throws before returning
+a future, so an immediate source error cannot remain cached.
 
 ## Reproduce the measurements
 
