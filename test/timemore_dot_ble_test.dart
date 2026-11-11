@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/scale_settings.dart';
@@ -13,6 +12,7 @@ import 'package:universal_ble/universal_ble.dart';
 
 import 'helpers/fake_dot_ble_platform.dart';
 import 'helpers/fake_scale_ble_platform.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +21,7 @@ void main() {
   late BleScale scale;
   late List<Map<String, dynamic>> traces;
   setUp(() async {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     platform = FakeDotBlePlatform();
     UniversalBle.setInstance(platform);
     traces = [];

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_pours_draft.dart';
 import 'package:holybeans/ui/brews/brew_timer.dart';
 import 'package:holybeans/ui/brews/brew_water_plan.dart';
+
+import 'helpers/ui_test_support.dart';
 
 void main() {
   for (final (width, textScale, pours) in [(320.0, 2.0, 2), (390.0, 1.0, 10)]) {
@@ -32,10 +33,8 @@ void main() {
           }
         });
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: const Locale('es'),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             builder: (context, child) => MediaQuery(
               data: MediaQuery.of(context)
                   .copyWith(textScaler: TextScaler.linear(textScale)),

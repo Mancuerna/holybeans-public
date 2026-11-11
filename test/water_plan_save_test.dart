@@ -1,4 +1,3 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -7,18 +6,20 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_pours.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/l10n/app_localizations_en.dart';
 import 'package:holybeans/l10n/app_localizations_es.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
 import 'package:holybeans/ui/brews/brew_share_text.dart';
 
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   test('saving without a scale preserves planned amounts through editing and backup', () async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
-    final copy = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
+    final copy = memoryDatabase();
     addTearDown(db.close);
     addTearDown(copy.close);
     final repo = JournalRepository(db);
@@ -106,10 +107,8 @@ void main() {
           ],
         );
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: ListView(
                 children: [BrewPourDetails(pours: pours, doseGrams: 18)],

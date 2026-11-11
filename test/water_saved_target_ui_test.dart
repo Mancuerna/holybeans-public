@@ -6,6 +6,8 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/equipment/water_calculator_inputs.dart';
 import 'package:holybeans/ui/equipment/water_calculator_model.dart';
 
+import 'helpers/ui_test_support.dart';
+
 void main() {
   for (final language in ['es', 'en']) {
     testWidgets('saved waters appear in the existing target menu ($language)', (
@@ -21,10 +23,8 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: Locale(language),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: ListenableBuilder(
               listenable: m,

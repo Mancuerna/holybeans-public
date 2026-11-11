@@ -8,12 +8,13 @@ import 'package:holybeans/domain/bloom_water_ratio.dart';
 import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/domain/pour_plan.dart';
 import 'package:holybeans/domain/shot_curve.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_pours_draft.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
 import 'package:holybeans/ui/brews/extraction_chart.dart';
 import 'package:holybeans/ui/brews/filter_water_targets.dart';
 import 'package:holybeans/ui/brews/weight_targets.dart';
+
+import 'helpers/ui_test_support.dart';
 
 class _MemorySettings extends WaterTargetSettings {
   _MemorySettings() : super(File('unused'));
@@ -56,9 +57,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+      localizedApp(
         home: Scaffold(
           body: ExtractionChart(
             curve: ShotCurve(
@@ -160,10 +159,8 @@ void main() {
         ],
       );
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: const Locale('es'),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(body: BrewPourDetails(pours: pours, doseGrams: 18)),
         ),
       );
@@ -184,10 +181,8 @@ void main() {
         weight: const [0, 122],
         flow: const [],
       );
-      Widget page(double dose, {Key? key}) => MaterialApp(
+      Widget page(double dose, {Key? key}) => localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: SizedBox(
             width: 320,

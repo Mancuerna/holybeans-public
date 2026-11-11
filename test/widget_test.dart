@@ -1,14 +1,14 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/main.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   testWidgets('live journal has concise Spanish and English labels', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     await tester.pumpWidget(
       HolyBeansApp(database: database, initialLocale: const Locale('es')),
     );

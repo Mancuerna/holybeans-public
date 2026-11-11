@@ -1,10 +1,10 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   testWidgets(
@@ -27,7 +27,7 @@ void main() {
         messenger.setMockMethodCallHandler(live, null);
         messenger.setMockMethodCallHandler(deviceChannel, null);
       });
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       final repository = JournalRepository(database);
       final coffee = await repository.createCoffee(
@@ -74,7 +74,7 @@ void main() {
       return null;
     });
     addTearDown(() => messenger.setMockMethodCallHandler(deviceChannel, null));
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     List<Map<Object?, Object?>> labels() => [
       for (final call in device)

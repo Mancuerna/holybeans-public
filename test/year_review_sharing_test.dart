@@ -5,19 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/domain/coffee_year.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/year_review/year_review_card.dart';
 import 'package:holybeans/ui/year_review/year_review_page.dart';
 import 'package:holybeans/ui/year_review/year_review_previews.dart';
 import 'package:holybeans/ui/year_review/year_review_share.dart';
 import 'package:holybeans/ui/year_review/year_review_story.dart';
 
+import 'helpers/ui_test_support.dart';
 import 'helpers/year_fixture.dart';
 
-Widget app(Widget home) => MaterialApp(
+Widget app(Widget home) => localizedApp(
   locale: const Locale('en'),
-  localizationsDelegates: AppLocalizations.localizationsDelegates,
-  supportedLocales: AppLocalizations.supportedLocales,
   home: Scaffold(body: home),
 );
 

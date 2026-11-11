@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart' show Value;
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -10,13 +9,14 @@ import 'package:holybeans/domain/stock.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 
+import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 void main() {
   test(
     'mixed stock uses available coffee unless a thaw is explicitly chosen',
     () async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       final repository = JournalRepository(database);
       final coffee = await repository.createCoffeeWithComponents(
@@ -95,7 +95,7 @@ void main() {
   test(
     'an overdraft does not offer archiving while coffee is frozen',
     () async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       final repository = JournalRepository(database);
       final coffee = await repository.createCoffeeWithComponents(
@@ -149,7 +149,7 @@ void main() {
     test(
       'thawing 20 g for a $dose g brew keeps the remaining portion active',
       () async {
-        final database = AppDatabase.forTesting(NativeDatabase.memory());
+        final database = memoryDatabase();
         addTearDown(database.close);
         final repository = JournalRepository(database);
         final coffee = await repository.createCoffeeWithComponents(
@@ -188,7 +188,7 @@ void main() {
   test(
     'using the last frozen dose offers archiving when nothing remains',
     () async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       final repository = JournalRepository(database);
       final coffee = await repository.createCoffeeWithComponents(
@@ -229,7 +229,7 @@ void main() {
   test(
     'archive threshold uses this coffee and method, ignoring invalid doses',
     () async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       final repository = JournalRepository(database);
       final coffee = await repository.createCoffee(
@@ -287,7 +287,7 @@ void main() {
   );
 
   test('archive offer requires known total available plus frozen stock below the mean', () async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     final coffeeId = await repository.createCoffee(
@@ -367,7 +367,7 @@ void main() {
     test(
       'frozen brew archive suggestion counts total stock: $initial/$frozen',
       () async {
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(db.close);
         final repo = JournalRepository(db);
         final coffeeId = await repo.createCoffeeWithComponents(
@@ -410,7 +410,7 @@ void main() {
   testWidgets(
     'low-stock offer can be declined and is not repeated in the same session',
     (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       final repository = JournalRepository(database);
       final coffeeId = await repository.createCoffee(

@@ -1,7 +1,5 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
@@ -17,6 +15,7 @@ import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 void main() {
@@ -31,11 +30,9 @@ void main() {
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     }
 
-    Widget app(Widget child) => MaterialApp(
+    Widget app(Widget child) => localizedApp(
       theme: AppTheme.light(),
       locale: Locale(lang),
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
       home: Scaffold(body: child),
     );
 
@@ -54,7 +51,7 @@ void main() {
         'price validation survives scrolling and preserves data $lang edit=$edit',
         (tester) async {
           viewport(tester);
-          final db = AppDatabase.forTesting(NativeDatabase.memory());
+          final db = memoryDatabase();
           addTearDown(db.close);
           final repo = JournalRepository(db);
           final id = edit
@@ -128,7 +125,7 @@ void main() {
 
     testWidgets('missing name is revealed from bottom $lang', (tester) async {
       viewport(tester);
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       await tester.pumpWidget(
         app(CoffeeForm(repository: JournalRepository(db))),
@@ -157,7 +154,7 @@ void main() {
       'coffee picker searches roaster and accents, cancel preserves choice $lang',
       (tester) async {
         viewport(tester);
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(db.close);
         final repo = JournalRepository(db);
         final first = await repo.createCoffee(
@@ -216,7 +213,7 @@ void main() {
       tester,
     ) async {
       viewport(tester);
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repo = JournalRepository(db);
       final coffee = await repo.createCoffee(
@@ -353,7 +350,7 @@ void main() {
   }
 
   test('model rejects invalid price before updating a saved coffee', () async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
     addTearDown(db.close);
     final repo = JournalRepository(db);
     final id = await repo.createCoffee(

@@ -8,6 +8,8 @@ import 'package:holybeans/ui/equipment/water_calculator_inputs.dart';
 import 'package:holybeans/ui/equipment/water_calculator_model.dart';
 import 'package:holybeans/ui/equipment/water_calculator_result.dart';
 
+import 'helpers/ui_test_support.dart';
+
 void main() {
   for (final language in ['es', 'en']) {
     testWidgets('automatic GH and selectable doses ($language)', (
@@ -29,10 +31,8 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       final s = await AppLocalizations.delegate.load(Locale(language));
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: Locale(language),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: ListenableBuilder(
               listenable: m,

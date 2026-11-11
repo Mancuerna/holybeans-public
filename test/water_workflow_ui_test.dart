@@ -1,7 +1,5 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/domain/water_chemistry.dart';
@@ -9,12 +7,15 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/equipment/water_calculator_page.dart';
 import 'package:holybeans/ui/equipment/water_calculator_result.dart';
 
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
+
 void main() {
   for (final locale in ['es', 'en']) {
     testWidgets(
       'saved water, direct ion target, available salts and backup ($locale)',
       (tester) async {
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(db.close);
         final repo = JournalRepository(db);
         await repo.createWaterProfile(
@@ -37,12 +38,8 @@ void main() {
         addTearDown(tester.view.resetDevicePixelRatio);
         addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
         final s = await AppLocalizations.delegate.load(Locale(locale));
-        Widget harness(Widget child) => MaterialApp(
-          locale: Locale(locale),
-          supportedLocales: AppLocalizations.supportedLocales,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          home: child,
-        );
+        Widget harness(Widget child) =>
+            localizedApp(locale: Locale(locale), home: child);
         await tester.pumpWidget(harness(WaterCalculatorPage(repository: repo)));
         await tester.pumpAndSettle();
         await tester.runAsync(() => repo.watchWaterProfiles().first);
