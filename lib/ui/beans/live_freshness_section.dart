@@ -16,6 +16,7 @@ typedef FreshnessRequest = ({
   List<CoffeeComponent> components,
   List<BrewMethod> methods,
   int? frozenAge,
+  DateTime now,
 });
 CoffeeFreshness? _prepare(FreshnessRequest request) => coffeeFreshness(
   coffee: request.coffee,
@@ -26,6 +27,7 @@ CoffeeFreshness? _prepare(FreshnessRequest request) => coffeeFreshness(
   components: request.components,
   methods: request.methods,
   frozenOnlyAge: request.frozenAge,
+  now: request.now,
 );
 
 /// Rated history is requested only for this detail, without notes or pours.
@@ -38,6 +40,7 @@ class LiveFreshnessSection extends StatefulWidget {
     required this.allLots,
     required this.methods,
     required this.frozenAge,
+    this.now,
   });
   final JournalData data;
   final Coffee coffee;
@@ -45,6 +48,7 @@ class LiveFreshnessSection extends StatefulWidget {
   final List<CoffeeLot> allLots;
   final List<BrewMethod> methods;
   final int? frozenAge;
+  final DateTime? now;
   @override
   State<LiveFreshnessSection> createState() => _LiveFreshnessSectionState();
 }
@@ -66,10 +70,11 @@ class _LiveFreshnessSectionState extends State<LiveFreshnessSection> {
           lots: widget.lots,
           allLots: widget.allLots,
           coffees: widget.data.coffees,
-          brews: snapshot.data!,
+          brews: stream == null ? widget.data.brews : snapshot.data!,
           components: widget.data.components,
           methods: widget.methods,
           frozenAge: widget.frozenAge,
+          now: DateUtils.dateOnly(widget.now ?? DateTime.now()),
         ),
       );
     },
@@ -95,7 +100,7 @@ class _CalculatedFreshnessState extends State<_CalculatedFreshness> {
   @override
   void didUpdateWidget(_CalculatedFreshness oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.request != oldWidget.request) _update();
+    if (!_sameRequest(widget.request, oldWidget.request)) _update();
   }
 
   void _update() {
@@ -133,3 +138,16 @@ class _CalculatedFreshnessState extends State<_CalculatedFreshness> {
           },
         );
 }
+
+// The detail sheet filters a fresh list of active lots on every rebuild.
+// The other collections are immutable journal or analytics snapshots.
+bool _sameRequest(FreshnessRequest a, FreshnessRequest b) =>
+    a.coffee == b.coffee &&
+    listEquals(a.lots, b.lots) &&
+    a.allLots == b.allLots &&
+    a.coffees == b.coffees &&
+    a.brews == b.brews &&
+    a.components == b.components &&
+    a.methods == b.methods &&
+    a.frozenAge == b.frozenAge &&
+    a.now == b.now;

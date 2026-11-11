@@ -690,6 +690,21 @@ after this change, the same driver measures **1,200 → 0 lot element reads** an
 origin search, a freezer-only input change and a new journal snapshot. Initial
 indexing, matching-card work and device frame times are outside this measurement.
 
+## Freshness calculation reuse (November 2026)
+
+The freshness detail compares active-lot contents instead of the identity of the
+filtered list recreated by its parent. Other snapshot inputs and the current
+calendar day still invalidate the calculation. Standalone details use the latest
+snapshot's brew history instead of retaining the stream builder's initial data.
+
+`freshness_reuse_test.dart` supplies identical lots in new lists across 100
+parent rebuilds, with both zero brews (direct calculation) and 201 brews (worker).
+The same driver on `34e93e9` and after this change measures **100 → 0 new result
+objects** in the direct case and **100 → 0 new worker futures** in the large case,
+excluding initial preparation. It verifies changed lots, frozen age and history;
+`freshness_day_test.dart` verifies same-day reuse and next-day recalculation.
+These are calculation counts, not device latency measurements.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
