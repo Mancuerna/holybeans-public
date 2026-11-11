@@ -96,9 +96,13 @@ void paintWeightTargets(
         }
       }
     }
-    if (bounds == null) continue;
+    if (bounds == null) {
+      text.dispose();
+      continue;
+    }
     occupied.add(bounds);
     canvas.drawRect(bounds, Paint()..color = background.withValues(alpha: 1));
     text.paint(canvas, Offset(bounds.left + 2, bounds.top + 2));
+    text.dispose();
   }
 }
