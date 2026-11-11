@@ -49,7 +49,10 @@ class _Data extends JournalData {
   List<CoffeeComponent> get components => countedComponents;
 }
 
-class _Actions extends Fake implements JournalActions {
+class _Actions extends Fake
+    implements JournalRead, JournalNavigation, JournalCommands {
+  JournalActions get actions =>
+      JournalActions(read: this, navigation: this, commands: this);
   @override
   List<FrozenPortion> portions = const [];
 }
@@ -92,7 +95,7 @@ void main() {
               valueListenable: refresh,
               builder: (_, _, _) => BeansTab(
                 data: data,
-                actions: actions,
+                actions: actions.actions,
                 tabs: tabs,
                 options: const ListOptions(beansCompact: true),
                 onOpenCalendar: () {},

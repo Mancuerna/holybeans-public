@@ -22,7 +22,7 @@ Future<void> deleteBrewAfterConfirming(
 ) async {
   final s = AppLocalizations.of(context)!;
   try {
-    final returns = await actions.repository.brewStockReturn(brew);
+    final returns = await actions.read.queries.brewStockReturn(brew);
     if (!context.mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
@@ -62,20 +62,20 @@ Future<void> deleteBrewAfterConfirming(
       ),
     );
     if (confirmed != true) return;
-    final files = await actions.repository.deleteBrew(brew.id);
+    final files = await actions.commands.mutations.deleteBrew(brew.id);
     // The deletion is committed; a photo file left behind is harmless, as
     // backups skip files nothing refers to.
     for (final file in files) {
       try {
-        await actions.photos?.delete(file);
+        await actions.read.photos?.delete(file);
       } catch (error, stack) {
         reportError(error, stack);
         // Storage may be briefly unavailable.
       }
     }
-    actions.message(s.brewDeleted);
+    actions.navigation.message(s.brewDeleted);
   } on BrewArchivedWithCoffeeException {
-    actions.message(s.restoreCoffeeFirst);
+    actions.navigation.message(s.restoreCoffeeFirst);
   } catch (error, stack) {
     reportError(error, stack);
     if (context.mounted) showOperationError(context, error, s.deleteBrewFailed);

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
@@ -7,8 +8,12 @@ import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/list_options_settings.dart';
 import 'package:holybeans/data/preferences/rate_reminder_settings.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
+import 'package:holybeans/data/repositories/freezer_repository.dart';
 import 'package:holybeans/data/repositories/freshness_calendar_data.dart';
+import 'package:holybeans/data/repositories/journal_mutations.dart';
+import 'package:holybeans/data/repositories/journal_queries.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/data/repositories/stock_adjustment_repository.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/app_shortcut.dart';
 import 'package:holybeans/domain/bean_exchange.dart';
@@ -84,9 +89,21 @@ class JournalShell extends StatefulWidget {
 
 class _JournalShellState extends State<JournalShell>
     with SingleTickerProviderStateMixin
-    implements JournalActions {
+    implements JournalRead, JournalNavigation, JournalCommands {
   late final services = AppServicesScope.read(context);
+  late final actions = JournalActions(
+    read: this,
+    navigation: this,
+    commands: this,
+  );
   @override
+  late final queries = JournalQueries(repository);
+  @override
+  late final mutations = JournalMutations(repository);
+  @override
+  FreezerRepository get freezer => repository.freezer;
+  @override
+  StockAdjustmentRepository get stockEdits => repository.stockEdits;
   JournalRepository get repository => services.repository;
 
   @override
@@ -113,6 +130,7 @@ class _JournalShellState extends State<JournalShell>
     parameterSettings: parameterSettings,
     listOptionsSettings: ListOptionsSettings(services.database),
   );
+  @override
   ShareTemplateSettings get templateSettings => services.templateSettings;
   late final brewActions = BrewActions(
     context: context,
@@ -215,7 +233,7 @@ class _JournalShellState extends State<JournalShell>
       await runAppShortcut(
         context,
         shortcut,
-        actions: this,
+        actions: actions,
         journal: journal,
         incoming: services.incoming,
       );
@@ -236,15 +254,27 @@ class _JournalShellState extends State<JournalShell>
         );
       }
     } else {
-      await importBeansFromText(context, this, journal.coffees, text);
+      await importBeansFromText(context, actions, journal.coffees, text);
     }
   }
 
   @override
-  Future<void> addCoffeeFromCard(SharedBean card) async {
+  Future<void> addCoffeeFromCard(
+    SharedBean card, {
+    String? initialNotes,
+    String? roastLevelHint,
+    Future<Uint8List> Function()? importPhoto,
+  }) async {
     final saved = await showFormSheet<Object>(
       context,
-      CoffeeForm(repository: repository, photos: services.photos, card: card),
+      CoffeeForm(
+        repository: repository,
+        photos: services.photos,
+        card: card,
+        initialNotes: initialNotes,
+        roastLevelHint: roastLevelHint,
+        importPhoto: importPhoto,
+      ),
     );
     if (saved != null && mounted) {
       message(AppLocalizations.of(context)!.beanSaved);
@@ -399,7 +429,7 @@ class _JournalShellState extends State<JournalShell>
   ) => Navigator.of(context).push(
     MaterialPageRoute<void>(
       builder: (_) => LiveStatsPage(
-        actions: this,
+        actions: actions.read,
         coffees: coffees,
         brews: brews,
         lots: lots,
@@ -469,15 +499,15 @@ class _JournalShellState extends State<JournalShell>
 
   @override
   void showCoffeeDetails(Coffee coffee, JournalData data) =>
-      showCoffeeDetailsSheet(context, this, coffee, data);
+      showCoffeeDetailsSheet(context, actions, coffee, data);
 
   @override
   void showBrewDetails(Brew brew, Coffee? coffee, JournalData data) =>
-      showBrewDetailsSheet(context, this, brew, coffee, data);
+      showBrewDetailsSheet(context, actions, brew, coffee, data);
 
   @override
   Future<void> compareBrew(Brew brew, JournalData data) =>
-      showBrewComparison(context, this, brew, data);
+      showBrewComparison(context, actions, brew, data);
 
   @override
   void showAllBeans() => setState(() {
@@ -574,14 +604,14 @@ class _JournalShellState extends State<JournalShell>
 
   @override
   void showRoasters({String? roaster}) =>
-      openRoasters(context, journal, this, roaster: roaster);
+      openRoasters(context, journal, actions.navigation, roaster: roaster);
 
   Widget _tabs(JournalData data) {
     final children = [
-      HomeTab(data: data, actions: this),
+      HomeTab(data: data, actions: actions),
       BeansTab(
         data: data,
-        actions: this,
+        actions: actions,
         tabs: beanTabs,
         onOpenCalendar: () => Navigator.of(context).push<void>(
           MaterialPageRoute(
@@ -599,7 +629,7 @@ class _JournalShellState extends State<JournalShell>
       ),
       HistoryTab(
         data: data,
-        actions: this,
+        actions: actions,
         filters: historyFilters,
         options: journal.listOptions,
         onOptionsChanged: journal.changeListOptions,
@@ -706,14 +736,14 @@ class _JournalShellState extends State<JournalShell>
                       onManual: addCoffee,
                       actions: beanImportActions(
                         context,
-                        this,
+                        actions,
                         journal.coffees,
                         services.incoming,
                         searchLoffee: services.loffee == null
                             ? null
                             : () => importLoffeeBean(
                                 context,
-                                this,
+                                actions,
                                 journal.coffees,
                                 services.loffee!,
                               ),

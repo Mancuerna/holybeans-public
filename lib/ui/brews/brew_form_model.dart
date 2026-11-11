@@ -14,9 +14,9 @@ import 'package:holybeans/domain/frozen_brew.dart';
 import 'package:holybeans/domain/gaggimate/shot.dart';
 import 'package:holybeans/domain/pour_detection.dart';
 import 'package:holybeans/domain/pour_plan.dart';
-import 'package:holybeans/domain/profile_suggestions.dart';
 import 'package:holybeans/domain/recipient_snapshot.dart';
 import 'package:holybeans/domain/shot_curve.dart';
+import 'package:holybeans/ui/brews/brew_catalogs.dart';
 import 'package:holybeans/ui/brews/brew_devices.dart';
 import 'package:holybeans/ui/brews/brew_draft.dart';
 import 'package:holybeans/ui/brews/brew_form_persistence.dart';
@@ -25,6 +25,7 @@ import 'package:holybeans/ui/brews/brew_pressure_session.dart';
 import 'package:holybeans/ui/brews/brew_scale_session.dart';
 import 'package:holybeans/ui/brews/brew_timer.dart';
 import 'package:holybeans/ui/brews/brew_timer_notice.dart';
+import 'package:holybeans/ui/brews/brew_tools_model.dart';
 import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/core/photos_draft.dart';
@@ -132,6 +133,30 @@ class BrewFormModel extends ChangeNotifier {
   static const preGroundChoice = '__holybeans_pre_ground__';
 
   final AppServices services;
+  late final catalogs = BrewCatalogs(
+    repository: repository,
+    onMethods: _methodsChanged,
+    onMethodsReady: () {
+      if (methodId case final method? when savedToolsLoaded) {
+        _loadTools(method, preferredIds: selectedToolIds);
+      }
+    },
+    onGrinders: _grindersChanged,
+    onWaterProfiles: _waterProfilesChanged,
+    onRecipients: _recipientsChanged,
+    onLots: (rows, preferred) {
+      lotId = rows.any((lot) => lot.id == preferred)
+          ? preferred
+          : rows.firstOrNull?.id;
+    },
+  )..addListener(_notify);
+  late final toolSelection = BrewToolsModel(
+    repository: repository,
+    methodId: () => methodId,
+    existing: existing,
+    selectedBrew: existing ?? (repeat ? seed : null),
+  )..addListener(_notify);
+
   JournalRepository get repository => services.repository;
   BrewParameterSettings get settings => services.parameterSettings;
   final List<Coffee> coffees;
@@ -172,39 +197,36 @@ class BrewFormModel extends ChangeNotifier {
     ),
   );
   String? lotId;
-  List<CoffeeLot> lots = const [];
-  bool loadingLots = true;
-  int _lotRequest = 0;
+  List<CoffeeLot> get lots => catalogs.lots;
+  bool get loadingLots => catalogs.loadingLots;
 
   String? methodId;
-  List<BrewMethod> methods = const [];
-  bool loadingMethods = true;
-  ProfileSuggestions? _profiles;
+  List<BrewMethod> get methods => catalogs.methods;
+  bool get loadingMethods => catalogs.loadingMethods;
   List<String> get profileSuggestions =>
-      _profiles?.forMethod(methodId) ?? const [];
+      catalogs.profiles?.forMethod(methodId) ?? const [];
 
   String? grinderId;
   bool isPreGround = false;
 
   /// Whether the user picked a grinder, so memory no longer replaces it.
   bool grinderTouched = false;
-  List<Grinder> grinders = const [];
-  bool loadingGrinders = true;
+  List<Grinder> get grinders => catalogs.grinders;
+  bool get loadingGrinders => catalogs.loadingGrinders;
 
   String? waterProfileId;
-  List<WaterProfile> waterProfiles = const [];
-  bool loadingWaterProfiles = true;
+  List<WaterProfile> get waterProfiles => catalogs.waterProfiles;
+  bool get loadingWaterProfiles => catalogs.loadingWaterProfiles;
   bool _recipientChosen = false;
   Recipient? recipient;
-  List<Recipient> recipients = [];
-  bool loadingRecipients = true;
+  List<Recipient> get recipients => catalogs.recipients;
+  bool get loadingRecipients => catalogs.loadingRecipients;
 
-  final Set<String> selectedToolIds = {};
-  List<MethodTool> tools = const [];
-  Map<String, int> toolUseCounts = const {};
-  bool loadingTools = false;
-  bool savedToolsLoaded = false;
-  int _toolRequest = 0;
+  Set<String> get selectedToolIds => toolSelection.selectedIds;
+  List<MethodTool> get tools => toolSelection.tools;
+  Map<String, int> get toolUseCounts => toolSelection.useCounts;
+  bool get loadingTools => toolSelection.loading;
+  bool get savedToolsLoaded => toolSelection.savedLoaded;
 
   Set<BrewParameter> hiddenFields = const {};
 
@@ -239,14 +261,10 @@ class BrewFormModel extends ChangeNotifier {
     notify: _notify,
   );
   bool get loadingMemory => _recipes.loading;
-  int _toolsEdit = 0;
-  bool _toolsTouched = false;
   bool _waterTouched = false;
 
   final List<StreamSubscription<Object?>> _subscriptions = [];
-  final _catalogSubscriptions = <StreamSubscription<Object?>>[];
-  final _loadErrors = <String>{};
-  bool get hasLoadError => _loadErrors.isNotEmpty;
+  bool get hasLoadError => catalogs.hasError || toolSelection.hasError;
   bool _retrying = false;
   final FrozenBrewSource? initialFrozenSource;
 
@@ -291,7 +309,7 @@ class BrewFormModel extends ChangeNotifier {
         : repeat
         ? null
         : coffees.firstOrNull?.id;
-    loadingLots = coffeeId != null;
+    catalogs.prepareLots(loading: coffeeId != null);
 
     _subscriptions.add(
       settings.watchHidden().listen((hidden) {
@@ -357,7 +375,9 @@ class BrewFormModel extends ChangeNotifier {
       _notify();
       await _loadTools(
         selectedMethodId,
-        preferredIds: _toolsTouched ? selectedToolIds.toList() : lastTools,
+        preferredIds: toolSelection.touched
+            ? selectedToolIds.toList()
+            : lastTools,
       );
     },
   );
@@ -537,12 +557,11 @@ class BrewFormModel extends ChangeNotifier {
 
   void selectCoffee(String id) {
     coffeeId = id;
-    ++_toolRequest;
-    loadingTools = false;
+    toolSelection.cancelPending();
     lotId = null;
-    lots = const [];
-    loadingLots = true;
-    _notify();
+    catalogs.prepareLots(clear: true);
+    catalogs.publish();
+    toolSelection.publish();
     _loadLots(id);
     if (isNew) {
       _loadDialIn();
@@ -567,12 +586,9 @@ class BrewFormModel extends ChangeNotifier {
     _recipientChosen = false;
     _defaultRecipient();
     draft.jugTotal.clear();
-    ++_toolRequest;
-    _toolsTouched = false;
-    tools = const [];
-    selectedToolIds.clear();
+    toolSelection.resetForMethod();
     draft.applyTare(jugGrams);
-    _notify();
+    toolSelection.publish();
     if (isNew) unawaited(_loadDialIn());
     if (_fresh) {
       await _applyMethodMemory(id);
@@ -596,12 +612,8 @@ class BrewFormModel extends ChangeNotifier {
     _notify();
   }
 
-  void toggleTool(String id, bool selected) {
-    ++_toolsEdit;
-    _toolsTouched = true;
-    selected ? selectedToolIds.add(id) : selectedToolIds.remove(id);
-    _notify();
-  }
+  void toggleTool(String id, bool selected) =>
+      toolSelection.toggle(id, selected);
 
   /// Reloads the method's tools, e.g. after managing them.
   Future<void> reloadTools() async {
@@ -737,7 +749,9 @@ class BrewFormModel extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _recipes.dispose();
-    for (final subscription in [..._subscriptions, ..._catalogSubscriptions]) {
+    catalogs.dispose();
+    toolSelection.dispose();
+    for (final subscription in _subscriptions) {
       subscription.cancel();
     }
     photoDraft.dispose();

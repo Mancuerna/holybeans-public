@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/bean_exchange.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/incoming_shares.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/bean_add_button.dart';
@@ -33,7 +32,9 @@ Future<void> importBeansFromText(
   } on BeanReadException catch (exception, stack) {
     // Says where reading stopped, in the device log only.
     reportError(exception, stack);
-    if (context.mounted) actions.message(_readErrorMessage(s, exception.error));
+    if (context.mounted) {
+      actions.navigation.message(_readErrorMessage(s, exception.error));
+    }
     return;
   }
   if (!context.mounted) return;
@@ -114,7 +115,7 @@ Future<void> _reviewBeans(
   }
   final card = single.bean;
   if (await confirmBeanImport(context, actions, coffees, card)) {
-    await actions.addCoffeeFromCard(card);
+    await actions.navigation.addCoffeeFromCard(card);
   }
 }
 
@@ -147,7 +148,7 @@ Future<bool> confirmBeanImport(
     );
     if (choice == null) return false;
     if (!choice) {
-      actions.showCoffeeDetailsById(mine.id);
+      actions.navigation.showCoffeeDetailsById(mine.id);
       return false;
     }
   }
@@ -165,7 +166,7 @@ Future<String?> scanBeanQr(
     return await incoming.scanQr();
   } on QrScanFailed catch (error, stack) {
     reportError(error, stack);
-    actions.message(s.scanFailed);
+    actions.navigation.message(s.scanFailed);
     return null;
   }
 }
@@ -239,7 +240,7 @@ List<BeanAddAction> beanImportActions(
         await Clipboard.setData(
           ClipboardData(text: s.beanAiInstructions(aiCardExample)),
         );
-        actions.message(s.aiInstructionsCopied);
+        actions.navigation.message(s.aiInstructionsCopied);
       }),
     ),
   ];
@@ -310,7 +311,7 @@ class _BeanImportPageState extends State<BeanImportPage> {
     try {
       for (final (index, read) in widget.beans.indexed) {
         if (!_chosen[index]) continue;
-        await widget.actions.repository.createCoffeeFromCard(read.bean);
+        await widget.actions.commands.mutations.createCoffeeFromCard(read.bean);
         added++;
       }
     } catch (error, stack) {
@@ -318,7 +319,7 @@ class _BeanImportPageState extends State<BeanImportPage> {
       if (mounted) showOperationError(context, error, s.importFailed);
     }
     if (!mounted) return;
-    if (added > 0) widget.actions.message(s.importDone(added));
+    if (added > 0) widget.actions.navigation.message(s.importDone(added));
     Navigator.pop(context);
   }
 

@@ -150,11 +150,11 @@ class BrewCard extends StatelessWidget {
         ? formatBrewTimestamp(brew, deviceLocale)
         : regionalTimeFormat(deviceLocale.toString())
               .format(DateTime.fromMillisecondsSinceEpoch(brew.brewedAtMs));
-    final hidden = actions.hiddenParameters;
+    final hidden = actions.read.hiddenParameters;
     bool shows(BrewParameter parameter) => !hidden.contains(parameter);
     final recipe = brewRecipeParts(
       brew,
-      actions.methods,
+      actions.read.methods,
       regionalLocale.toString(),
       hidden: hidden,
       fill: fill,
@@ -163,7 +163,7 @@ class BrewCard extends StatelessWidget {
         ? recipe
         : brewRecipeParts(
             brew,
-            actions.methods,
+            actions.read.methods,
             regionalLocale.toString(),
             hidden: hidden,
           );
@@ -218,7 +218,7 @@ class BrewCard extends StatelessWidget {
         onLongPressHint: s.editBrew,
         child: InkWell(
           customBorder: theme.cardTheme.shape,
-          onTap: () => actions.showBrewDetails(brew, coffee, data),
+          onTap: () => actions.navigation.showBrewDetails(brew, coffee, data),
           onLongPress: onLongPress,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 4, 12),
@@ -335,21 +335,25 @@ class BrewCard extends StatelessWidget {
   void _onAction(BuildContext context, String value, Coffee? coffee) {
     switch (value) {
       case 'repeat':
-        actions.openBrewForm(data.coffees, seed: brew, repeat: true);
+        actions.navigation.openBrewForm(data.coffees, seed: brew, repeat: true);
       case 'rate':
-        actions.rateBrew(brew, coffee);
+        actions.commands.rateBrew(brew, coffee);
       case 'favorite':
-        actions.setBrewFavorite(brew, favorite: !brew.isFavorite);
+        actions.commands.setBrewFavorite(brew, favorite: !brew.isFavorite);
       case 'edit':
-        actions.openBrewForm(data.coffees, existing: brew);
+        actions.navigation.openBrewForm(data.coffees, existing: brew);
       case 'share':
         if (coffee != null) {
-          actions.shareBrew(brew, coffee, data.componentsOf(coffee.id));
+          actions.commands.shareBrew(
+            brew,
+            coffee,
+            data.componentsOf(coffee.id),
+          );
         }
       case 'compare':
-        actions.compareBrew(brew, data);
+        actions.navigation.compareBrew(brew, data);
       case 'archive':
-        actions.archiveBrew(brew);
+        actions.commands.archiveBrew(brew);
       case 'delete':
         deleteBrewAfterConfirming(context, actions, brew);
     }

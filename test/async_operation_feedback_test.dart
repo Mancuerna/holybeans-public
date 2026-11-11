@@ -7,7 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/backup_state.dart';
 import 'package:holybeans/data/preferences/language_setting.dart';
+import 'package:holybeans/data/repositories/freezer_repository.dart';
+import 'package:holybeans/data/repositories/journal_mutations.dart';
+import 'package:holybeans/data/repositories/journal_queries.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/data/repositories/stock_adjustment_repository.dart';
 import 'package:holybeans/data/services/beanconqueror_archive.dart';
 import 'package:holybeans/domain/beanconqueror/bq_import_plan.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -232,10 +236,21 @@ void main() {
   });
 }
 
-class _Actions extends Fake implements JournalActions {
+class _Actions extends Fake
+    implements JournalRead, JournalNavigation, JournalCommands {
   _Actions(this.repository);
-  @override
+  JournalActions get actions =>
+      JournalActions(read: this, navigation: this, commands: this);
+
   final JournalRepository repository;
+  @override
+  late final queries = JournalQueries(repository);
+  @override
+  late final mutations = JournalMutations(repository);
+  @override
+  StockAdjustmentRepository get stockEdits => repository.stockEdits;
+  @override
+  FreezerRepository get freezer => repository.freezer;
 }
 
 class _FailingFolderCenter extends BackupCenter {

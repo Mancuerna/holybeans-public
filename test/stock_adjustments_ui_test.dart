@@ -48,7 +48,7 @@ void main() {
         ),
         home: Scaffold(
           body: StockAdjustmentSection(
-            repository: repo,
+            repository: repo.stockEdits,
             coffee: (await repo.coffee(id))!,
             stock: stock,
             adjustments: const [],
@@ -114,7 +114,7 @@ void main() {
                 child: StreamBuilder<List<StockAdjustment>>(
                   stream: repo.watchStockAdjustments(),
                   builder: (context, snapshot) => StockAdjustmentSection(
-                    repository: repo,
+                    repository: repo.stockEdits,
                     coffee: coffee,
                     stock: CoffeeStock(lots: lots, portions: []),
                     adjustments: snapshot.data ?? [],

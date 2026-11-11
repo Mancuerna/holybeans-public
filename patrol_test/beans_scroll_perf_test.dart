@@ -196,8 +196,8 @@ void main() {
                   freshness.freshnessToday(
                     coffee,
                     data: data,
-                    methods: tab.actions.methods,
-                    portions: tab.actions.portions,
+                    methods: tab.actions.read.methods,
+                    portions: tab.actions.read.portions,
                   );
                 }
               },
@@ -210,7 +210,7 @@ void main() {
             await measure(
               () {
                 for (final coffee in data.coffees) {
-                  tab.actions.freshnessToday(coffee);
+                  tab.actions.read.freshnessToday(coffee);
                 }
               },
               warmups: 0,

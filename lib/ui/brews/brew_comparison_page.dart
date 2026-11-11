@@ -30,7 +30,7 @@ class BrewComparisonPage extends StatefulWidget {
   final Brew a;
   final Brew b;
   final JournalData data;
-  final JournalActions actions;
+  final JournalRead actions;
 
   @override
   State<BrewComparisonPage> createState() => _BrewComparisonPageState();
@@ -45,7 +45,7 @@ class _BrewComparisonPageState extends State<BrewComparisonPage> {
 
   Future<ComparisonCurve?> _loadCurve(Brew brew) async {
     try {
-      final row = await widget.actions.repository.brewCurve(brew.id);
+      final row = await widget.actions.queries.brewCurve(brew.id);
       if (row == null || row.curve.isEmpty) return null;
       return ComparisonCurve(
         row.curve,
@@ -103,7 +103,7 @@ class _BrewComparisonPageState extends State<BrewComparisonPage> {
             ),
           BrewDifferencesSummary(
             comparison: comparison,
-            repository: widget.actions.repository,
+            repository: widget.actions.queries,
             hidden: widget.actions.hiddenParameters,
             coffeeA: coffeeName(a),
             coffeeB: coffeeName(b),
@@ -331,11 +331,11 @@ class _ComparisonRows {
   final AppLocalizations s;
   final Brew a;
   final Brew b;
-  final JournalActions actions;
+  final JournalRead actions;
   final BrewComparison comparison;
   final NumberFormat number;
 
-  static String? _category(JournalActions actions, Brew brew) => actions.methods
+  static String? _category(JournalRead actions, Brew brew) => actions.methods
       .where((method) => method.id == brew.methodId)
       .firstOrNull
       ?.category;

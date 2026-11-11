@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/data/repositories/journal_mutations.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 
 class StockReviewCard extends StatefulWidget {
@@ -11,7 +11,7 @@ class StockReviewCard extends StatefulWidget {
     required this.brew,
     required this.onResolved,
   });
-  final JournalRepository repository;
+  final JournalMutations repository;
   final Brew brew;
   final ValueChanged<Brew> onResolved;
   @override

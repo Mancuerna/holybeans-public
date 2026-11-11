@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/bean_roaster_groups.dart';
 import 'package:holybeans/domain/freshness_order.dart';
 import 'package:holybeans/domain/list_options.dart';
@@ -104,7 +103,7 @@ class _BeansTabState extends State<BeansTab> {
 
   @override
   Widget build(BuildContext context) {
-    final key = (widget.data, actions.portions);
+    final key = (widget.data, actions.read.portions);
     if (key != _listKey) {
       _listKey = key;
       _aggregates = BeanListData(key.$1, key.$2);
@@ -168,8 +167,8 @@ class _BeansTabState extends State<BeansTab> {
               : compareName(first, second);
         case 3:
           final byFreshness = compareFreshness(
-            actions.freshnessToday(first),
-            actions.freshnessToday(second),
+            actions.read.freshnessToday(first),
+            actions.read.freshnessToday(second),
             ascending: ascending,
           );
           return byFreshness != 0 ? byFreshness : compareName(first, second);
@@ -212,7 +211,7 @@ class _BeansTabState extends State<BeansTab> {
             grams: frozenTab ? frozen[coffee.id] : fresh[coffee.id],
             phase: archivedTab || frozenTab || (fresh[coffee.id] ?? 1) <= 0
                 ? null
-                : actions.freshnessToday(coffee)?.phase,
+                : actions.read.freshnessToday(coffee)?.phase,
           ),
       ]);
       for (final group in groups) {
@@ -419,7 +418,7 @@ class _BeansTabState extends State<BeansTab> {
               icon: Icons.coffee_maker_outlined,
               label: s.actionBrew,
               primary: true,
-              run: () => actions.openBrewForm(
+              run: () => actions.navigation.openBrewForm(
                 widget.data.coffees,
                 initialCoffeeId: coffee.id,
               ),
@@ -443,11 +442,14 @@ class _BeansTabState extends State<BeansTab> {
 
   Future<void> _toggleArchived(Coffee coffee) async {
     if (coffee.archivedAtMs == null) {
-      await actions.confirmCoffeeArchive(coffee);
+      await actions.commands.confirmCoffeeArchive(coffee);
       return;
     }
     try {
-      await actions.repository.setCoffeeArchived(coffee.id, archived: false);
+      await actions.commands.mutations.setCoffeeArchived(
+        coffee.id,
+        archived: false,
+      );
     } catch (error, stack) {
       reportError(error, stack);
       if (mounted) {

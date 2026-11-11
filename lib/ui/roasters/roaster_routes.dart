@@ -10,7 +10,7 @@ import 'package:holybeans/ui/shell/journal_view_model.dart';
 void openRoasters(
   BuildContext context,
   JournalViewModel journal,
-  JournalActions actions, {
+  JournalNavigation actions, {
   String? roaster,
 }) {
   final cafes = journal.repository.cafes.watch();

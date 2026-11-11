@@ -23,6 +23,7 @@ class HomeCoffeeTile extends StatelessWidget {
     required this.seed,
     required this.data,
     required this.actions,
+    required this.journal,
     this.low = false,
   });
 
@@ -33,7 +34,8 @@ class HomeCoffeeTile extends StatelessWidget {
   /// The brew Repeat and Adjust start from; null if never brewed.
   final Brew? seed;
   final JournalData data;
-  final JournalActions actions;
+  final JournalNavigation actions;
+  final JournalRead journal;
 
   /// Fewer than two doses left: the grams take the warning colour.
   final bool low;
@@ -121,6 +123,7 @@ class HomeCoffeeTile extends StatelessWidget {
                   coffee: coffee,
                   data: data,
                   actions: actions,
+                  journal: journal,
                 )
               else
                 Row(
@@ -196,12 +199,14 @@ class _Recipe extends StatelessWidget {
     required this.coffee,
     required this.data,
     required this.actions,
+    required this.journal,
   });
 
   final Brew brew;
   final Coffee coffee;
   final JournalData data;
-  final JournalActions actions;
+  final JournalNavigation actions;
+  final JournalRead journal;
 
   @override
   Widget build(BuildContext context) {
@@ -210,9 +215,9 @@ class _Recipe extends StatelessWidget {
     final colors = theme.colorScheme;
     final parts = brewRecipeParts(
       brew,
-      actions.methods,
+      journal.methods,
       regionalLocale.toString(),
-      hidden: actions.hiddenParameters,
+      hidden: journal.hiddenParameters,
     );
     final when = relativeTimeInline(
       s,

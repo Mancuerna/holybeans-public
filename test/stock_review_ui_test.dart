@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/journal_mutations.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/l10n/app_localizations_en.dart';
 import 'package:holybeans/l10n/app_localizations_es.dart';
@@ -47,7 +48,7 @@ void main() {
             home: Scaffold(
               body: SingleChildScrollView(
                 child: StockReviewCard(
-                  repository: repo,
+                  repository: JournalMutations(repo),
                   brew: (await repo.brew(id))!,
                   onResolved: (b) => resolved = b,
                 ),
