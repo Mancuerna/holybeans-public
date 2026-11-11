@@ -1,16 +1,16 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   for (final language in ['es', 'en']) {
     testWidgets('same-name coffees remain distinct in $language at 2x text', (
       tester,
     ) async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       tester.view.physicalSize = const Size(360, 900);
       tester.view.devicePixelRatio = 1;

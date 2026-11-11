@@ -1,7 +1,5 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
@@ -10,6 +8,7 @@ import 'package:holybeans/ui/brews/coffee_picker.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
+import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 void main() {
@@ -18,7 +17,7 @@ void main() {
   testWidgets('bean, brew and repeat use one bag and survive rebuilding', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     await tester.pumpWidget(
       HolyBeansApp(database: database, initialLocale: const Locale('es')),
     );
@@ -171,7 +170,7 @@ void main() {
   testWidgets(
     'bean details start a brew with that bean and show related brew history',
     (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       final repository = JournalRepository(database);
       tester.view.physicalSize = const Size(360, 800);
       tester.view.devicePixelRatio = 1;
@@ -293,7 +292,7 @@ void main() {
   testWidgets(
     'coffee archive dialog cancels cleanly and saves an optional rating',
     (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       final repository = JournalRepository(database);
       tester.view.physicalSize = const Size(360, 800);
       tester.view.devicePixelRatio = 1;
@@ -391,7 +390,7 @@ void main() {
   testWidgets('saved overdraft asks to archive only after the brew is stored', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     final repository = JournalRepository(database);
     addTearDown(database.close);
     await repository.createCoffee(

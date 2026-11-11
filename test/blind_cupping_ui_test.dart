@@ -1,21 +1,21 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/cupping.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/cupping/cupping_model.dart';
 import 'package:holybeans/ui/cupping/cupping_page.dart';
 
 import 'helpers/blind_cupping_fixture.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   late AppDatabase db;
   late JournalRepository r;
   late String coffee;
   setUp(() async {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     r = JournalRepository(db);
     coffee = await r.createCoffee(
       name: 'Secret Kenya',
@@ -25,10 +25,8 @@ void main() {
   });
   tearDown(() => db.close());
 
-  Widget app(CuppingSession session, String language) => MaterialApp(
+  Widget app(CuppingSession session, String language) => localizedApp(
     locale: Locale(language),
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
     builder: (context, child) => MediaQuery(
       data: MediaQuery.of(context)
           .copyWith(textScaler: const TextScaler.linear(1.3)),

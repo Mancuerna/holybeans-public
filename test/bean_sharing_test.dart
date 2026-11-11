@@ -1,4 +1,3 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,6 +9,8 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/bean_import.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
+
+import 'helpers/test_database.dart';
 
 const _geisha = SharedBean(
   name: 'Abu Coffee Geisha',
@@ -44,7 +45,7 @@ void main() {
   late JournalRepository repository;
 
   setUp(() {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     repository = JournalRepository(database);
   });
   tearDown(() => database.close());

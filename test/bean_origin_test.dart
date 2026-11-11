@@ -1,12 +1,12 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/coffee_countries.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   test('free-text origins resolve to a country and flag', () {
@@ -29,7 +29,7 @@ void main() {
   });
 
   testWidgets('bean cards show flags and farm details', (tester) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;
@@ -84,7 +84,7 @@ void main() {
   testWidgets('the country field suggests countries with flags', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;
@@ -128,7 +128,7 @@ void main() {
   testWidgets('picking Brazil shows a skull and plays its sound', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;

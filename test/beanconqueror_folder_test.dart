@@ -3,20 +3,19 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:archive/archive.dart';
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/beanconqueror_archive.dart';
 import 'package:holybeans/data/services/beanconqueror_sources.dart';
 import 'package:holybeans/data/services/export_folder.dart';
 import 'package:holybeans/data/services/photo_store.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/settings/beanconqueror_import_page.dart';
 
 import 'helpers/beanconqueror_fixture.dart';
 import 'helpers/fake_export_folder.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 /// The folder "Full export to directory" leaves: the export's ZIP, its
 /// curves in `brews` and a photo beside them.
@@ -83,7 +82,7 @@ void main() {
   testWidgets('picking the export folder brings its curves and photos', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final photos = Directory.systemTemp.createTempSync('bq_folder_photos');
     addTearDown(() => photos.deleteSync(recursive: true));
@@ -91,10 +90,8 @@ void main() {
     final folder = FakeExportFolder(exportFolder());
     BqImportSummary? summary;
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Builder(
           builder: (context) => TextButton(
             onPressed: () async => summary = await importFromBeanconqueror(
@@ -146,13 +143,11 @@ void main() {
   });
 
   testWidgets('a folder without an export says so', (tester) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: Builder(
             builder: (context) => TextButton(
@@ -180,14 +175,12 @@ void main() {
   testWidgets('a dialog says the export is being read until it is', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final folder = _HeldFolder(exportFolder());
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Builder(
           builder: (context) => TextButton(
             onPressed: () => importFromBeanconqueror(

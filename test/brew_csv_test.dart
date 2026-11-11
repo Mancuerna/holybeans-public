@@ -1,8 +1,9 @@
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_csv.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   for (final (value, encoded) in [
@@ -71,7 +72,7 @@ void main() {
   }
 
   test('brews export as CSV for spreadsheets', () async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     final coffeeId = await repository.createCoffee(

@@ -1,4 +1,3 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -7,6 +6,7 @@ import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 void main() {
@@ -15,7 +15,7 @@ void main() {
   testWidgets('bean editor changes remaining weight and roast level', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     final coffeeId = await repository.createCoffee(
@@ -80,7 +80,7 @@ void main() {
   testWidgets(
     'bean editor creates and edits an ordered blend on a narrow screen',
     (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       tester.view.physicalSize = const Size(360, 800);
       tester.view.devicePixelRatio = 1;
@@ -192,7 +192,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     await tester.pumpWidget(
       HolyBeansApp(database: database, initialLocale: const Locale('es')),
     );
@@ -240,7 +240,7 @@ void main() {
   testWidgets('legacy bean without a lot can start inventory from its form', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     final repository = JournalRepository(database);
     final coffeeId = await repository.createCoffee(
       name: 'Legacy bean',
@@ -297,7 +297,7 @@ void main() {
   testWidgets('bean details and edit form format saved quantity cleanly', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     final repository = JournalRepository(database);
     await repository.createCoffee(
       name: 'Integral bean',
@@ -369,7 +369,7 @@ void main() {
   testWidgets(
     'bean editor sets a fractional remaining weight on a narrow screen',
     (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       final repository = JournalRepository(database);
       tester.view.physicalSize = const Size(360, 800);
       tester.view.devicePixelRatio = 1;
@@ -436,7 +436,7 @@ void main() {
   testWidgets('multiple active inventory records do not offer adjustment', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     final repository = JournalRepository(database);
     addTearDown(database.close);
     final coffeeId = await repository.createCoffee(

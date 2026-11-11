@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/backup_settings.dart';
@@ -10,6 +9,8 @@ import 'package:holybeans/data/services/auto_backups.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/domain/auto_backup.dart';
 
+import 'helpers/test_database.dart';
+
 void main() {
   late Directory directory;
   late AppDatabase database;
@@ -18,7 +19,7 @@ void main() {
 
   setUp(() async {
     directory = await Directory.systemTemp.createTemp('holybeans-auto-');
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     backup = JournalBackup(database);
     store = AutoBackups(Directory('${directory.path}/auto-backups'));
   });

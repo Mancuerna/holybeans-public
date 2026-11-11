@@ -1,9 +1,10 @@
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/meticulous_client.dart';
 import 'package:holybeans/domain/shot_curve.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   late AppDatabase database;
@@ -12,7 +13,7 @@ void main() {
   late String lotId;
 
   setUp(() async {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     repository = JournalRepository(database);
     coffeeId = await repository.createCoffee(
       name: 'Kenya',

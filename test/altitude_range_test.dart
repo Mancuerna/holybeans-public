@@ -1,13 +1,13 @@
 import 'dart:convert';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/domain/altitude.dart';
 import 'package:holybeans/domain/bean_exchange.dart';
 import 'package:holybeans/domain/beanconqueror/bq_values.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   test('explicit single elevations and ranges preserve their endpoints', () {
@@ -93,7 +93,7 @@ void main() {
   test(
     'editing and backups preserve both endpoints without changing origin IDs',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repo = JournalRepository(db);
       final id = await repo.createCoffee(
@@ -139,7 +139,7 @@ void main() {
   test(
     'reversed and orphan upper endpoints fail without altering a journal',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repo = JournalRepository(db);
       final id = await repo.createCoffee(

@@ -1,12 +1,12 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/backup_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/backup_reminder.dart';
 import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/main.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   test('a backup is due a month after the last one or the first use', () {
@@ -21,7 +21,7 @@ void main() {
   });
 
   test('the journal starts with its oldest coffee or brew', () async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     expect(journalFirstUse(const [], const []), isNull);
     final repository = JournalRepository(database);
@@ -49,7 +49,7 @@ void main() {
   testWidgets('Home suggests a backup on an old journal until put off', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     await repository.createCoffee(name: 'Old coffee', roaster: 'R');

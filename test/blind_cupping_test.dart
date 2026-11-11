@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -9,6 +8,7 @@ import 'package:holybeans/domain/cupping.dart';
 import 'package:holybeans/ui/cupping/cupping_model.dart';
 
 import 'helpers/blind_cupping_fixture.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -62,7 +62,7 @@ void main() {
     late String coffee;
     late String lot;
     setUp(() async {
-      db = AppDatabase.forTesting(NativeDatabase.memory());
+      db = memoryDatabase();
       r = JournalRepository(db);
       coffee = await r.createCoffee(
         name: 'Secret Kenya',

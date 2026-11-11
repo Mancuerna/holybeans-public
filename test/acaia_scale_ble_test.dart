@@ -1,7 +1,6 @@
 @Tags(['slow'])
 library;
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/scale_settings.dart';
@@ -12,6 +11,7 @@ import 'package:holybeans/ui/brews/brew_scale_session.dart';
 import 'package:universal_ble/universal_ble.dart';
 
 import 'helpers/fake_acaia_ble_platform.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   group('captured Pearl startup', () {
@@ -23,7 +23,7 @@ void main() {
       platform = FakeAcaiaBlePlatform(pearl: true)
         ..settingsDelay = const Duration(milliseconds: 250);
       UniversalBle.setInstance(platform);
-      db = AppDatabase.forTesting(NativeDatabase.memory());
+      db = memoryDatabase();
       trace.clear();
       scale = BleScale(
         ScaleSettings(db),
@@ -277,7 +277,7 @@ void main() {
       setUp(() {
         platform = FakeAcaiaBlePlatform(classic: classic);
         UniversalBle.setInstance(platform);
-        db = AppDatabase.forTesting(NativeDatabase.memory());
+        db = memoryDatabase();
         scale = BleScale(ScaleSettings(db));
       });
       tearDown(() async {

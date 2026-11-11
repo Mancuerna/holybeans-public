@@ -3,26 +3,25 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:drift/native.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/beanconqueror_archive.dart';
 import 'package:holybeans/data/services/beanconqueror_sources.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/beanconqueror/bq_import_plan.dart';
 import 'package:holybeans/domain/shot_curve.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/settings/beanconqueror_import_page.dart';
 
 import 'helpers/beanconqueror_fixture.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   testWidgets('the import page shows what comes in, takes the photos and '
       'imports', (tester) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final folder = Directory.systemTemp.createTempSync('bq_photos');
     addTearDown(() => folder.deleteSync(recursive: true));
@@ -35,10 +34,8 @@ void main() {
     );
     BqImportSummary? summary;
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Builder(
           builder: (context) => TextButton(
             onPressed: () async => summary = await Navigator.of(context).push(
@@ -107,7 +104,7 @@ void main() {
   });
 
   testWidgets('a ZIP of the export folder needs no picking', (tester) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final folder = Directory.systemTemp.createTempSync('bq_photos');
     addTearDown(() => folder.deleteSync(recursive: true));
@@ -121,10 +118,8 @@ void main() {
     );
     BqImportSummary? summary;
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Builder(
           builder: (context) => TextButton(
             onPressed: () async => summary = await Navigator.of(context).push(
@@ -173,7 +168,7 @@ void main() {
   testWidgets('the import says what it is busy with while it has no count', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     final plan = await tester.runAsync(
@@ -185,10 +180,8 @@ void main() {
     final bundle = _HeldCurves();
     BqImportSummary? summary;
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Builder(
           builder: (context) => TextButton(
             onPressed: () async => summary = await Navigator.of(context).push(
@@ -250,7 +243,7 @@ void main() {
   testWidgets('failed photo cleanup still leaves the import retryable', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final folder = Directory.systemTemp.createTempSync('bq_cleanup');
     addTearDown(() => folder.deleteSync(recursive: true));
@@ -263,10 +256,8 @@ void main() {
       ),
     );
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: BeanconquerorImportPage(
           plan: plan!,
           repository: repository,
