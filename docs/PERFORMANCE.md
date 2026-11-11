@@ -732,6 +732,20 @@ change measures **100 → 0 new profile collections**, excluding initial loading
 It then adds a coffee and a cafe drink and verifies both appear in the profile
 while the search survives. These are aggregation counts, not device timings.
 
+## Piston analysis reuse (November 2026)
+
+The piston page retains current/speed series, trend and usable-reading summaries
+for each loaded snapshot. Sync progress and range changes share that analysis;
+new readings or maintenance replace it. Date-range filtering remains current in
+the page rather than being cached against a fixed timestamp.
+
+`piston_analysis_reuse_test.dart` opens the real page with 40 readings and drives
+100 progress notifications from a controlled repository sync. On `340acf7` and
+after this change, the same driver measures **16,000 → 0 raw reading element
+accesses** during progress. It completes the sync with 41 readings and verifies
+the updated chart and speed view. Initial analysis, filtered chart points and
+device/network timings are outside this measurement; the transport is simulated.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

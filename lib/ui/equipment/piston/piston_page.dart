@@ -7,6 +7,7 @@ import 'package:holybeans/ui/equipment/piston/piston_chart.dart';
 import 'package:holybeans/ui/equipment/piston/piston_credits.dart';
 import 'package:holybeans/ui/equipment/piston/piston_model.dart';
 import 'package:holybeans/ui/equipment/piston/piston_service_form.dart';
+import 'package:holybeans/ui/equipment/piston/piston_view_data.dart';
 import 'package:intl/intl.dart';
 
 class PistonPage extends StatefulWidget {
@@ -33,6 +34,8 @@ class _PistonPageState extends State<PistonPage> {
   )..open();
   int days = 90;
   bool speed = false;
+  PistonSnapshot? _analysisSource;
+  late PistonViewData _analysis;
   @override
   void dispose() {
     model.dispose();
@@ -63,15 +66,19 @@ class _PistonPageState extends State<PistonPage> {
         regionalLocale,
       );
       final data = model.data;
-      final all = pistonSeries(data.readings, data.services, speed: speed);
+      if (_analysisSource != data) {
+        _analysis = PistonViewData(data);
+        _analysisSource = data;
+      }
+      final all = _analysis.series(speed);
       final since = days == 0
           ? 0
           : DateTime.now()
                 .subtract(Duration(days: days))
                 .millisecondsSinceEpoch;
       final points = all.where((p) => p.timeMs >= since).toList();
-      final stats = pistonTrend(data.readings, data.services);
-      final last = data.readings.where((r) => r.usable).lastOrNull;
+      final stats = _analysis.trend;
+      final last = _analysis.usable.lastOrNull;
       return Scaffold(
         appBar: AppBar(title: Text(s.pistonTitle)),
         body: SafeArea(
@@ -235,7 +242,7 @@ class _PistonPageState extends State<PistonPage> {
                         ),
                       const SizedBox(height: 12),
                       Text(
-                        '${s.pistonUsable}: ${data.readings.where((r) => r.usable).length} / ${data.readings.length}',
+                        '${s.pistonUsable}: ${_analysis.usable.length} / ${data.readings.length}',
                       ),
                     ],
                     const SizedBox(height: 16),
