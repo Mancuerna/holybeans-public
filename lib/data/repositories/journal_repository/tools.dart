@@ -1,13 +1,25 @@
 part of '../journal_repository.dart';
 
 extension ToolOperations on JournalRepository {
-  Future<ToolCatalog> toolCatalog() => database.transaction(
-    () async => ToolCatalog(
-      tools: await database.select(database.methodTools).get(),
-      links: await database.select(database.toolMethodLinks).get(),
-      selections: await database.select(database.brewToolSelections).get(),
-    ),
-  );
+  Future<ToolCatalog> toolCatalog() =>
+      _readToolCatalog(includeSelections: true);
+
+  Future<ToolCatalog> _readToolCatalog({
+    String? methodId,
+    bool includeLinks = true,
+    bool includeSelections = false,
+  }) => database.transaction(() async {
+    final tools = await database.select(database.methodTools).get();
+    final links = database.select(database.toolMethodLinks);
+    if (methodId != null) links.where((row) => row.methodId.equals(methodId));
+    return ToolCatalog(
+      tools: tools,
+      links: includeLinks ? await links.get() : const [],
+      selections: includeSelections
+          ? await database.select(database.brewToolSelections).get()
+          : const [],
+    );
+  });
 
   Stream<ToolCatalog> watchToolCatalog() => database
       .customSelect(
@@ -25,14 +37,21 @@ extension ToolOperations on JournalRepository {
     String methodId, {
     bool includeArchived = false,
     Iterable<String> retainedIds = const [],
-  }) async => (await toolCatalog()).forMethod(
+  }) async => (await _readToolCatalog(methodId: methodId)).forMethod(
     methodId,
     includeArchived: includeArchived,
     retainedIds: retainedIds,
   );
 
   Future<List<String>> brewToolIds(String brewId) async {
-    final catalog = await toolCatalog();
+    final catalog = await _readToolCatalog(includeLinks: false);
+    return _selectedToolIds(brewId, catalog);
+  }
+
+  Future<List<String>> _selectedToolIds(
+    String brewId,
+    ToolCatalog catalog,
+  ) async {
     final selections = await (database.select(
       database.brewToolSelections,
     )..where((selection) => selection.brewId.equals(brewId))).get();
@@ -72,7 +91,7 @@ extension ToolOperations on JournalRepository {
     required String name,
     required List<String> methodIds,
   }) => database.transaction(() async {
-    final catalog = await toolCatalog();
+    final catalog = await _readToolCatalog();
     final canonical = catalog.canonicalId(id);
     for (final methodId in methodIds.toSet()) {
       await _requireMethod(methodId);
@@ -89,7 +108,7 @@ extension ToolOperations on JournalRepository {
     required String id,
     required String name,
   }) async {
-    final catalog = await toolCatalog();
+    final catalog = await _readToolCatalog();
     final canonical = catalog.canonicalId(id);
     await updateTool(
       id: canonical,
@@ -116,7 +135,7 @@ extension ToolOperations on JournalRepository {
   Future<void> associateTool(String toolId, String methodId) =>
       database.transaction(() async {
         await _requireMethod(methodId);
-        final catalog = await toolCatalog();
+        final catalog = await _readToolCatalog();
         final canonical = catalog.canonicalId(toolId);
         if (catalog.byId[canonical]!.archivedAtMs != null) {
           throw StateError('Archived tool cannot be associated');
@@ -131,7 +150,7 @@ extension ToolOperations on JournalRepository {
 
   Future<void> dissociateTool(String toolId, String methodId) =>
       database.transaction(() async {
-        final catalog = await toolCatalog();
+        final catalog = await _readToolCatalog();
         final canonical = catalog.canonicalId(toolId);
         await (database.delete(database.toolMethodLinks)..where(
               (row) =>
@@ -142,7 +161,7 @@ extension ToolOperations on JournalRepository {
 
   Future<void> setMethodToolArchived(String id, {required bool archived}) =>
       database.transaction(() async {
-        final canonical = (await toolCatalog()).canonicalId(id);
+        final canonical = (await _readToolCatalog()).canonicalId(id);
         await (database.update(
           database.methodTools,
         )..where((tool) => tool.id.equals(canonical))).write(
@@ -160,7 +179,7 @@ extension ToolOperations on JournalRepository {
     required String sourceId,
     required String targetId,
   }) => database.transaction(() async {
-    final catalog = await toolCatalog();
+    final catalog = await _readToolCatalog();
     final source = catalog.canonicalId(sourceId);
     final target = catalog.canonicalId(targetId);
     if (source == target) {
@@ -186,19 +205,25 @@ extension ToolOperations on JournalRepository {
     await _replaceToolMethods(target, methodIds);
   });
 
-  Future<void> _validateMethodTools(
+  Future<List<String>> _resolveBrewTools(
     String methodId,
-    List<String> toolIds, {
+    List<String>? toolIds, {
+    required bool keepPrevious,
     Brew? previous,
   }) async {
-    if (toolIds.toSet().length != toolIds.length) {
+    if (toolIds != null && toolIds.toSet().length != toolIds.length) {
       throw ArgumentError.value(toolIds, 'methodToolIds', 'IDs must be unique');
     }
-    final catalog = await toolCatalog();
+    final catalog = await _readToolCatalog(methodId: methodId);
+    final previousIds =
+        previous != null && (keepPrevious || previous.methodId == methodId)
+        ? await _selectedToolIds(previous.id, catalog)
+        : const <String>[];
+    final selected = toolIds ?? (keepPrevious ? previousIds : const <String>[]);
     final retained = previous?.methodId == methodId
-        ? (await brewToolIds(previous!.id)).toSet()
+        ? previousIds.toSet()
         : <String>{};
-    for (final id in toolIds) {
+    for (final id in selected) {
       final canonical = catalog.canonicalId(id);
       final tool = catalog.byId[canonical]!;
       if (!retained.contains(canonical) &&
@@ -208,5 +233,6 @@ extension ToolOperations on JournalRepository {
         throw StateError('Tool cannot be selected for this method');
       }
     }
+    return selected;
   }
 }
