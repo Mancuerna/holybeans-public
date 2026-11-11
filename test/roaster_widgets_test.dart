@@ -1,13 +1,11 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/roasters/roaster_profile_page.dart';
 import 'package:holybeans/ui/roasters/roasters_page.dart';
 
+import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 import 'roaster_profile_test.dart' show coffee, profiles;
 
@@ -38,10 +36,8 @@ void main() {
             ),
           ],
         );
-        Widget app(Widget child) => MaterialApp(
+        Widget app(Widget child) => localizedApp(
           locale: Locale(language),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context)
                 .copyWith(textScaler: TextScaler.linear(scale)),
@@ -95,7 +91,7 @@ void main() {
   testWidgets('directory, archived coffee, roaster link and live updates', (
     tester,
   ) async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
     addTearDown(db.close);
     final repo = JournalRepository(db);
     final id = await repo.createCoffee(

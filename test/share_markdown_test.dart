@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/domain/share_markdown.dart';
 import 'package:holybeans/domain/share_template.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/share_sheet.dart';
 import 'package:holybeans/ui/brews/share_template_editor.dart';
 import 'package:holybeans/ui/core/share_image.dart';
 import 'package:holybeans/ui/core/share_markdown_text.dart';
+
+import 'helpers/ui_test_support.dart';
 
 String plain(String source) =>
     ShareMarkdown.parse(source).map((r) => r.text).join();
@@ -70,10 +71,8 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: Locale(language),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: ShareTemplateEditor(
               style: ShareTemplateStyle.espresso,
@@ -104,10 +103,8 @@ void main() {
     ) async {
       final boundary = GlobalKey();
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: Locale(language),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: Center(
               child: RepaintBoundary(

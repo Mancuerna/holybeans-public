@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
@@ -12,13 +11,14 @@ import 'package:holybeans/domain/recipient_snapshot.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 
 import 'helpers/legacy_schema.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   test(
     'catalog changes do not rewrite a saved tare; explicit clearing does',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repo = JournalRepository(db);
       final coffee = await repo.createCoffee(name: 'Coffee', roaster: 'R');
@@ -68,7 +68,7 @@ void main() {
   test(
     'selection recalculates net weight, editing retains historical tare',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repo = JournalRepository(db);
       final coffee = await repo.createCoffee(name: 'Coffee', roaster: 'R');
@@ -196,7 +196,7 @@ void main() {
   test(
     'invalid recipient references and incomplete backups fail atomically',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repo = JournalRepository(db);
       final coffee = await repo.createCoffee(name: 'Coffee', roaster: 'R');

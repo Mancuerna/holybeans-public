@@ -1,15 +1,14 @@
 import 'dart:io';
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/app/startup_services.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/main.dart';
 import 'package:path/path.dart' as path;
 
+import 'helpers/test_database.dart';
 import 'helpers/test_startup.dart';
 
 void main() {
@@ -28,7 +27,7 @@ void main() {
     testWidgets('journal opens when $failure fails during startup', (
       tester,
     ) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       final directory = Directory.systemTemp.createTempSync('startup-');
       final services = TestStartup(database, PhotoStore(directory), failure);
       addTearDown(() async {

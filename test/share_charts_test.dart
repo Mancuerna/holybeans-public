@@ -1,10 +1,8 @@
 import 'dart:ui' as ui;
 
 import 'package:drift/drift.dart' show Value;
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
@@ -16,11 +14,14 @@ import 'package:holybeans/ui/brews/share_brew_charts.dart';
 import 'package:holybeans/ui/brews/share_sheet.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
+
 void main() {
   testWidgets('missing recordings disable attachments without inventing data', (
     tester,
   ) async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
     addTearDown(db.close);
     final repo = JournalRepository(db);
     final coffee = await repo.createCoffee(
@@ -74,10 +75,8 @@ void main() {
       isTrue,
     );
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ShareChartOptions(
             data: data,
@@ -107,7 +106,7 @@ void main() {
       testWidgets(
         'image includes complete charts $language espresso=$espresso',
         (tester) async {
-          final db = AppDatabase.forTesting(NativeDatabase.memory());
+          final db = memoryDatabase();
           addTearDown(db.close);
           tester.view.physicalSize = const Size(320, 850);
           tester.view.devicePixelRatio = 1;
@@ -153,11 +152,9 @@ void main() {
           );
           ShareBrewResult? result;
           await tester.pumpWidget(
-            MaterialApp(
+            localizedApp(
               theme: language == 'es' ? AppTheme.dark() : AppTheme.light(),
               locale: Locale(language),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
               builder: (context, child) => MediaQuery(
                 data: MediaQuery.of(context)
                     .copyWith(textScaler: const TextScaler.linear(1.5)),

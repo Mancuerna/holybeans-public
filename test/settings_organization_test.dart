@@ -1,30 +1,27 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/share_templates_page.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/settings/settings_page.dart';
 
 import 'helpers/fake_scale.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   testWidgets(
     'settings group sharing and open devices separately without connecting',
     (tester) async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final scale = FakeScale();
       addTearDown(scale.dispose);
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           theme: AppTheme.light(),
           locale: const Locale('en'),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: SettingsPage(
             locale: const Locale('en'),
             onLocaleChanged: (_) {},

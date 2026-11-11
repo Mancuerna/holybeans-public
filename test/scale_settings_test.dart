@@ -1,16 +1,17 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show Value;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/preferences_row.dart';
 import 'package:holybeans/data/preferences/scale_settings.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 
+import 'helpers/test_database.dart';
+
 void main() {
   test('the paired scale is remembered, backed up and forgotten', () async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final settings = ScaleSettings(database);
     expect(await settings.load(), isNull);
@@ -32,7 +33,7 @@ void main() {
   test(
     'legacy pair survives and several scales round trip in priority order',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       await db.savePreferences(
         const AppPreferencesCompanion(
@@ -66,7 +67,7 @@ void main() {
   test(
     'invalid or duplicate saved identities reject restoration atomically',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final settings = ScaleSettings(db);
       await settings.save(

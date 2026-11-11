@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,6 +16,9 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/share_sheet.dart';
 import 'package:holybeans/ui/core/share_image_appearance.dart';
 import 'package:holybeans/ui/core/share_photo_overlay.dart';
+
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 class _Clipboard extends ShareClipboard {
   Uint8List? image;
@@ -40,7 +42,7 @@ void main() {
   final overlay = find.byKey(const ValueKey('share-photo-overlay'));
 
   setUp(() async {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     final repo = JournalRepository(db);
     final id = await repo.createCoffee(name: 'Photo coffee', roaster: 'Test');
     await repo.createBrew(coffeeId: id, methodName: 'V60', doseGrams: 18);
@@ -127,10 +129,8 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: Locale(language),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(
             context,

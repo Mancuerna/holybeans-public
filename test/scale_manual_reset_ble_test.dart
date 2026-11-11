@@ -1,7 +1,5 @@
-import 'package:drift/native.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/scale_settings.dart';
 import 'package:holybeans/data/services/ble_scale.dart';
 import 'package:holybeans/data/services/scale.dart';
@@ -12,6 +10,7 @@ import 'package:universal_ble/universal_ble.dart';
 
 import 'helpers/fake_acaia_ble_platform.dart';
 import 'helpers/fake_scale_ble_platform.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +36,7 @@ void main() {
                   alternate: family == 'microbalance-alternate',
                 );
           UniversalBle.setInstance(platform);
-          final db = AppDatabase.forTesting(NativeDatabase.memory());
+          final db = memoryDatabase();
           final scale = BleScale(ScaleSettings(db));
           final minutes = TextEditingController();
           final seconds = TextEditingController();

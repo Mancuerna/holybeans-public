@@ -1,11 +1,11 @@
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 
 import 'generated_migrations/schema.dart';
 import 'helpers/legacy_schema.dart';
+import 'helpers/test_database.dart';
 
 /// Migrations are checked against the schemas dumped from the commits that
 /// shipped them (`drift_schemas/`), not against a layout rebuilt from today's
@@ -95,7 +95,7 @@ void main() {
               column['name'] as String,
           },
       };
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       await db.customSelect('SELECT 1').get();
       await reconstructLegacySchema(db, version);

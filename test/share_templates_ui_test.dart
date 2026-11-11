@@ -1,12 +1,9 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/share_template.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/l10n/app_localizations_en.dart';
 import 'package:holybeans/l10n/app_localizations_es.dart';
 import 'package:holybeans/ui/brews/share_sheet.dart';
@@ -16,6 +13,7 @@ import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 void main() {
@@ -28,15 +26,13 @@ void main() {
     testWidgets(
       'saved template edits and defaults remain separate by style ($language)',
       (tester) async {
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(db.close);
         final settings = ShareTemplateSettings(db);
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             theme: AppTheme.light(),
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: ShareTemplatesPage(settings: settings),
           ),
         );
@@ -117,11 +113,9 @@ void main() {
         addTearDown(tester.view.resetDevicePixelRatio);
         ShareTemplate? saved;
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             theme: AppTheme.dark(),
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: Builder(
                 builder: (context) => TextButton(
@@ -213,7 +207,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repo = JournalRepository(db);
       final id = await repo.createCoffee(
@@ -241,7 +235,7 @@ void main() {
       );
       ShareBrewResult? result;
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: const Locale('en'),
           theme: AppTheme.light(),
           builder: (context, child) => MediaQuery(
@@ -249,8 +243,6 @@ void main() {
                 .copyWith(textScaler: const TextScaler.linear(1.5)),
             child: child!,
           ),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: Builder(
               builder: (context) => TextButton(

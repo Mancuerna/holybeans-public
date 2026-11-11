@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/stats/stats_charts.dart';
 import 'package:holybeans/ui/stats/stats_page.dart';
+
+import 'helpers/ui_test_support.dart';
 
 Brew brew(
   String id,
@@ -40,10 +41,8 @@ void main() {
         addTearDown(tester.view.resetDevicePixelRatio);
         addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(locale),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: StatsPage(
               coffees: const [],
               components: const [],

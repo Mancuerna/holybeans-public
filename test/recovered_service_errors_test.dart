@@ -8,12 +8,12 @@ import 'package:holybeans/data/services/piston_history_client.dart';
 import 'package:holybeans/data/services/pre_migration_copies.dart';
 import 'package:holybeans/domain/loffee_bean.dart';
 import 'package:holybeans/domain/meticulous/piston_analysis.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/loffee_search_page.dart';
 import 'package:holybeans/ui/equipment/piston/piston_model.dart';
 
 import 'helpers/fake_loffee.dart';
 import 'helpers/piston_fake.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   late List<String> messages;
@@ -77,10 +77,8 @@ void main() {
       'unexpected Loffee failure is reported, key=$keyFailure',
       (tester) => recordErrors(() async {
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: const Locale('en'),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: LoffeeSearchPage(
               services: LoffeeServices(
                 api: _FailingSearch(),
