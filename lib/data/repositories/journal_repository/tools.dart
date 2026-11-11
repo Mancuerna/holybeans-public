@@ -43,15 +43,4 @@ extension ToolOperations on JournalRepository {
     required String sourceId,
     required String targetId,
   }) => tools.mergeTools(sourceId: sourceId, targetId: targetId);
-  Future<List<String>> _resolveBrewTools(
-    String methodId,
-    List<String>? toolIds, {
-    required bool keepPrevious,
-    Brew? previous,
-  }) => tools.resolveBrewTools(
-    methodId,
-    toolIds,
-    keepPrevious: keepPrevious,
-    previous: previous,
-  );
 }

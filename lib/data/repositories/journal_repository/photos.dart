@@ -10,8 +10,6 @@ extension PhotoOperations on JournalRepository {
       photoRecords.watchBrewPhotos(brewId);
   Future<List<String>> brewPhotos(String brewId) =>
       photoRecords.brewPhotos(brewId);
-  Future<List<String>> _unreferencedPhotos(List<String> files) =>
-      photoRecords.unreferencedPhotos(files);
 
   /// The cover photo of every coffee that has one, by coffee ID.
   Stream<Map<String, String>> watchCoffeeCovers() =>

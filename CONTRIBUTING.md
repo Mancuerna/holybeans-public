@@ -61,7 +61,9 @@ reliably enforce. App translations remain in English and Spanish.
   data, platform I/O and presentation dependencies in this layer.
 - `lib/data/`: Drift database, repositories, services and preferences.
   Repository aggregates own their queries and take `AppDatabase` explicitly;
-  `JournalRepository` delegates to them while retaining its caller API.
+  `JournalRepository` composes them and retains its caller API through
+  delegation. Keep transaction logic in the owning aggregate; shared row
+  lookups live in `JournalRecordQueries`. Aggregates do not depend on the façade.
 - `lib/ui/`: UI grouped by feature. `JournalShell` implements `JournalActions`.
 - `lib/l10n/`: English and Spanish ARB sources; generated translations are ignored.
 - `test/`: unit, widget and persistence tests.

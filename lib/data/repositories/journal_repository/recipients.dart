@@ -16,5 +16,4 @@ extension RecipientOperations on JournalRepository {
   );
   Future<void> setRecipientArchived(String id, {required bool archived}) =>
       recipients.setRecipientArchived(id, archived: archived);
-  Future<Recipient?> _recipient(String? id) => recipients.requireRecipient(id);
 }
