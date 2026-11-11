@@ -11,6 +11,7 @@ import 'package:holybeans/ui/brews/espresso_combined_plot.dart';
 import 'package:holybeans/ui/brews/extraction_chart.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
+import 'package:holybeans/ui/core/regional_numbers.dart';
 import 'package:intl/intl.dart';
 
 class EspressoComparisonCurves extends StatefulWidget {
@@ -42,7 +43,7 @@ class EspressoComparisonCurves extends StatefulWidget {
 class _EspressoComparisonCurvesState extends State<EspressoComparisonCurves>
     with SingleTickerProviderStateMixin, ComparisonPlayback {
   ComparisonAlignment alignment = ComparisonAlignment.start;
-  double cursorMs = 0;
+  final position = ValueNotifier(0.0);
   bool combined = true;
 
   late ComparisonTimeline timeline;
@@ -65,10 +66,16 @@ class _EspressoComparisonCurvesState extends State<EspressoComparisonCurves>
   }
 
   @override
-  double get playbackPosition => cursorMs;
+  double get playbackPosition => position.value;
 
   @override
-  void updatePlaybackPosition(double value) => setState(() => cursorMs = value);
+  void updatePlaybackPosition(double value) => position.value = value;
+
+  @override
+  void dispose() {
+    position.dispose();
+    super.dispose();
+  }
 
   void _prepareTimeline() {
     pausePlayback();
@@ -381,12 +388,13 @@ class _EspressoComparisonCurvesState extends State<EspressoComparisonCurves>
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final cursor = cursorMs.clamp(
-      timeline.minMs.toDouble(),
-      timeline.maxMs.toDouble(),
+    Widget atCursor(Widget Function(double) builder) => ValueListenableBuilder(
+      valueListenable: position,
+      builder: (_, value, _) => builder(
+        value.clamp(timeline.minMs.toDouble(), timeline.maxMs.toDouble()),
+      ),
     );
-    final number = NumberFormat('0.##', regionalLocale.toString())
-      ..turnOffGrouping();
+    final number = RegionalNumberFormat('0.##');
     final hasCurve = CurveSeries.values.any(
       (series) =>
           timeline.samples(series, second: false).isNotEmpty ||
@@ -447,7 +455,7 @@ class _EspressoComparisonCurvesState extends State<EspressoComparisonCurves>
             onSelectionChanged: (value) => setState(() {
               alignment = value.single;
               _prepareTimeline();
-              cursorMs = 0;
+              position.value = 0;
             }),
           ),
           if (!timeline.canAlignDrip)
@@ -459,15 +467,19 @@ class _EspressoComparisonCurvesState extends State<EspressoComparisonCurves>
               ),
             ),
           if (combined)
-            _combinedView(context, cursor, flowCompatible)
+            atCursor((cursor) => _combinedView(context, cursor, flowCompatible))
           else ...[
-            _panel(context, CurveSeries.pressure, cursor),
-            _panel(context, CurveSeries.flow, cursor),
+            atCursor((cursor) => _panel(context, CurveSeries.pressure, cursor)),
+            atCursor((cursor) => _panel(context, CurveSeries.flow, cursor)),
             ExpansionTile(
               key: const ValueKey('espresso-weight-toggle'),
               tilePadding: EdgeInsets.zero,
               title: Text(s.curveWeight),
-              children: [_panel(context, CurveSeries.weight, cursor)],
+              children: [
+                atCursor(
+                  (cursor) => _panel(context, CurveSeries.weight, cursor),
+                ),
+              ],
             ),
           ],
           Text(
@@ -483,24 +495,28 @@ class _EspressoComparisonCurvesState extends State<EspressoComparisonCurves>
                 max: timeline.maxMs.toDouble(),
               ),
               Expanded(
-                child: Slider(
-                  key: const ValueKey('espresso-comparison-time'),
-                  value: cursor,
-                  min: timeline.minMs.toDouble(),
-                  max: timeline.maxMs.toDouble(),
-                  label: '${number.format(cursor / 1000)} s',
-                  semanticFormatterCallback: (v) =>
-                      '${number.format(v / 1000)} s',
-                  onChangeStart: (_) => pausePlayback(),
-                  onChanged: _seek,
+                child: atCursor(
+                  (cursor) => Slider(
+                    key: const ValueKey('espresso-comparison-time'),
+                    value: cursor,
+                    min: timeline.minMs.toDouble(),
+                    max: timeline.maxMs.toDouble(),
+                    label: '${number.format(cursor / 1000)} s',
+                    semanticFormatterCallback: (v) =>
+                        '${number.format(v / 1000)} s',
+                    onChangeStart: (_) => pausePlayback(),
+                    onChanged: _seek,
+                  ),
                 ),
               ),
             ],
           ),
           if (!combined)
-            Text(
-              '${number.format(cursor / 1000)} s',
-              key: const ValueKey('espresso-cursor-time'),
+            atCursor(
+              (cursor) => Text(
+                '${number.format(cursor / 1000)} s',
+                key: const ValueKey('espresso-cursor-time'),
+              ),
             ),
           Text(s.comparisonCursorHint, style: theme.textTheme.bodySmall),
         ],

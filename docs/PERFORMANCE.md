@@ -1032,6 +1032,25 @@ of them, plus existing curve/visibility/weight/grid/background invalidation.
 Existing curve marker, readout and water-target assertions are unchanged.
 These are widget-test paint counts, not device frame-time measurements.
 
+## Comparison playback isolation (November 2026)
+
+Filter and espresso comparisons notify plots, time sliders and value readouts
+for cursor changes. Series/curve selectors, espresso mode/alignment controls
+and highlights stay outside those listeners. Playback status, input curves and
+selection changes still rebuild controls; pause/lifecycle behavior is unchanged.
+Retained numeric formatters check the current device region on each use and
+refresh their private cache when it changes, so seeking still updates decimal
+separators after a regional setting change.
+
+The same `test/comparison_playback_rebuild_test.dart` driver on `c77e36b` and
+this change advances 100 frames of 16 ms after playback starts. Rebuilds of the
+filter series/curve selectors and espresso mode/alignment controls and
+peak-pressure label each go **100 → 0**. Both live sliders remain **100 → 100**;
+cursors advance 1,600 ms, readouts change and pausing freezes the position.
+The driver also changes the device region and seeks to check numeric formatting.
+Existing playback, seek, restart, lifecycle, alignment and comparison assertions
+remain unchanged. These widget rebuild counts are not device frame timings.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
