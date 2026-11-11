@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:drift/drift.dart' show Value;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/history_query.dart';
 import 'package:holybeans/data/repositories/journal_data.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/text_suggestions.dart';
 import 'package:holybeans/ui/brews/history_view_model.dart';
+
+import 'helpers/test_database.dart';
 
 const HistoryQuery empty = (
   text: '',
@@ -36,7 +36,7 @@ HistoryQuery query(String text) => (
 void main() {
   late JournalData data;
   setUp(() async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
     addTearDown(db.close);
     final repo = JournalRepository(db);
     final coffee = await repo.createCoffee(

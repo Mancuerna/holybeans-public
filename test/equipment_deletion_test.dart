@@ -1,17 +1,18 @@
 import 'package:drift/drift.dart' show Value;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_write_gate.dart';
 import 'package:holybeans/domain/cupping.dart';
 
+import 'helpers/test_database.dart';
+
 void main() {
   late AppDatabase database;
   late JournalRepository repository;
 
   setUp(() {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     repository = JournalRepository(database);
   });
   tearDown(() => database.close());

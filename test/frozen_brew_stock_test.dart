@@ -1,11 +1,12 @@
 import 'dart:convert';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   late AppDatabase database;
@@ -15,7 +16,7 @@ void main() {
   late String portion;
 
   setUp(() async {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     repository = JournalRepository(database);
     coffee = await repository.createCoffee(
       name: 'Frozen Kenya',

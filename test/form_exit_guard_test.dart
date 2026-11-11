@@ -1,9 +1,9 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   for (final language in ['es', 'en']) {
@@ -11,7 +11,7 @@ void main() {
       testWidgets(
         'coffee draft survives $exit until discard is confirmed ($language)',
         (tester) async {
-          final db = AppDatabase.forTesting(NativeDatabase.memory());
+          final db = memoryDatabase();
           addTearDown(() async {
             await tester.pumpWidget(const SizedBox.shrink());
             await tester.pumpAndSettle();
@@ -77,7 +77,7 @@ void main() {
   testWidgets(
     'unchanged and reverted forms close freely; Save bypasses discard',
     (tester) async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(() async {
         await tester.pumpWidget(const SizedBox.shrink());
         await tester.pumpAndSettle();

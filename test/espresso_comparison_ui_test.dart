@@ -3,10 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/domain/brew_comparison.dart';
 import 'package:holybeans/domain/comparison_timeline.dart';
 import 'package:holybeans/domain/shot_curve.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/comparison_plot.dart';
 import 'package:holybeans/ui/brews/espresso_combined_plot.dart';
 import 'package:holybeans/ui/brews/espresso_comparison_curves.dart';
+
+import 'helpers/ui_test_support.dart';
 
 void main() {
   ComparisonCurve curve({int end = 4000, String unit = 'g/s'}) =>
@@ -20,11 +21,9 @@ void main() {
         unit,
       );
   Widget app(Widget child, {String language = 'en', bool dark = false}) =>
-      MaterialApp(
+      localizedApp(
         locale: Locale(language),
         theme: ThemeData(brightness: dark ? Brightness.dark : Brightness.light),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: Padding(padding: const EdgeInsets.all(20), child: child),

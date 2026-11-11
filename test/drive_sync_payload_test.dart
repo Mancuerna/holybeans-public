@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:drift/native.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -17,6 +16,8 @@ import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/drive_sync.dart';
 import 'package:path/path.dart' as path;
 
+import 'helpers/test_database.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late AppDatabase database;
@@ -28,7 +29,7 @@ void main() {
   late DriveJournalAdapter adapter;
   setUp(() async {
     directory = await Directory.systemTemp.createTemp('drive-payload-');
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     photos = PhotoStore(Directory(path.join(directory.path, 'photos')));
     payloads = DriveSyncPayloadStore(
       Directory(path.join(directory.path, 'queue')),

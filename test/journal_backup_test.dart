@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show driftRuntimeOptions;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
@@ -14,6 +13,7 @@ import 'package:holybeans/ui/brews/brew_share_text.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'helpers/journal_test_support.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +27,7 @@ void main() {
   });
 
   setUp(() {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     repository = JournalRepository(database);
   });
 
@@ -227,7 +227,7 @@ void main() {
       expect(decoded['format'], JournalBackup.format);
       expect(decoded['version'], JournalBackup.version);
 
-      final restored = AppDatabase.forTesting(NativeDatabase.memory());
+      final restored = memoryDatabase();
       addTearDown(restored.close);
       final summary = await JournalBackup(restored).restoreJson(source);
       expect(summary.coffees, 1);
@@ -292,7 +292,7 @@ void main() {
     (rows['brews'] as List).single.remove('archivedByCoffee');
     rows.remove('waterProfiles');
 
-    final restored = AppDatabase.forTesting(NativeDatabase.memory());
+    final restored = memoryDatabase();
     addTearDown(restored.close);
     await JournalBackup(restored).restoreJson(jsonEncode(oldBackup));
     expect(
@@ -340,7 +340,7 @@ void main() {
 
       final source = await JournalBackup(database).exportJson();
       expect(JournalBackup.inspectJson(source).waterProfiles, 1);
-      final restored = AppDatabase.forTesting(NativeDatabase.memory());
+      final restored = memoryDatabase();
       addTearDown(restored.close);
       await JournalBackup(restored).restoreJson(source);
       final restoredBrew = await (restored.select(
@@ -384,7 +384,7 @@ void main() {
       name: 'Existing',
       roaster: 'Local',
     );
-    final sourceDatabase = AppDatabase.forTesting(NativeDatabase.memory());
+    final sourceDatabase = memoryDatabase();
     addTearDown(sourceDatabase.close);
     final sourceRepository = JournalRepository(sourceDatabase);
     final otherId = await sourceRepository.createCoffee(
@@ -478,7 +478,7 @@ void main() {
     final source = await JournalBackup(database).exportJson();
     final backup = jsonDecode(source) as Map<String, dynamic>;
     expect(backup['version'], JournalBackup.version);
-    final restored = AppDatabase.forTesting(NativeDatabase.memory());
+    final restored = memoryDatabase();
     addTearDown(restored.close);
     await JournalBackup(restored).restoreJson(source);
     expect(await BrewParameterSettings(restored).loadShared(), fields);
@@ -527,7 +527,7 @@ void main() {
     expect(preview.methodTools, 1);
     expect(preview.brewToolSelections, 1);
 
-    final restored = AppDatabase.forTesting(NativeDatabase.memory());
+    final restored = memoryDatabase();
     addTearDown(restored.close);
     final summary = await JournalBackup(restored).restoreJson(backup);
     final brew = await (restored.select(
@@ -567,7 +567,7 @@ void main() {
         in (backup['data'] as Map<String, dynamic>)['grinders'] as List) {
       (grinder as Map<String, dynamic>).remove('hasAdjustableRpm');
     }
-    final target = AppDatabase.forTesting(NativeDatabase.memory());
+    final target = memoryDatabase();
     addTearDown(target.close);
     await JournalBackup(target).restoreJson(jsonEncode(backup));
     final restored = await target.select(target.grinders).getSingle();

@@ -5,7 +5,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,6 +25,8 @@ import 'package:holybeans/ui/sync/drive_sync_scope.dart';
 import 'package:path/path.dart' as path;
 
 import 'helpers/drive_fake_server.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 Future<void> _waitForIdle(DriveSyncModel model) => Future.doWhile(() async {
   if (!model.busy) return false;
@@ -72,7 +73,7 @@ void main() {
   const channel = MethodChannel('holybeans/drive-sync');
   setUp(() async {
     directory = await Directory.systemTemp.createTemp('drive-ui-');
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     model = await DriveSyncModel.open(
       JournalBackup(database),
       PhotoStore(Directory(path.join(directory.path, 'photos'))),
@@ -146,7 +147,7 @@ void main() {
     'five copies per device; another device is never overwritten or applied',
     () async {
       await model.enable();
-      final otherDatabase = AppDatabase.forTesting(NativeDatabase.memory());
+      final otherDatabase = memoryDatabase();
       final other = await DriveSyncModel.open(
         JournalBackup(otherDatabase),
         PhotoStore(Directory(path.join(directory.path, 'other', 'photos'))),
@@ -286,10 +287,8 @@ void main() {
       await _runAndPump(tester, model.enable);
       final strings = await AppLocalizations.delegate.load(Locale(locale));
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: Locale(locale),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           builder: (_, child) => DriveSyncScope(
             model: model,
             child: DriveSyncNotice(model: model, child: child!),
@@ -342,10 +341,8 @@ void main() {
       (tester) async {
         final strings = await AppLocalizations.delegate.load(Locale(locale));
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(locale),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: DriveSyncPage(model: model),
           ),
         );

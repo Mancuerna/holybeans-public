@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/history_filter_chips.dart';
 import 'package:holybeans/ui/brews/history_filters.dart';
+
+import 'helpers/ui_test_support.dart';
 
 void main() {
   testWidgets('an active filter shows as a chip whose cross clears it', (
@@ -14,10 +15,8 @@ void main() {
       ..minimumRating = 8;
     addTearDown(filters.dispose);
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ListenableBuilder(
             listenable: filters,

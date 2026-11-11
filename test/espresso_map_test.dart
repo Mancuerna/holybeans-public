@@ -4,6 +4,8 @@ import 'package:holybeans/domain/espresso_chart.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/espresso_map_page.dart';
 
+import 'helpers/ui_test_support.dart';
+
 void main() {
   test('the ratio suggests the style', () {
     expect(EspressoStyle.forRatio(1.2), EspressoStyle.ristretto);
@@ -51,10 +53,8 @@ void main() {
     required double tds,
     required double ratio,
   }) => tester.pumpWidget(
-    MaterialApp(
+    localizedApp(
       locale: const Locale('en'),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
       home: EspressoMapPage(eyPercent: ey, tdsPercent: tds, ratio: ratio),
     ),
   );
@@ -103,10 +103,8 @@ void main() {
         (3.001, EspressoStyle.lungo, '1:3'),
       ]) {
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: EspressoMapPage(
               eyPercent: 20,
               tdsPercent: 20 / ratio,
@@ -166,10 +164,8 @@ void main() {
         addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
         addTearDown(tester.platformDispatcher.clearLocaleTestValue);
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: const Scaffold(
               body: SingleChildScrollView(
                 child: EspressoMapContent(
@@ -232,15 +228,13 @@ void main() {
         addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
         Future<void> showComparison(EspressoMapPoint other) async {
           await tester.pumpWidget(
-            MaterialApp(
+            localizedApp(
               locale: Locale(language),
               theme: ThemeData(
                 brightness: language == 'es'
                     ? Brightness.dark
                     : Brightness.light,
               ),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
               home: Scaffold(
                 body: SingleChildScrollView(
                   child: EspressoMapContent(

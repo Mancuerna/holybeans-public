@@ -7,6 +7,8 @@ import 'package:holybeans/ui/core/flavor_note_chip.dart';
 import 'package:holybeans/ui/core/flavor_note_labels.dart';
 import 'package:holybeans/ui/core/flavor_notes_field.dart';
 
+import 'helpers/ui_test_support.dart';
+
 Future<void> showEditor(
   WidgetTester tester,
   TextEditingController controller, {
@@ -15,10 +17,8 @@ Future<void> showEditor(
   double textScale = 1,
 }) async {
   await tester.pumpWidget(
-    MaterialApp(
+    localizedApp(
       locale: Locale(language),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(brightness: brightness),
       builder: (context, child) => MediaQuery(
         data: MediaQuery.of(context)
@@ -175,10 +175,8 @@ void main() {
           );
           expect(chips.first.note, 'dark chocolate');
           await tester.pumpWidget(
-            MaterialApp(
+            localizedApp(
               locale: Locale(language),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
               theme: ThemeData(brightness: brightness),
               home: Scaffold(
                 body: Padding(
