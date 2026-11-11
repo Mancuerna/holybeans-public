@@ -719,6 +719,19 @@ builds** and **3,600 → 0 dropdown builds** per phase. It then edits a rating a
 verifies the persisted draft. Existing clock, pause, alert and blind-cupping tests
 remain unchanged. These are host build counts, not device timing measurements.
 
+## Roaster profile aggregation reuse (November 2026)
+
+Each roaster route retains its profiles while the journal and cafe snapshots
+stay unchanged. List options and other unrelated journal notifications reuse the
+same profiles. A changed coffee or cafe snapshot recalculates them, and the cache
+is released with its route.
+
+`roaster_profile_reuse_test.dart` opens the real directory with an active search
+and changes list options 100 times. The same driver on `a0a37f3` and after this
+change measures **100 → 0 new profile collections**, excluding initial loading.
+It then adds a coffee and a cafe drink and verifies both appear in the profile
+while the search survives. These are aggregation counts, not device timings.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

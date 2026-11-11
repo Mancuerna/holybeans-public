@@ -14,6 +14,8 @@ void openRoasters(
   String? roaster,
 }) {
   final cafes = journal.repository.cafes.watch();
+  (JournalData, CafeJournalData?)? revision;
+  var profiles = <RoasterProfile>[];
   Navigator.of(context).push(
     MaterialPageRoute<void>(
       builder: (_) => StreamBuilder<CafeJournalData>(
@@ -22,22 +24,26 @@ void openRoasters(
           listenable: journal,
           builder: (context, _) {
             final cafeData = snapshot.data;
-            final profiles = roasterProfiles(
-              journal.data,
-              cafeDrinks: [
-                if (cafeData != null)
-                  for (final drink in cafeData.drinks)
-                    if (cafeData.roasterOf(drink) case final roaster?)
-                      (
-                        id: drink.id,
-                        roaster: roaster,
-                        cafe: cafeData.cafeOf(drink).name,
-                        drinkType: drink.drinkType,
-                        origin: drink.originCountry,
-                        rating: drink.rating,
-                      ),
-              ],
-            );
+            final key = (journal.data, cafeData);
+            if (key != revision) {
+              profiles = roasterProfiles(
+                key.$1,
+                cafeDrinks: [
+                  if (cafeData != null)
+                    for (final drink in cafeData.drinks)
+                      if (cafeData.roasterOf(drink) case final roaster?)
+                        (
+                          id: drink.id,
+                          roaster: roaster,
+                          cafe: cafeData.cafeOf(drink).name,
+                          drinkType: drink.drinkType,
+                          origin: drink.originCountry,
+                          rating: drink.rating,
+                        ),
+                ],
+              );
+              revision = key;
+            }
             if (roaster == null) {
               return RoastersPage(
                 profiles: profiles,
