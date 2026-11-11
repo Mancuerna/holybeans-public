@@ -587,6 +587,25 @@ The test also verifies that expanding either axis, changing the reference,
 minimum scale, unit, theme or locale repaints the background. These host paint
 counts do not measure device frame time. Page rebuilds are addressed separately.
 
+## Pressure guide point conversion (November 2026)
+
+`PressureGuideChart` reuses its mapped reference and trace points until their
+source changes. PressureGuide owns immutable reference lists, and PressureTrace
+returns immutable snapshots that change only when its recorded points change.
+The current elapsed time, target and measured value still update on every build.
+
+`pressure_guide_points_test.dart` compares mapped list identities over 100
+timer-only frames using the same driver on `9e31356` and after this change:
+
+| Mapped list | New copies before → after |
+| --- | ---: |
+| Reference | 100 → 0 |
+| Trace | 100 → 0 |
+
+The initial lists are excluded. New readings, replacement references and reset
+still update their mapped points and targets. This measures list reuse, not
+allocated bytes or Android frame time.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
