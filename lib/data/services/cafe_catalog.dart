@@ -22,7 +22,10 @@ class CafeCatalog {
 
   static Future<List<CafeCatalogEntry>> _load(AssetBundle assets) async {
     try {
-      final text = await assets.loadString('assets/catalogs/cafes.json');
+      // Await immediate source errors too, after the shared future is cached.
+      final text = await Future.sync(
+        () => assets.loadString('assets/catalogs/cafes.json'),
+      );
       return await compute(_decode, text);
     } catch (_) {
       // A temporary load failure must not poison subsequent picker opens.

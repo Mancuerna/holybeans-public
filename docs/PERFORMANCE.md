@@ -948,6 +948,23 @@ startup; they do not measure Android screen-opening latency. One parsed catalog
 is retained for the bundle's lifetime. Tests cover simultaneous opens, load and
 decode retries, independent bundles, and existing offline picker behavior.
 
+## Cafe picker search reuse (November 2026)
+
+The picker prepares saved-venue metadata and folded search strings once per
+saved/catalog snapshot. Parent updates compare a saved-row snapshot, including
+changes made through a reused list, and rebuild the search data when needed.
+Searches filter those prepared strings; list rows are constructed on demand.
+
+The same `test/cafe_picker_search_test.dart` driver on `614b512` and this change
+performs 100 searches across 100 saved venues: source-row accesses fall from
+**20,550 to 0** during typing. It also verifies accent-insensitive matching,
+updated names/cities, all saved rows, the existing 60-suggestion limit and
+selection after scrolling to the last saved venue. Existing picker tests retain
+their city-fallback, offline-search and empty-result assertions. This measures
+row accesses, not Android frame times or the number of mounted list elements.
+The catalog retry regression also covers a bundle that throws before returning
+a future, so an immediate source error cannot remain cached.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

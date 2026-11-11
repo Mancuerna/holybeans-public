@@ -72,6 +72,19 @@ void main() {
     expect(bundle.loads, 2);
   });
 
+  test('an immediate asset exception can be retried', () async {
+    var attempt = 0;
+    final bundle = _Bundle(() {
+      if (++attempt == 1) throw StateError('Immediate asset failure');
+      return Future.value(_catalog('Recovered'));
+    });
+    await expectLater(CafeCatalog.load(bundle: bundle), throwsStateError);
+    final entries = await CafeCatalog.load(bundle: bundle);
+    expect(entries.single.venue.name, 'Recovered');
+    expect(await CafeCatalog.load(bundle: bundle), same(entries));
+    expect(bundle.loads, 2);
+  });
+
   test('a failed worker decode can be retried', () async {
     var attempt = 0;
     final bundle = _Bundle(
