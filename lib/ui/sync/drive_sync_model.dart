@@ -293,8 +293,12 @@ class DriveSyncModel extends ChangeNotifier {
       final file = File(
         path.join(directory.path, 'holybeans-drive-backup.zip'),
       );
-      await file.writeAsBytes(bytes, flush: true);
-      await SharePlus.instance.share(ShareParams(files: [XFile(file.path)]));
+      try {
+        await file.writeAsBytes(bytes, flush: true);
+        await SharePlus.instance.share(ShareParams(files: [XFile(file.path)]));
+      } finally {
+        if (file.existsSync()) await file.delete();
+      }
       status = _dirty ? DriveSyncStatus.pending : DriveSyncStatus.current;
     });
   }

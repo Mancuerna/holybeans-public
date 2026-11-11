@@ -509,6 +509,23 @@ writes all reservations once. Every fixture downloads the resulting copy and
 asserts equal photo bytes and journal hash. These are request and file-operation
 counts, not measured network latency or Android frame performance.
 
+## Drive recovery file retention (November 2026)
+
+The retention/export regression fixtures compare `e15f13c` with the cleanup:
+
+| Completed scenario | Files retained before → after |
+| --- | ---: |
+| Eight successful safety copies | 8 → 5 |
+| Read a downloaded copy with no pending upload | 1 payload → 0 |
+| Share an exported ZIP, including a failed share | 1 temporary ZIP → 0 |
+
+Safety copies are verified before promotion and pruning; the current copy and
+four previous copies survive, including after the clock moves backwards. Failed
+captures preserve existing copies. Downloads never remove the pending upload ID;
+unreadable upload state conservatively keeps files and logs the cleanup error.
+These file counts are covered by `drive_backup_retention_test.dart` and
+`drive_backup_export_test.dart`, including retry and content checks.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
