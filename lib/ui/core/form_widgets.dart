@@ -334,11 +334,32 @@ Widget numberField(
 /// The device region, also used by numeric labels outside forms.
 String get fieldLocale => regionalLocale.toString();
 
+_FieldFormats? _cachedFieldFormats;
+
+_FieldFormats get _fieldFormats {
+  final locale = fieldLocale;
+  final cached = _cachedFieldFormats;
+  if (cached != null && cached.locale == locale) return cached;
+  return _cachedFieldFormats = _FieldFormats(locale);
+}
+
+// NumberFormat is mutable: keep instances private and only retain formats for
+// the current device region, rebuilding them when that region changes.
+class _FieldFormats {
+  _FieldFormats(this.locale) : decimal = NumberFormat.decimalPattern(locale);
+
+  final String locale;
+  final NumberFormat decimal;
+  final _numbers = <int, NumberFormat>{};
+
+  String number(double value, int decimals) => _numbers
+      .putIfAbsent(decimals, () => NumberFormat('0.${'#' * decimals}', locale))
+      .format(value);
+}
+
 final decimalInputFormatter = TextInputFormatter.withFunction((old, next) {
   if (!next.composing.isCollapsed) return next;
-  final separator = NumberFormat.decimalPattern(fieldLocale)
-      .symbols
-      .DECIMAL_SEP;
+  final separator = _fieldFormats.decimal.symbols.DECIMAL_SEP;
   return next.copyWith(text: next.text.replaceAll(RegExp(r'[.,]'), separator));
 });
 
@@ -346,7 +367,7 @@ final decimalInputFormatter = TextInputFormatter.withFunction((old, next) {
 /// grouping and at most [decimals] decimals ("17,1" in Spanish, "15" rather
 /// than "15.0"). [parseNumber] reads it back.
 String fieldNumber(double value, {int decimals = 3}) =>
-    NumberFormat('0.${'#' * decimals}', fieldLocale).format(value);
+    _fieldFormats.number(value, decimals);
 
 /// A saved [value] as a field shows it, without rounding (an edit must not
 /// change a number nobody touched): "15" for 15.0, "17,25" in Spanish.
@@ -357,13 +378,11 @@ String fieldExact(double? value) => value == null
     : fieldDecimal(value.toString());
 
 /// [plain] ("13.33") with the device's decimal separator.
-String fieldDecimal(String plain) => plain.replaceAll(
-  '.',
-  NumberFormat.decimalPattern(fieldLocale).symbols.DECIMAL_SEP,
-);
+String fieldDecimal(String plain) =>
+    plain.replaceAll('.', _fieldFormats.decimal.symbols.DECIMAL_SEP);
 
 String plainNumberText(String text) {
-  final symbols = NumberFormat.decimalPattern(fieldLocale).symbols;
+  final symbols = _fieldFormats.decimal.symbols;
   final zero = symbols.ZERO_DIGIT.codeUnitAt(0);
   var plain = text
       .trim()
