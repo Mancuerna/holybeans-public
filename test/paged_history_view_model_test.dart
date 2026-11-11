@@ -1,11 +1,12 @@
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/history_query.dart';
 import 'package:holybeans/data/repositories/journal_data.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/ui/brews/paged_history_view_model.dart';
+
+import 'helpers/test_database.dart';
 
 const HistoryQuery selection = (
   text: '',
@@ -32,7 +33,7 @@ void main() {
   test(
     'page cache is bounded, reloads evicted rows and follows edits',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       final repo = JournalRepository(db);
       final id = await repo.createCoffee(name: 'Coffee', roaster: 'Roaster');
       await db.batch(
@@ -81,7 +82,7 @@ void main() {
     },
   );
   test('new query cancels an obsolete long-note search', () async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
     final repo = JournalRepository(db);
     final id = await repo.createCoffee(name: 'Coffee', roaster: 'Roaster');
     await db.batch(

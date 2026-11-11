@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show driftRuntimeOptions;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -9,13 +8,15 @@ import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/domain/pour_plan.dart';
 import 'package:holybeans/domain/web_link.dart';
 
+import 'helpers/test_database.dart';
+
 void main() {
   late AppDatabase database;
   late JournalRepository repository;
 
   setUpAll(() => driftRuntimeOptions.dontWarnAboutMultipleDatabases = true);
   setUp(() {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     repository = JournalRepository(database);
   });
   tearDown(() => database.close());
@@ -155,7 +156,7 @@ void main() {
       minerals: const WaterMinerals(potassium: 1.5, chloride: 4),
     );
 
-    final target = AppDatabase.forTesting(NativeDatabase.memory());
+    final target = memoryDatabase();
     addTearDown(target.close);
     await JournalBackup(target)
         .restoreJson(await JournalBackup(database).exportJson());
@@ -191,7 +192,7 @@ void main() {
     ((data['brews'] as List).single as Map<String, dynamic>)['vesselId'] =
         'jug';
 
-    final target = AppDatabase.forTesting(NativeDatabase.memory());
+    final target = memoryDatabase();
     addTearDown(target.close);
     await JournalBackup(target).restoreJson(jsonEncode(backup));
     expect(await target.select(target.brews).get(), hasLength(1));
@@ -209,7 +210,7 @@ void main() {
       throwsArgumentError,
     );
     final source = await JournalBackup(database).exportJson();
-    final target = AppDatabase.forTesting(NativeDatabase.memory());
+    final target = memoryDatabase();
     addTearDown(target.close);
     await JournalBackup(target).restoreJson(source);
     final method = await target.select(target.brewMethods).getSingle();

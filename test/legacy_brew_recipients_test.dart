@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/drift.dart' hide isNotNull, isNull;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -12,6 +11,7 @@ import 'package:holybeans/domain/beanconqueror/bq_import_plan.dart';
 
 import 'helpers/beanconqueror_fixture.dart';
 import 'helpers/legacy_schema.dart';
+import 'helpers/test_database.dart';
 
 const _kinto = 'method-recipient:origami';
 
@@ -183,7 +183,7 @@ void main() {
   test(
     'restoring a v30 backup repairs it; a v31 backup stays as it is',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       await _seed(db);
       final current = await JournalBackup(db).exportJson();
@@ -207,7 +207,7 @@ void main() {
   );
 
   test('an import from BeanConqueror keeps the jug of every brew', () async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
     addTearDown(db.close);
     final repository = JournalRepository(db);
     final export = exportJson();

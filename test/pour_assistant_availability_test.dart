@@ -1,19 +1,19 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_form_sections.dart';
+
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   for (final language in ['es', 'en']) {
     testWidgets(
       'pour assistant follows method style without changing water ($language)',
       (tester) async {
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         final repo = JournalRepository(db);
         final ids = <String, String>{};
         for (final category in [
@@ -40,10 +40,8 @@ void main() {
         });
         var opened = 0;
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: SingleChildScrollView(
                 child: ListenableBuilder(

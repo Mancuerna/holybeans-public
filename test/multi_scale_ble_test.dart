@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/scale_settings.dart';
@@ -10,13 +9,14 @@ import 'package:holybeans/data/services/scale_discovery.dart';
 import 'package:universal_ble/universal_ble.dart';
 
 import 'helpers/multi_scale_ble_platform.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   late AppDatabase database;
   late MultiScalePlatform platform;
   late BleScale scale;
   setUp(() async {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     platform = MultiScalePlatform();
     UniversalBle.setInstance(platform);
     scale = BleScale(

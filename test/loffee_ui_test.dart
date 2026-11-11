@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -16,13 +15,14 @@ import 'package:holybeans/ui/beans/loffee_search_page.dart';
 import 'package:image/image.dart' as img;
 
 import 'helpers/fake_loffee.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   late AppDatabase database;
   late MemoryLoffeeKeys keys;
   late FakeLoffeeApi api;
   setUp(() {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     keys = MemoryLoffeeKeys('test-only-key');
     api = FakeLoffeeApi();
   });

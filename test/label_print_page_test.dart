@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -15,6 +14,8 @@ import 'package:holybeans/ui/labels/label_renderer.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'helpers/fake_label_printer.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 const coffee = Coffee(
   id: 'c',
@@ -38,7 +39,7 @@ void main() {
   late AppDatabase db;
   late FakeLabelPrinter printer;
   setUp(() {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     printer = FakeLabelPrinter();
   });
   tearDown(() async {
@@ -56,10 +57,8 @@ void main() {
     LabelOutputPreferences? outputPreferences,
   }) async {
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: Locale(locale),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: LabelPrintPage(
           coffee: coffee,
           components: const [],

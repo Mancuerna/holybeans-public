@@ -5,6 +5,8 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/labels/label_graphic_controller.dart';
 import 'package:holybeans/ui/labels/label_output_settings.dart';
 
+import 'helpers/ui_test_support.dart';
+
 void main() {
   for (final language in ['es', 'en']) {
     testWidgets(
@@ -20,10 +22,8 @@ void main() {
         addTearDown(graphic.dispose);
         var options = const LabelImageOptions();
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: StatefulBuilder(
                 builder: (context, setState) => SingleChildScrollView(

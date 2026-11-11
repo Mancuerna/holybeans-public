@@ -1,4 +1,3 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -13,6 +12,7 @@ import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_pours_draft.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
 
+import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 /// A bloom of 50 g, a 25 s rest and a pour of 200 g, every 100 ms.
@@ -42,7 +42,7 @@ void main() {
   late BrewFormModel model;
 
   setUp(() async {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     final repository = JournalRepository(database);
     await repository.createCoffee(name: 'Kenya', roaster: 'R');
     model = BrewFormModel(
@@ -260,10 +260,8 @@ void main() {
     final draft = BrewPoursDraft();
     addTearDown(draft.dispose);
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ListView(children: [BrewPoursFields(draft: draft)]),
         ),

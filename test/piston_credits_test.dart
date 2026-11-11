@@ -1,14 +1,15 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/equipment/piston/piston_credits.dart';
 import 'package:holybeans/ui/settings/settings_page.dart';
+
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   const channel = MethodChannel('plugins.flutter.io/url_launcher');
@@ -40,10 +41,8 @@ void main() {
         );
         final s = lookupAppLocalizations(Locale(language));
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             builder: (context, child) => MediaQuery(
               data: MediaQuery.of(context)
                   .copyWith(textScaler: const TextScaler.linear(2)),
@@ -95,14 +94,12 @@ void main() {
             .join('\n');
         expect(notice, contains('Copyright (c) 2026 hessius'));
         expect(notice, contains('Copyright (c) 2026 Chris Borchert'));
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(db.close);
         final s = lookupAppLocalizations(Locale(language));
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: SettingsPage(
               locale: Locale(language),
               onLocaleChanged: (_) {},

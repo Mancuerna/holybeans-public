@@ -1,10 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/meticulous_client.dart';
 import 'package:holybeans/data/services/meticulous_free_pour.dart';
@@ -13,6 +11,7 @@ import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_draft.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 
+import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 /// A synthetic record shaped like the machine's pour-over history: a bloom
@@ -168,7 +167,7 @@ void main() {
 
   testWidgets('a filter brew imports the latest free pour from the '
       'Meticulous of another method', (tester) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(400, 900);
     tester.view.devicePixelRatio = 1;

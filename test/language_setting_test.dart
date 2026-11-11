@@ -1,15 +1,15 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/language_setting.dart';
 import 'package:holybeans/data/preferences/rate_reminder_settings.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 
+import 'helpers/test_database.dart';
+
 void main() {
   test('the chosen language is saved, kept with other settings and backed '
       'up', () async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final setting = LanguageSetting(database);
     expect(await setting.load(), isNull);
@@ -19,7 +19,7 @@ void main() {
     expect(await setting.load(), const Locale('es'));
     expect(await RateReminderSettings(database).loadMinutes(), 20);
 
-    final target = AppDatabase.forTesting(NativeDatabase.memory());
+    final target = memoryDatabase();
     addTearDown(target.close);
     await JournalBackup(target)
         .restoreJson(await JournalBackup(database).exportJson());

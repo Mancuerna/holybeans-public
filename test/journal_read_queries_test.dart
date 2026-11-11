@@ -1,11 +1,12 @@
 import 'package:drift/drift.dart' hide isNotNull, isNull;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/equipment_overview.dart';
 import 'package:holybeans/data/repositories/history_pages.dart';
 import 'package:holybeans/data/repositories/history_query.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+
+import 'helpers/test_database.dart';
 
 const HistoryQuery query = (
   text: '',
@@ -24,7 +25,7 @@ void main() {
   late JournalRepository repo;
   late String coffee;
   setUp(() async {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     repo = JournalRepository(db);
     coffee = await repo.createCoffee(name: 'Café', roaster: 'North');
     await db.batch((batch) {

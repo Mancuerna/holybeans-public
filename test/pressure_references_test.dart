@@ -1,14 +1,14 @@
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/shot_curve.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   test(
     'references include only espresso pressure and never change source data',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       final repo = JournalRepository(db);
       try {
         final coffee = await repo.createCoffee(

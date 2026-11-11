@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/drift.dart' show Value;
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -14,6 +13,8 @@ import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_draft.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+
+import 'helpers/test_database.dart';
 
 /// A synthetic history entry shaped like the machine's API: a pre-infusion
 /// stage, a brew stage and the piston retracting at the end.
@@ -218,7 +219,7 @@ void main() {
   test(
     'methods keep their machine; brews keep the shot curve and link',
     () async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       final repository = JournalRepository(database);
       expect(
@@ -321,7 +322,7 @@ void main() {
       await repository.attachMeticulousShot(second, shot);
 
       // Curves and machines survive a backup.
-      final target = AppDatabase.forTesting(NativeDatabase.memory());
+      final target = memoryDatabase();
       addTearDown(target.close);
       await JournalBackup(target)
           .restoreJson(await JournalBackup(database).exportJson());
@@ -338,7 +339,7 @@ void main() {
   );
 
   test('v14 backups with the old Meticulous address still restore', () async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final backup = jsonDecode(
       await JournalBackup(database).exportJson(),
@@ -356,7 +357,7 @@ void main() {
         'meticulousAddress': '192.0.2.90',
       },
     ];
-    final target = AppDatabase.forTesting(NativeDatabase.memory());
+    final target = memoryDatabase();
     addTearDown(target.close);
     await JournalBackup(target).restoreJson(jsonEncode(backup));
     expect(
@@ -368,7 +369,7 @@ void main() {
   testWidgets('a zero-pressure Meticulous shot replaces remembered pressure', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(400, 900);
     tester.view.devicePixelRatio = 1;
@@ -457,7 +458,7 @@ void main() {
   testWidgets('a Meticulous method imports a shot into the brew form', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(400, 900);
     tester.view.devicePixelRatio = 1;

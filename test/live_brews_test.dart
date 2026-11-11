@@ -1,17 +1,18 @@
 import 'dart:async';
 
 import 'package:drift/drift.dart' hide isNotNull;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   late AppDatabase db;
   late JournalRepository repository;
   late String coffee;
   setUp(() async {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     repository = JournalRepository(db);
     coffee = await repository.createCoffee(name: 'Test', roaster: 'Test');
   });

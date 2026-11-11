@@ -1,7 +1,5 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/piston_history_client.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -9,6 +7,8 @@ import 'package:holybeans/ui/equipment/piston/piston_chart.dart';
 import 'package:holybeans/ui/equipment/piston/piston_page.dart';
 
 import 'helpers/piston_fake.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   for (final language in ['es', 'en']) {
@@ -17,7 +17,7 @@ void main() {
       (tester) async {
         tester.platformDispatcher.localeTestValue = const Locale('en', 'GB');
         addTearDown(tester.platformDispatcher.clearLocaleTestValue);
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         final repo = JournalRepository(db);
         final method = await repo.createMethod(name: 'Meticulous');
         final original = connectPistonHistory;
@@ -29,10 +29,8 @@ void main() {
         });
         final s = lookupAppLocalizations(Locale(language));
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: PistonPage(
               repository: repo.piston,
               methodId: method,
@@ -80,10 +78,8 @@ void main() {
         await tester.pumpAndSettle();
         connectPistonHistory = (_) => FakePistonSource([], offline: true);
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: PistonPage(
               repository: repo.piston,
               methodId: method,

@@ -5,6 +5,8 @@ import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/core/optional_rating_slider.dart';
 import 'package:holybeans/ui/core/page_layout.dart';
 
+import 'helpers/ui_test_support.dart';
+
 void main() {
   for (final language in ['es', 'en']) {
     for (final dark in [false, true]) {
@@ -20,10 +22,8 @@ void main() {
           final semantics = tester.ensureSemantics();
           try {
             await tester.pumpWidget(
-              MaterialApp(
+              localizedApp(
                 locale: Locale(language),
-                localizationsDelegates: AppLocalizations.localizationsDelegates,
-                supportedLocales: AppLocalizations.supportedLocales,
                 theme: dark ? AppTheme.dark() : AppTheme.light(),
                 builder: (context, child) => MediaQuery(
                   data: MediaQuery.of(context)

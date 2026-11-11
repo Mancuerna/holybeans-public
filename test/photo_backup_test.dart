@@ -3,13 +3,14 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/data/services/journal_restore.dart';
 import 'package:holybeans/data/services/photo_store.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   late Directory temp;
@@ -19,7 +20,7 @@ void main() {
 
   setUp(() async {
     temp = await Directory.systemTemp.createTemp('holybeans-photos');
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     repository = JournalRepository(database);
     photos = PhotoStore(Directory('${temp.path}/photos'));
   });
@@ -99,7 +100,7 @@ void main() {
       tampered.add(ArchiveFile.bytes(file.name, file.readBytes()!));
     }
     tampered.add(ArchiveFile.bytes('photos/../escape.jpg', jpeg));
-    final target = AppDatabase.forTesting(NativeDatabase.memory());
+    final target = memoryDatabase();
     addTearDown(target.close);
     final targetPhotos = PhotoStore(Directory('${temp.path}/restored'));
     await JournalBackup(target)
@@ -122,7 +123,7 @@ void main() {
     );
     await repository.setCoffeePhotos(coffeeId, [await photos.add(jpeg)]);
     final source = await JournalBackup(database).exportJson();
-    final target = AppDatabase.forTesting(NativeDatabase.memory());
+    final target = memoryDatabase();
     addTearDown(target.close);
     await JournalBackup(target).restoreJson(source);
     expect(await target.select(target.coffeePhotos).get(), isEmpty);
@@ -158,7 +159,7 @@ void main() {
       ..remove('shopUrl')
       ..['photoFile'] = name;
 
-    final target = AppDatabase.forTesting(NativeDatabase.memory());
+    final target = memoryDatabase();
     addTearDown(target.close);
     await JournalBackup(target)
         .restoreJson(jsonEncode(backup), availablePhotos: {name});

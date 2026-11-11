@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart' show Value;
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -7,6 +6,8 @@ import 'package:holybeans/data/preferences/list_options_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/list_options.dart';
 import 'package:holybeans/main.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   test('saved list options read back, and odd values keep the defaults', () {
@@ -74,7 +75,7 @@ void main() {
 
   test('a journal without saved options, or with a broken value, starts '
       'from the defaults', () async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final settings = ListOptionsSettings(database);
     expect((await settings.load()).beanSort, BeanSort.name);
@@ -95,7 +96,7 @@ void main() {
   testWidgets('the bean order and archived brews survive closing the app', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/services/paired_device.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/labels/label_printer_controls.dart';
 
 import 'helpers/fake_label_printer.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   for (final language in ['es', 'en']) {
@@ -31,10 +31,8 @@ void main() {
           ),
         );
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(language),
-            supportedLocales: AppLocalizations.supportedLocales,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
             home: Scaffold(body: LabelPrinterControls(printer: printer)),
           ),
         );

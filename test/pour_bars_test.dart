@@ -4,6 +4,8 @@ import 'package:holybeans/domain/pour_plan.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/pour_assistant/pour_bars.dart';
 
+import 'helpers/ui_test_support.dart';
+
 void main() {
   for (final language in ['es', 'en']) {
     testWidgets(
@@ -18,10 +20,8 @@ void main() {
         var second = 0;
         late StateSetter refresh;
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: StatefulBuilder(
               builder: (context, setState) {
                 refresh = setState;
