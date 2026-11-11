@@ -35,7 +35,6 @@ List<int> acaiaIdentify({required bool classic}) =>
     acaiaFrame(11, (classic ? '---------------' : '012345678901234').codeUnits);
 final acaiaSubscribe = acaiaFrame(12, [9, 0, 1, 1, 2, 2, 5, 3, 4]);
 final acaiaHeartbeat = acaiaFrame(0, [2, 0]);
-final acaiaReadSettings = acaiaFrame(6, List.filled(16, 0));
 
 List<List<int>> acaiaCommands(ScaleCommand command) => switch (command) {
   ScaleCommand.tare => [

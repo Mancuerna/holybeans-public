@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/atomic_json_file.dart';
-import 'package:holybeans/data/services/drive_sync_journal.dart';
 import 'package:holybeans/data/services/drive_sync_payload.dart';
 import 'package:holybeans/data/services/drive_sync_remote.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
@@ -15,6 +14,7 @@ import 'package:path/path.dart' as path;
 
 import 'helpers/counted_json_file.dart';
 import 'helpers/drive_fake_server.dart';
+import 'helpers/drive_payload_fixture.dart';
 import 'helpers/test_database.dart';
 
 void main() {
@@ -27,7 +27,7 @@ void main() {
   late AppDatabase database;
   late DriveSyncPayloadStore queue;
   late DriveRemoteAdapter remote;
-  late DriveJournalAdapter journal;
+  late DrivePayloadFixture journal;
   setUp(() async {
     server = DriveFakeServer();
     messenger.setMockMethodCallHandler(channel, server.handle);
@@ -37,12 +37,10 @@ void main() {
     queue = DriveSyncPayloadStore(
       Directory(path.join(directory.path, 'queue')),
     );
-    journal = DriveJournalAdapter(
+    journal = DrivePayloadFixture(
       backup: JournalBackup(database),
       photos: photos,
       payloads: queue,
-      editing: () => false,
-      canApply: () => true,
     );
     remote = DriveRemoteAdapter(
       accountKey: 'a' * 64,

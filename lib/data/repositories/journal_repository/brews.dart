@@ -418,7 +418,7 @@ extension BrewOperations on JournalRepository {
         )..where((brew) => brew.id.equals(id))).write(
           BrewsCompanion(
             rating: Value(rating),
-            notes: Value(_trimOrNull(notes)),
+            notes: Value(trimOrNull(notes)),
             tasteBalance: Value(tasting.balance),
             tasteStrength: Value(tasting.strength),
             acidity: Value(tasting.acidity),

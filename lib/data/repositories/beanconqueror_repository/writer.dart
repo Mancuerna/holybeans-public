@@ -1,4 +1,4 @@
-part of '../journal_repository.dart';
+part of '../beanconqueror_repository.dart';
 
 /// Writes one BeanConqueror import plan, a kind of record at a time,
 /// remembering where each record went so later ones can point to it.
@@ -13,7 +13,7 @@ class _BqWriter {
     required this.curves,
   }) : now = DateTime.now().toUtc().millisecondsSinceEpoch;
 
-  final JournalRepository repository;
+  final BeanconquerorRepository repository;
 
   /// Local IDs of the records imported so far, by kind and external ID.
   final Map<String, Map<String, String>> known;
@@ -78,7 +78,7 @@ class _BqWriter {
     _records.add(
       ImportRecordsCompanion.insert(
         id: recordId,
-        source: BeanconquerorImport.source,
+        source: BeanconquerorRepository.source,
         kind: origin.kind,
         externalId: origin.externalId,
         fingerprint: bqFingerprint(origin.rawJson),
@@ -365,7 +365,7 @@ class _BqWriter {
       final grinderId = local(BqKind.mill, brew.millId);
       if (methodId != null && brew.isFavorite) {
         favorites.add(
-          BeanconquerorImport._bqFavorite(id, coffeeId, methodId, brew),
+          BeanconquerorRepository._bqFavorite(id, coffeeId, methodId, brew),
         );
       }
       final methodName = methodNames[methodId] ?? brew.methodName;
@@ -439,7 +439,7 @@ class _BqWriter {
   void _addCurve(String brewId, ShotCurve curve) => _curveRows.add(
     BrewCurvesCompanion.insert(
       brewId: brewId,
-      source: BeanconquerorImport.source,
+      source: BeanconquerorRepository.source,
       samplesJson: curve.toJson(),
     ),
   );
@@ -450,7 +450,8 @@ class _BqWriter {
       final localId = local(update.kind, update.externalId);
       if (localId == null || localId.isEmpty) continue;
       if (curves[update.flowProfile] case final curve?
-          when !curve.isEmpty && await repository.brewCurve(localId) == null) {
+          when !curve.isEmpty &&
+              await repository._recordings.brewCurve(localId) == null) {
         final exists = await (_database.select(
           _database.brews,
         )..where((row) => row.id.equals(localId))).getSingleOrNull();
@@ -460,11 +461,15 @@ class _BqWriter {
       if (files.isEmpty) continue;
       try {
         if (update.kind == BqKind.bean) {
-          if ((await repository.coffeePhotos(localId)).isNotEmpty) continue;
-          await repository.setCoffeePhotos(localId, files);
+          if ((await repository._photos.coffeePhotos(localId)).isNotEmpty) {
+            continue;
+          }
+          await repository._photos.setCoffeePhotos(localId, files);
         } else {
-          if ((await repository.brewPhotos(localId)).isNotEmpty) continue;
-          await repository.setBrewPhotos(localId, files);
+          if ((await repository._photos.brewPhotos(localId)).isNotEmpty) {
+            continue;
+          }
+          await repository._photos.setBrewPhotos(localId, files);
         }
       } on StateError {
         // Deleted here since it was imported.

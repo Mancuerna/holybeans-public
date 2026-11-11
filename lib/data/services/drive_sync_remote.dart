@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:holybeans/data/services/atomic_json_file.dart';
-import 'package:holybeans/data/services/drive_sync_coordinator.dart';
+import 'package:holybeans/data/services/drive_sync_contracts.dart';
 import 'package:holybeans/data/services/drive_sync_payload.dart';
 import 'package:holybeans/domain/drive_sync.dart';
 

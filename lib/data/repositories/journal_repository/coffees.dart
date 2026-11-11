@@ -110,7 +110,7 @@ extension CoffeeOperations on JournalRepository {
       process,
       altitudeMeters?.toString(),
       altitudeMaxMeters?.toString(),
-    ].any((value) => _trimOrNull(value) != null);
+    ].any((value) => trimOrNull(value) != null);
     return _createCoffee(
       name: name,
       roaster: roaster,
@@ -255,7 +255,7 @@ extension CoffeeOperations on JournalRepository {
               id: coffeeId,
               name: cleanName,
               roaster: roaster.trim(),
-              notes: _trimOrNull(notes),
+              notes: trimOrNull(notes),
               paidPriceCents: paidPriceCents,
               roastLevel: roastLevel,
               flavorProfile: normalizeFlavorNotes(flavorProfile),
@@ -321,7 +321,7 @@ extension CoffeeOperations on JournalRepository {
             CoffeesCompanion(
               name: Value(cleanName),
               roaster: Value(roaster.trim()),
-              notes: Value(_trimOrNull(notes)),
+              notes: Value(trimOrNull(notes)),
               updatedAtMs: Value(DateTime.now().toUtc().millisecondsSinceEpoch),
             ),
           );
@@ -386,7 +386,7 @@ extension CoffeeOperations on JournalRepository {
             CoffeesCompanion(
               name: Value(name.trim()),
               roaster: Value(roaster.trim()),
-              notes: Value(_trimOrNull(notes)),
+              notes: Value(trimOrNull(notes)),
               paidPriceCents: Value(paidPriceCents),
               roastLevel: updateRoastLevel
                   ? Value(roastLevel)

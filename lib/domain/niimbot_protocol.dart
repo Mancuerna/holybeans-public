@@ -65,8 +65,6 @@ class NiimbotDecoder {
   }
 }
 
-bool isNiimbotD110(String? name) => LabelPrinterModel.d110.matchesName(name);
-
 List<int> niimbotU16(int value) => [(value >> 8) & 255, value & 255];
 
 // Pixels are in landscape order, one byte per pixel: 1 black, 0 white.

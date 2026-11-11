@@ -129,9 +129,9 @@ void main() {
   });
 
   test('rejects unsupported models and invalid rasters', () {
-    expect(isNiimbotD110('D110-F519042406'), isTrue);
+    expect(LabelPrinterModel.d110.matchesName('D110-F519042406'), isTrue);
     for (final name in ['D110_M-X', 'D110M-X', 'D11-X', 'B1-X', null]) {
-      expect(isNiimbotD110(name), isFalse);
+      expect(LabelPrinterModel.d110.matchesName(name), isFalse);
     }
     expect(() => niimbotImageRows(Uint8List(96), 30), throwsFormatException);
     expect(

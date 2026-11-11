@@ -2,30 +2,32 @@ import 'dart:math';
 
 import 'package:drift/drift.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/beanconqueror_repository.dart';
 import 'package:holybeans/data/repositories/brew_recipe_context.dart';
 import 'package:holybeans/data/repositories/brew_recipe_queries.dart';
 import 'package:holybeans/data/repositories/cafe_repository.dart';
+import 'package:holybeans/data/repositories/catalog_validation.dart';
 import 'package:holybeans/data/repositories/coffee_suggestions.dart';
 import 'package:holybeans/data/repositories/cupping_share.dart';
+import 'package:holybeans/data/repositories/equipment_repository.dart';
 import 'package:holybeans/data/repositories/journal_read_queries.dart';
-import 'package:holybeans/data/repositories/live_brews.dart';
+import 'package:holybeans/data/repositories/photos_repository.dart';
 import 'package:holybeans/data/repositories/piston_repository.dart';
+import 'package:holybeans/data/repositories/recipients_repository.dart';
+import 'package:holybeans/data/repositories/recordings_repository.dart';
 import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/data/repositories/tool_catalog.dart';
-import 'package:holybeans/data/services/gaggimate_client.dart';
+import 'package:holybeans/data/repositories/tools_repository.dart';
 import 'package:holybeans/data/services/meticulous_client.dart';
 import 'package:holybeans/data/services/meticulous_free_pour.dart';
-import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/altitude.dart';
 import 'package:holybeans/domain/bean_exchange.dart';
 import 'package:holybeans/domain/beanconqueror/bq_import_plan.dart';
-import 'package:holybeans/domain/beanconqueror/bq_values.dart';
 import 'package:holybeans/domain/brew_input.dart';
 import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/domain/brew_ratio.dart';
 import 'package:holybeans/domain/coffee_suggestions.dart';
 import 'package:holybeans/domain/cupping.dart';
-import 'package:holybeans/domain/favorite_brews.dart';
 import 'package:holybeans/domain/flavor_notes.dart';
 import 'package:holybeans/domain/flow_guide.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
@@ -35,12 +37,17 @@ import 'package:holybeans/domain/pour_plan.dart';
 import 'package:holybeans/domain/pressure_guide.dart';
 import 'package:holybeans/domain/profile_suggestions.dart';
 import 'package:holybeans/domain/shot_curve.dart';
-import 'package:holybeans/domain/water_chemistry.dart';
 import 'package:holybeans/domain/web_link.dart';
 import 'package:uuid/uuid.dart';
 
+export 'package:holybeans/data/repositories/beanconqueror_repository.dart'
+    show BqImportSummary;
+export 'package:holybeans/data/repositories/catalog_validation.dart'
+    show connectedMachines;
+export 'package:holybeans/data/repositories/equipment_repository.dart'
+    show EquipmentDeletionBlocker, EquipmentInUseException, WaterMinerals;
+
 part 'journal_repository/beanconqueror.dart';
-part 'journal_repository/bq_writer.dart';
 part 'journal_repository/brew_save.dart';
 part 'journal_repository/brews.dart';
 part 'journal_repository/coffee_cards.dart';
@@ -119,16 +126,16 @@ class CoffeeComponentInput {
 
   CoffeeComponentInput _normalized() {
     final clean = CoffeeComponentInput(
-      id: _trimOrNull(id),
-      country: _trimOrNull(country),
-      region: _trimOrNull(region),
-      farm: _trimOrNull(farm),
-      producer: _trimOrNull(producer),
-      variety: _trimOrNull(variety),
-      process: _trimOrNull(process),
+      id: trimOrNull(id),
+      country: trimOrNull(country),
+      region: trimOrNull(region),
+      farm: trimOrNull(farm),
+      producer: trimOrNull(producer),
+      variety: trimOrNull(variety),
+      process: trimOrNull(process),
       altitudeMeters: altitudeMeters,
       altitudeMaxMeters: altitudeMaxMeters,
-      harvest: _trimOrNull(harvest),
+      harvest: trimOrNull(harvest),
     );
     if (id != null && clean.id == null) {
       throw ArgumentError.value(id, 'id', 'Component ID cannot be blank');
@@ -149,43 +156,6 @@ class CoffeeComponentInput {
       throw ArgumentError('Each coffee component must contain origin data');
     }
     return clean;
-  }
-}
-
-/// Dissolved minerals of a water profile, in ppm (mg/l) of each ion.
-class WaterMinerals {
-  const WaterMinerals({
-    this.calcium,
-    this.magnesium,
-    this.sodium,
-    this.potassium,
-    this.chloride,
-    this.sulfate,
-    this.bicarbonate,
-  });
-
-  final double? calcium;
-  final double? magnesium;
-  final double? sodium;
-  final double? potassium;
-  final double? chloride;
-  final double? sulfate;
-  final double? bicarbonate;
-
-  void _validate() {
-    for (final (value, name) in [
-      (calcium, 'calcium'),
-      (magnesium, 'magnesium'),
-      (sodium, 'sodium'),
-      (potassium, 'potassium'),
-      (chloride, 'chloride'),
-      (sulfate, 'sulfate'),
-      (bicarbonate, 'bicarbonate'),
-    ]) {
-      if (value != null && (!value.isFinite || value < 0)) {
-        throw ArgumentError.value(value, name);
-      }
-    }
   }
 }
 
@@ -264,10 +234,23 @@ class FreezeRequest {
 class JournalRepository {
   JournalRepository(this.database);
 
+  late final PhotoRepository photoRecords = PhotoRepository(database);
+  late final RecipientRepository recipients = RecipientRepository(database);
+  late final EquipmentRepository equipment = EquipmentRepository(
+    database,
+    recipients,
+  );
+  late final ToolRepository tools = ToolRepository(database, equipment);
+  late final RecordingRepository recordings = RecordingRepository(database);
+  late final BeanconquerorRepository beanconqueror = BeanconquerorRepository(
+    database,
+    photoRecords,
+    recordings,
+  );
+
   late final CafeRepository cafes = CafeRepository(database);
 
   final AppDatabase database;
-  late final _liveBrews = LiveBrewStore(database);
   late final PistonRepository piston = PistonRepository(database);
   late final _recipeQueries = BrewRecipeQueries(
     database,
@@ -314,9 +297,6 @@ class JournalRepository {
     query.orderBy([(coffee) => OrderingTerm.asc(coffee.name)]);
     return query.watch();
   }
-
-  Stream<List<Brew>> watchBrews({bool includeArchived = false}) =>
-      _liveBrews.watch(includeArchived: includeArchived);
 
   /// Everything the journal holds, archived records included, read once
   /// (for exports).
@@ -441,59 +421,10 @@ void _checkRating(double? rating, String name) {
   }
 }
 
-String? _trimOrNull(String? value) {
-  final trimmed = value?.trim();
-  return trimmed == null || trimmed.isEmpty ? null : trimmed;
-}
-
-String _requireCatalogName(String name, String field) {
-  final clean = name.trim();
-  if (clean.isEmpty || clean.length > 120) {
-    throw ArgumentError.value(name, field);
-  }
-  return clean;
-}
-
-String _catalogNameKey(String name) => name.trim().toLowerCase();
-
 void _checkPositive(double? value, String field) {
   if (value != null && (!value.isFinite || value <= 0)) {
     throw ArgumentError.value(value, field);
   }
-}
-
-void _validateWaterProfileValues({
-  required double? ghPpmAsCaCO3,
-  required double? khPpmAsCaCO3,
-  required double? tdsPpm,
-  required double? ph,
-}) {
-  for (final entry in {
-    'ghPpmAsCaCO3': ghPpmAsCaCO3,
-    'khPpmAsCaCO3': khPpmAsCaCO3,
-    'tdsPpm': tdsPpm,
-  }.entries) {
-    final value = entry.value;
-    if (value != null && (!value.isFinite || value < 0)) {
-      throw ArgumentError.value(value, entry.key);
-    }
-  }
-  if (ph != null && (!ph.isFinite || ph < 0 || ph > 14)) {
-    throw ArgumentError.value(ph, 'ph');
-  }
-}
-
-/// A method's jug: its empty weight, and a name only alongside it.
-(String?, double?) _checkJug(String? name, double? grams) {
-  if (grams == null) return (null, null);
-  if (!grams.isFinite || grams <= 0 || grams > 10000) {
-    throw ArgumentError.value(grams, 'vesselGrams');
-  }
-  final cleanName = _trimOrNull(name);
-  if (cleanName != null && cleanName.length > 120) {
-    throw ArgumentError.value(name, 'vesselName');
-  }
-  return (cleanName, grams);
 }
 
 const _gramsTolerance = 1e-6;
@@ -564,30 +495,4 @@ List<CoffeeComponentInput> _normalizeCoffeeComponents(
     throw ArgumentError.value(components, 'components', 'IDs must be unique');
   }
   return normalized;
-}
-
-/// Machines a method can be connected to.
-const connectedMachines = {'meticulous', 'gaggimate'};
-
-/// Validates a method's machine and address: the machine must be a known
-/// one and its address a valid host, and there is no address without one.
-(String?, String?) _checkMachine(String? machine, String? address) {
-  final cleanMachine = _trimOrNull(machine);
-  if (cleanMachine == null) return (null, null);
-  if (!connectedMachines.contains(cleanMachine)) {
-    throw ArgumentError.value(machine, 'machine');
-  }
-  final cleanAddress = _trimOrNull(address);
-  if (cleanAddress != null) {
-    try {
-      if (cleanMachine == 'gaggimate') {
-        GaggimateClient.normalizeAddress(cleanAddress);
-      } else {
-        MeticulousClient.normalizeAddress(cleanAddress);
-      }
-    } on FormatException {
-      throw ArgumentError.value(address, 'machineAddress');
-    }
-  }
-  return (cleanMachine, cleanAddress);
 }
