@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/services/drive_backups.dart';
-import 'package:holybeans/data/services/drive_sync_coordinator.dart';
+import 'package:holybeans/data/services/drive_sync_contracts.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/sync/drive_sync_model.dart';

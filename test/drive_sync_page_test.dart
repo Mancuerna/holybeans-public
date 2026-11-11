@@ -11,7 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/atomic_json_file.dart';
-import 'package:holybeans/data/services/drive_sync_coordinator.dart';
+import 'package:holybeans/data/services/drive_sync_contracts.dart';
 import 'package:holybeans/data/services/drive_sync_payload.dart';
 import 'package:holybeans/data/services/drive_sync_remote.dart';
 import 'package:holybeans/data/services/journal_backup.dart';

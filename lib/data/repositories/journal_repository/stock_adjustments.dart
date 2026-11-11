@@ -78,7 +78,7 @@ extension StockAdjustmentOperations on JournalRepository {
               reason: reason,
               previousGrams: before,
               resultingGrams: after,
-              notes: _trimOrNull(notes),
+              notes: trimOrNull(notes),
               createdAtMs: now,
             ),
           );

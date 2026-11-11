@@ -28,7 +28,6 @@ enum LabelPrinterModel {
   String get displayName =>
       isNiimbot ? 'Niimbot $label' : 'Pristar / Marklife P12';
   bool get continuousTape => this == marklifeP12;
-  bool get supportsImages => true;
   bool get rotateForFeed =>
       this == d110 || this == d11 || this == d11H || this == marklifeP12;
   bool get needsProtocolVersion =>

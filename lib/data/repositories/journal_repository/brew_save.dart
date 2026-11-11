@@ -104,9 +104,9 @@ extension _BrewSaveSteps on JournalRepository {
         previous != null &&
         (previous.methodId == methodId ||
             (previous.methodId == null &&
-                _catalogNameKey(previous.methodName) ==
-                    _catalogNameKey(cleanMethod)));
-    final cleanGrinderName = _trimOrNull(input.grinderName);
+                catalogNameKey(previous.methodName) ==
+                    catalogNameKey(cleanMethod)));
+    final cleanGrinderName = trimOrNull(input.grinderName);
     final grinderId =
         input.grinderId ??
         (cleanGrinderName == null
@@ -148,7 +148,7 @@ extension _BrewSaveSteps on JournalRepository {
         ? previous!.methodName
         : catalog.method.name;
     if (!catalog.methodMatchesPrevious &&
-        _catalogNameKey(catalog.method.name) != _catalogNameKey(cleanMethod)) {
+        catalogNameKey(catalog.method.name) != catalogNameKey(cleanMethod)) {
       throw ArgumentError.value(input.methodName, 'methodName');
     }
     final cleanGrinderName = catalog.cleanGrinderName;
@@ -159,13 +159,13 @@ extension _BrewSaveSteps on JournalRepository {
         previous != null &&
         (previous.grinderId == catalog.grinderId ||
             (previous.grinderId == null &&
-                _catalogNameKey(previous.grinderName ?? '') ==
-                    _catalogNameKey(grinderName ?? '')));
+                catalogNameKey(previous.grinderName ?? '') ==
+                    catalogNameKey(grinderName ?? '')));
     if (catalog.grinderId != null &&
         !previousGrinderMatches &&
         cleanGrinderName != null &&
-        _catalogNameKey(catalog.grinder!.name) !=
-            _catalogNameKey(cleanGrinderName)) {
+        catalogNameKey(catalog.grinder!.name) !=
+            catalogNameKey(cleanGrinderName)) {
       throw ArgumentError.value(input.grinderName, 'grinderName');
     }
     final now = DateTime.now().toUtc().millisecondsSinceEpoch;
@@ -187,7 +187,7 @@ extension _BrewSaveSteps on JournalRepository {
       isPreGround: input.isPreGround,
       methodName: methodSnapshot,
       grinderName: previousGrinderMatches ? previous.grinderName : grinderName,
-      grindSetting: input.isPreGround ? null : _trimOrNull(input.grindSetting),
+      grindSetting: input.isPreGround ? null : trimOrNull(input.grindSetting),
       doseGrams: input.doseGrams,
       frozenPortionId: source.portionId,
       frozenDoseGrams: source.grams,
@@ -248,8 +248,8 @@ extension _BrewSaveSteps on JournalRepository {
           previous.isFavorite &&
           previous.coffeeId == coffeeId &&
           previous.methodId == catalog.methodId,
-      notes: _trimOrNull(input.notes),
-      profileName: _trimOrNull(input.profileName),
+      notes: trimOrNull(input.notes),
+      profileName: trimOrNull(input.profileName),
       brewedAtMs:
           (input.brewedAt ??
                   (previous == null

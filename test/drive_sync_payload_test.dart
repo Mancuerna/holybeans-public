@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/language_setting.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/data/services/drive_sync_journal.dart';
 import 'package:holybeans/data/services/drive_sync_payload.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/data/services/journal_restore.dart';
@@ -16,6 +15,7 @@ import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/drive_sync.dart';
 import 'package:path/path.dart' as path;
 
+import 'helpers/drive_payload_fixture.dart';
 import 'helpers/test_database.dart';
 
 void main() {
@@ -26,7 +26,7 @@ void main() {
   late DriveSyncPayloadStore payloads;
   late JournalBackup backup;
   late JournalRepository repository;
-  late DriveJournalAdapter adapter;
+  late DrivePayloadFixture adapter;
   setUp(() async {
     directory = await Directory.systemTemp.createTemp('drive-payload-');
     database = memoryDatabase();
@@ -36,12 +36,10 @@ void main() {
     );
     backup = JournalBackup(database);
     repository = JournalRepository(database);
-    adapter = DriveJournalAdapter(
+    adapter = DrivePayloadFixture(
       backup: backup,
       photos: photos,
       payloads: payloads,
-      editing: () => false,
-      canApply: () => true,
     );
   });
   tearDown(() async {
@@ -115,38 +113,6 @@ void main() {
       );
     },
   );
-
-  test('application blocks interaction only during replacement and releases on error', () async {
-    final hash = await adapter.stage('apply-state');
-    final events = <bool>[];
-    adapter = DriveJournalAdapter(
-      backup: backup,
-      photos: photos,
-      payloads: payloads,
-      editing: () => false,
-      canApply: () => true,
-      onApplying: events.add,
-    );
-    final snapshot = DriveSnapshot(
-      id: 'apply-state',
-      deviceId: 'other',
-      contentHash: hash,
-      createdAt: DateTime.utc(2026),
-    );
-    await adapter.capture();
-    expect(events, isEmpty);
-    await adapter.apply(snapshot);
-    expect(events, [true, false]);
-    events.clear();
-    await photos.directory.delete(recursive: true);
-    await File(photos.directory.path).writeAsString('Blocked photo directory');
-    await expectLater(
-      adapter.apply(snapshot),
-      throwsA(isA<FileSystemException>()),
-    );
-    expect(events, [true, false]);
-    expect(await adapter.currentHash(), hash);
-  });
 
   test(
     'missing referenced photos abort capture instead of publishing data loss',

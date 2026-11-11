@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/services/atomic_json_file.dart';
 import 'package:holybeans/data/services/drive_backups.dart';
-import 'package:holybeans/data/services/drive_sync_coordinator.dart';
+import 'package:holybeans/data/services/drive_sync_contracts.dart';
 import 'package:holybeans/data/services/drive_sync_remote.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/data/services/photo_store.dart';

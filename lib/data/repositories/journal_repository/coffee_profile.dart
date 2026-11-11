@@ -210,7 +210,7 @@ extension _CoffeeProfileSteps on JournalRepository {
           producer,
           variety,
           process,
-        ].any((value) => _trimOrNull(value) != null) ||
+        ].any((value) => trimOrNull(value) != null) ||
         altitudeMeters != null ||
         altitudeMaxMeters != null;
     if (existing == null && !values) return;
@@ -218,12 +218,12 @@ extension _CoffeeProfileSteps on JournalRepository {
       id: existing?.id ?? _uuid.v4(),
       coffeeId: coffeeId,
       position: 0,
-      country: _trimOrNull(country),
-      region: _trimOrNull(region),
-      farm: _trimOrNull(farm),
-      producer: _trimOrNull(producer),
-      variety: _trimOrNull(variety),
-      process: _trimOrNull(process),
+      country: trimOrNull(country),
+      region: trimOrNull(region),
+      farm: trimOrNull(farm),
+      producer: trimOrNull(producer),
+      variety: trimOrNull(variety),
+      process: trimOrNull(process),
       altitudeMeters: altitudeMeters,
       altitudeMaxMeters: altitudeMaxMeters,
       harvest: existing?.harvest,

@@ -100,19 +100,6 @@ BrewPours? brewPoursFromCurve(
   pourCount: pourCount,
 );
 
-/// Fills a saved brew without details, respecting both recorded counts.
-BrewPours? poursToFill(
-  ShotCurve curve, {
-  double? doseGrams,
-  int? bloomCount,
-  int? pourCount,
-}) => brewPoursFromCurve(
-  curve,
-  doseGrams: doseGrams,
-  bloomCount: bloomCount,
-  pourCount: pourCount,
-);
-
 /// [pours], in order, as blooms and pours for a brew of [doseGrams]. The
 /// first [bloomCount] pours are blooms when given. With only [pourCount],
 /// the remaining leading pours are blooms. Incompatible counts return null.

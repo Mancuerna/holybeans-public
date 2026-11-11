@@ -27,7 +27,7 @@ class BrewPoursFromCurve extends StatelessWidget {
         future: curve,
         builder: (context, snapshot) {
           final found = switch (snapshot.data) {
-            (:final curve, source: _) => poursToFill(
+            (:final curve, source: _) => brewPoursFromCurve(
               curve,
               doseGrams: brew.doseGrams,
               bloomCount: brew.bloomCount,

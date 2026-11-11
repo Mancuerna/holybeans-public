@@ -650,15 +650,14 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
         }),
       ),
       const SizedBox(height: 12),
-      if (printer.model.supportsImages)
-        LabelGraphicControls(
-          graphic: graphic,
-          options: imageOptions,
-          onOptions: (value) => setState(() {
-            imageOptions = value;
-            feedback = null;
-          }),
-        ),
+      LabelGraphicControls(
+        graphic: graphic,
+        options: imageOptions,
+        onOptions: (value) => setState(() {
+          imageOptions = value;
+          feedback = null;
+        }),
+      ),
       ExpansionTile(
         title: Text(s.shareFields),
         children: [
