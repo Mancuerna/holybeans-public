@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:holybeans/domain/flow_guide.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
@@ -25,23 +26,30 @@ class ShotGuideChart extends StatelessWidget {
   final List<GuidePoint> trace;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: 250,
-    width: double.infinity,
-    child: CustomPaint(
-      painter: _GuidePainter(
-        reference,
-        target,
-        unit,
-        minimumMaximum,
-        elapsedMs,
-        actual,
-        trace,
-        Theme.of(context).colorScheme,
-        NumberFormat('0.#', Localizations.localeOf(context).toString()),
+  Widget build(BuildContext context) {
+    final painter = _GuidePainter(
+      reference,
+      target,
+      unit,
+      minimumMaximum,
+      elapsedMs,
+      actual,
+      trace,
+      Theme.of(context).colorScheme,
+      NumberFormat('0.#', Localizations.localeOf(context).toString()),
+    );
+    return SizedBox(
+      height: 250,
+      width: double.infinity,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          RepaintBoundary(child: CustomPaint(painter: _GuideBackdrop(painter))),
+          CustomPaint(painter: painter),
+        ],
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _GuidePainter extends CustomPainter {
@@ -66,26 +74,25 @@ class _GuidePainter extends CustomPainter {
   final ColorScheme colors;
   final NumberFormat number;
 
-  @override
-  void paint(Canvas canvas, Size size) {
+  late final double maxValue = math.max(
+    minimumMaximum,
+    math
+        .max(
+          reference.map((point) => point.value).reduce(math.max),
+          math.max(
+            trace.fold(0.0, (peak, point) => math.max(peak, point.value)),
+            actual ?? 0,
+          ),
+        )
+        .ceilToDouble(),
+  );
+  late final int maxMs = math.max(
+    reference.last.elapsedMs,
+    math.max(elapsedMs, trace.isEmpty ? 0 : trace.last.elapsedMs),
+  );
+
+  void paintBackground(Canvas canvas, Size size) {
     final area = Rect.fromLTRB(38, 18, size.width - 16, size.height - 30);
-    final measuredPeak = trace.fold(
-      0.0,
-      (peak, point) => math.max(peak, point.value),
-    );
-    final maxValue = math.max(
-      minimumMaximum,
-      math
-          .max(
-            reference.map((point) => point.value).reduce(math.max),
-            math.max(measuredPeak, actual ?? 0),
-          )
-          .ceilToDouble(),
-    );
-    final maxMs = math.max(
-      reference.last.elapsedMs,
-      math.max(elapsedMs, trace.isEmpty ? 0 : trace.last.elapsedMs),
-    );
     double x(int ms) => area.left + (ms / maxMs).clamp(0, 1) * area.width;
     double y(double value) =>
         area.bottom - (value / maxValue).clamp(0, 1) * area.height;
@@ -101,7 +108,11 @@ class _GuidePainter extends CustomPainter {
         ),
         textDirection: TextDirection.ltr,
       )..layout();
-      painter.paint(canvas, at);
+      try {
+        painter.paint(canvas, at);
+      } finally {
+        painter.dispose();
+      }
     }
 
     final grid = Paint()
@@ -145,6 +156,14 @@ class _GuidePainter extends CustomPainter {
         );
       }
     }
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final area = Rect.fromLTRB(38, 18, size.width - 16, size.height - 30);
+    double x(int ms) => area.left + (ms / maxMs).clamp(0, 1) * area.width;
+    double y(double value) =>
+        area.bottom - (value / maxValue).clamp(0, 1) * area.height;
     final measured = Path();
     for (var i = 0; i < trace.length; i++) {
       final point = trace[i];
@@ -220,4 +239,23 @@ class _GuidePainter extends CustomPainter {
       trace != oldDelegate.trace ||
       colors != oldDelegate.colors ||
       number.locale != oldDelegate.number.locale;
+}
+
+class _GuideBackdrop extends CustomPainter {
+  _GuideBackdrop(this.frame);
+  final _GuidePainter frame;
+
+  @override
+  void paint(Canvas canvas, Size size) => frame.paintBackground(canvas, size);
+
+  @override
+  bool shouldRepaint(covariant _GuideBackdrop oldDelegate) {
+    final old = oldDelegate.frame;
+    return !listEquals(frame.reference, old.reference) ||
+        frame.maxValue != old.maxValue ||
+        frame.maxMs != old.maxMs ||
+        frame.unit != old.unit ||
+        frame.colors != old.colors ||
+        frame.number.locale != old.number.locale;
+  }
 }
