@@ -48,51 +48,85 @@ extension BeanconquerorImport on JournalRepository {
       if (record.localId case final id?) importedAt[id] = record.importedAtMs;
     }
     // Coffees and brews saved here after they were imported.
-    bool editedSince(String id, int updatedAtMs) =>
-        updatedAtMs > (importedAt[id] ?? updatedAtMs);
-    Map<String, String> byName<T>(
-      List<T> rows,
-      String Function(T) name,
-      String Function(T) id,
-    ) => {for (final row in rows) name(row).trim().toLowerCase(): id(row)};
+    Future<Set<String>> editedIds<T extends Table, D>(
+      TableInfo<T, D> table,
+      GeneratedColumn<String> id,
+      GeneratedColumn<int> updatedAt,
+    ) async {
+      final rows = await (database.selectOnly(
+        table,
+      )..addColumns([id, updatedAt])).get();
+      return {
+        for (final row in rows)
+          if (row.read(updatedAt)! >
+              (importedAt[row.read(id)!] ?? row.read(updatedAt)!))
+            row.read(id)!,
+      };
+    }
+
+    Future<Map<String, String>> byName<T extends Table, D>(
+      TableInfo<T, D> table,
+      GeneratedColumn<String> id,
+      GeneratedColumn<String> name,
+    ) async {
+      final rows = await (database.selectOnly(
+        table,
+      )..addColumns([id, name])).get();
+      return {
+        for (final row in rows)
+          row.read(name)!.trim().toLowerCase(): row.read(id)!,
+      };
+    }
+
+    Future<Set<String>> values<T extends Table, D>(
+      TableInfo<T, D> table,
+      GeneratedColumn<String> column,
+    ) async => {
+      for (final row in await (database.selectOnly(
+        table,
+        distinct: true,
+      )..addColumns([column])).get())
+        row.read(column)!,
+    };
+
     return BqJournal(
       imported: imported,
       fingerprints: fingerprints,
       editedHere: {
-        for (final coffee in await database.select(database.coffees).get())
-          if (editedSince(coffee.id, coffee.updatedAtMs)) coffee.id,
-        for (final brew in await database.select(database.brews).get())
-          if (editedSince(brew.id, brew.updatedAtMs)) brew.id,
+        ...await editedIds(
+          database.coffees,
+          database.coffees.id,
+          database.coffees.updatedAtMs,
+        ),
+        ...await editedIds(
+          database.brews,
+          database.brews.id,
+          database.brews.updatedAtMs,
+        ),
       },
-      methodsByName: byName(
-        await database.select(database.brewMethods).get(),
-        (row) => row.name,
-        (row) => row.id,
+      methodsByName: await byName(
+        database.brewMethods,
+        database.brewMethods.id,
+        database.brewMethods.name,
       ),
-      grindersByName: byName(
-        await database.select(database.grinders).get(),
-        (row) => row.name,
-        (row) => row.id,
+      grindersByName: await byName(
+        database.grinders,
+        database.grinders.id,
+        database.grinders.name,
       ),
-      watersByName: byName(
-        await database.select(database.waterProfiles).get(),
-        (row) => row.name,
-        (row) => row.id,
+      watersByName: await byName(
+        database.waterProfiles,
+        database.waterProfiles.id,
+        database.waterProfiles.name,
       ),
-      frozenLabels: {
-        for (final portion
-            in await database.select(database.frozenPortions).get())
-          portion.label,
-      },
-      withCurves: {
-        for (final curve in await database.select(database.brewCurves).get())
-          curve.brewId,
-      },
+      frozenLabels: await values(
+        database.frozenPortions,
+        database.frozenPortions.label,
+      ),
+      withCurves: await values(database.brewCurves, database.brewCurves.brewId),
       withPhotos: {
-        for (final photo in await database.select(database.coffeePhotos).get())
-          photo.coffeeId,
-        for (final photo in await database.select(database.brewPhotos).get())
-          photo.brewId,
+        ...await values(database.coffeePhotos, database.coffeePhotos.coffeeId),
+        ...await values(database.brewPhotos, database.brewPhotos.brewId),
       },
     );
   }
