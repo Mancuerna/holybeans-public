@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/domain/flow_guide.dart';
 import 'package:holybeans/domain/pressure_guide.dart';
 import 'package:holybeans/domain/pressure_trace.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/shot_guide_chart.dart';
 
-class PressureGuideChart extends StatelessWidget {
+class PressureGuideChart extends StatefulWidget {
   const PressureGuideChart({
     super.key,
     required this.guide,
@@ -17,27 +18,46 @@ class PressureGuideChart extends StatelessWidget {
   final List<PressureTracePoint> trace;
 
   @override
+  State<PressureGuideChart> createState() => _PressureGuideChartState();
+}
+
+class _PressureGuideChartState extends State<PressureGuideChart> {
+  late List<GuidePoint> _reference = _referencePoints();
+  late List<GuidePoint> _trace = _tracePoints();
+
+  List<GuidePoint> _referencePoints() => [
+    for (var i = 0; i < widget.guide.timesMs.length; i++)
+      (
+        elapsedMs: widget.guide.timesMs[i],
+        value: widget.guide.bars[i],
+        breakBefore: i == 0,
+      ),
+  ];
+
+  List<GuidePoint> _tracePoints() => [
+    for (final point in widget.trace)
+      (
+        elapsedMs: point.elapsedMs,
+        value: point.bar,
+        breakBefore: point.breakBefore,
+      ),
+  ];
+
+  @override
+  void didUpdateWidget(PressureGuideChart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.guide != oldWidget.guide) _reference = _referencePoints();
+    if (widget.trace != oldWidget.trace) _trace = _tracePoints();
+  }
+
+  @override
   Widget build(BuildContext context) => ShotGuideChart(
-    reference: [
-      for (var i = 0; i < guide.timesMs.length; i++)
-        (
-          elapsedMs: guide.timesMs[i],
-          value: guide.bars[i],
-          breakBefore: i == 0,
-        ),
-    ],
-    target: guide.targetAt(elapsedMs),
+    reference: _reference,
+    target: widget.guide.targetAt(widget.elapsedMs),
     unit: 'bar',
     minimumMaximum: 10,
-    elapsedMs: elapsedMs,
-    actual: actual,
-    trace: [
-      for (final point in trace)
-        (
-          elapsedMs: point.elapsedMs,
-          value: point.bar,
-          breakBefore: point.breakBefore,
-        ),
-    ],
+    elapsedMs: widget.elapsedMs,
+    actual: widget.actual,
+    trace: _trace,
   );
 }
