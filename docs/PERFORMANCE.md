@@ -628,6 +628,23 @@ resetting update the controls and trace. Existing tests cover stale readings,
 disconnection, navigation and both locales. These are host element counts,
 not device frame timings.
 
+## Flow guide page rebuilds (November 2026)
+
+Flow readings and the 100 ms refresh now update live weight, time and readouts
+through a notifier. Controls follow running/start-enabled/connection state;
+static content stays outside these builders, and the formatter is reused.
+
+The same `flow_guide_rebuild_test.dart` driver on `4e995bb` and after this change
+emits 100 readings with 100 ms pumps while recording:
+
+| Elements | Rebuilds per element before → after |
+| --- | ---: |
+| Page, app bar, reference title, timer toggle | 100 → 0 |
+
+Flow, weight and elapsed time still advance; disconnection disables starting.
+Existing tests cover stale data, reset, navigation and large text in both locales.
+These are host element counts, not device frame timings.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
