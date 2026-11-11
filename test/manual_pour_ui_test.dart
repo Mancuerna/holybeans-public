@@ -4,11 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/services/device_feedback.dart';
 import 'package:holybeans/domain/pour_plan.dart';
 import 'package:holybeans/domain/scale_recording.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/pour_assistant/pour_assistant_page.dart';
 import 'package:holybeans/ui/brews/pour_assistant/pour_run.dart';
 
 import 'helpers/fake_scale.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   for (final locale in ['en', 'es']) {
@@ -39,10 +39,8 @@ void main() {
         );
         PourAssistantResult? result;
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(locale),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             builder: (context, child) => MediaQuery(
               data: MediaQuery.of(context)
                   .copyWith(textScaler: const TextScaler.linear(1.5)),

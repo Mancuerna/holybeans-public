@@ -4,6 +4,8 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/core/journal_search_toolbar.dart';
 
+import 'helpers/ui_test_support.dart';
+
 void main() {
   for (final language in ['en', 'es']) {
     for (final (width, scale) in [(360.0, 1.0), (320.0, 2.0), (800.0, 2.0)]) {
@@ -17,11 +19,9 @@ void main() {
         addTearDown(controller.dispose);
         var taps = 0;
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             theme: AppTheme.light(),
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             builder: (context, child) => MediaQuery(
               data: MediaQuery.of(context)
                   .copyWith(textScaler: TextScaler.linear(scale)),

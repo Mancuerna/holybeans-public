@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
@@ -9,6 +8,8 @@ import 'package:holybeans/data/repositories/journal_data.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/list_options.dart';
 import 'package:holybeans/ui/shell/journal_view_model.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   test('journal snapshots own their collections', () {
@@ -31,7 +32,7 @@ void main() {
   late JournalRepository repository;
 
   setUp(() {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     repository = JournalRepository(database);
   });
   tearDown(() => database.close());

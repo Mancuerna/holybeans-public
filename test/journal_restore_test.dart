@@ -16,6 +16,8 @@ import 'package:holybeans/data/services/journal_restore.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:path/path.dart' as path;
 
+import 'helpers/test_database.dart';
+
 class _FailPhotos extends PhotoStore {
   _FailPhotos(super.directory, this.failure);
   final String failure;
@@ -99,8 +101,8 @@ void main() {
   final newBytes = Uint8List.fromList([4, 5, 6]);
   setUp(() async {
     temp = await Directory.systemTemp.createTemp('holybeans-restore-');
-    db = AppDatabase.forTesting(NativeDatabase.memory());
-    sourceDb = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
+    sourceDb = memoryDatabase();
     repository = JournalRepository(db);
     store = PhotoStore(Directory(path.join(temp.path, 'photos')));
     await store.directory.create();

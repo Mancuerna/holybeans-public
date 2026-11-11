@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
@@ -13,6 +12,8 @@ import 'package:holybeans/domain/share_template.dart';
 import 'package:holybeans/ui/labels/label_values.dart';
 import 'package:image/image.dart' as img;
 import 'package:intl/date_symbol_data_local.dart';
+
+import 'helpers/test_database.dart';
 
 const label = LabelTemplate(
   id: 'label',
@@ -69,7 +70,7 @@ void main() {
   test(
     'old preferences load and every brew setting operation preserves labels',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final settings = ShareTemplateSettings(db);
       expect(ShareConfiguration.decode('["notes"]').labelTemplates, isEmpty);
@@ -99,7 +100,7 @@ void main() {
   test(
     'label templates survive backup restore alongside existing brew templates',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final settings = ShareTemplateSettings(db);
       await Future.wait([

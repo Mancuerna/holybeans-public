@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -13,6 +12,8 @@ import 'package:holybeans/ui/brews/portafilter_weighing.dart';
 import 'package:holybeans/ui/equipment/recipients_page.dart';
 
 import 'helpers/fake_scale.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +24,7 @@ void main() {
   late Recipient portafilter;
 
   setUp(() async {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     repo = JournalRepository(db);
     coffee = await repo.createCoffee(name: 'Coffee', roaster: 'Roaster');
     portafilter = await repo.saveRecipient(
@@ -62,10 +63,8 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 100));
     });
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: Locale(language),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ListenableBuilder(
             listenable: form,
@@ -233,9 +232,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+      localizedApp(
         home: Scaffold(
           body: Builder(
             builder: (context) => TextButton(

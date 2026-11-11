@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/domain/pressure_guide.dart';
 import 'package:holybeans/domain/shot_curve.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_pressure_session.dart';
 import 'package:holybeans/ui/brews/brew_timer.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/pressure_guide_chart.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/pressure_guide_page.dart';
 
 import 'helpers/fake_pressure_sensor.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   for (final language in ['en', 'es']) {
@@ -39,7 +39,7 @@ void main() {
           ),
         )!;
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(language),
             theme: ThemeData(
               brightness: language == 'es' ? Brightness.dark : Brightness.light,
@@ -50,8 +50,6 @@ void main() {
               ),
               child: child!,
             ),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: Builder(
               builder: (context) => Scaffold(
                 body: TextButton(

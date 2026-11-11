@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -11,20 +10,17 @@ import 'package:holybeans/data/services/pressure_sensor.dart';
 import 'package:holybeans/domain/bookoo_pressure_protocol.dart';
 import 'package:holybeans/domain/pressure_recording.dart';
 import 'package:holybeans/domain/shot_curve.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/settings/pressure_sensor_section.dart';
 
 import 'helpers/fake_pressure_sensor.dart';
 import 'helpers/fake_scale.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
-  Widget app(Widget home) => MaterialApp(
-    locale: const Locale('en'),
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    home: home,
-  );
+  Widget app(Widget home) =>
+      localizedApp(locale: const Locale('en'), home: home);
 
   group('BOOKOO Espresso Monitor protocol', () {
     test('reads unsigned big-endian hundredths of a bar', () {
@@ -168,7 +164,7 @@ void main() {
 
   Future<(AppDatabase, JournalRepository, String, List<Coffee>)>
   espressoJournal() async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     await repository.createCoffee(name: 'Pressure coffee', roaster: 'R');
@@ -317,7 +313,7 @@ void main() {
   testWidgets('a filter brew keeps only the scale in its curve', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     await repository.createCoffee(name: 'Filter coffee', roaster: 'R');

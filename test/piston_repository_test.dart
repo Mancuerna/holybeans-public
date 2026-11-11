@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -9,13 +8,14 @@ import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/domain/meticulous/piston_analysis.dart';
 
 import 'helpers/piston_fake.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   late AppDatabase db;
   late JournalRepository repo;
   late String method;
   setUp(() async {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     repo = JournalRepository(db);
     method = await repo.createMethod(
       name: 'Meticulous',

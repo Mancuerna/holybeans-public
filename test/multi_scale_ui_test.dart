@@ -1,21 +1,20 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/scale_settings.dart';
 import 'package:holybeans/data/services/ble_scale.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/settings/scale_section.dart';
 import 'package:universal_ble/universal_ble.dart';
 
 import 'helpers/multi_scale_ble_platform.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   for (final language in ['es', 'en']) {
     testWidgets('settings add and forget individual scales in $language', (
       tester,
     ) async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       final scale = BleScale(ScaleSettings(db));
       final platform = MultiScalePlatform()..nearby = [ultra, mini];
       UniversalBle.setInstance(platform);
@@ -29,10 +28,8 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: Locale(language),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: ListView(children: [ScaleSection(scale: scale)]),
           ),
