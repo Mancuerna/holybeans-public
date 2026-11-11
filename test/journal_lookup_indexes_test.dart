@@ -11,6 +11,14 @@ import 'package:path/path.dart' as path;
 import 'helpers/test_database.dart';
 
 const _lookups = {
+  'coffee_photo_file_lookup': (
+    'SELECT file_name FROM coffee_photos WHERE file_name = ?',
+    ['fixture'],
+  ),
+  'brew_photo_file_lookup': (
+    'SELECT file_name FROM brew_photos WHERE file_name = ?',
+    ['fixture'],
+  ),
   'brew_lot_lookup': ('SELECT id FROM brews WHERE lot_id = ?', ['fixture']),
   'brew_method_lookup': (
     'SELECT id FROM brews WHERE method_id = ?',

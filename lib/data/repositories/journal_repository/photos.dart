@@ -34,6 +34,39 @@ extension PhotoOperations on JournalRepository {
           .map((row) => row.fileName)
           .get();
 
+  Future<List<String>> _unreferencedPhotos(List<String> files) async {
+    final candidates = files.toSet().toList();
+    final referenced = <String>{};
+    Future<void> collect<T extends Table, D>(
+      TableInfo<T, D> table,
+      GeneratedColumn<String> column,
+      List<String> batch,
+    ) async {
+      final rows =
+          await (database.selectOnly(table, distinct: true)
+                ..addColumns([column])
+                ..where(column.isIn(batch)))
+              .get();
+      referenced.addAll(rows.map((row) => row.read(column)!));
+    }
+
+    // Keep restored journals with unusually many photos within SQLite's
+    // parameter limit too. Empty candidates need no reference queries.
+    for (var offset = 0; offset < candidates.length; offset += 500) {
+      final batch = candidates.sublist(
+        offset,
+        min(offset + 500, candidates.length),
+      );
+      await collect(
+        database.coffeePhotos,
+        database.coffeePhotos.fileName,
+        batch,
+      );
+      await collect(database.brewPhotos, database.brewPhotos.fileName, batch);
+    }
+    return files.where((name) => !referenced.contains(name)).toList();
+  }
+
   /// The cover photo of every coffee that has one, by coffee ID.
   Stream<Map<String, String>> watchCoffeeCovers() =>
       (database.select(database.coffeePhotos)

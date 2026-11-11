@@ -869,6 +869,25 @@ labels and duplicate photo ownership. Existing import and update assertions
 remain unchanged. This measures returned payload volume, not query latency;
 edit detection still visits the IDs and timestamps of coffees and brews.
 
+## Photo cleanup and coffee archiving (November 2026)
+
+Coffee/brew deletion checks only candidate photo filenames, using distinct
+projections and filename indexes. Empty candidates skip those queries; batches
+of at most 500 also support unusually large restored lists. Returned deletion
+lists retain their order and duplicates, and shared references stay protected.
+Coffee archive/restore now updates the matching brews in one SQL statement,
+preserving independent archives, timestamps, ratings and stock behavior.
+
+The same `journal_write_queries_test.dart` fixtures on `1242719` and this change
+measure photo result rows **204 → 3** for coffee deletion, **202 → 3** for brew
+deletion, and **200 → 0** when the deleted coffee has no photos. With 90 active
+and 10 independently archived brews, both archive and restore move from **100
+brew rows read and 90 updates → 0 rows read and 1 update**. Existing conservation
+assertions remain unchanged. Additional coverage checks over 1,000 restored
+photo candidates, shared files and duplicate ordering. The index test's two
+photo lookups move from SCAN to covering indexed SEARCH, including on reopen.
+These are result-row, statement and query-plan observations, not timing claims.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
