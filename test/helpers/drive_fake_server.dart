@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 
 class _Stored {
@@ -13,6 +14,11 @@ class DriveFakeServer {
   final sessions = <String, Map<String, dynamic>>{};
   int nextId = 0;
   int mediaReads = 0;
+  int photoMediaReads = 0;
+  int photoMediaBytes = 0;
+  bool omitChecksums = false;
+  bool omitSha256 = false;
+  bool corruptUploads = false;
   bool loseNextUpload = false;
   bool incomplete = false;
   bool offline = false;
@@ -60,7 +66,7 @@ class DriveFakeServer {
       final id = uri.pathSegments.last;
       files[id] = _Stored(
         sessions[id]!['appProperties'] as Map<String, dynamic>,
-        args['body'] as Uint8List,
+        corruptUploads ? Uint8List.fromList([9]) : args['body'] as Uint8List,
       );
       if (loseNextUpload) {
         loseNextUpload = false;
@@ -91,8 +97,24 @@ class DriveFakeServer {
         if (start + 1 < candidates.length) 'nextPageToken': '${start + 1}',
       });
     }
-    mediaReads++;
     final file = files[uri.pathSegments.last];
+    if (uri.queryParameters['alt'] != 'media') {
+      return file == null
+          ? response({}, status: 404)
+          : response({
+              'size': '${file.bytes.length}',
+              if (!omitChecksums) ...{
+                'md5Checksum': md5.convert(file.bytes).toString(),
+                if (!omitSha256)
+                  'sha256Checksum': sha256.convert(file.bytes).toString(),
+              },
+            });
+    }
+    mediaReads++;
+    if (file?.properties['kind'] == 'photo') {
+      photoMediaReads++;
+      photoMediaBytes += file!.bytes.length;
+    }
     return file == null ? response({}, status: 404) : response(file.bytes);
   }
 }

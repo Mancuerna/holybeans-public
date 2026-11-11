@@ -484,6 +484,31 @@ throughput. SQLite writes and photo coordination still run on the caller;
 the largest fixture retains a noticeable pause. The `restoreSample` record
 contains elapsed time, maximum event-loop gap and heartbeat count.
 
+## Drive photo verification (November 2026)
+
+Photo verification requests size and checksums from Drive, preferring SHA-256
+and using MD5 when SHA-256 is unavailable. Without checksum metadata it still
+downloads and verifies bytes. These fields are documented in the
+[Drive File resource](https://developers.google.com/workspace/drive/api/reference/rest/v3/files).
+Journal downloads retain SHA-256 verification. Photo IDs are resolved once per
+publish and new reservations are persisted together before any upload.
+
+`benchmark/drive_photo_verification_benchmark_test.dart` compares the previous
+implementation at `5e85a63` with this change using the same fake-server driver.
+Each fixture publishes 64 KiB synthetic photos, adds a preparation and publishes
+again without changing the photos. The second publication records:
+
+| Photos | Photo media downloads before → after | Photo bytes before → after | Queue writes before → after |
+| ---: | ---: | ---: | ---: |
+| 2 | 2 → 0 | 131,072 → 0 | 2 → 0 |
+| 10 | 10 → 0 | 655,360 → 0 | 10 → 0 |
+| 40 | 40 → 0 | 2,621,440 → 0 | 40 → 0 |
+
+Queue reads fall from one per photo to one per publication; the first publication
+writes all reservations once. Every fixture downloads the resulting copy and
+asserts equal photo bytes and journal hash. These are request and file-operation
+counts, not measured network latency or Android frame performance.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

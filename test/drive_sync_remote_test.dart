@@ -13,6 +13,7 @@ import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/drive_sync.dart';
 import 'package:path/path.dart' as path;
 
+import 'helpers/counted_json_file.dart';
 import 'helpers/drive_fake_server.dart';
 import 'helpers/test_database.dart';
 
@@ -47,7 +48,7 @@ void main() {
       accountKey: 'a' * 64,
       client: const DriveNativeClient(channel: channel),
       payloads: queue,
-      photoQueue: AtomicJsonFile(
+      photoQueue: CountedJsonFile(
         File(path.join(directory.path, 'photos.json')),
       ),
     );
@@ -150,5 +151,85 @@ void main() {
   test('incomplete metadata listing fails closed', () async {
     server.incomplete = true;
     await expectLater(remote.inventory(), throwsFormatException);
+  });
+
+  test(
+    'all photo reservations survive a lost upload with one queue write',
+    () async {
+      final photos = journal.photos;
+      final coffee = await JournalRepository(database)
+          .createCoffee(name: 'Second', roaster: 'Test');
+      await JournalRepository(database).setCoffeePhotos(coffee, [
+        await photos.add(Uint8List.fromList([5, 6, 7, 8])),
+      ]);
+      final snapshot = await staged();
+      server.loseNextUpload = true;
+      await expectLater(
+        remote.publish(snapshot),
+        throwsA(isA<PlatformException>()),
+      );
+      await remote.publish(snapshot);
+      expect(server.nextId, 3);
+      expect(server.files, hasLength(3));
+      expect((remote.photoQueue as CountedJsonFile).writes, 1);
+    },
+  );
+
+  for (final mode in ['sha256', 'md5', 'missing']) {
+    test(
+      'unchanged photos use $mode verification without rewriting queue',
+      () async {
+        server.omitSha256 = mode != 'sha256';
+        server.omitChecksums = mode == 'missing';
+        final first = await staged();
+        await remote.publish(first);
+        final reads = server.photoMediaReads;
+        final next = await staged(base: first.id);
+        await remote.publish(next);
+        expect(server.photoMediaReads - reads, mode == 'missing' ? 1 : 0);
+        final photoQueue = remote.photoQueue as CountedJsonFile;
+        expect(photoQueue.reads, 2);
+        expect(photoQueue.writes, 1);
+        expect(server.files, hasLength(3));
+      },
+    );
+  }
+
+  test(
+    'a fresh queue reuses verified photos without downloading them',
+    () async {
+      await remote.publish(await staged());
+      await remote.photoQueue.delete();
+      final reads = server.photoMediaReads;
+      await remote.publish(await staged());
+      expect(server.photoMediaReads, reads);
+      expect(server.files, hasLength(3));
+    },
+  );
+
+  for (final mode in ['sha256', 'md5', 'missing']) {
+    test('$mode mismatch never overwrites an immutable photo', () async {
+      server.omitSha256 = mode != 'sha256';
+      server.omitChecksums = mode == 'missing';
+      final first = await staged();
+      await remote.publish(first);
+      final photo = server.files.values.singleWhere(
+        (f) => f.properties['kind'] == 'photo',
+      );
+      photo.bytes = Uint8List.fromList([1, 2, 3, 9]);
+      await expectLater(
+        remote.publish(await staged(base: first.id)),
+        throwsFormatException,
+      );
+      expect(photo.bytes, [1, 2, 3, 9]);
+      expect(server.files, hasLength(2));
+    });
+  }
+
+  test('a damaged upload is rejected before publishing the journal', () async {
+    server.corruptUploads = true;
+    await expectLater(remote.publish(await staged()), throwsFormatException);
+    expect(server.files, hasLength(1));
+    expect(server.files.values.single.properties['kind'], 'photo');
   });
 }
