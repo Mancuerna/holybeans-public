@@ -606,6 +606,28 @@ The initial lists are excluded. New readings, replacement references and reset
 still update their mapped points and targets. This measures list reuse, not
 allocated bytes or Android frame time.
 
+## Pressure guide page rebuilds (November 2026)
+
+Pressure readings and the 50 ms refresh now notify the live readouts, chart
+and clock instead of calling page-level setState. Timer controls and instructions
+follow a separate value containing running/start-enabled state. The Scaffold,
+app bar, title and static help stay outside those frequent builders.
+
+`pressure_guide_rebuild_test.dart` emits 100 readings with 50 ms pumps while
+recording, using the same driver on `4fb832a` and after this change:
+
+| Element | Rebuilds before → after |
+| --- | ---: |
+| Page | 100 → 0 |
+| App bar | 100 → 0 |
+| Reference title | 100 → 0 |
+| Timer toggle | 100 → 0 |
+
+The live reading, elapsed timer and recorded trace still advance; stopping and
+resetting update the controls and trace. Existing tests cover stale readings,
+disconnection, navigation and both locales. These are host element counts,
+not device frame timings.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

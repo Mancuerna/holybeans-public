@@ -29,6 +29,11 @@ class PressureGuidePage extends StatefulWidget {
 
 class _PressureGuidePageState extends State<PressureGuidePage> {
   final _sinceTick = Stopwatch();
+  final _updates = ValueNotifier(0);
+  final _controls = ValueNotifier((running: false, canStart: true));
+  int get _elapsed =>
+      widget.timer.elapsedSeconds * 1000 +
+      _sinceTick.elapsedMilliseconds.clamp(0, 999);
   Timer? _refresh;
   Timer? _stale;
   StreamSubscription<double>? _readings;
@@ -41,17 +46,27 @@ class _PressureGuidePageState extends State<PressureGuidePage> {
     widget.session?.sensor.addListener(_connectionChanged);
     _readings = widget.session?.sensor.readings.listen((bar) {
       _stale?.cancel();
-      setState(
-        () => _actual = bar.isFinite && bar >= 0 && bar <= 30 ? bar : null,
-      );
+      _actual = bar.isFinite && bar >= 0 && bar <= 30 ? bar : null;
+      _changed();
       _stale = Timer(PressureTrace.staleAfter, () {
-        if (mounted) setState(() => _actual = null);
+        if (mounted) {
+          _actual = null;
+          _changed();
+        }
       });
     });
     _clockChanged();
     _refresh = Timer.periodic(const Duration(milliseconds: 50), (_) {
-      if (widget.timer.running) setState(() {});
+      if (widget.timer.running) _changed();
     });
+  }
+
+  void _changed() {
+    _controls.value = (
+      running: widget.timer.running,
+      canStart: widget.timer.canStart,
+    );
+    _updates.value++;
   }
 
   void _clockChanged() {
@@ -59,12 +74,13 @@ class _PressureGuidePageState extends State<PressureGuidePage> {
       ..reset()
       ..stop();
     if (widget.timer.running) _sinceTick.start();
-    setState(() {});
+    _changed();
   }
 
   void _connectionChanged() {
     if (!(widget.session?.sensor.connected ?? false)) {
-      setState(() => _actual = null);
+      _actual = null;
+      _changed();
     }
   }
 
@@ -75,24 +91,14 @@ class _PressureGuidePageState extends State<PressureGuidePage> {
     _refresh?.cancel();
     _stale?.cancel();
     unawaited(_readings?.cancel());
+    _updates.dispose();
+    _controls.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context)!;
-    final elapsed =
-        widget.timer.elapsedSeconds * 1000 +
-        _sinceTick.elapsedMilliseconds.clamp(0, 999);
-    final target = widget.guide.targetAt(elapsed);
-    final next = widget.guide.targetAt(elapsed + 2000);
-    final done = elapsed > widget.guide.endMs;
-    final actual = (widget.session?.sensor.connected ?? false) ? _actual : null;
-    final number = NumberFormat(
-      '0.0',
-      Localizations.localeOf(context).toString(),
-    );
-    String bar(double? value) => value == null ? '—' : number.format(value);
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) widget.timer.stop();
@@ -105,34 +111,40 @@ class _PressureGuidePageState extends State<PressureGuidePage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  '${(elapsed / 1000).toStringAsFixed(1)} s',
-                  style: Theme.of(context).textTheme.headlineMedium,
+                ListenableBuilder(
+                  listenable: _updates,
+                  builder: (context, _) => Text(
+                    '${(_elapsed / 1000).toStringAsFixed(1)} s',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
                 ),
                 const SizedBox(height: 12),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    FilledButton.icon(
-                      key: const ValueKey('pressure-guide-toggle'),
-                      onPressed: widget.timer.running || widget.timer.canStart
-                          ? widget.timer.toggle
-                          : null,
-                      icon: Icon(
-                        widget.timer.running ? Icons.stop : Icons.play_arrow,
+                ValueListenableBuilder(
+                  valueListenable: _controls,
+                  builder: (context, controls, _) => Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      FilledButton.icon(
+                        key: const ValueKey('pressure-guide-toggle'),
+                        onPressed: controls.running || controls.canStart
+                            ? widget.timer.toggle
+                            : null,
+                        icon: Icon(
+                          controls.running ? Icons.stop : Icons.play_arrow,
+                        ),
+                        label: Text(
+                          controls.running ? s.stopTimer : s.startTimer,
+                        ),
                       ),
-                      label: Text(
-                        widget.timer.running ? s.stopTimer : s.startTimer,
-                      ),
-                    ),
-                    if (!widget.timer.running)
-                      OutlinedButton.icon(
-                        onPressed: widget.timer.reset,
-                        icon: const Icon(Icons.restart_alt),
-                        label: Text(s.resetTimer),
-                      ),
-                  ],
+                      if (!controls.running)
+                        OutlinedButton.icon(
+                          onPressed: widget.timer.reset,
+                          icon: const Icon(Icons.restart_alt),
+                          label: Text(s.resetTimer),
+                        ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 12),
               ],
@@ -150,24 +162,18 @@ class _PressureGuidePageState extends State<PressureGuidePage> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
-                if (!widget.timer.running) Text(s.pressureGuideInstructions),
-                const SizedBox(height: 20),
-                if (done) Text(s.pressureGuideComplete),
-                PressureReadouts(target: bar(target), actual: bar(actual)),
-                const SizedBox(height: 12),
-                Text('${s.pressureGuideAhead}: ${bar(next)} bar'),
-                PressureGuideChart(
-                  guide: widget.guide,
-                  elapsedMs: elapsed,
-                  actual: widget.timer.running ? actual : null,
-                  trace: widget.session?.trace.points ?? const [],
+                ValueListenableBuilder(
+                  valueListenable: _controls,
+                  builder: (context, controls, _) => controls.running
+                      ? const SizedBox.shrink()
+                      : Text(s.pressureGuideInstructions),
                 ),
-                Text(s.pressureGuideMarkers),
-                if (actual == null) Text(s.pressureGuideManual),
-                if (actual != null && target != null)
-                  Text(
-                    s.pressureGuideDifference(number.format(actual - target)),
-                  ),
+                const SizedBox(height: 20),
+                ListenableBuilder(
+                  listenable: _updates,
+                  child: Text(s.pressureGuideMarkers),
+                  builder: (context, markers) => _readouts(context, markers!),
+                ),
                 const SizedBox(height: 20),
                 Text(s.pressureGuideExit),
               ],
@@ -175,6 +181,39 @@ class _PressureGuidePageState extends State<PressureGuidePage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _readouts(BuildContext context, Widget markers) {
+    final s = AppLocalizations.of(context)!;
+    final elapsed = _elapsed;
+    final target = widget.guide.targetAt(elapsed);
+    final next = widget.guide.targetAt(elapsed + 2000);
+    final done = elapsed > widget.guide.endMs;
+    final actual = (widget.session?.sensor.connected ?? false) ? _actual : null;
+    final number = NumberFormat(
+      '0.0',
+      Localizations.localeOf(context).toString(),
+    );
+    String bar(double? value) => value == null ? '—' : number.format(value);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (done) Text(s.pressureGuideComplete),
+        PressureReadouts(target: bar(target), actual: bar(actual)),
+        const SizedBox(height: 12),
+        Text('${s.pressureGuideAhead}: ${bar(next)} bar'),
+        PressureGuideChart(
+          guide: widget.guide,
+          elapsedMs: elapsed,
+          actual: widget.timer.running ? actual : null,
+          trace: widget.session?.trace.points ?? const [],
+        ),
+        markers,
+        if (actual == null) Text(s.pressureGuideManual),
+        if (actual != null && target != null)
+          Text(s.pressureGuideDifference(number.format(actual - target))),
+      ],
     );
   }
 }
