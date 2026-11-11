@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -279,7 +280,7 @@ class LabelLayout {
   }
 }
 
-class LabelPreview extends StatelessWidget {
+class LabelPreview extends StatefulWidget {
   const LabelPreview({
     super.key,
     required this.layout,
@@ -289,51 +290,86 @@ class LabelPreview extends StatelessWidget {
   final bool upsideDown;
 
   @override
-  Widget build(BuildContext context) => Semantics(
-    image: true,
-    child: ColoredBox(
-      color: Colors.white,
-      child: AspectRatio(
-        aspectRatio: layout.paper.displayWidthMm / layout.paper.displayHeightMm,
-        child: Center(
-          child: FractionallySizedBox(
-            heightFactor:
-                (layout.paper.printableHeight /
-                        (layout.paper.displayHeightMm *
-                            layout.paper.model.pixelsPerMm))
-                    .clamp(0.0, 1.0),
-            widthFactor:
-                (layout.paper.printableWidth /
-                        (layout.paper.displayWidthMm *
-                            layout.paper.model.pixelsPerMm))
-                    .clamp(0.0, 1.0),
-            child: RotatedBox(
-              quarterTurns: upsideDown ? 2 : 0,
-              child: FutureBuilder<LabelBitmap>(
-                key: ObjectKey(layout),
-                future: layout.previewBitmap,
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        AppLocalizations.of(context)!.labelExportFailed,
-                      ),
+  State<LabelPreview> createState() => _LabelPreviewState();
+}
+
+class _LabelPreviewState extends State<LabelPreview> {
+  late Future<LabelBitmap> _preview;
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    _preview = widget.layout.previewBitmap;
+  }
+
+  @override
+  void didUpdateWidget(LabelPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (identical(oldWidget.layout, widget.layout)) return;
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 100), () {
+      setState(() {
+        _preview = widget.layout.previewBitmap;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final layout = widget.layout;
+    return Semantics(
+      image: true,
+      child: ColoredBox(
+        color: Colors.white,
+        child: AspectRatio(
+          aspectRatio:
+              layout.paper.displayWidthMm / layout.paper.displayHeightMm,
+          child: Center(
+            child: FractionallySizedBox(
+              heightFactor:
+                  (layout.paper.printableHeight /
+                          (layout.paper.displayHeightMm *
+                              layout.paper.model.pixelsPerMm))
+                      .clamp(0.0, 1.0),
+              widthFactor:
+                  (layout.paper.printableWidth /
+                          (layout.paper.displayWidthMm *
+                              layout.paper.model.pixelsPerMm))
+                      .clamp(0.0, 1.0),
+              child: RotatedBox(
+                quarterTurns: widget.upsideDown ? 2 : 0,
+                child: FutureBuilder<LabelBitmap>(
+                  future: _preview,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          AppLocalizations.of(context)!.labelExportFailed,
+                        ),
+                      );
+                    }
+                    final bitmap = snapshot.data;
+                    if (bitmap == null) return const SizedBox.expand();
+                    return Image.memory(
+                      bitmap.png,
+                      fit: BoxFit.fill,
+                      filterQuality: FilterQuality.none,
+                      excludeFromSemantics: true,
                     );
-                  }
-                  final bitmap = snapshot.data;
-                  if (bitmap == null) return const SizedBox.expand();
-                  return Image.memory(
-                    bitmap.png,
-                    fit: BoxFit.fill,
-                    filterQuality: FilterQuality.none,
-                    excludeFromSemantics: true,
-                  );
-                },
+                  },
+                ),
               ),
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
