@@ -838,6 +838,22 @@ It verifies retained archived selections, untouched historical aliases and
 complete use counts. These are SQLite result-row counts, not query timings;
 full tool identity reads are intentionally retained.
 
+## Journal lookup indexes (November 2026)
+
+Additive indexes cover brew lot/method/water/frozen-portion references, local
+import identities, coffee lots, frozen portions and method-tool associations.
+They use the existing `CREATE INDEX IF NOT EXISTS` installation on journal open;
+row layouts, schema version 38 and backup formats stay unchanged. Historical
+fixture reconstruction drops these current access paths before removing columns.
+
+`journal_lookup_indexes_test.dart` runs eight `EXPLAIN QUERY PLAN` lookups.
+On `287d578`, all eight report **SCAN**; after this change all eight report
+**SEARCH using their lookup index**, including a covering method-tool index.
+The test checks repeated installation and reopens a version-38 journal with
+those indexes absent, verifying automatic installation, unchanged saved rows
+and unchanged version. Existing migration tests from schemas 19–37 pass.
+These are query-plan observations, not elapsed-time or storage-size benchmarks.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
