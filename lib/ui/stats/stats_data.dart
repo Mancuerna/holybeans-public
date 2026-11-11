@@ -1,8 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/domain/grinder_consumption.dart';
+import 'package:holybeans/domain/stats_comparison.dart';
 import 'package:holybeans/domain/stats_insights.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -55,10 +58,40 @@ class StatsData {
   late final activity = brewsPerDay(allBrews);
   late final firstCup = medianDaysToFirstBrew(allBrews, stats.brews, lots);
   late final averages = styleAverages(stats.brews, styleOf);
+  late final espressoHistogram = histogram([
+    for (final seconds in averages[BrewStyle.espresso]?.times ?? const <int>[])
+      if (seconds <= 120) seconds,
+  ], 5);
+  late final filterHistogram = histogram([
+    for (final seconds in averages[BrewStyle.filter]?.times ?? const <int>[])
+      if (seconds <= 1200) seconds,
+  ], 30);
+  // The user's own reference: where their well-rated shots land.
+  late final bestEspressoTimes = espressoHistogram.length < 2
+      ? null
+      : bestShotTimes([
+          for (final brew in stats.brews)
+            if (styleOf(brew) == BrewStyle.espresso)
+              if (brew.timeSeconds case final seconds? when seconds <= 120)
+                (seconds: seconds, rating: brew.rating),
+        ]);
   late final learning = learningCurve(allBrews, stats.brews);
   late final temperatures = ratingByTemperature(stats.brews);
   late final bought = purchases(lots, pricePerKg, from: from);
   late final values = coffeeValues(stats.brews, coffees, pricePerKg);
+  late final spent = bought.fold<double>(0, (sum, bag) => sum + bag.price);
+  late final boughtGrams = bought.fold<double>(
+    0,
+    (sum, bag) => sum + bag.grams,
+  );
+  late final ratedValues = [
+    for (final value in values)
+      if (value.costPerCup != null && value.averageRating != null) value,
+  ];
+  late final bestValues = bestValue(values);
+  late final costRatingMinimum = ratedValues.isEmpty
+      ? null
+      : ratedValues.map((value) => value.averageRating!).reduce(math.min);
   late final roasterPrices = pricePerKgByRoaster(
     coffees,
     lots,
@@ -71,6 +104,9 @@ class StatsData {
     now: now,
     from: from,
   );
+  late final spendingPeriods = spending
+      .where((total) => total.value > 0)
+      .length;
   late final consumption = consumptionByGrinder([
     for (final brew in stats.brews)
       (
@@ -98,12 +134,21 @@ class StatsData {
     activity,
     firstCup,
     averages,
+    espressoHistogram,
+    filterHistogram,
+    bestEspressoTimes,
     learning,
     temperatures,
     bought,
     values,
+    spent,
+    boughtGrams,
+    ratedValues,
+    bestValues,
+    costRatingMinimum,
     roasterPrices,
     spending,
+    spendingPeriods,
     consumption,
     consumedPeriods,
   ];
