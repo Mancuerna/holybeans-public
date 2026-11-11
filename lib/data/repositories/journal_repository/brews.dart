@@ -335,13 +335,7 @@ extension BrewOperations on JournalRepository {
     await (database.delete(
       database.brews,
     )..where((row) => row.id.equals(id))).go();
-    final referenced = {
-      for (final row in await database.select(database.coffeePhotos).get())
-        row.fileName,
-      for (final row in await database.select(database.brewPhotos).get())
-        row.fileName,
-    };
-    return files.where((name) => !referenced.contains(name)).toList();
+    return _unreferencedPhotos(files);
   });
 
   /// Records the first brew from a bag as the day it was opened, which

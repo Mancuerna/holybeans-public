@@ -19,6 +19,8 @@ Future<void> reconstructLegacySchema(AppDatabase db, int version) async {
       'coffee_lot_coffee_lookup',
       'frozen_portion_lot_lookup',
       'tool_method_lookup',
+      'coffee_photo_file_lookup',
+      'brew_photo_file_lookup',
     ]) {
       await db.customStatement('DROP INDEX IF EXISTS $name');
     }

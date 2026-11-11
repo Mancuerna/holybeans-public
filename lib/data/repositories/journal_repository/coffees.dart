@@ -43,13 +43,7 @@ extension CoffeeOperations on JournalRepository {
         await (database.delete(
           database.coffees,
         )..where((row) => row.id.equals(id))).go();
-        final referenced = {
-          for (final row in await database.select(database.coffeePhotos).get())
-            row.fileName,
-          for (final row in await database.select(database.brewPhotos).get())
-            row.fileName,
-        };
-        return files.where((name) => !referenced.contains(name)).toList();
+        return _unreferencedPhotos(files);
       });
 
   Future<List<CoffeeLot>> coffeeLots(String coffeeId) =>
@@ -574,36 +568,20 @@ extension CoffeeOperations on JournalRepository {
       ),
     );
 
-    final coffeeBrews = await (database.select(
-      database.brews,
-    )..where((brew) => brew.coffeeId.equals(id))).get();
-    if (archived) {
-      for (final brew in coffeeBrews.where((row) => row.archivedAtMs == null)) {
-        await (database.update(
-          database.brews,
-        )..where((row) => row.id.equals(brew.id))).write(
+    await (database.update(database.brews)..where(
+          (brew) =>
+              brew.coffeeId.equals(id) &
+              (archived
+                  ? brew.archivedAtMs.isNull()
+                  : brew.archivedByCoffee.equals(true)),
+        ))
+        .write(
           BrewsCompanion(
-            archivedAtMs: Value(now),
-            archivedByCoffee: const Value(true),
+            archivedAtMs: Value(archived ? now : null),
+            archivedByCoffee: Value(archived),
             updatedAtMs: Value(now),
           ),
         );
-      }
-    } else {
-      for (final brew in coffeeBrews.where(
-        (row) => row.archivedByCoffee == true,
-      )) {
-        await (database.update(
-          database.brews,
-        )..where((row) => row.id.equals(brew.id))).write(
-          BrewsCompanion(
-            archivedAtMs: const Value(null),
-            archivedByCoffee: const Value(false),
-            updatedAtMs: Value(now),
-          ),
-        );
-      }
-    }
   });
 
   Future<void> setCoffeeFavorite(String id, {required bool favorite}) async {

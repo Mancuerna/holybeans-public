@@ -24,6 +24,8 @@ Future<void> installJournalIndexes(GeneratedDatabase database) async {
     ('coffee_lot_coffee_lookup', 'coffee_lots', 'coffee_id'),
     ('frozen_portion_lot_lookup', 'frozen_portions', 'lot_id'),
     ('tool_method_lookup', 'tool_method_links', 'method_id, tool_id'),
+    ('coffee_photo_file_lookup', 'coffee_photos', 'file_name'),
+    ('brew_photo_file_lookup', 'brew_photos', 'file_name'),
   ]) {
     await database.customStatement(
       'CREATE INDEX IF NOT EXISTS $name ON $table ($columns)',
