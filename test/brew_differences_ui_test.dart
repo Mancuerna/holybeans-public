@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/repositories/brew_comparison.dart';
+import 'package:holybeans/data/repositories/journal_queries.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/ui/brews/brew_differences_summary.dart';
@@ -62,7 +63,7 @@ void main() {
                 body: SingleChildScrollView(
                   child: BrewDifferencesSummary(
                     comparison: comparison,
-                    repository: repo,
+                    repository: JournalQueries(repo),
                     hidden: const {BrewParameter.grindSetting},
                   ),
                 ),

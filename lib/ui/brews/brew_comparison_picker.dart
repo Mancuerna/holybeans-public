@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/text_suggestions.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_card.dart';
@@ -29,12 +28,12 @@ Future<void> showBrewComparison(
   );
   if (second == null || !context.mounted) return;
   try {
-    first = await actions.repository.brew(first.id) ?? first;
-    second = await actions.repository.brew(second.id) ?? second;
+    first = await actions.read.queries.brew(first.id) ?? first;
+    second = await actions.read.queries.brew(second.id) ?? second;
   } catch (error, stack) {
     reportError(error, stack);
     if (context.mounted) {
-      actions.message(AppLocalizations.of(context)!.dataError);
+      actions.navigation.message(AppLocalizations.of(context)!.dataError);
     }
     return;
   }
@@ -46,7 +45,7 @@ Future<void> showBrewComparison(
   await Navigator.of(context).push<void>(
     MaterialPageRoute(
       builder: (_) =>
-          BrewComparisonPage(a: a, b: b, data: data, actions: actions),
+          BrewComparisonPage(a: a, b: b, data: data, actions: actions.read),
     ),
   );
 }
@@ -211,9 +210,9 @@ class _ComparisonPickerState extends State<_ComparisonPicker> {
                                 formatBrewTimestamp(brew, regionalLocale),
                                 ?brewRecipeLine(
                                   brew,
-                                  widget.actions.methods,
+                                  widget.actions.read.methods,
                                   regionalLocale.toString(),
-                                  hidden: widget.actions.hiddenParameters,
+                                  hidden: widget.actions.read.hiddenParameters,
                                 ),
                                 if (brew.archivedAtMs != null) s.archivedStatus,
                               ].join('\n'),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/repositories/stock.dart';
+import 'package:holybeans/data/repositories/stock_adjustment_repository.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/stock_adjustment_labels.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
@@ -16,7 +16,7 @@ class StockAdjustmentForm extends StatefulWidget {
     required this.coffee,
     required this.stock,
   });
-  final JournalRepository repository;
+  final StockAdjustmentRepository repository;
   final Coffee coffee;
   final CoffeeStock stock;
   @override

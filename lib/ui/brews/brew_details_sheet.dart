@@ -80,7 +80,7 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
       loadError = null;
     });
     try {
-      final full = await widget.actions.repository.brew(widget.brew.id);
+      final full = await widget.actions.read.queries.brew(widget.brew.id);
       if (full == null) throw StateError('Brew no longer exists');
       if (mounted) {
         setState(() {
@@ -106,7 +106,7 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
     final next = !favorite;
     // A message would hide behind the sheet; the star and the note below
     // the header say it here.
-    final saved = await actions.setBrewFavorite(
+    final saved = await actions.commands.setBrewFavorite(
       brew,
       favorite: next,
       announce: false,
@@ -117,11 +117,12 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
   }
 
   // Asked once, so revealing hidden values does not reload them.
-  late final Stream<List<String>> photos = widget.actions.repository
+  late final Stream<List<String>> photos = widget.actions.read.queries
       .watchBrewPhotos(widget.brew.id);
   late final Future<({ShotCurve curve, String source})?> curve = widget
       .actions
-      .repository
+      .read
+      .queries
       .brewCurve(widget.brew.id);
 
   /// The brew shown; blooms and pours saved from its curve update it here.
@@ -131,7 +132,7 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
   bool shows(BrewParameter? parameter) =>
       reveal ||
       parameter == null ||
-      !actions.hiddenParameters.contains(parameter);
+      !actions.read.hiddenParameters.contains(parameter);
 
   /// Closes the sheet, then runs [action] from the screen below.
   void _closeThen(VoidCallback action) {
@@ -192,14 +193,18 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
       key: const ValueKey('brew-detail-rate'),
       tooltip: s.rateBrew,
       icon: const Icon(Icons.rate_review_outlined),
-      onPressed: () => _closeThen(() => actions.rateBrew(brew, coffee)),
+      onPressed: () =>
+          _closeThen(() => actions.commands.rateBrew(brew, coffee)),
     ),
     IconButton(
       key: const ValueKey('brew-detail-edit'),
       tooltip: s.editBrew,
       icon: const Icon(Icons.edit_outlined),
       onPressed: () => _closeThen(
-        () => actions.openBrewForm(widget.data.coffees, existing: brew),
+        () => actions.navigation.openBrewForm(
+          widget.data.coffees,
+          existing: brew,
+        ),
       ),
     ),
     IconButton(
@@ -209,7 +214,7 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
       onPressed: coffee == null
           ? null
           : () => _closeThen(
-              () => actions.shareBrew(
+              () => actions.commands.shareBrew(
                 brew,
                 coffee,
                 widget.data.componentsOf(coffee.id),
@@ -236,7 +241,7 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
 
     final s = AppLocalizations.of(context)!;
     final coffee = widget.coffee;
-    final method = actions.methods
+    final method = actions.read.methods
         .where((row) => row.id == brew.methodId)
         .firstOrNull;
     final pours = BrewPours.fromStorage(
@@ -250,9 +255,12 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
       method,
       cost: coffee == null
           ? null
-          : brewCost(brew, pricePerKgByCoffee([coffee], actions.latestLots)),
+          : brewCost(
+              brew,
+              pricePerKgByCoffee([coffee], actions.read.latestLots),
+            ),
     );
-    final hidden = actions.hiddenParameters;
+    final hidden = actions.read.hiddenParameters;
     final hiddenCount =
         stats.where((entry) => hidden.contains(entry.$1)).length +
         _recordedRows(brew, pours).where(hidden.contains).length;
@@ -269,7 +277,10 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                   title: coffee?.name ?? '—',
                   onTitleTap: coffee == null
                       ? null
-                      : () => actions.showCoffeeDetails(coffee, widget.data),
+                      : () => actions.navigation.showCoffeeDetails(
+                          coffee,
+                          widget.data,
+                        ),
                   subtitle: [
                     brew.methodName,
                     formatBrewTimestamp(brew, regionalLocale),
@@ -279,7 +290,7 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                 ),
                 if (brew.stockReviewPending == true)
                   StockReviewCard(
-                    repository: actions.repository,
+                    repository: actions.commands.mutations,
                     brew: brew,
                     onResolved: (updated) {
                       if (mounted) setState(() => brew = updated);
@@ -322,8 +333,11 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                           ),
                     onSave: (found) async {
                       try {
-                        await actions.repository.setBrewPours(brew.id, found);
-                        final saved = await actions.repository.brew(brew.id);
+                        await actions.commands.mutations.setBrewPours(
+                          brew.id,
+                          found,
+                        );
+                        final saved = await actions.read.queries.brew(brew.id);
                         if (saved == null || !mounted) return;
                         setState(() {
                           brew = saved;
@@ -343,7 +357,7 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                 if (brew.notes?.trim() case final notes?
                     when notes.isNotEmpty && shows(BrewParameter.notes))
                   DetailRow(s.notes, notes, stacked: true),
-                if (actions.photos case final store?
+                if (actions.read.photos case final store?
                     when shows(BrewParameter.photos))
                   StreamBuilder<List<String>>(
                     stream: photos,
@@ -384,7 +398,7 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                   child: FilledButton.icon(
                     key: const ValueKey('brew-detail-repeat'),
                     onPressed: () => _closeThen(
-                      () => actions.openBrewForm(
+                      () => actions.navigation.openBrewForm(
                         widget.data.coffees,
                         seed: brew,
                         repeat: true,
@@ -399,7 +413,7 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                   child: OutlinedButton.icon(
                     key: const ValueKey('brew-detail-compare'),
                     onPressed: () => _closeThen(
-                      () => actions.compareBrew(brew, widget.data),
+                      () => actions.navigation.compareBrew(brew, widget.data),
                     ),
                     icon: const Icon(Icons.compare_arrows_rounded),
                     label: Text(

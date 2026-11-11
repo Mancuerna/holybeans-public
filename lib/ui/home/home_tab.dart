@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/domain/coffee_year.dart';
 import 'package:holybeans/domain/home_coffees.dart';
@@ -47,7 +46,7 @@ class _HomeTabState extends State<HomeTab> {
     final brews = data.brews;
     final lots = data.lots;
     final s = AppLocalizations.of(context)!;
-    final key = (data, actions.portions);
+    final key = (data, actions.read.portions);
     if (key != _stockKey) {
       _stock = homeStockData(data, key.$2);
       _stockKey = key;
@@ -59,7 +58,7 @@ class _HomeTabState extends State<HomeTab> {
     final freshByCoffee = _stock.freshByCoffee;
     final oldestFreeze = oldestFreezeDays(
       lots,
-      actions.portions,
+      actions.read.portions,
       DateTime.now(),
     );
     return JournalPage(
@@ -75,13 +74,13 @@ class _HomeTabState extends State<HomeTab> {
             brews: brews,
             coffees: coffees,
             components: data.components,
-            methods: actions.methods,
+            methods: actions.read.methods,
             year: year,
             now: now,
-            photos: actions.photos,
+            photos: actions.read.photos,
             photoOf: (brew) async =>
-                (await actions.repository.brewPhotos(brew.id)).firstOrNull ??
-                (await actions.repository.coffeePhotos(brew.coffeeId))
+                (await actions.read.queries.brewPhotos(brew.id)).firstOrNull ??
+                (await actions.read.queries.coffeePhotos(brew.coffeeId))
                     .firstOrNull,
           ),
           const SizedBox(height: 18),
@@ -128,16 +127,16 @@ class _HomeTabState extends State<HomeTab> {
           const SizedBox(height: 18),
         ],
         BackupReminders(
-          center: actions.backupCenter,
+          center: actions.commands.backupCenter,
           firstBrewCreatedMs: data.overview?.firstCreatedMs,
           coffees: coffees,
           brews: brews,
-          onExport: actions.exportBackup,
-          onSaveToFolder: actions.saveBackupToFolder,
-          onChooseFolder: actions.chooseBackupFolder,
+          onExport: actions.commands.exportBackup,
+          onSaveToFolder: actions.commands.saveBackupToFolder,
+          onChooseFolder: actions.commands.chooseBackupFolder,
         ),
         if (_stock.low case final low when low.isNotEmpty) ...[
-          _LowStockCard(low: low, data: data, actions: actions),
+          _LowStockCard(low: low, data: data, actions: actions.navigation),
           const SizedBox(height: 22),
         ],
         if (atHand.isNotEmpty) ...[
@@ -148,7 +147,7 @@ class _HomeTabState extends State<HomeTab> {
                 padding: const EdgeInsets.only(bottom: 10),
                 child: TextButton(
                   key: const ValueKey('home-see-all-beans'),
-                  onPressed: actions.showAllBeans,
+                  onPressed: actions.navigation.showAllBeans,
                   child: Text(s.seeAll),
                 ),
               ),
@@ -161,7 +160,8 @@ class _HomeTabState extends State<HomeTab> {
             freshGrams: freshByCoffee,
             low: _stock.lowIds,
             data: data,
-            actions: actions,
+            actions: actions.navigation,
+            journal: actions.read,
           ),
         ],
         if (active.isEmpty && activeBrews.isEmpty) EmptyMessage(s.noBeans),
@@ -181,7 +181,7 @@ class _LowStockCard extends StatelessWidget {
 
   final List<LowStock> low;
   final JournalData data;
-  final JournalActions actions;
+  final JournalNavigation actions;
 
   @override
   Widget build(BuildContext context) {
@@ -268,6 +268,7 @@ class _YourCoffees extends StatelessWidget {
     required this.low,
     required this.data,
     required this.actions,
+    required this.journal,
   });
 
   final List<Coffee> coffees;
@@ -280,13 +281,14 @@ class _YourCoffees extends StatelessWidget {
   /// Coffees running low.
   final Set<String> low;
   final JournalData data;
-  final JournalActions actions;
+  final JournalNavigation actions;
+  final JournalRead journal;
 
   @override
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context)!;
     final freshness = {
-      for (final coffee in coffees) coffee.id: actions.freshnessToday(coffee),
+      for (final coffee in coffees) coffee.id: journal.freshnessToday(coffee),
     };
     final home = homeCoffees([
       for (final coffee in coffees)
@@ -316,6 +318,7 @@ class _YourCoffees extends StatelessWidget {
         low: low.contains(id),
         data: data,
         actions: actions,
+        journal: journal,
       );
     }
 

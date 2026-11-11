@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/freezer_repository.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/domain/freeze_plan.dart';
@@ -37,7 +38,7 @@ double? _parseGrams(String text) {
 /// is given. Returns the saved portions' labels.
 Future<List<String>?> showFreezeSheet(
   BuildContext context,
-  JournalRepository repository, {
+  FreezerRepository repository, {
   required List<CoffeeLot> lots,
   FrozenPortion? existing,
 }) => showFormSheet(
@@ -53,7 +54,7 @@ class _FreezeForm extends StatefulWidget {
     this.existing,
   });
 
-  final JournalRepository repository;
+  final FreezerRepository repository;
   final List<CoffeeLot> lots;
   final FrozenPortion? existing;
 
@@ -303,7 +304,7 @@ class _FreezeFormState extends State<_FreezeForm> {
               spacing: 8,
               runSpacing: 4,
               children: [
-                for (final code in JournalRepository.frozenContainers)
+                for (final code in allowedFrozenContainers)
                   ChoiceChip(
                     label: Text(frozenContainerLabel(s, code)),
                     selected: container == code,

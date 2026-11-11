@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/data/repositories/journal_queries.dart';
 import 'package:holybeans/domain/brew_comparison.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_ratio.dart';
@@ -21,7 +21,7 @@ class BrewDifferencesSummary extends StatefulWidget {
     this.coffeeB,
   });
   final BrewComparison comparison;
-  final JournalRepository repository;
+  final JournalQueries repository;
   final Set<BrewParameter> hidden;
   final String? coffeeA;
   final String? coffeeB;

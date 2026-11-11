@@ -8,8 +8,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/list_options_settings.dart';
+import 'package:holybeans/data/repositories/freezer_repository.dart';
+import 'package:holybeans/data/repositories/journal_mutations.dart';
+import 'package:holybeans/data/repositories/journal_queries.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/repositories/stock.dart';
+import 'package:holybeans/data/repositories/stock_adjustment_repository.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/ui/beans/coffee_details_sheet.dart';
 import 'package:holybeans/ui/beans/stock_adjustment_section.dart';
@@ -33,10 +37,21 @@ class _Reads extends QueryInterceptor {
   }
 }
 
-class _Actions extends Fake implements JournalActions {
+class _Actions extends Fake
+    implements JournalRead, JournalNavigation, JournalCommands {
   _Actions(this.repository);
-  @override
+  JournalActions get actions =>
+      JournalActions(read: this, navigation: this, commands: this);
+
   final JournalRepository repository;
+  @override
+  late final queries = JournalQueries(repository);
+  @override
+  late final mutations = JournalMutations(repository);
+  @override
+  StockAdjustmentRepository get stockEdits => repository.stockEdits;
+  @override
+  FreezerRepository get freezer => repository.freezer;
   @override
   PhotoStore? get photos => null;
   @override
@@ -213,7 +228,7 @@ void main() {
         localizedApp(
           home: Scaffold(
             body: CoffeeDetailsSheet(
-              actions: _Actions(fixture.repo),
+              actions: _Actions(fixture.repo).actions,
               coffee: fixture.data.coffees.singleWhere((c) => c.id == 'target'),
               data: fixture.data,
             ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/repositories/stock.dart';
+import 'package:holybeans/data/repositories/stock_adjustment_repository.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/stock_adjustment_form.dart';
 import 'package:holybeans/ui/beans/stock_adjustment_labels.dart';
@@ -17,7 +17,7 @@ class StockAdjustmentSection extends StatelessWidget {
     required this.stock,
     required this.adjustments,
   });
-  final JournalRepository repository;
+  final StockAdjustmentRepository repository;
   final Coffee coffee;
   final CoffeeStock stock;
   final List<StockAdjustment> adjustments;
@@ -78,7 +78,7 @@ class _AdjustmentRow extends StatefulWidget {
     required this.rows,
     required this.active,
   });
-  final JournalRepository repository;
+  final StockAdjustmentRepository repository;
   final List<StockAdjustment> rows;
   final bool active;
   @override

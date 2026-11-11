@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
@@ -10,11 +9,13 @@ import 'package:holybeans/ui/sync/journal_write_feedback.dart';
 class CoffeeDetailsHeader extends StatefulWidget {
   const CoffeeDetailsHeader({
     super.key,
-    required this.actions,
+    required this.navigation,
+    required this.commands,
     required this.coffee,
   });
 
-  final JournalActions actions;
+  final JournalNavigation navigation;
+  final JournalCommands commands;
   final Coffee coffee;
 
   @override
@@ -29,7 +30,7 @@ class _CoffeeDetailsHeaderState extends State<CoffeeDetailsHeader> {
     final next = !favorite;
     setState(() => favorite = next);
     try {
-      await widget.actions.repository.setCoffeeFavorite(
+      await widget.commands.mutations.setCoffeeFavorite(
         widget.coffee.id,
         favorite: next,
       );
@@ -42,15 +43,15 @@ class _CoffeeDetailsHeaderState extends State<CoffeeDetailsHeader> {
 
   Future<void> _toggleArchive() async {
     final s = AppLocalizations.of(context)!;
-    final actions = widget.actions;
+    final commands = widget.commands;
     final coffee = widget.coffee;
     if (coffee.archivedAtMs == null) {
-      final archived = await actions.confirmCoffeeArchive(coffee);
+      final archived = await commands.confirmCoffeeArchive(coffee);
       if (archived && mounted) Navigator.pop(context);
       return;
     }
     try {
-      await actions.repository.setCoffeeArchived(coffee.id, archived: false);
+      await commands.mutations.setCoffeeArchived(coffee.id, archived: false);
       if (mounted) Navigator.pop(context);
     } catch (error, stack) {
       reportError(error, stack);
@@ -84,10 +85,10 @@ class _CoffeeDetailsHeaderState extends State<CoffeeDetailsHeader> {
               icon: const Icon(Icons.edit_outlined),
               onPressed: () async {
                 // Saved or cancelled, the edit comes back to the details.
-                final actions = widget.actions;
+                final navigation = widget.navigation;
                 Navigator.pop(context);
-                await actions.addCoffee(coffee);
-                actions.showCoffeeDetailsById(coffee.id);
+                await navigation.addCoffee(coffee);
+                navigation.showCoffeeDetailsById(coffee.id);
               },
             ),
             IconButton(
@@ -108,7 +109,7 @@ class _CoffeeDetailsHeaderState extends State<CoffeeDetailsHeader> {
             icon: const Icon(Icons.storefront_outlined),
             label: Text(coffee.roaster),
             onPressed: () =>
-                widget.actions.showRoasters(roaster: coffee.roaster),
+                widget.navigation.showRoasters(roaster: coffee.roaster),
           ),
       ],
     );

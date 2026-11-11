@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/brew_stats.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/data/repositories/freezer_repository.dart';
 import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/altitude.dart';
@@ -61,18 +61,18 @@ class CoffeeDetailsSheet extends StatefulWidget {
 
 class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
   // Opened once, so rebuilding the sheet does not resubscribe.
-  late final Stream<List<String>> photos = widget.actions.repository
+  late final Stream<List<String>> photos = widget.actions.read.queries
       .watchCoffeePhotos(widget.coffee.id);
-  late final Stream<List<CoffeeLot>> lotStream = widget.actions.repository
+  late final Stream<List<CoffeeLot>> lotStream = widget.actions.read.queries
       .watchLots();
   late final Stream<List<FrozenPortion>> portionStream = widget
       .actions
-      .repository
+      .read
+      .queries
       .watchFrozenPortions();
 
-  late final adjustmentStream = widget.actions.repository.watchStockAdjustments(
-    coffeeId: widget.coffee.id,
-  );
+  late final adjustmentStream = widget.actions.read.queries
+      .watchStockAdjustments(coffeeId: widget.coffee.id);
 
   @override
   Widget build(BuildContext context) => StreamBuilder<List<StockAdjustment>>(
@@ -89,7 +89,7 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
       stream: lotStream,
       builder: (context, lotSnapshot) => StreamBuilder<List<FrozenPortion>>(
         stream: portionStream,
-        initialData: actions.portions,
+        initialData: actions.read.portions,
         builder: (context, portionSnapshot) {
           final lots = lotSnapshot.hasData
               ? [
@@ -113,8 +113,12 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CoffeeDetailsHeader(actions: actions, coffee: coffee),
-                if (actions.photos case final store?)
+                CoffeeDetailsHeader(
+                  navigation: actions.navigation,
+                  commands: actions.commands,
+                  coffee: coffee,
+                ),
+                if (actions.read.photos case final store?)
                   _Photos(stream: photos, store: store),
                 _Extras(
                   actions: actions,
@@ -132,7 +136,7 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
                   ),
                 ),
                 StockAdjustmentSection(
-                  repository: actions.repository,
+                  repository: actions.commands.stockEdits,
                   coffee: coffee,
                   stock: stock,
                   adjustments: adjustments
@@ -144,7 +148,7 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
                   coffee: coffee,
                   lots: lots,
                   allLots: lotSnapshot.data ?? data.lots,
-                  methods: actions.methods,
+                  methods: actions.read.methods,
                   frozenAge: stock.frozenOnlyAge,
                 ),
                 _FreezerSection(
@@ -162,7 +166,8 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
                     stacked: true,
                   ),
                 _RecentBrews(
-                  actions: actions,
+                  actions: actions.navigation,
+                  journal: actions.read,
                   coffee: coffee,
                   data: data,
                   brews: brews,
@@ -281,7 +286,10 @@ class _Extras extends StatelessWidget {
   Future<void> _brew(BuildContext context) async {
     if (!stock.onlyFrozen) {
       Navigator.pop(context);
-      await actions.openBrewForm(data.coffees, initialCoffeeId: coffee.id);
+      await actions.navigation.openBrewForm(
+        data.coffees,
+        initialCoffeeId: coffee.id,
+      );
       return;
     }
     final portions = stock.frozenOldestFirst;
@@ -366,7 +374,7 @@ Future<void> _thawThenBrew(
   if (grams == null) return;
   if (!context.mounted) return;
   Navigator.pop(context);
-  await actions.openBrewForm(
+  await actions.navigation.openBrewForm(
     data.coffees,
     initialCoffeeId: coffee.id,
     initialLotId: portion.lotId,
@@ -436,7 +444,7 @@ class _FreezerSection extends StatefulWidget {
 
 class _FreezerSectionState extends State<_FreezerSection> {
   JournalActions get actions => widget.actions;
-  JournalRepository get repository => widget.actions.repository;
+  FreezerRepository get repository => widget.actions.commands.freezer;
 
   Future<void> _freeze() async {
     final s = AppLocalizations.of(context)!;
@@ -446,7 +454,7 @@ class _FreezerSectionState extends State<_FreezerSection> {
       lots: widget.stock.lots,
     );
     if (labels != null) {
-      actions.message(
+      actions.navigation.message(
         labels.length == 1
             ? s.frozenSaved(labels.single)
             : s.frozenBatchSaved(labels.length),
@@ -474,7 +482,7 @@ class _FreezerSectionState extends State<_FreezerSection> {
       _thawThenBrew(context, actions, widget.data, widget.coffee, portion);
 
   Future<void> _edit(FrozenPortion portion) async {
-    final lot = await repository.coffeeLot(portion.lotId);
+    final lot = await actions.read.queries.coffeeLot(portion.lotId);
     if (lot == null || !mounted) return;
     await showFreezeSheet(context, repository, lots: [lot], existing: portion);
   }
@@ -557,7 +565,7 @@ class _FreezerSectionState extends State<_FreezerSection> {
             onThaw: () async {
               final grams = await _thaw(portion);
               if (grams != null) {
-                actions.message(
+                actions.navigation.message(
                   s.thawedSaved(formatGrams(grams, regionalLocale.toString())),
                 );
               }
@@ -619,12 +627,14 @@ class _OriginRows extends StatelessWidget {
 class _RecentBrews extends StatelessWidget {
   const _RecentBrews({
     required this.actions,
+    required this.journal,
     required this.coffee,
     required this.data,
     required this.brews,
   });
 
-  final JournalActions actions;
+  final JournalNavigation actions;
+  final JournalRead journal;
   final Coffee coffee;
   final JournalData data;
 
@@ -655,9 +665,9 @@ class _RecentBrews extends StatelessWidget {
               title: Text(
                 brewRecipeLine(
                       brew,
-                      actions.methods,
+                      journal.methods,
                       regionalLocale.toString(),
-                      hidden: actions.hiddenParameters,
+                      hidden: journal.hiddenParameters,
                     ) ??
                     brew.methodName,
               ),

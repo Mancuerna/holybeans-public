@@ -41,7 +41,7 @@ class BeanCard extends StatelessWidget {
     id: coffee.id,
     createdAtMs: coffee.createdAtMs,
     builder: (context, reveal, fill) {
-      final facts = _BeanFacts(coffee, data, actions.portions);
+      final facts = _BeanFacts(coffee, data, actions.read.portions);
       return SettleIn.open(
         reveal,
         compact
@@ -187,8 +187,8 @@ class _CompactBeanCard extends StatelessWidget {
               ),
             ],
           ),
-          onTap: () => actions.showCoffeeDetails(coffee, data),
-          onLongPress: () => actions.addCoffee(coffee),
+          onTap: () => actions.navigation.showCoffeeDetails(coffee, data),
+          onLongPress: () => actions.navigation.addCoffee(coffee),
         ),
       ),
     );
@@ -233,8 +233,8 @@ class _InformativeBeanCard extends StatelessWidget {
         onLongPressHint: AppLocalizations.of(context)!.editBean,
         child: InkWell(
           customBorder: theme.cardTheme.shape,
-          onTap: () => actions.showCoffeeDetails(coffee, data),
-          onLongPress: () => actions.addCoffee(coffee),
+          onTap: () => actions.navigation.showCoffeeDetails(coffee, data),
+          onLongPress: () => actions.navigation.addCoffee(coffee),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
             child: Column(
@@ -285,7 +285,7 @@ class _InformativeBeanCard extends StatelessWidget {
                 ],
                 _BeanFactChips(
                   facts: facts,
-                  freshness: actions.freshnessToday(facts.coffee),
+                  freshness: actions.read.freshnessToday(facts.coffee),
                   fill: fill,
                 ),
                 if (stockLevel != null) ...[
@@ -336,7 +336,7 @@ class _Heading extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if ((actions.photos, data.coverOf(coffee.id)) case (
+        if ((actions.read.photos, data.coverOf(coffee.id)) case (
           final store?,
           final photo?,
         ))

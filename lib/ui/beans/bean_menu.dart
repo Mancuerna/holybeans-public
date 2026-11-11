@@ -51,7 +51,7 @@ class BeanMenu extends StatelessWidget {
       onSelected: (value) async {
         switch (value) {
           case 'edit':
-            await actions.addCoffee(coffee);
+            await actions.navigation.addCoffee(coffee);
           case 'share':
             if (context.mounted) {
               await showShareBeanSheet(context, actions, coffee);
@@ -62,10 +62,10 @@ class BeanMenu extends StatelessWidget {
             }
           case 'archive':
             if (coffee.archivedAtMs == null) {
-              await actions.confirmCoffeeArchive(coffee);
+              await actions.commands.confirmCoffeeArchive(coffee);
             } else {
               try {
-                await actions.repository.setCoffeeArchived(
+                await actions.commands.mutations.setCoffeeArchived(
                   coffee.id,
                   archived: false,
                 );
@@ -105,20 +105,22 @@ class BeanMenu extends StatelessWidget {
     );
     if (confirmed != true) return;
     try {
-      final files = await actions.repository.deleteUnusedCoffee(coffee.id);
+      final files = await actions.commands.mutations.deleteUnusedCoffee(
+        coffee.id,
+      );
       // The database deletion is committed. A file-system failure should not
       // report that the coffee still exists; backups omit unreferenced files.
       for (final file in files) {
         try {
-          await actions.photos?.delete(file);
+          await actions.read.photos?.delete(file);
         } catch (error, stack) {
           reportError(error, stack);
           // An orphan can remain if storage is temporarily unavailable.
         }
       }
-      actions.message(s.beanDeleted);
+      actions.navigation.message(s.beanDeleted);
     } on CoffeeHasBrewsException {
-      actions.message(s.deleteBeanHasBrews);
+      actions.navigation.message(s.deleteBeanHasBrews);
     } catch (error, stack) {
       reportError(error, stack);
       if (context.mounted) {

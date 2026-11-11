@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/bean_exchange.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
 import 'package:holybeans/ui/sync/journal_write_feedback.dart';
@@ -17,10 +16,10 @@ import 'package:share_plus/share_plus.dart';
 /// or a picture of the QR for whoever would rather not download files.
 Future<void> showBeanTransferSheet(
   BuildContext context,
-  JournalActions actions,
+  JournalRead actions,
   Coffee coffee,
 ) async {
-  final repository = actions.repository;
+  final repository = actions.queries;
   final s = AppLocalizations.of(context)!;
   final SharedBean card;
   try {
@@ -40,18 +39,14 @@ Future<void> showBeanTransferSheet(
     isScrollControlled: true,
     showDragHandle: true,
     useSafeArea: true,
-    builder: (_) => SafeArea(
-      top: false,
-      child: _ShareBeanSheet(card: card, actions: actions),
-    ),
+    builder: (_) => SafeArea(top: false, child: _ShareBeanSheet(card: card)),
   );
 }
 
 class _ShareBeanSheet extends StatelessWidget {
-  const _ShareBeanSheet({required this.card, required this.actions});
+  const _ShareBeanSheet({required this.card});
 
   final SharedBean card;
-  final JournalActions actions;
 
   /// A file name from the coffee's name, safe on any system.
   String get _fileName {

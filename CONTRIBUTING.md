@@ -64,11 +64,16 @@ reliably enforce. App translations remain in English and Spanish.
   `JournalRepository` composes them and retains its caller API through
   delegation. Keep transaction logic in the owning aggregate; shared row
   lookups live in `JournalRecordQueries`. Aggregates do not depend on the façade.
-- `lib/ui/`: UI grouped by feature. `JournalShell` implements `JournalActions`.
+- `lib/ui/`: UI grouped by feature. `JournalShell` implements separate read, navigation and command roles.
+  `JournalActions` only groups those handles for parent routes; leaf widgets
+  receive the roles they use. Read queries do not expose the repository or
+  database. Inventory forms take their owning aggregate.
   `AppServicesScope` above the navigator shares stable dependencies with routes
   and sheets. Controllers receive the same bundle explicitly; the existing
   owners retain disposal responsibility. File and backup work belongs in data
   services; UI notifiers forward lifecycle events and present their state.
+  The brew form owns independent catalog and tool notifiers, including their
+  subscriptions, retry errors and guards against stale loads.
 - `lib/l10n/`: English and Spanish ARB sources; generated translations are ignored.
 - `test/`: unit, widget and persistence tests.
 - `drift_schemas/`: historical schemas needed to verify migration paths.
