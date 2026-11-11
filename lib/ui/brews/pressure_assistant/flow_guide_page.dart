@@ -31,6 +31,15 @@ class FlowGuidePage extends StatefulWidget {
 
 class _FlowGuidePageState extends State<FlowGuidePage> {
   final _sinceTick = Stopwatch();
+  final _updates = ValueNotifier(0);
+  final _controls = ValueNotifier((
+    running: false,
+    canStart: true,
+    connected: false,
+  ));
+  int get _elapsed =>
+      widget.timer.elapsedSeconds * 1000 +
+      _sinceTick.elapsedMilliseconds.clamp(0, 999);
   Timer? _refresh;
 
   @override
@@ -45,7 +54,14 @@ class _FlowGuidePageState extends State<FlowGuidePage> {
     });
   }
 
-  void _changed() => setState(() {});
+  void _changed() {
+    _controls.value = (
+      running: widget.timer.running,
+      canStart: widget.timer.canStart,
+      connected: widget.session?.scale.connected ?? false,
+    );
+    _updates.value++;
+  }
 
   void _clockChanged() {
     _sinceTick
@@ -61,39 +77,18 @@ class _FlowGuidePageState extends State<FlowGuidePage> {
     widget.session?.removeListener(_changed);
     widget.session?.scale.removeListener(_changed);
     _refresh?.cancel();
+    _updates.dispose();
+    _controls.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context)!;
-    final elapsed =
-        widget.timer.elapsedSeconds * 1000 +
-        _sinceTick.elapsedMilliseconds.clamp(0, 999);
-    final target = widget.guide.targetAt(elapsed);
-    final next = widget.guide.targetAt(elapsed + 2000);
-    final connected = widget.session?.scale.connected ?? false;
-    final actual = widget.timer.running
-        ? widget.session?.flowGramsPerSecond
-        : null;
     final number = NumberFormat(
       '0.0',
       Localizations.localeOf(context).toString(),
     );
-    String value(double? flow) => flow == null ? '—' : number.format(flow);
-    final weight = widget.session?.guideWeightGrams;
-    final savedTarget = widget.targetWeightGrams;
-    final finalWeight =
-        savedTarget != null && savedTarget.isFinite && savedTarget > 0
-        ? savedTarget
-        : widget.guide.finalWeightGrams;
-    final referenceWeight = widget.guide.weightAt(elapsed);
-    final weightDifference = weight == null || referenceWeight == null
-        ? null
-        : weight - referenceWeight;
-    final difference = target == null || actual == null
-        ? null
-        : actual - target;
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) widget.timer.stop();
@@ -111,48 +106,48 @@ class _FlowGuidePageState extends State<FlowGuidePage> {
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
-                Text(
-                  '${value(weight)} / ${value(finalWeight)} g',
-                  key: const ValueKey('flow-guide-weight'),
-                  semanticsLabel: s.flowGuideWeightProgress(
-                    value(weight),
-                    value(finalWeight),
-                  ),
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleLarge,
+                ListenableBuilder(
+                  listenable: _updates,
+                  builder: (context, _) => _weight(context, number),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  '${(elapsed / 1000).toStringAsFixed(1)} s',
-                  style: Theme.of(context).textTheme.headlineMedium,
+                ListenableBuilder(
+                  listenable: _updates,
+                  builder: (context, _) => Text(
+                    '${(_elapsed / 1000).toStringAsFixed(1)} s',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
                 ),
                 const SizedBox(height: 12),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    FilledButton.icon(
-                      key: const ValueKey('flow-guide-toggle'),
-                      onPressed:
-                          widget.timer.running ||
-                              (connected && widget.timer.canStart)
-                          ? widget.timer.toggle
-                          : null,
-                      icon: Icon(
-                        widget.timer.running ? Icons.stop : Icons.play_arrow,
+                ValueListenableBuilder(
+                  valueListenable: _controls,
+                  builder: (context, controls, _) => Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      FilledButton.icon(
+                        key: const ValueKey('flow-guide-toggle'),
+                        onPressed:
+                            controls.running ||
+                                (controls.connected && controls.canStart)
+                            ? widget.timer.toggle
+                            : null,
+                        icon: Icon(
+                          controls.running ? Icons.stop : Icons.play_arrow,
+                        ),
+                        label: Text(
+                          controls.running ? s.stopTimer : s.startTimer,
+                        ),
                       ),
-                      label: Text(
-                        widget.timer.running ? s.stopTimer : s.startTimer,
-                      ),
-                    ),
-                    if (!widget.timer.running)
-                      OutlinedButton.icon(
-                        key: const ValueKey('flow-guide-reset'),
-                        onPressed: widget.timer.reset,
-                        icon: const Icon(Icons.restart_alt),
-                        label: Text(s.resetTimer),
-                      ),
-                  ],
+                      if (!controls.running)
+                        OutlinedButton.icon(
+                          key: const ValueKey('flow-guide-reset'),
+                          onPressed: widget.timer.reset,
+                          icon: const Icon(Icons.restart_alt),
+                          label: Text(s.resetTimer),
+                        ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 12),
               ],
@@ -170,61 +165,29 @@ class _FlowGuidePageState extends State<FlowGuidePage> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
-                if (!widget.timer.running) Text(s.flowGuideInstructions),
-                if (!connected) Text(s.flowGuideConnect),
+                ValueListenableBuilder(
+                  valueListenable: _controls,
+                  builder: (context, controls, _) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (!controls.running) Text(s.flowGuideInstructions),
+                      if (!controls.connected) Text(s.flowGuideConnect),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 20),
-                if (elapsed > widget.guide.endMs) Text(s.pressureGuideComplete),
-                PressureReadouts(
-                  target: value(target),
-                  actual: value(actual),
-                  unit: 'g/s',
-                  actualLabel: s.flowGuideActual,
-                  keyPrefix: 'flow',
-                ),
-                const SizedBox(height: 12),
-                Text('${s.pressureGuideAhead}: ${value(next)} g/s'),
-                if (difference != null)
-                  Text(
-                    difference.abs() < 0.1
-                        ? s.flowGuideOnTarget
-                        : difference > 0
-                        ? s.flowGuideAbove(number.format(difference))
-                        : s.flowGuideBelow(number.format(-difference)),
-                    key: const ValueKey('flow-guide-difference'),
+                ListenableBuilder(
+                  listenable: _updates,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(s.flowGuideMarkers),
+                      const SizedBox(height: 8),
+                      Text(s.flowGuideSmoothing),
+                    ],
                   ),
-                const SizedBox(height: 8),
-                Text(
-                  s.flowGuideExpectedWeight(value(referenceWeight)),
-                  key: const ValueKey('flow-guide-expected-weight'),
+                  builder: (context, help) => _readouts(context, number, help!),
                 ),
-                if (weightDifference != null)
-                  Text(
-                    s.flowGuideWeightDifference(
-                      '${weightDifference.abs() < 0.05
-                          ? ''
-                          : weightDifference > 0
-                          ? '+'
-                          : '−'}${number.format(weightDifference.abs())}',
-                    ),
-                    key: const ValueKey('flow-guide-weight-difference'),
-                  ),
-                ShotGuideChart(
-                  reference: widget.guide.points,
-                  target: target,
-                  elapsedMs: elapsed,
-                  actual: actual,
-                  trace: widget.session?.flowTrace.points ?? const [],
-                  unit: 'g/s',
-                ),
-                Text(s.flowGuideMarkers),
-                const SizedBox(height: 8),
-                Text(s.flowGuideSmoothing),
-                if (connected && widget.timer.running && actual == null)
-                  Text(
-                    widget.session!.hasRecentFlowReading
-                        ? s.flowGuideWaiting
-                        : s.flowGuideStale,
-                  ),
                 const SizedBox(height: 20),
                 Text(s.pressureGuideExit),
               ],
@@ -232,6 +195,103 @@ class _FlowGuidePageState extends State<FlowGuidePage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _weight(BuildContext context, NumberFormat number) {
+    final s = AppLocalizations.of(context)!;
+    String value(double? weight) =>
+        weight == null ? '—' : number.format(weight);
+    final weight = widget.session?.guideWeightGrams;
+    final savedTarget = widget.targetWeightGrams;
+    final finalWeight =
+        savedTarget != null && savedTarget.isFinite && savedTarget > 0
+        ? savedTarget
+        : widget.guide.finalWeightGrams;
+    return Text(
+      '${value(weight)} / ${value(finalWeight)} g',
+      key: const ValueKey('flow-guide-weight'),
+      semanticsLabel: s.flowGuideWeightProgress(
+        value(weight),
+        value(finalWeight),
+      ),
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.titleLarge,
+    );
+  }
+
+  Widget _readouts(BuildContext context, NumberFormat number, Widget help) {
+    final s = AppLocalizations.of(context)!;
+    final elapsed = _elapsed;
+    final target = widget.guide.targetAt(elapsed);
+    final next = widget.guide.targetAt(elapsed + 2000);
+    final connected = widget.session?.scale.connected ?? false;
+    final actual = widget.timer.running
+        ? widget.session?.flowGramsPerSecond
+        : null;
+    String value(double? flow) => flow == null ? '—' : number.format(flow);
+    final weight = widget.session?.guideWeightGrams;
+    final referenceWeight = widget.guide.weightAt(elapsed);
+    final weightDifference = weight == null || referenceWeight == null
+        ? null
+        : weight - referenceWeight;
+    final difference = target == null || actual == null
+        ? null
+        : actual - target;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (elapsed > widget.guide.endMs) Text(s.pressureGuideComplete),
+        PressureReadouts(
+          target: value(target),
+          actual: value(actual),
+          unit: 'g/s',
+          actualLabel: s.flowGuideActual,
+          keyPrefix: 'flow',
+        ),
+        const SizedBox(height: 12),
+        Text('${s.pressureGuideAhead}: ${value(next)} g/s'),
+        if (difference != null)
+          Text(
+            difference.abs() < 0.1
+                ? s.flowGuideOnTarget
+                : difference > 0
+                ? s.flowGuideAbove(number.format(difference))
+                : s.flowGuideBelow(number.format(-difference)),
+            key: const ValueKey('flow-guide-difference'),
+          ),
+        const SizedBox(height: 8),
+        Text(
+          s.flowGuideExpectedWeight(value(referenceWeight)),
+          key: const ValueKey('flow-guide-expected-weight'),
+        ),
+        if (weightDifference != null)
+          Text(
+            s.flowGuideWeightDifference(
+              '${weightDifference.abs() < 0.05
+                  ? ''
+                  : weightDifference > 0
+                  ? '+'
+                  : '−'}${number.format(weightDifference.abs())}',
+            ),
+            key: const ValueKey('flow-guide-weight-difference'),
+          ),
+        ShotGuideChart(
+          reference: widget.guide.points,
+          target: target,
+          elapsedMs: elapsed,
+          actual: actual,
+          trace: widget.session?.flowTrace.points ?? const [],
+          unit: 'g/s',
+        ),
+        help,
+        if (connected && widget.timer.running && actual == null)
+          Text(
+            widget.session!.hasRecentFlowReading
+                ? s.flowGuideWaiting
+                : s.flowGuideStale,
+          ),
+      ],
     );
   }
 }
