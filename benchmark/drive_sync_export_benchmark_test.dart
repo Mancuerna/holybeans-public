@@ -111,10 +111,9 @@ void main() {
       expect(jsonDecode(readSource), jsonDecode(source));
       expect(readPhotos, photoBytes);
       watch.reset();
-      await JournalRestore(
-        JournalBackup(target),
-        targetPhotos,
-      ).replace(readSource, readPhotos);
+      final (_, restoreSample) = await _measureEventLoop(
+        () => JournalBackup(target).restoreArchive(archive, targetPhotos),
+      );
       final restoreMs = watch.elapsedMilliseconds;
       final original = jsonDecode(source) as Map<String, dynamic>;
       final restored = jsonDecode(
@@ -144,7 +143,7 @@ void main() {
       final nextZip = JournalBackup.encodeArchive(next, nextPhotos);
       final nextCompressedJson = gzip.encode(utf8.encode(next));
       stdout.writeln(
-        'DRIVE_EXPORT_BENCHMARK ${jsonEncode({'fixture': fixture.name, 'environment': 'host Flutter test; in-memory SQLite', 'coffees': fixture.coffees, 'brews': fixture.brews, 'curves': fixture.brews ~/ 2, 'curveSamples': 301, 'photos': fixture.photos, 'photoWidth': 640, 'photoHeight': 480, 'jpegQuality': 85, 'jsonBytes': utf8.encode(source).length, 'gzipJsonBytes': compressedJson.length, 'photoBytes': photoBytes.values.fold<int>(0, (sum, bytes) => sum + bytes.length), 'zipBytes': archive.length, 'exportMs': exportMs, 'zipMs': zipMs, 'gzipMs': gzipMs, 'restoreMs': restoreMs, 'manualExportSamples': manualExportSamples, 'nextZipBytes': nextZip.length, 'nextGzipJsonBytes': nextCompressedJson.length, 'nextNewPhotoBytes': 0, 'allCollectionsAndPhotosEqual': true})}',
+        'DRIVE_EXPORT_BENCHMARK ${jsonEncode({'fixture': fixture.name, 'environment': 'host Flutter test; in-memory SQLite', 'coffees': fixture.coffees, 'brews': fixture.brews, 'curves': fixture.brews ~/ 2, 'curveSamples': 301, 'photos': fixture.photos, 'photoWidth': 640, 'photoHeight': 480, 'jpegQuality': 85, 'jsonBytes': utf8.encode(source).length, 'gzipJsonBytes': compressedJson.length, 'photoBytes': photoBytes.values.fold<int>(0, (sum, bytes) => sum + bytes.length), 'zipBytes': archive.length, 'exportMs': exportMs, 'zipMs': zipMs, 'gzipMs': gzipMs, 'restoreMs': restoreMs, 'restoreSample': restoreSample, 'manualExportSamples': manualExportSamples, 'nextZipBytes': nextZip.length, 'nextGzipJsonBytes': nextCompressedJson.length, 'nextNewPhotoBytes': 0, 'allCollectionsAndPhotosEqual': true})}',
       );
     }, timeout: const Timeout(Duration(minutes: 3)));
   }

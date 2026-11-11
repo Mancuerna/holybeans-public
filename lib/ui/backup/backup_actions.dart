@@ -104,34 +104,33 @@ class BackupActions {
   }
 
   /// Replaces the journal with a backup the user picks, after confirming.
-  Future<void> importBackup(BuildContext context) async {
+  Future<void> importBackup(
+    BuildContext context, {
+    Future<XFile?> Function()? pickFile,
+  }) async {
     final s = AppLocalizations.of(context)!;
     try {
       const backupTypes = XTypeGroup(
         label: 'HolyBeans',
         extensions: ['zip', 'json'],
       );
-      final file = await openFile(acceptedTypeGroups: [backupTypes]);
+      final file =
+          await (pickFile?.call() ??
+              openFile(acceptedTypeGroups: [backupTypes]));
       if (file == null || !context.mounted) return;
       if (await file.length() > 500 * 1024 * 1024) {
         message(s.fileTooLarge);
         return;
       }
-      final bytes = await file.readAsBytes();
-      // Older backups are plain JSON; newer ones are ZIPs with photos.
-      final isZip = bytes.length > 3 && bytes[0] == 0x50 && bytes[1] == 0x4B;
-      final summary = isZip
-          ? JournalBackup.inspectArchive(bytes)
-          : JournalBackup.inspectJson(utf8.decode(bytes));
-      if (!context.mounted || !await _confirmRestore(context, summary)) {
+      final contents = await JournalBackup.readInBackground(
+        await file.readAsBytes(),
+      );
+      if (!context.mounted ||
+          !await _confirmRestore(context, contents.summary)) {
         return;
       }
       await _keepCurrentJournal();
-      if (isZip) {
-        await backup.restoreArchive(bytes, photos);
-      } else {
-        await backup.restoreWithPhotos(utf8.decode(bytes), const {}, photos);
-      }
+      await backup.restoreWithPhotos(contents.source, contents.photos, photos);
       message(s.restored);
     } on FormatException {
       message(s.invalidBackup);
@@ -152,16 +151,17 @@ class BackupActions {
     final services = center.services;
     if (services == null) return;
     try {
-      final (source, _) = JournalBackup.readArchive(
+      final contents = await JournalBackup.readInBackground(
         await services.autoBackups.read(entry),
+        archiveOnly: true,
       );
-      final summary = JournalBackup.inspectJson(source);
-      if (!context.mounted || !await _confirmRestore(context, summary)) {
+      if (!context.mounted ||
+          !await _confirmRestore(context, contents.summary)) {
         return;
       }
       await _keepCurrentJournal();
       await backup.restoreJson(
-        source,
+        contents.source,
         availablePhotos: await photos?.names() ?? const {},
       );
       message(s.restored);
@@ -185,7 +185,7 @@ class BackupActions {
     if (copies == null) return;
     try {
       final source = await copies.exportJson(copy);
-      final summary = JournalBackup.inspectJson(source);
+      final summary = await JournalBackup.inspectJsonInBackground(source);
       if (!context.mounted || !await _confirmRestore(context, summary)) {
         return;
       }

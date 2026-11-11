@@ -138,6 +138,55 @@ void main() {
     );
   });
 
+  for (final zipped in [false, true]) {
+    test(
+      'background preview reads legacy JSON or ZIP: zipped=$zipped',
+      () async {
+        final coffee = await repository.createCoffee(
+          name: 'Preview',
+          roaster: 'R',
+        );
+        final name = await photos.add(jpeg);
+        await repository.setCoffeePhotos(coffee, [name]);
+        final source = await JournalBackup(database).exportJson();
+        final bytes = zipped
+            ? JournalBackup.encodeArchive(source, {name: jpeg})
+            : Uint8List.fromList(utf8.encode(source));
+
+        final contents = await JournalBackup.readInBackground(bytes);
+
+        expect(contents.source, source);
+        expect(contents.summary.coffees, 1);
+        expect(contents.photos, zipped ? {name: jpeg} : isEmpty);
+        if (!zipped) {
+          await expectLater(
+            JournalBackup.readInBackground(bytes, archiveOnly: true),
+            throwsFormatException,
+          );
+          await expectLater(
+            JournalBackup(database).restoreArchive(bytes, photos),
+            throwsFormatException,
+          );
+        }
+      },
+    );
+  }
+
+  test(
+    'background preview rejects damaged JSON and ZIP without a journal',
+    () async {
+      for (final bytes in [
+        Uint8List.fromList([0xff]),
+        ZipEncoder().encodeBytes(Archive()),
+      ]) {
+        await expectLater(
+          JournalBackup.readInBackground(bytes),
+          throwsFormatException,
+        );
+      }
+    },
+  );
+
   test(
     'export reads referenced photos once without reading orphan files',
     () async {
