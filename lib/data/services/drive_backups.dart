@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/services/atomic_json_file.dart';
 import 'package:holybeans/data/services/drive_sync_payload.dart';
 import 'package:holybeans/data/services/drive_sync_remote.dart';
@@ -164,8 +165,22 @@ class DriveBackups {
   }
 
   Future<DriveSyncPayload> read(DriveBackupCopy copy) async {
-    await (copy.legacy ? legacy : remote).download(copy.snapshot);
-    return payloads.read(copy.snapshot.id);
+    try {
+      await (copy.legacy ? legacy : remote).download(copy.snapshot);
+      return await payloads.read(copy.snapshot.id);
+    } finally {
+      // Downloads share this store with durable uploads. Preserve a pending ID.
+      try {
+        final pending = (await _state())['pending'];
+        if (pending == null ||
+            DriveSnapshot.fromJson(pending).id != copy.snapshot.id) {
+          await payloads.remove(copy.snapshot.id);
+        }
+      } catch (error, stack) {
+        // Unknown upload state must preserve files without blocking recovery.
+        reportError(error, stack);
+      }
+    }
   }
 
   Future<void> safetyCopy() async {
@@ -176,14 +191,43 @@ class DriveBackups {
     final safety = Directory(path.join(directory.path, 'safety'));
     await safety.create(recursive: true);
     final file = File(path.join(safety.path, '${const Uuid().v4()}.zip'));
-    await file.writeAsBytes(bytes, flush: true);
-    final written = await file.readAsBytes();
-    await Isolate.run(() {
-      if (driveDigest(written) != driveDigest(bytes)) {
-        throw const FormatException('Safety copy verification failed');
+    final temporary = File('${file.path}.tmp');
+    try {
+      await temporary.writeAsBytes(bytes, flush: true);
+      final written = await temporary.readAsBytes();
+      await Isolate.run(() {
+        if (driveDigest(written) != driveDigest(bytes)) {
+          throw const FormatException('Safety copy verification failed');
+        }
+        JournalBackup.inspectArchive(written);
+      });
+      await temporary.rename(file.path);
+    } finally {
+      if (temporary.existsSync()) await temporary.delete();
+    }
+    try {
+      await _retainSafety(file);
+    } catch (error, stack) {
+      // Retention failure must not block recovery after saving a verified copy.
+      reportError(error, stack);
+    }
+  }
+
+  Future<void> _retainSafety(File current) async {
+    final previous = <(File, DateTime)>[];
+    final name = RegExp(r'^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}\.zip$');
+    await for (final entry in current.parent.list()) {
+      if (entry is File &&
+          entry.path != current.path &&
+          name.hasMatch(path.basename(entry.path))) {
+        previous.add((entry, entry.lastModifiedSync()));
       }
-      JournalBackup.inspectArchive(written);
-    });
+    }
+    previous.sort((a, b) => b.$2.compareTo(a.$2));
+    // Always keep the newly verified copy, even if the clock moved backwards.
+    for (final (file, _) in previous.skip(4)) {
+      await file.delete();
+    }
   }
 
   Future<void> restore(DriveSyncPayload payload) async {
