@@ -567,6 +567,26 @@ The tests also verify elapsed time, next-pour targets, recipe changes, stop/rese
 and invalid-duration feedback. Existing layout tests cover scrolling and the
 expanded timer. These are host element counts, not Android frame timings.
 
+## Guide chart repaint isolation (November 2026)
+
+Pressure and flow guides now put the grid, axis labels and dashed reference in
+a separate repaint boundary. The live trace and markers share the same axis
+bounds. Background invalidation includes reference contents, axis bounds, unit,
+theme and locale; labels release their TextPainter after painting.
+
+`shot_guide_repaint_test.dart` uses Flutter's debug paint callback to count the
+actual chart render objects during 100 within-axis updates. With the same driver
+on `7ff2bef` and after this change:
+
+| Layer | Paints before → after |
+| --- | ---: |
+| Background/reference | 100 → 0 |
+| Live trace/markers | 100 → 100 |
+
+The test also verifies that expanding either axis, changing the reference,
+minimum scale, unit, theme or locale repaints the background. These host paint
+counts do not measure device frame time. Page rebuilds are addressed separately.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
