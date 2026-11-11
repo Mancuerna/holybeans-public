@@ -548,6 +548,25 @@ The tests also check the latest displayed weight, connection changes, drip
 waiting and timer ticks. These are host widget rebuild counts, not device frame
 times. Active charts deliberately keep receiving samples during recording.
 
+## Water-plan control rebuilds (November 2026)
+
+The expanded water plan retains its recipe controls and table while scale
+readings and timer ticks update the next-pour subtitle. Its clock listens to
+the timer independently. Recipe edits and session-state changes still rebuild
+controls when their inputs change.
+
+`water_plan_rebuild_test.dart` counts the bloom-ratio dropdown's actual element
+rebuilds. The same driver on `87f2869` and after this change produces:
+
+| Input | Dropdown rebuilds before → after |
+| --- | ---: |
+| 100 scale readings, one pump each | 100 → 0 |
+| 100 one-second timer ticks | 100 → 0 |
+
+The tests also verify elapsed time, next-pour targets, recipe changes, stop/reset
+and invalid-duration feedback. Existing layout tests cover scrolling and the
+expanded timer. These are host element counts, not Android frame timings.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

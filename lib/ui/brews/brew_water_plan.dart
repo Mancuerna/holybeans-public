@@ -43,8 +43,7 @@ class _BrewWaterPlanState extends State<BrewWaterPlan> {
       widget.draft,
       widget.dose,
       widget.water,
-      widget.timer,
-      if (widget.scale != null) widget.scale!.scale,
+      ?widget.scale,
     ]),
     builder: (context, _) {
       final s = AppLocalizations.of(context)!;
@@ -57,24 +56,12 @@ class _BrewWaterPlanState extends State<BrewWaterPlan> {
       final plan = draft.waterPlan(dose: dose, water: water);
       final valid = plan != null && plan.problem == null;
       final steps = valid ? plan.steps : <PourStep>[];
-      final poured = widget.scale?.pouredGrams;
-      final next = widget.timer.running && poured != null
-          ? steps.where((step) => step.targetGrams > poured + .5).firstOrNull
-          : null;
-      return ExpansionTile(
-        key: const ValueKey('brew-water-plan'),
-        initiallyExpanded: draft.waterPlanExpanded,
-        onExpansionChanged: draft.expandWaterPlan,
-        tilePadding: EdgeInsets.zero,
-        childrenPadding: const EdgeInsets.only(top: 12),
-        title: Text(
-          water != null && water > 0
-              ? '${s.waterPlanTitle} · ${number.format(water)} g'
-              : s.waterPlanTitle,
-        ),
-        subtitle: next == null
-            ? null
-            : Text(s.pourTo(number.format(next.targetGrams))),
+      return _liveTile(
+        steps: steps,
+        number: number,
+        title: water != null && water > 0
+            ? '${s.waterPlanTitle} · ${number.format(water)} g'
+            : s.waterPlanTitle,
         children: [
           if (blooms != null && blooms > 0)
             DropdownButtonFormField<double>(
@@ -170,6 +157,40 @@ class _BrewWaterPlanState extends State<BrewWaterPlan> {
             ),
           ),
         ],
+      );
+    },
+  );
+
+  Widget _liveTile({
+    required List<PourStep> steps,
+    required NumberFormat number,
+    required String title,
+    required List<Widget> children,
+  }) => ListenableBuilder(
+    listenable: Listenable.merge([widget.timer, ?widget.scale?.scale]),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: children,
+    ),
+    builder: (context, child) {
+      final poured = widget.scale?.pouredGrams;
+      final next = widget.timer.running && poured != null
+          ? steps.where((step) => step.targetGrams > poured + .5).firstOrNull
+          : null;
+      return ExpansionTile(
+        key: const ValueKey('brew-water-plan'),
+        initiallyExpanded: widget.draft.waterPlanExpanded,
+        onExpansionChanged: widget.draft.expandWaterPlan,
+        tilePadding: EdgeInsets.zero,
+        childrenPadding: const EdgeInsets.only(top: 12),
+        title: Text(title),
+        subtitle: next == null
+            ? null
+            : Text(
+                AppLocalizations.of(context)!
+                    .pourTo(number.format(next.targetGrams)),
+              ),
+        children: [child!],
       );
     },
   );
