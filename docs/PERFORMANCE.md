@@ -1014,6 +1014,24 @@ colors and device region, including reused mutable input lists. Existing
 playback, seeking, alignment and comparison assertions remain unchanged.
 These counts describe widget-test painting, not Android rendering latency.
 
+## Extraction chart repaint retention (November 2026)
+
+Extraction plots compare captured target grams, labels and active state, along
+with prepared curve inputs, series colors, label style, number region, units,
+compact mode and existing cursor/visibility inputs. A repaint boundary retains
+unchanged canvases. Curve preparation keeps its existing identity contract;
+large curve arrays are not copied for these checks. Temporary axis, marker and
+target text painters are disposed, including target labels that do not fit.
+
+The same `test/extraction_chart_repaint_test.dart` driver on `282fd69` and this
+change counts 100 equivalent parent updates with freshly constructed targets:
+**100 → 0 for empty plots** and **100 → 0 for recorded curves**. Before the
+change, direct repaint checks also missed in-place target edits, units, text
+style, weight/label colors, region and compact mode; the driver now verifies all
+of them, plus existing curve/visibility/weight/grid/background invalidation.
+Existing curve marker, readout and water-target assertions are unchanged.
+These are widget-test paint counts, not device frame-time measurements.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

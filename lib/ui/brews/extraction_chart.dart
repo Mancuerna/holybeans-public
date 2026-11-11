@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show listEquals, mapEquals, setEquals;
 import 'package:flutter/material.dart';
 import 'package:holybeans/domain/axis_ticks.dart';
 import 'package:holybeans/domain/shot_curve.dart';
@@ -294,7 +295,7 @@ class _ExtractionChartState extends State<ExtractionChart>
     final chart = SizedBox(
       height: height,
       width: double.infinity,
-      child: CustomPaint(painter: painter),
+      child: RepaintBoundary(child: CustomPaint(painter: painter)),
     );
     final duration = number.format(curve.durationMs / 1000);
     // The peak: a filter brew's last weight drops when the brewer is lifted.
@@ -377,10 +378,14 @@ class _ChartPainter extends CustomPainter {
     required this.weightTargets,
     required this.targetAccent,
     required this.background,
-  });
+  }) : _targetValues = [
+         for (final target in weightTargets)
+           (target.grams, target.label, target.active),
+       ];
 
   final double? targetWeightGrams;
   final List<WeightTarget> weightTargets;
+  final List<(double, String, bool)> _targetValues;
 
   final ShotCurve curve;
   final ShotCurve recorded;
@@ -436,6 +441,12 @@ class _ChartPainter extends CustomPainter {
     ),
     textDirection: TextDirection.ltr,
   )..layout();
+
+  void _paintLabel(Canvas canvas, String text, Color color, Offset at) {
+    final label = _label(text, color);
+    label.paint(canvas, at);
+    label.dispose();
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -502,6 +513,7 @@ class _ChartPainter extends CustomPainter {
         canvas,
         Offset(plot.left + 4, math.max(plot.top, dy - label.height - 3)),
       );
+      label.dispose();
     }
     if (!compact && visible.contains(CurveSeries.weight)) {
       paintWeightTargets(
@@ -557,6 +569,7 @@ class _ChartPainter extends CustomPainter {
           ),
         ),
       );
+      label.dispose();
     }
 
     if (cursorMs case final ms?) {
@@ -610,16 +623,20 @@ class _ChartPainter extends CustomPainter {
         ..strokeWidth = 1,
     );
     if (visible.any(_isLiquid)) {
-      _label(
+      _paintLabel(
+        canvas,
         flowUnit,
         labelStyle.color!,
-      ).paint(canvas, Offset(plot.left - 28, 0));
+        Offset(plot.left - 28, 0),
+      );
     }
     if (visible.contains(CurveSeries.weight)) {
-      _label(
+      _paintLabel(
+        canvas,
         'g',
         colors[CurveSeries.weight]!,
-      ).paint(canvas, Offset(plot.right + 5, 0));
+        Offset(plot.right + 5, 0),
+      );
       paintWeightTargets(
         canvas,
         plot,
@@ -660,12 +677,13 @@ class _ChartPainter extends CustomPainter {
           canvas,
           Offset(plot.left - 5 - label.width, dy - label.height / 2),
         );
+        label.dispose();
       }
       final unit = [
         if (visible.contains(CurveSeries.pressure)) 'bar',
         if (visible.contains(CurveSeries.flow)) flowUnit,
       ].join(', ');
-      _label(unit, neutral).paint(canvas, Offset(plot.left - 28, 0));
+      _paintLabel(canvas, unit, neutral, Offset(plot.left - 28, 0));
     }
     if (weight) {
       for (final tick in axisTicks(weightTop)) {
@@ -673,13 +691,16 @@ class _ChartPainter extends CustomPainter {
         if (!liquid) {
           canvas.drawLine(Offset(plot.left, dy), Offset(plot.right, dy), faint);
         }
-        _label(
+        _paintLabel(
+          canvas,
           tickFormat.format(tick),
           weightColor,
-        ).paint(canvas, Offset(plot.right + 5, dy - 7));
+          Offset(plot.right + 5, dy - 7),
+        );
       }
       final unit = _label('g', weightColor);
       unit.paint(canvas, Offset(plot.right + 5, 0));
+      unit.dispose();
     }
 
     final seconds = curve.durationMs / 1000;
@@ -697,19 +718,26 @@ class _ChartPainter extends CustomPainter {
         plot.right - label.width,
       );
       label.paint(canvas, Offset(dx, plot.bottom + 4));
+      label.dispose();
     }
   }
 
   @override
   bool shouldRepaint(_ChartPainter old) =>
       old.targetWeightGrams != targetWeightGrams ||
-      old.weightTargets != weightTargets ||
+      !listEquals(old._targetValues, _targetValues) ||
       old.targetAccent != targetAccent ||
       old.background != background ||
       old.curve != curve ||
       old.recorded != recorded ||
+      old.display != display ||
+      !mapEquals(old.peaks, peaks) ||
+      !mapEquals(old.colors, colors) ||
+      old.labelStyle != labelStyle ||
+      old.tickFormat.locale != tickFormat.locale ||
+      old.compact != compact ||
+      old.flowUnit != flowUnit ||
       old.cursorMs != cursorMs ||
       old.gridColor != gridColor ||
-      old.visible.length != visible.length ||
-      !old.visible.containsAll(visible);
+      !setEquals(old.visible, visible);
 }
