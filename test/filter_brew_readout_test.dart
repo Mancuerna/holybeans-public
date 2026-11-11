@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/domain/filter_brew_progress.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/filter_brew_readout.dart';
+
+import 'helpers/ui_test_support.dart';
 
 void main() {
   testWidgets(
@@ -13,10 +14,8 @@ void main() {
         bool showRatio = true,
       }) async {
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: const Locale('es'),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: Center(
                 child: SizedBox(

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,7 +11,6 @@ import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/data/services/journal_write_gate.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/share_template.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/share_template_editor.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/equipment/tools_page.dart';
@@ -21,6 +19,8 @@ import 'package:holybeans/ui/sync/drive_sync_scope.dart';
 import 'package:path/path.dart' as path;
 
 import 'helpers/drive_fake_server.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +28,7 @@ void main() {
     testWidgets('archive: Drive=$drive, navigation observer=$observe', (
       tester,
     ) async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       final repo = JournalRepository(db);
       final method = await repo.createMethod(name: 'Lelit Bianca v3');
       final id = await repo.createTool(
@@ -56,10 +56,8 @@ void main() {
       });
       try {
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: const Locale('en'),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             navigatorObservers: [if (observe) model.observer],
             home: Scaffold(
               body: ToolsList(repository: repo, showArchived: false),
@@ -118,7 +116,7 @@ void main() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     setUp(() async {
       disposed = false;
-      db = AppDatabase.forTesting(NativeDatabase.memory());
+      db = memoryDatabase();
       repo = JournalRepository(db);
       directory = await Directory.systemTemp.createTemp('drive-actions-');
       model = await DriveSyncModel.open(
@@ -170,10 +168,8 @@ void main() {
         final controller = TextEditingController(text: 'Keep this draft');
         final key = GlobalKey<FormState>();
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: const Locale('en'),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             navigatorObservers: [model.observer],
             builder: (_, child) => DriveSyncScope(model: model, child: child!),
             home: Scaffold(
@@ -258,9 +254,7 @@ void main() {
         expect(db.writeGate.writable, isTrue);
         var saves = 0;
         await tester.pumpWidget(
-          MaterialApp(
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
+          localizedApp(
             builder: (_, child) => DriveSyncScope(model: model, child: child!),
             home: Scaffold(
               body: Builder(
@@ -301,9 +295,7 @@ void main() {
       (tester) async {
         late BuildContext context;
         await tester.pumpWidget(
-          MaterialApp(
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
+          localizedApp(
             builder: (_, child) => DriveSyncScope(model: model, child: child!),
             home: Builder(
               builder: (value) {

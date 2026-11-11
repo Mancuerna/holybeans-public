@@ -1,12 +1,9 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/flow_guide.dart';
 import 'package:holybeans/domain/shot_curve.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_scale_session.dart';
 import 'package:holybeans/ui/brews/brew_timer.dart';
@@ -18,6 +15,8 @@ import 'package:holybeans/ui/core/app_theme.dart';
 
 import 'helpers/fake_scale.dart';
 import 'helpers/manual_stopwatch.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 ShotCurve reference() => ShotCurve(
   timesMs: [for (var ms = 0; ms <= 4000; ms += 500) ms],
@@ -26,11 +25,9 @@ ShotCurve reference() => ShotCurve(
 );
 
 Widget app(Widget home, {String language = 'en', double textScale = 1}) =>
-    MaterialApp(
+    localizedApp(
       locale: Locale(language),
       theme: language == 'es' ? AppTheme.dark() : AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
       builder: (context, child) => MediaQuery(
         data: MediaQuery.of(context)
             .copyWith(textScaler: TextScaler.linear(textScale)),
@@ -239,7 +236,7 @@ void main() {
   testWidgets(
     'reference picker defaults to flow without a sensor and keeps pressure available',
     (tester) async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repo = JournalRepository(db);
       final coffee = await repo.createCoffee(

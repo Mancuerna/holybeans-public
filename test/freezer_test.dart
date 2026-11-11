@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show driftRuntimeOptions;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   late AppDatabase database;
@@ -19,7 +20,7 @@ void main() {
   });
 
   setUp(() {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     repository = JournalRepository(database);
   });
 
@@ -167,7 +168,7 @@ void main() {
       final source = await JournalBackup(database).exportJson();
       expect(JournalBackup.inspectJson(source).frozenPortions, 1);
 
-      final restored = AppDatabase.forTesting(NativeDatabase.memory());
+      final restored = memoryDatabase();
       addTearDown(restored.close);
       final summary = await JournalBackup(restored).restoreJson(source);
       expect(summary.frozenPortions, 1);
@@ -181,7 +182,7 @@ void main() {
       final legacy = jsonDecode(source) as Map<String, dynamic>;
       legacy['version'] = 5;
       (legacy['data'] as Map<String, dynamic>).remove('frozenPortions');
-      final fromV5 = AppDatabase.forTesting(NativeDatabase.memory());
+      final fromV5 = memoryDatabase();
       addTearDown(fromV5.close);
       final legacySummary = await JournalBackup(fromV5)
           .restoreJson(jsonEncode(legacy));
@@ -300,7 +301,7 @@ void main() {
       final portions =
           (backup['data'] as Map<String, dynamic>)['frozenPortions'] as List;
       (portions.single as Map<String, dynamic>)['lotId'] = 'missing';
-      final target = AppDatabase.forTesting(NativeDatabase.memory());
+      final target = memoryDatabase();
       addTearDown(target.close);
       await expectLater(
         JournalBackup(target).restoreJson(jsonEncode(backup)),

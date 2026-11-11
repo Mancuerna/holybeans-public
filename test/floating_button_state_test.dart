@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/bean_add_button.dart';
 import 'package:holybeans/ui/core/smooth_floating_button.dart';
 import 'package:holybeans/ui/shell/floating_button_state.dart';
+
+import 'helpers/ui_test_support.dart';
 
 void main() {
   testWidgets('bean options return after rest and wait through another drag', (
@@ -12,9 +13,7 @@ void main() {
     final extension = FloatingButtonExtension();
     addTearDown(extension.dispose);
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+      localizedApp(
         home: Scaffold(
           body: NotificationListener<ScrollNotification>(
             onNotification: (notification) =>

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -15,6 +14,7 @@ import 'package:holybeans/domain/drive_sync.dart';
 import 'package:path/path.dart' as path;
 
 import 'helpers/drive_fake_server.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +31,7 @@ void main() {
     server = DriveFakeServer();
     messenger.setMockMethodCallHandler(channel, server.handle);
     directory = await Directory.systemTemp.createTemp('drive-remote-');
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     final photos = PhotoStore(Directory(path.join(directory.path, 'photos')));
     queue = DriveSyncPayloadStore(
       Directory(path.join(directory.path, 'queue')),

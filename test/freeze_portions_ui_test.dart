@@ -1,18 +1,19 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/freezer_widgets.dart';
 import 'package:holybeans/ui/brews/brew_frozen_picker.dart';
+
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   for (final remainder in [true, false]) {
     testWidgets(
       'freeze division preview and saved inventory, remainder $remainder',
       (tester) async {
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(db.close);
         final repo = JournalRepository(db);
         final id = await repo.createCoffee(
@@ -22,9 +23,7 @@ void main() {
         );
         final lots = await repo.coffeeLots(id);
         await tester.pumpWidget(
-          MaterialApp(
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
+          localizedApp(
             home: Scaffold(
               body: Builder(
                 builder: (context) => TextButton(
@@ -84,7 +83,7 @@ void main() {
   testWidgets(
     'frozen picker cancels without choosing and identifies the portion',
     (tester) async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repo = JournalRepository(db);
       final coffee = await repo.createCoffee(
@@ -101,9 +100,7 @@ void main() {
       final portions = await repo.frozenPortionsForLot(lot);
       FrozenPortion? chosen;
       await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
+        localizedApp(
           home: Scaffold(
             body: Builder(
               builder: (context) => TextButton(

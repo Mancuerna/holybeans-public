@@ -1,18 +1,17 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/gaggimate_client.dart';
 import 'package:holybeans/domain/gaggimate/binary.dart';
 import 'package:holybeans/domain/gaggimate/shot.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/gaggimate_shot_widgets.dart';
 import 'package:holybeans/ui/equipment/equipment_forms.dart';
 
 import 'helpers/gaggimate_fixture.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 class FakeGaggimate implements GaggimateSource {
   bool closed = false;
@@ -41,7 +40,7 @@ void main() {
   testWidgets('imports a shot and saves its measured fields and curve', (
     tester,
   ) async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
     addTearDown(db.close);
     tester.view.physicalSize = const Size(400, 900);
     tester.view.devicePixelRatio = 1;
@@ -112,7 +111,7 @@ void main() {
 
   for (final lang in ['es', 'en']) {
     testWidgets('method connection and picker retry in $lang', (tester) async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repo = JournalRepository(db);
       final original = connectGaggimate;
@@ -127,10 +126,8 @@ void main() {
       );
       final method = (await repo.allMethods()).singleWhere((m) => m.id == id);
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: Locale(lang),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: Builder(
               builder: (context) => Column(

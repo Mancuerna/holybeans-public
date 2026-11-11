@@ -6,6 +6,8 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/freshness_widgets.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 
+import 'helpers/ui_test_support.dart';
+
 void main() {
   for (final locale in ['es', 'en']) {
     for (final dark in [false, true]) {
@@ -17,11 +19,9 @@ void main() {
           addTearDown(tester.view.resetPhysicalSize);
           addTearDown(tester.view.resetDevicePixelRatio);
           await tester.pumpWidget(
-            MaterialApp(
+            localizedApp(
               theme: dark ? AppTheme.dark() : AppTheme.light(),
               locale: Locale(locale),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
               builder: (context, child) => MediaQuery(
                 data: MediaQuery.of(context)
                     .copyWith(textScaler: const TextScaler.linear(2)),
@@ -102,10 +102,8 @@ void main() {
     ) async {
       late BuildContext context;
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: Locale(locale),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: Builder(
             builder: (value) {
               context = value;

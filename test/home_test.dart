@@ -1,12 +1,12 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
+
+import 'helpers/test_database.dart';
 
 String _isoDate(DateTime date) =>
     '${date.year.toString().padLeft(4, '0')}-'
@@ -32,7 +32,7 @@ void main() {
   for (final textScale in [1.0, 2.0]) {
     testWidgets('home shows the week, oldest freeze and the coffee to repeat '
         '(text x$textScale)', (tester) async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       tester.view.physicalSize = const Size(360, 800);
       tester.view.devicePixelRatio = 1;
@@ -95,7 +95,7 @@ void main() {
   testWidgets('a long low-stock coffee name wraps to two lines', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(320, 800);
     tester.view.devicePixelRatio = 1;
@@ -144,7 +144,7 @@ void main() {
   testWidgets('coffees are grouped by freshness and repeat their favourite', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     final now = DateTime.now();

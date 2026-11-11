@@ -1,4 +1,3 @@
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/scale_settings.dart';
@@ -10,6 +9,7 @@ import 'package:holybeans/ui/brews/brew_scale_session.dart';
 import 'package:universal_ble/universal_ble.dart';
 
 import 'helpers/fake_scale_ble_platform.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   late FakeScaleBlePlatform platform;
@@ -19,7 +19,7 @@ void main() {
   setUp(() {
     platform = FakeScaleBlePlatform();
     UniversalBle.setInstance(platform);
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     scale = BleScale(ScaleSettings(database));
   });
   tearDown(() async {

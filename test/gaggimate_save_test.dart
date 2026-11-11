@@ -1,6 +1,4 @@
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
@@ -10,13 +8,14 @@ import 'package:holybeans/domain/gaggimate/binary.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 
 import 'helpers/gaggimate_fixture.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   test(
     'changing provider clears a pending machine recording before saving',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repo = JournalRepository(db);
       final coffee = await repo.createCoffee(name: 'C', roaster: 'R');
@@ -66,7 +65,7 @@ void main() {
   test(
     'Gaggimate save, replacement, backup and deletion keep provenance coherent',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repo = JournalRepository(db);
       final method = await repo.createMethod(
@@ -98,7 +97,7 @@ void main() {
       expect(await repo.importedGaggimateShots(), {shot.externalId});
       expect(await repo.importedMeticulousShots(), isEmpty);
       expect((await repo.brewCurve(saved.id))!.source, 'gaggimate');
-      final restored = AppDatabase.forTesting(NativeDatabase.memory());
+      final restored = memoryDatabase();
       addTearDown(restored.close);
       await JournalBackup(restored)
           .restoreJson(await JournalBackup(db).exportJson());

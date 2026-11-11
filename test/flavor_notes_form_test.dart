@@ -1,21 +1,21 @@
 import 'package:drift/drift.dart' show driftRuntimeOptions;
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/domain/bean_exchange.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
 
+import 'helpers/test_database.dart';
+
 void main() {
   setUpAll(() => driftRuntimeOptions.dontWarnAboutMultipleDatabases = true);
   test(
     'mixed imported notes survive backup and shared bean round trips',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
-      final restored = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
+      final restored = memoryDatabase();
       addTearDown(db.close);
       addTearDown(restored.close);
       final repo = JournalRepository(db);
@@ -43,7 +43,7 @@ void main() {
     testWidgets(
       'Save includes pending note and discard guard sees it ($language)',
       (tester) async {
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(() async {
           await tester.pumpWidget(const SizedBox.shrink());
           await tester.pumpAndSettle();

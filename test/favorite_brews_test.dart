@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:drift/drift.dart' hide isNotNull, isNull;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -13,6 +12,7 @@ import 'package:holybeans/domain/brew_input.dart';
 import 'package:holybeans/domain/favorite_brews.dart';
 
 import 'helpers/beanconqueror_fixture.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   test(
@@ -54,7 +54,7 @@ void main() {
     late String espresso;
 
     setUp(() async {
-      database = AppDatabase.forTesting(NativeDatabase.memory());
+      database = memoryDatabase();
       repository = JournalRepository(database);
       kenya = await repository.createCoffee(name: 'Kenya', roaster: 'R');
       v60 = await repository.createMethod(name: 'V60', category: 'pourover');
@@ -141,7 +141,7 @@ void main() {
       final json = await backup.exportJson();
       expect(jsonDecode(json)['version'], JournalBackup.version);
 
-      final copy = AppDatabase.forTesting(NativeDatabase.memory());
+      final copy = memoryDatabase();
       addTearDown(copy.close);
       await JournalBackup(copy).restoreJson(json);
       expect((await copy.select(copy.brews).getSingle()).isFavorite, isTrue);
@@ -152,7 +152,7 @@ void main() {
       for (final row in (old['data'] as Map)['brews'] as List) {
         (row as Map).remove('isFavorite');
       }
-      final older = AppDatabase.forTesting(NativeDatabase.memory());
+      final older = memoryDatabase();
       addTearDown(older.close);
       await JournalBackup(older).restoreJson(jsonEncode(old));
       expect((await older.select(older.brews).getSingle()).isFavorite, isFalse);
@@ -161,7 +161,7 @@ void main() {
       final twice = jsonDecode(json) as Map<String, dynamic>;
       final brews = (twice['data'] as Map)['brews'] as List;
       brews.add({...(brews.single as Map), 'id': 'other'});
-      final broken = AppDatabase.forTesting(NativeDatabase.memory());
+      final broken = memoryDatabase();
       addTearDown(broken.close);
       await expectLater(
         JournalBackup(broken).restoreJson(jsonEncode(twice)),
@@ -171,7 +171,7 @@ void main() {
   });
 
   test('BeanConqueror favourites arrive, and local ones win', () async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     Map<String, dynamic> shot(
