@@ -1,4 +1,3 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -11,11 +10,14 @@ import 'package:holybeans/ui/equipment/water_calculator_result.dart';
 import 'package:holybeans/ui/equipment/water_chart.dart';
 import 'package:holybeans/ui/equipment/water_profiles_page.dart';
 
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
+
 void main() {
   late AppDatabase db;
   late JournalRepository repo;
   setUp(() {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     repo = JournalRepository(db);
   });
   tearDown(() async {
@@ -527,9 +529,4 @@ void main() {
 }
 
 Widget _harness(Widget child, {Locale locale = const Locale('en')}) =>
-    MaterialApp(
-      locale: locale,
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      home: child,
-    );
+    localizedApp(locale: locale, home: child);

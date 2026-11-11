@@ -1,4 +1,3 @@
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -6,6 +5,8 @@ import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/domain/water_chemistry.dart';
 import 'package:holybeans/domain/water_presets.dart';
 import 'package:holybeans/ui/equipment/water_calculator_model.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -98,7 +99,7 @@ void main() {
   test(
     'saved target snapshot survives backup and deletion of its source',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repo = JournalRepository(db);
       final sourceId = await repo.createWaterProfile(

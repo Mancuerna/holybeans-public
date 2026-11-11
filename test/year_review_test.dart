@@ -7,6 +7,7 @@ import 'package:holybeans/ui/year_review/year_review_share.dart';
 import 'package:holybeans/ui/year_review/year_review_stories.dart';
 import 'package:intl/intl.dart';
 
+import 'helpers/ui_test_support.dart';
 import 'helpers/year_fixture.dart';
 
 void main() {
@@ -42,11 +43,9 @@ void main() {
           addTearDown(tester.view.resetDevicePixelRatio);
           addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
           await tester.pumpWidget(
-            MaterialApp(
+            localizedApp(
               locale: Locale(language),
               theme: ThemeData.dark(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
               home: YearReviewPage(
                 lots: [
                   yearLot('a'),
@@ -130,10 +129,8 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: StatsPage(
           coffees: const [],
           brews: const [],
@@ -158,10 +155,8 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: StatsPage(
           coffees: [yearCoffee('a', paidPriceCents: 1500)],
           lots: [yearLot('a', purchased: '2023-02-01')],

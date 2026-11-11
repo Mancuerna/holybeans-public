@@ -1,18 +1,18 @@
 import 'dart:convert';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/domain/water_chemistry.dart';
 import 'package:holybeans/domain/water_presets.dart';
 import 'package:holybeans/ui/equipment/water_calculator_model.dart';
 
+import 'helpers/test_database.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   test('mixed hardness recipe survives backup and reopens unchanged', () async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
     addTearDown(db.close);
     final model = WaterCalculatorModel();
     addTearDown(model.dispose);
@@ -34,7 +34,7 @@ void main() {
     expect(reopened.recipe!.toJson(), recipe.toJson());
   });
   test('water recipe and bicarbonate survive backup; older profiles remain readable', () async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
     addTearDown(db.close);
     final repo = JournalRepository(db);
     final recipe = WaterRecipe(

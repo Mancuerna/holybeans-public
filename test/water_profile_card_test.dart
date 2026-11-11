@@ -5,6 +5,8 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/equipment/water_profile_card.dart';
 
+import 'helpers/ui_test_support.dart';
+
 const rao = WaterProfile(
   id: 'rao',
   name: 'Rao/Perger 2012',
@@ -33,11 +35,9 @@ void main() {
           var calculations = 0;
           var recipes = 0;
           await tester.pumpWidget(
-            MaterialApp(
+            localizedApp(
               locale: Locale(language),
               theme: language == 'es' ? AppTheme.dark() : AppTheme.light(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
               builder: (context, child) => MediaQuery(
                 data: MediaQuery.of(context)
                     .copyWith(textScaler: TextScaler.linear(scale)),
@@ -126,9 +126,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     var edits = 0;
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+      localizedApp(
         home: Scaffold(
           body: ListView(
             children: [
@@ -194,10 +192,8 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: Column(
             children: [

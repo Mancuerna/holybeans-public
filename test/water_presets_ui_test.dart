@@ -7,6 +7,8 @@ import 'package:holybeans/ui/equipment/water_calculator_model.dart';
 import 'package:holybeans/ui/equipment/water_calculator_result.dart';
 import 'package:holybeans/ui/equipment/water_profile_values.dart';
 
+import 'helpers/ui_test_support.dart';
+
 void main() {
   for (final locale in ['es', 'en']) {
     testWidgets('select and scale salt recipes with large text ($locale)', (
@@ -22,10 +24,8 @@ void main() {
       addTearDown(model.dispose);
       late AppLocalizations s;
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: Locale(locale),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: Builder(
               builder: (context) {
