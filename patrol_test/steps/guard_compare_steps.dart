@@ -7,6 +7,7 @@ import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
 import 'package:holybeans/ui/brews/brew_comparison_page.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 import '../support/smoke_support.dart';
@@ -49,7 +50,10 @@ Future<void> checkGuardAndComparison(
   final beforeBrews = await database.select(database.brews).get();
   final beforeLots = await database.select(database.coffeeLots).get();
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: database, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: database),
+      initialLocale: const Locale('en'),
+    ),
   );
   await $.tap(
     find.descendant(

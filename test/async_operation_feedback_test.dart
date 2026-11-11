@@ -17,6 +17,7 @@ import 'package:holybeans/ui/backup/backup_center.dart';
 import 'package:holybeans/ui/backup/backup_section.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
 import 'package:holybeans/ui/beans/share_bean_sheet.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/settings/beanconqueror_import_page.dart';
 import 'package:holybeans/ui/settings/pours_from_curves.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
@@ -202,7 +203,10 @@ void main() {
       "CREATE TRIGGER reject_locale BEFORE UPDATE OF locale_code ON app_preferences BEGIN SELECT RAISE(FAIL, 'Language write failed'); END",
     );
     await tester.pumpWidget(
-      HolyBeansApp(database: db, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: db),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     final messages = <String>[];

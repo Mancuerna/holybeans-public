@@ -7,6 +7,7 @@ import 'package:holybeans/domain/gaggimate/shot.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/gaggimate_shot_widgets.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/equipment/equipment_forms.dart';
 
 import 'helpers/gaggimate_fixture.dart';
@@ -63,7 +64,10 @@ void main() {
       machineAddress: 'gaggimate.local',
     );
     await tester.pumpWidget(
-      HolyBeansApp(database: db, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: db),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Brew').last);

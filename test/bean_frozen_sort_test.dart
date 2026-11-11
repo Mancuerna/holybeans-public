@@ -6,6 +6,7 @@ import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/domain/list_options.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/bean_card.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 
@@ -70,7 +71,10 @@ void main() {
 
         Future<void> open() async {
           await tester.pumpWidget(
-            HolyBeansApp(database: database, initialLocale: Locale(language)),
+            HolyBeansApp(
+              services: AppServices(database: database),
+              initialLocale: Locale(language),
+            ),
           );
           await tester.pumpAndSettle();
           final nav = tester.getRect(find.byType(NavigationBar));

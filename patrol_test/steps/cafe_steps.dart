@@ -5,6 +5,7 @@ import 'package:holybeans/data/repositories/cafe_repository.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/cafes/cafe_drink_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 Future<void> checkCafeJournal(
@@ -19,7 +20,10 @@ Future<void> checkCafeJournal(
   );
   final before = await home.allCoffees();
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: database, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: database),
+      initialLocale: const Locale('en'),
+    ),
   );
   await $.tap(find.byKey(const ValueKey('cafes-button')));
   await $.tap(find.byKey(const ValueKey('cafe-add')));

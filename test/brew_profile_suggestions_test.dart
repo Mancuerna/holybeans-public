@@ -10,6 +10,7 @@ import 'package:holybeans/domain/profile_suggestions.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_form_sections.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
@@ -90,8 +91,11 @@ void main() {
           locale: Locale(locale),
           home: Scaffold(
             body: BrewForm(
-              repository: repository,
-              settings: BrewParameterSettings(db),
+              services: AppServices.forJournal(
+                repository,
+                parameterSettings: BrewParameterSettings(db),
+              ),
+
               coffees: await repository.allCoffees(),
               initialCoffeeId: coffee,
               initialMethodId: method,
@@ -148,8 +152,11 @@ void main() {
       () async {
         final repo = _DelayedProfiles(db);
         final model = BrewFormModel(
-          repository: repo,
-          settings: BrewParameterSettings(db),
+          services: AppServices.forJournal(
+            repo,
+            parameterSettings: BrewParameterSettings(db),
+          ),
+
           coffees: await repo.allCoffees(),
           initialCoffeeId: coffee,
           initialMethodId: method,
@@ -182,8 +189,11 @@ void main() {
   test('completion after dispose does not notify', () async {
     final repo = _DelayedProfiles(db);
     final model = BrewFormModel(
-      repository: repo,
-      settings: BrewParameterSettings(db),
+      services: AppServices.forJournal(
+        repo,
+        parameterSettings: BrewParameterSettings(db),
+      ),
+
       coffees: await repo.allCoffees(),
       initialCoffeeId: coffee,
     );

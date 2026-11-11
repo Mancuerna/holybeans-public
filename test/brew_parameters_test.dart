@@ -9,6 +9,7 @@ import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/l10n/app_localizations_en.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_share_text.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'helpers/test_database.dart';
@@ -214,7 +215,10 @@ void main() {
     testWidgets('details hide them until revealed', (tester) async {
       final (database, _) = await journal();
       await tester.pumpWidget(
-        HolyBeansApp(database: database, initialLocale: const Locale('en')),
+        HolyBeansApp(
+          services: AppServices(database: database),
+          initialLocale: const Locale('en'),
+        ),
       );
       await tester.pumpAndSettle();
       await tapBottomDestination(tester, 2);
@@ -237,7 +241,10 @@ void main() {
     ) async {
       final (database, _) = await journal();
       await tester.pumpWidget(
-        HolyBeansApp(database: database, initialLocale: const Locale('en')),
+        HolyBeansApp(
+          services: AppServices(database: database),
+          initialLocale: const Locale('en'),
+        ),
       );
       await tester.pumpAndSettle();
       await tapBottomDestination(tester, 2);
@@ -260,7 +267,10 @@ void main() {
     ) async {
       final (database, _) = await journal();
       await tester.pumpWidget(
-        HolyBeansApp(database: database, initialLocale: const Locale('en')),
+        HolyBeansApp(
+          services: AppServices(database: database),
+          initialLocale: const Locale('en'),
+        ),
       );
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Settings'));
@@ -300,7 +310,10 @@ void main() {
     final settings = BrewParameterSettings(database);
     await settings.saveShared({BrewParameter.dose});
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Settings'));
@@ -342,7 +355,10 @@ void main() {
     final database = memoryDatabase();
     addTearDown(database.close);
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Settings'));

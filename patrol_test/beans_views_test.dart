@@ -6,6 +6,7 @@ import 'package:holybeans/domain/list_options.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/bean_card.dart';
 import 'package:holybeans/ui/beans/freshness_calendar_page.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:patrol/patrol.dart';
 
@@ -42,7 +43,10 @@ void main() {
           }
           Future<void> openBeans() async {
             await $.pumpWidgetAndSettle(
-              HolyBeansApp(database: db, initialLocale: Locale(language)),
+              HolyBeansApp(
+                services: AppServices(database: db),
+                initialLocale: Locale(language),
+              ),
             );
             final nav = $.tester.getRect(find.byType(NavigationBar));
             await $.tester.tapAt(

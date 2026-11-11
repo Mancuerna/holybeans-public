@@ -65,6 +65,10 @@ reliably enforce. App translations remain in English and Spanish.
   delegation. Keep transaction logic in the owning aggregate; shared row
   lookups live in `JournalRecordQueries`. Aggregates do not depend on the façade.
 - `lib/ui/`: UI grouped by feature. `JournalShell` implements `JournalActions`.
+  `AppServicesScope` above the navigator shares stable dependencies with routes
+  and sheets. Controllers receive the same bundle explicitly; the existing
+  owners retain disposal responsibility. File and backup work belongs in data
+  services; UI notifiers forward lifecycle events and present their state.
 - `lib/l10n/`: English and Spanish ARB sources; generated translations are ignored.
 - `test/`: unit, widget and persistence tests.
 - `drift_schemas/`: historical schemas needed to verify migration paths.

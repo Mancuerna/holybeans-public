@@ -7,6 +7,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 class _Reads extends QueryInterceptor {
   String? holdTable;
@@ -76,8 +77,11 @@ void main() {
       final coffees = await repository.allCoffees();
       reads.holdTable = table;
       final model = BrewFormModel(
-        repository: repository,
-        settings: BrewParameterSettings(db),
+        services: AppServices.forJournal(
+          repository,
+          parameterSettings: BrewParameterSettings(db),
+        ),
+
         coffees: coffees,
         existing: existing,
       );
@@ -98,8 +102,11 @@ void main() {
       final coffees = await repository.allCoffees();
       reads.failTable = 'recipients';
       final model = BrewFormModel(
-        repository: repository,
-        settings: BrewParameterSettings(db),
+        services: AppServices.forJournal(
+          repository,
+          parameterSettings: BrewParameterSettings(db),
+        ),
+
         coffees: coffees,
         initialCoffeeId: coffee,
         initialMethodId: method,
@@ -132,8 +139,11 @@ void main() {
       final coffees = await repository.allCoffees();
       reads.failTools = true;
       final model = BrewFormModel(
-        repository: repository,
-        settings: BrewParameterSettings(db),
+        services: AppServices.forJournal(
+          repository,
+          parameterSettings: BrewParameterSettings(db),
+        ),
+
         coffees: coffees,
         existing: existing,
       );

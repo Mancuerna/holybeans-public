@@ -8,6 +8,7 @@ import 'package:holybeans/domain/list_options.dart';
 import 'package:holybeans/domain/roaster_profile.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/beans_tab.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/roasters/roasters_page.dart';
 
 import 'helpers/test_database.dart';
@@ -22,7 +23,10 @@ void main() {
       final repository = JournalRepository(db);
       await repository.createCoffee(name: 'Fixture', roaster: 'North Star');
       await tester.pumpWidget(
-        HolyBeansApp(database: db, initialLocale: const Locale('en')),
+        HolyBeansApp(
+          services: AppServices(database: db),
+          initialLocale: const Locale('en'),
+        ),
       );
       await tester.pumpAndSettle();
       await tapBottomDestination(tester, 1);

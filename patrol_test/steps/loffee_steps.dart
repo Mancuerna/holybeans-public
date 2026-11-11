@@ -7,6 +7,7 @@ import 'package:holybeans/data/services/loffee_key_store.dart';
 import 'package:holybeans/domain/loffee_bean.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 import '../../test/helpers/fake_loffee.dart';
@@ -32,10 +33,12 @@ Future<void> checkLoffeeImport(
     expect(await keys.read(), isNull);
     await $.pumpWidgetAndSettle(
       HolyBeansApp(
-        database: database,
+        services: AppServices(
+          database: database,
+          loffee: LoffeeServices(api: api, keys: keys),
+          incoming: incoming,
+        ),
         initialLocale: const Locale('en'),
-        loffee: LoffeeServices(api: api, keys: keys),
-        incoming: incoming,
       ),
     );
     await $.tap(find.byKey(const ValueKey('bean-add-manual')));

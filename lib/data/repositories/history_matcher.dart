@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:isolate';
 
-import 'package:flutter/foundation.dart';
 import 'package:holybeans/data/repositories/history_query.dart';
 
 /// A search page reuses one isolate across note batches, then releases it.
@@ -13,7 +12,10 @@ class HistoryMatcher {
   SendPort? _requests;
 
   Future<List<int>> match(HistoryRequest request) async {
-    if (kIsWeb) return compute(selectHistory, request);
+    if (const bool.fromEnvironment('dart.library.js_interop')) {
+      await null;
+      return selectHistory(request);
+    }
     if (_requests == null) {
       final port = _port = ReceivePort();
       final responses = _responses = StreamIterator<dynamic>(port);

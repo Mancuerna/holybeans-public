@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/services/export_folder.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 /// Folder with a BeanConqueror "Full export to directory" (its
@@ -19,9 +20,11 @@ Future<void> checkBeanconquerorFolder(
 ) async {
   await $.pumpWidgetAndSettle(
     HolyBeansApp(
-      database: database,
+      services: AppServices(
+        database: database,
+        exportFolder: const AndroidExportFolder(),
+      ),
       initialLocale: const Locale('en'),
-      exportFolder: const AndroidExportFolder(),
     ),
   );
   await $.tap(find.byTooltip('Settings'));

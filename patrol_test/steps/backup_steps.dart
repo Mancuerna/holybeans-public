@@ -11,6 +11,7 @@ import 'package:holybeans/data/services/backup_folder.dart';
 import 'package:holybeans/domain/auto_backup.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/backup/backup_center.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:patrol/patrol.dart';
@@ -59,9 +60,8 @@ Future<void> checkBackups(
     await $.pumpWidgetAndSettle(const SizedBox.shrink());
     await $.pumpWidgetAndSettle(
       HolyBeansApp(
-        database: database,
+        services: AppServices(database: database, backupServices: services),
         initialLocale: const Locale('en'),
-        backupServices: services,
       ),
     );
   }

@@ -9,6 +9,7 @@ import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/portafilter_weighing.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/equipment/recipients_page.dart';
 
 import 'helpers/fake_scale.dart';
@@ -45,12 +46,16 @@ void main() {
 
   Future<BrewFormModel> model({FakeScale? scale, Brew? existing}) async =>
       BrewFormModel(
-        repository: repo,
-        settings: BrewParameterSettings(db),
+        services: AppServices.forJournal(
+          repo,
+          parameterSettings: BrewParameterSettings(db),
+          scale: scale,
+        ),
+
         coffees: await db.select(db.coffees).get(),
         initialCoffeeId: coffee,
         initialMethodId: method,
-        scale: scale,
+
         existing: existing,
       );
 

@@ -16,6 +16,7 @@ import 'package:holybeans/data/services/pre_migration_copies.dart';
 import 'package:holybeans/domain/auto_backup.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/backup/backup_center.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/legacy_schema.dart';
 import 'helpers/test_database.dart';
@@ -116,9 +117,8 @@ void main() {
   Future<void> start(WidgetTester tester) async {
     await tester.pumpWidget(
       HolyBeansApp(
-        database: database,
+        services: AppServices(database: database, backupServices: services),
         initialLocale: const Locale('en'),
-        backupServices: services,
       ),
     );
     await tester.pumpAndSettle();

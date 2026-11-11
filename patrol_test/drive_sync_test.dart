@@ -10,6 +10,7 @@ import 'package:holybeans/data/services/drive_sync_remote.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/sync/drive_sync_model.dart';
 import 'package:holybeans/ui/sync/drive_sync_page.dart';
 import 'package:image/image.dart' as image;
@@ -81,10 +82,13 @@ void main() {
       try {
         await $.pumpWidgetAndSettle(
           HolyBeansApp(
-            database: database,
-            photos: photos,
+            services: AppServices(
+              database: database,
+              photos: photos,
+              driveSync: model,
+            ),
+
             initialLocale: const Locale('en'),
-            driveSync: model,
           ),
         );
         await $(Icons.settings_outlined).tap();

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
@@ -30,7 +31,10 @@ void main() {
     expect(suggestions.producers, ['Edwin Noreña']);
     expect(suggestions.roasters, ['Friedhats']);
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Add bean'));

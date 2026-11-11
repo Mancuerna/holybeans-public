@@ -16,6 +16,7 @@ import 'package:holybeans/domain/list_options.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/bean_card.dart';
 import 'package:holybeans/ui/beans/beans_tab.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:patrol/patrol.dart';
@@ -105,7 +106,10 @@ void main() {
           });
 
           await tester.pumpWidget(
-            HolyBeansApp(database: db, initialLocale: const Locale('es')),
+            HolyBeansApp(
+              services: AppServices(database: db),
+              initialLocale: const Locale('es'),
+            ),
           );
           await settleJournal(tester);
           await destination(tester, 1);

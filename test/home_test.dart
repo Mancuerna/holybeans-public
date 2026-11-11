@@ -4,6 +4,7 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
 
 import 'helpers/test_database.dart';
@@ -62,7 +63,10 @@ void main() {
       );
 
       await tester.pumpWidget(
-        HolyBeansApp(database: database, initialLocale: const Locale('en')),
+        HolyBeansApp(
+          services: AppServices(database: database),
+          initialLocale: const Locale('en'),
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -120,7 +124,10 @@ void main() {
       );
     }
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     final tile = find.byKey(ValueKey('low-stock-$coffeeId'));
@@ -204,7 +211,10 @@ void main() {
     );
 
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
 

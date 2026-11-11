@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/equipment/water_profiles_page.dart';
 
 import 'helpers/test_database.dart';
@@ -67,7 +68,10 @@ void main() {
       );
 
       await tester.pumpWidget(
-        HolyBeansApp(database: database, initialLocale: const Locale('en')),
+        HolyBeansApp(
+          services: AppServices(database: database),
+          initialLocale: const Locale('en'),
+        ),
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);

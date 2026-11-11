@@ -9,6 +9,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 Future<void> checkBeanShare(PatrolIntegrationTester $, AppDatabase db) async {
@@ -49,8 +50,7 @@ Future<void> checkBeanShare(PatrolIntegrationTester $, AppDatabase db) async {
   try {
     await $.pumpWidgetAndSettle(
       HolyBeansApp(
-        database: db,
-        photos: photos,
+        services: AppServices(database: db, photos: photos),
         initialLocale: const Locale('en'),
       ),
     );

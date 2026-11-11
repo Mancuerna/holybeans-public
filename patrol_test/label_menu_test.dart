@@ -7,6 +7,7 @@ import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/bean_share_sheet.dart';
 import 'package:holybeans/ui/beans/coffee_details_sheet.dart';
 import 'package:holybeans/ui/beans/freshness_calendar_page.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/labels/label_print_page.dart';
 import 'package:patrol/patrol.dart';
 import 'package:universal_ble/universal_ble.dart';
@@ -40,7 +41,10 @@ void main() {
         final s = await AppLocalizations.delegate.load(Locale(language));
         try {
           await $.pumpWidgetAndSettle(
-            HolyBeansApp(database: db, initialLocale: Locale(language)),
+            HolyBeansApp(
+              services: AppServices(database: db),
+              initialLocale: Locale(language),
+            ),
           );
           final bar = $.tester.getRect(find.byType(NavigationBar));
           await $.tester.tapAt(

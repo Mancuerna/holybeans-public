@@ -10,6 +10,7 @@ import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/tasting_widgets.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/sync/drive_sync_model.dart';
 import 'package:path/path.dart' as path;
 import 'package:patrol/patrol.dart';
@@ -77,11 +78,13 @@ void main() {
         await model.enable();
         await $.pumpWidgetAndSettle(
           HolyBeansApp(
-            database: database,
+            services: AppServices(
+              database: database,
+              photos: photos,
+              driveSync: model,
+              releaseNotes: notes,
+            ),
             initialLocale: const Locale('en'),
-            photos: photos,
-            driveSync: model,
-            releaseNotes: notes,
           ),
         );
         await $.takeNativeScreenshot('feedback-release-notes');

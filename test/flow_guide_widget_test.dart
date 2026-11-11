@@ -11,6 +11,7 @@ import 'package:holybeans/ui/brews/pressure_assistant/flow_guide_page.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/pressure_guide_page.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/pressure_reference_page.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/shot_guide_chart.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 
 import 'helpers/fake_scale.dart';
@@ -274,8 +275,11 @@ void main() {
       final before = (await repo.brewCurve(flowId))!.curve.toJson();
       expect((await repo.flowReferences()).map((r) => r.brew.id), [flowId]);
       final model = BrewFormModel(
-        repository: repo,
-        settings: BrewParameterSettings(db),
+        services: AppServices.forJournal(
+          repo,
+          parameterSettings: BrewParameterSettings(db),
+        ),
+
         coffees: await repo.allCoffees(),
         initialCoffeeId: coffee,
         initialMethodId: method,

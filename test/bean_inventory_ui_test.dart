@@ -5,6 +5,7 @@ import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/coffee_picker.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
@@ -19,7 +20,10 @@ void main() {
   ) async {
     final database = memoryDatabase();
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('es')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('es'),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -158,7 +162,10 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(milliseconds: 10));
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('es')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('es'),
+      ),
     );
     await tester.pumpAndSettle();
     expect(find.text('Kieni'), findsWidgets);
@@ -202,7 +209,10 @@ void main() {
       await repository.setBrewArchived(archivedBrewId, archived: true);
 
       await tester.pumpWidget(
-        HolyBeansApp(database: database, initialLocale: const Locale('en')),
+        HolyBeansApp(
+          services: AppServices(database: database),
+          initialLocale: const Locale('en'),
+        ),
       );
       await tester.pumpAndSettle();
       await tapBottomDestination(tester, 1);
@@ -314,7 +324,10 @@ void main() {
       );
 
       await tester.pumpWidget(
-        HolyBeansApp(database: database, initialLocale: const Locale('en')),
+        HolyBeansApp(
+          services: AppServices(database: database),
+          initialLocale: const Locale('en'),
+        ),
       );
       await tester.pumpAndSettle();
       await tapBottomDestination(tester, 1);
@@ -401,7 +414,10 @@ void main() {
     await repository.createMethod(name: 'V60');
 
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
 

@@ -11,6 +11,7 @@ import 'package:holybeans/domain/share_template_exchange.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/share_template_editor.dart';
 import 'package:holybeans/ui/brews/share_templates_page.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 Future<void> checkTemplateExchange(
@@ -42,9 +43,8 @@ Future<void> checkTemplateExchange(
   try {
     await $.pumpWidgetAndSettle(
       HolyBeansApp(
-        database: db,
+        services: AppServices(database: db, incoming: incoming),
         initialLocale: const Locale('es'),
-        incoming: incoming,
       ),
     );
     final context = $.tester.element(find.byType(NavigationBar));

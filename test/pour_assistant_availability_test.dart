@@ -4,6 +4,7 @@ import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_form_sections.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
@@ -29,8 +30,11 @@ void main() {
           );
         }
         final model = BrewFormModel(
-          repository: repo,
-          settings: BrewParameterSettings(db),
+          services: AppServices.forJournal(
+            repo,
+            parameterSettings: BrewParameterSettings(db),
+          ),
+
           coffees: const [],
         );
         addTearDown(() async {

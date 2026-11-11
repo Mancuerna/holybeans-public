@@ -1,5 +1,4 @@
-import 'package:holybeans/data/services/gaggimate_client.dart';
-import 'package:holybeans/data/services/meticulous_client.dart';
+import 'package:holybeans/domain/machine_address.dart';
 
 const connectedMachines = {'meticulous', 'gaggimate'};
 
@@ -64,9 +63,9 @@ void validateWaterProfileValues({
   if (cleanAddress != null) {
     try {
       if (cleanMachine == 'gaggimate') {
-        GaggimateClient.normalizeAddress(cleanAddress);
+        gaggimateAddress(cleanAddress);
       } else {
-        MeticulousClient.normalizeAddress(cleanAddress);
+        meticulousAddress(cleanAddress);
       }
     } on FormatException {
       throw ArgumentError.value(address, 'machineAddress');

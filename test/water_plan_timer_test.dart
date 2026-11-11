@@ -4,6 +4,7 @@ import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/brew_form_sections.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/fake_scale.dart';
 import 'helpers/test_database.dart';
@@ -45,12 +46,15 @@ void main() {
             ),
             home: Scaffold(
               body: BrewForm(
-                repository: repository,
-                settings: BrewParameterSettings(db),
+                services: AppServices.forJournal(
+                  repository,
+                  parameterSettings: BrewParameterSettings(db),
+                  scale: scale,
+                ),
+
                 coffees: coffees,
                 initialCoffeeId: coffee,
                 initialMethodId: method,
-                scale: scale,
               ),
             ),
           ),

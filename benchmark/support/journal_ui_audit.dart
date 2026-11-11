@@ -13,6 +13,7 @@ import 'package:holybeans/ui/beans/beans_tab.dart';
 import 'package:holybeans/ui/brews/brew_card.dart';
 import 'package:holybeans/ui/brews/brew_details_sheet.dart';
 import 'package:holybeans/ui/brews/history_tab.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/stats/stats_page.dart';
 import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as path;
@@ -49,9 +50,8 @@ Future<void> runJournalUiAudit(
     final mount = Stopwatch()..start();
     await tester.pumpWidget(
       HolyBeansApp(
-        database: store.database,
+        services: AppServices(database: store.database, photos: photos),
         initialLocale: const Locale('en'),
-        photos: photos,
       ),
     );
     await settleJournal(tester);

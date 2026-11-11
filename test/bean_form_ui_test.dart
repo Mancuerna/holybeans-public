@@ -4,6 +4,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'helpers/test_database.dart';
@@ -33,7 +34,10 @@ void main() {
     );
 
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     await tapBottomDestination(tester, 1);
@@ -88,7 +92,10 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(
-        HolyBeansApp(database: database, initialLocale: const Locale('en')),
+        HolyBeansApp(
+          services: AppServices(database: database),
+          initialLocale: const Locale('en'),
+        ),
       );
       await tester.pumpAndSettle();
       await tester.tap(find.text('Add bean'));
@@ -194,7 +201,10 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     final database = memoryDatabase();
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('es')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('es'),
+      ),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Añadir grano'));
@@ -254,7 +264,10 @@ void main() {
     );
 
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Beans').last);
@@ -313,7 +326,10 @@ void main() {
 
     try {
       await tester.pumpWidget(
-        HolyBeansApp(database: database, initialLocale: const Locale('en')),
+        HolyBeansApp(
+          services: AppServices(database: database),
+          initialLocale: const Locale('en'),
+        ),
       );
       await tester.pumpAndSettle();
       await tester.tap(find.text('Beans').last);
@@ -392,7 +408,10 @@ void main() {
       );
 
       await tester.pumpWidget(
-        HolyBeansApp(database: database, initialLocale: const Locale('en')),
+        HolyBeansApp(
+          services: AppServices(database: database),
+          initialLocale: const Locale('en'),
+        ),
       );
       await tester.pumpAndSettle();
       await tapBottomDestination(tester, 1);
@@ -458,7 +477,10 @@ void main() {
         );
 
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     await tapBottomDestination(tester, 1);

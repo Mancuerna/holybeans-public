@@ -10,6 +10,7 @@ import 'package:holybeans/ui/brews/brew_form_sections.dart';
 import 'package:holybeans/ui/brews/brew_scale_reset_button.dart';
 import 'package:holybeans/ui/brews/brew_weight_chart.dart';
 import 'package:holybeans/ui/brews/extraction_timer.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/scale/scale_compact.dart';
 
 import 'helpers/fake_scale.dart';
@@ -33,12 +34,15 @@ Future<(BrewFormModel, FakeScale)> _mount(
   );
   final scale = FakeScale(name: 'Fixture scale', connected: true)..emit(0);
   final model = BrewFormModel(
-    repository: repository,
-    settings: BrewParameterSettings(database),
+    services: AppServices.forJournal(
+      repository,
+      parameterSettings: BrewParameterSettings(database),
+      scale: scale,
+    ),
+
     coffees: await repository.allCoffees(),
     initialCoffeeId: coffee,
     initialMethodId: method,
-    scale: scale,
   );
   addTearDown(() async {
     model.dispose();

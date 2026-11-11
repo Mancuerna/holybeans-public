@@ -5,6 +5,7 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/rate_reminders.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 
@@ -54,10 +55,12 @@ void main() {
 
     await tester.pumpWidget(
       HolyBeansApp(
-        database: database,
+        services: AppServices(
+          database: database,
+          reminders: reminders,
+          openRate: openRate,
+        ),
         initialLocale: const Locale('en'),
-        reminders: reminders,
-        openRate: openRate,
       ),
     );
     await tester.pumpAndSettle();

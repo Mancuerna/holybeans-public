@@ -5,6 +5,7 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/refractometer.dart';
 import 'package:holybeans/domain/difluid_r2_protocol.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/settings/refractometer_section.dart';
 
 import 'helpers/fake_refractometer.dart';
@@ -124,11 +125,14 @@ void main() {
       app(
         Scaffold(
           body: BrewForm(
-            repository: repository,
-            settings: BrewParameterSettings(database),
+            services: AppServices.forJournal(
+              repository,
+              parameterSettings: BrewParameterSettings(database),
+              refractometer: refractometer,
+            ),
+
             coffees: coffees,
             initialMethodId: methodId,
-            refractometer: refractometer,
           ),
         ),
       ),

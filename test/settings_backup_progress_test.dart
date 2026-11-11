@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/settings/settings_page.dart';
 
 import 'helpers/test_database.dart';
@@ -28,8 +29,10 @@ void main() {
           onExportBackup: export,
           onExportCsv: () {},
           onImportBackup: restore ?? () async {},
-          parameterSettings: BrewParameterSettings(db),
-          templateSettings: ShareTemplateSettings(db),
+          services: AppServices.forPreferences(
+            BrewParameterSettings(db),
+            templateSettings: ShareTemplateSettings(db),
+          ),
         ),
       ),
     );

@@ -11,6 +11,7 @@ import 'package:holybeans/ui/brews/coffee_picker.dart';
 import 'package:holybeans/ui/brews/history_filter_chips.dart';
 import 'package:holybeans/ui/brews/history_filters.dart';
 import 'package:holybeans/ui/brews/history_tab.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -237,7 +238,10 @@ void main() {
       }
       final before = await db.select(db.brews).get();
       await tester.pumpWidget(
-        HolyBeansApp(database: db, initialLocale: Locale(lang)),
+        HolyBeansApp(
+          services: AppServices(database: db),
+          initialLocale: Locale(lang),
+        ),
       );
       await tester.pumpAndSettle();
       await tapBottomDestination(tester, 2);

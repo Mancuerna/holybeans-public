@@ -5,6 +5,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/brew_form_sections.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 import 'support/smoke_support.dart';
@@ -49,7 +50,10 @@ void main() {
             );
           }
           await $.pumpWidgetAndSettle(
-            HolyBeansApp(database: db, initialLocale: Locale(language)),
+            HolyBeansApp(
+              services: AppServices(database: db),
+              initialLocale: Locale(language),
+            ),
           );
           final s = lookupAppLocalizations(Locale(language));
           await $.tap(find.text(s.actionBrew));

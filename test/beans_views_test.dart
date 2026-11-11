@@ -9,6 +9,7 @@ import 'package:holybeans/ui/beans/bean_card.dart';
 import 'package:holybeans/ui/beans/coffee_details_sheet.dart';
 import 'package:holybeans/ui/beans/freshness_calendar_page.dart';
 import 'package:holybeans/ui/beans/roaster_group_header.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
@@ -56,7 +57,10 @@ void main() {
         );
         Future<void> open() async {
           await tester.pumpWidget(
-            HolyBeansApp(database: db, initialLocale: Locale(language)),
+            HolyBeansApp(
+              services: AppServices(database: db),
+              initialLocale: Locale(language),
+            ),
           );
           await tester.pumpAndSettle();
           await tapBottomDestination(tester, 1);
@@ -160,7 +164,10 @@ void main() {
       roastDate: roast,
     );
     await tester.pumpWidget(
-      HolyBeansApp(database: db, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: db),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     await tapBottomDestination(tester, 1);

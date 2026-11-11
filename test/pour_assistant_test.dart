@@ -6,6 +6,7 @@ import 'package:holybeans/data/services/device_feedback.dart';
 import 'package:holybeans/domain/pour_plan.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/pour_assistant/pour_assistant_page.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/manual_stopwatch.dart';
 import 'helpers/test_database.dart';
@@ -238,8 +239,11 @@ void main() {
                 context: context,
                 isScrollControlled: true,
                 builder: (_) => BrewForm(
-                  repository: repository,
-                  settings: BrewParameterSettings(database),
+                  services: AppServices.forJournal(
+                    repository,
+                    parameterSettings: BrewParameterSettings(database),
+                  ),
+
                   coffees: coffees,
                   initialMethodId: methodId,
                 ),

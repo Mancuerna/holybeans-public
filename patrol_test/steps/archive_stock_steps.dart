@@ -5,6 +5,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/stock_review_card.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 Future<void> checkArchiveStock(
@@ -31,7 +32,10 @@ Future<void> checkArchiveStock(
     doseGrams: 15,
   );
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: db, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: db),
+      initialLocale: const Locale('en'),
+    ),
   );
   await $.tap(
     find.descendant(

@@ -9,6 +9,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/pour_assistant/pour_assistant_page.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/settings/scale_section.dart';
 
 import 'helpers/fake_pressure_sensor.dart';
@@ -126,11 +127,14 @@ void main() {
                 context: context,
                 isScrollControlled: true,
                 builder: (_) => BrewForm(
-                  repository: repository,
-                  settings: BrewParameterSettings(database),
+                  services: AppServices.forJournal(
+                    repository,
+                    parameterSettings: BrewParameterSettings(database),
+                    scale: scale,
+                  ),
+
                   coffees: coffees,
                   initialMethodId: methodId,
-                  scale: scale,
                 ),
               ),
               child: const Text('Open'),
@@ -394,10 +398,12 @@ void main() {
     addTearDown(sensor.dispose);
     await tester.pumpWidget(
       HolyBeansApp(
-        database: database,
+        services: AppServices(
+          database: database,
+          scale: scale,
+          pressureSensor: sensor,
+        ),
         initialLocale: const Locale('en'),
-        scale: scale,
-        pressureSensor: sensor,
       ),
     );
     await tester.pumpAndSettle();
@@ -441,11 +447,14 @@ void main() {
       app(
         Scaffold(
           body: BrewForm(
-            repository: repository,
-            settings: BrewParameterSettings(database),
+            services: AppServices.forJournal(
+              repository,
+              parameterSettings: BrewParameterSettings(database),
+              scale: scale,
+            ),
+
             coffees: coffees,
             initialMethodId: methodId,
-            scale: scale,
           ),
         ),
       ),

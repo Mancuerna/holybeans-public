@@ -4,6 +4,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/cupping.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/cupping/cupping_page.dart';
 import 'package:patrol/patrol.dart';
 
@@ -23,7 +24,10 @@ Future<void> checkCupping(
   final g = await r.createGrinder(name: 'Patrol grinder');
   final w = await r.createWaterProfile(name: 'Patrol water');
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: database, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: database),
+      initialLocale: const Locale('en'),
+    ),
   );
   await $.tap(
     find.descendant(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:holybeans/data/services/journal_write_gate.dart';
+import 'package:holybeans/data/database/journal_write_gate.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 
 String journalWriteErrorText(

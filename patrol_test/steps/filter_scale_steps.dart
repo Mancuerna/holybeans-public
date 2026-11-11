@@ -6,6 +6,7 @@ import 'package:holybeans/data/services/scale.dart';
 import 'package:holybeans/domain/filter_brew_progress.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 import '../../test/helpers/fake_scale.dart';
@@ -36,9 +37,8 @@ Future<void> checkFilterScale(
   try {
     await $.pumpWidgetAndSettle(
       HolyBeansApp(
-        database: database,
+        services: AppServices(database: database, scale: scale),
         initialLocale: const Locale('en'),
-        scale: scale,
       ),
     );
     await $.tap(find.text('Brew'));
