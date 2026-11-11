@@ -231,20 +231,8 @@ class PourPlan {
 
   /// Water the scale should show at [second] when each step is poured
   /// steadily over [pourSeconds], or until the next step if sooner.
-  double plannedGramsAt(double second, {double pourSeconds = 10}) {
-    final all = steps;
-    var grams = 0.0;
-    for (final (index, step) in all.indexed) {
-      if (second < step.startSecond) break;
-      final untilNext = index + 1 < all.length
-          ? all[index + 1].startSecond - step.startSecond
-          : pourSeconds;
-      final span = math.max(1.0, math.min(pourSeconds, untilNext.toDouble()));
-      final done = ((second - step.startSecond) / span).clamp(0.0, 1.0);
-      grams = step.targetGrams - step.addGrams * (1 - done);
-    }
-    return grams;
-  }
+  double plannedGramsAt(double second, {double pourSeconds = 10}) =>
+      plannedPourGramsAt(steps, second, pourSeconds: pourSeconds);
 
   /// The recipe without the dose, for a method to remember.
   String toJson() => jsonEncode({
@@ -277,3 +265,24 @@ class PourPlan {
 }
 
 enum PourPlanProblem { dose, ratio, bloom, pours, bloomWater }
+
+/// Water expected at [second] using already prepared pour [steps].
+///
+/// Each step rises steadily over [pourSeconds], or until the next step if sooner.
+double plannedPourGramsAt(
+  List<PourStep> steps,
+  double second, {
+  double pourSeconds = 10,
+}) {
+  var grams = 0.0;
+  for (final (index, step) in steps.indexed) {
+    if (second < step.startSecond) break;
+    final untilNext = index + 1 < steps.length
+        ? steps[index + 1].startSecond - step.startSecond
+        : pourSeconds;
+    final span = math.max(1.0, math.min(pourSeconds, untilNext.toDouble()));
+    final done = ((second - step.startSecond) / span).clamp(0.0, 1.0);
+    grams = step.targetGrams - step.addGrams * (1 - done);
+  }
+  return grams;
+}

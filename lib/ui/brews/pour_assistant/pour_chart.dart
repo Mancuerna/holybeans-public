@@ -84,6 +84,8 @@ class _PourPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (plan.problem != null) return;
+    final steps = plan.steps;
+    double planned(double second) => plannedPourGramsAt(steps, second);
     final measured = actual;
     final end = math.max(
       plan.pouringEndSecond + 15.0,
@@ -113,19 +115,21 @@ class _PourPainter extends CustomPainter {
         canvas,
         Offset(plot.left - 5 - label.width, y(tick) - label.height / 2),
       );
+      label.dispose();
     }
     for (final tick in axisTicks(end)) {
       if (tick > end) break;
       final label = _label('${format.format(tick)} s');
       final dx = math.min(x(tick) - label.width / 2, plot.right - label.width);
       label.paint(canvas, Offset(math.max(plot.left - 4, dx), plot.bottom + 4));
+      label.dispose();
     }
     canvas.drawLine(plot.bottomLeft, plot.bottomRight, Paint()..color = grid);
 
     Path curve(double from, double to) {
-      final path = Path()..moveTo(x(from), y(plan.plannedGramsAt(from)));
+      final path = Path()..moveTo(x(from), y(planned(from)));
       for (var second = from; second <= to; second += 0.5) {
-        path.lineTo(x(second), y(plan.plannedGramsAt(second)));
+        path.lineTo(x(second), y(planned(second)));
       }
       return path;
     }
@@ -149,7 +153,7 @@ class _PourPainter extends CustomPainter {
           ..strokeWidth = 1.2,
       );
       canvas.drawCircle(
-        Offset(x(clamped), y(plan.plannedGramsAt(clamped))),
+        Offset(x(clamped), y(planned(clamped))),
         5,
         Paint()..color = done,
       );
@@ -174,7 +178,7 @@ class _PourPainter extends CustomPainter {
           ..color = actualColor,
       );
     }
-    for (final step in plan.steps) {
+    for (final step in steps) {
       canvas.drawCircle(
         Offset(
           x(step.startSecond.toDouble()),

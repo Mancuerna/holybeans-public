@@ -72,7 +72,7 @@ class ShareTextColorOptions extends StatelessWidget {
   }
 }
 
-class ShareImagePreview extends StatelessWidget {
+class ShareImagePreview extends StatefulWidget {
   const ShareImagePreview({
     super.key,
     required this.captureKey,
@@ -87,36 +87,53 @@ class ShareImagePreview extends StatelessWidget {
   final Widget child;
 
   @override
+  State<ShareImagePreview> createState() => _ShareImagePreviewState();
+}
+
+class _ShareImagePreviewState extends State<ShareImagePreview> {
+  ThemeData? _base;
+  bool? _lightText;
+  late ThemeData _transparentTheme;
+
+  ThemeData _previewTheme(ThemeData base) {
+    if (_base == base && _lightText == widget.lightText) {
+      return _transparentTheme;
+    }
+    final foreground = widget.lightText ? Colors.white : Colors.black;
+    final scheme = ColorScheme.fromSeed(
+      seedColor: base.colorScheme.primary,
+      brightness: widget.lightText ? Brightness.dark : Brightness.light,
+    );
+    _transparentTheme = base.copyWith(
+      colorScheme: scheme.copyWith(
+        primary: foreground,
+        onSurface: foreground,
+        onSurfaceVariant: foreground,
+        outlineVariant: foreground.withValues(alpha: 0.4),
+      ),
+      textTheme: base.textTheme.apply(
+        bodyColor: foreground,
+        displayColor: foreground,
+      ),
+    );
+    _base = base;
+    _lightText = widget.lightText;
+    return _transparentTheme;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final foreground = lightText ? Colors.white : Colors.black;
-    final scheme = ColorScheme.fromSeed(
-      seedColor: theme.colorScheme.primary,
-      brightness: lightText ? Brightness.dark : Brightness.light,
-    );
     return CustomPaint(
       // Keep the checkerboard outside the boundary used to export the PNG.
-      painter: transparent ? const _TransparencyPainter() : null,
+      painter: widget.transparent ? const _TransparencyPainter() : null,
       child: RepaintBoundary(
-        key: captureKey,
+        key: widget.captureKey,
         child: ShareImageAppearance(
-          transparent: transparent,
+          transparent: widget.transparent,
           child: Theme(
-            data: transparent
-                ? theme.copyWith(
-                    colorScheme: scheme.copyWith(
-                      primary: foreground,
-                      onSurface: foreground,
-                      onSurfaceVariant: foreground,
-                      outlineVariant: foreground.withValues(alpha: 0.4),
-                    ),
-                    textTheme: theme.textTheme.apply(
-                      bodyColor: foreground,
-                      displayColor: foreground,
-                    ),
-                  )
-                : theme,
-            child: child,
+            data: widget.transparent ? _previewTheme(theme) : theme,
+            child: widget.child,
           ),
         ),
       ),

@@ -338,6 +338,24 @@ class _BrewFormState extends State<BrewForm> {
     listenable: model,
     builder: (context, _) {
       final s = AppLocalizations.of(context)!;
+      final draft = model.draft;
+      final recipeInputs = Listenable.merge([draft.dose, draft.water]);
+      Widget result() => ListenableBuilder(
+        listenable: Listenable.merge([
+          draft.dose,
+          draft.water,
+          draft.beverage,
+          draft.tds,
+          draft.brix,
+          draft.brixFactor,
+        ]),
+        builder: (_, _) => BrewResultSection(
+          model: model,
+          finalWeightKey: _finalWeightKey,
+          photos: widget.photos,
+          previousYield: _previousBrewYieldReference(s),
+        ),
+      );
       final BrewFormActions actions = (
         addMethod: _addMethod,
         addGrinder: _addGrinder,
@@ -406,7 +424,11 @@ class _BrewFormState extends State<BrewForm> {
                       const LinearProgressIndicator()
                     else if (!fullForm) ...[
                       ...brewHelpCards(model, actions),
-                      BrewAdjustSection(model: model, seed: widget.seed),
+                      ListenableBuilder(
+                        listenable: recipeInputs,
+                        builder: (_, _) =>
+                            BrewAdjustSection(model: model, seed: widget.seed),
+                      ),
                       ListTile(
                         key: const ValueKey('brew-full-form'),
                         contentPadding: EdgeInsets.zero,
@@ -419,12 +441,7 @@ class _BrewFormState extends State<BrewForm> {
                         model: model,
                         previousDuration: _previousBrewDurationReference(s),
                       ),
-                      BrewResultSection(
-                        model: model,
-                        finalWeightKey: _finalWeightKey,
-                        photos: widget.photos,
-                        previousYield: _previousBrewYieldReference(s),
-                      ),
+                      result(),
                     ] else ...[
                       BrewChoiceSection(
                         model: model,
@@ -443,17 +460,16 @@ class _BrewFormState extends State<BrewForm> {
                                   repeatedWaterProfile!.name,
                       ),
                       if (!model.loadingMethods) ...[
-                        BrewRecipeSection(model: model, actions: actions),
+                        ListenableBuilder(
+                          listenable: recipeInputs,
+                          builder: (_, _) =>
+                              BrewRecipeSection(model: model, actions: actions),
+                        ),
                         BrewTimingSection(
                           model: model,
                           previousDuration: _previousBrewDurationReference(s),
                         ),
-                        BrewResultSection(
-                          model: model,
-                          finalWeightKey: _finalWeightKey,
-                          photos: widget.photos,
-                          previousYield: _previousBrewYieldReference(s),
-                        ),
+                        result(),
                       ],
                     ],
                   ],
