@@ -57,7 +57,9 @@ reliably enforce. App translations remain in English and Spanish.
 
 - `lib/domain/`: domain logic with unit tests. Some existing adapters accept
   immutable generated database rows; `test/architecture_test.dart` records
-  those exceptions. Prefer plain inputs for new domain logic.
+  those exceptions. New and migrated logic takes plain records or scalar inputs;
+  map database rows in `lib/data/`. Pass the current time explicitly into domain
+  logic so calculations and import plans are reproducible.
 - `lib/data/`: Drift database, repositories, services and preferences.
 - `lib/ui/`: UI grouped by feature. `JournalShell` implements `JournalActions`.
 - `lib/l10n/`: English and Spanish ARB sources; generated translations are ignored.

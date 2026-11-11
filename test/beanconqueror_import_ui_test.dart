@@ -30,6 +30,7 @@ void main() {
       () async => planBeanconquerorImport(
         BeanconquerorArchive.read(zip()),
         await repository.beanconquerorJournal(),
+        now: DateTime.utc(2026),
       ),
     );
     BqImportSummary? summary;
@@ -114,6 +115,7 @@ void main() {
       () async => planBeanconquerorImport(
         BeanconquerorArchive.read(bytes),
         await repository.beanconquerorJournal(),
+        now: DateTime.utc(2026),
       ),
     );
     BqImportSummary? summary;
@@ -175,6 +177,7 @@ void main() {
       () async => planBeanconquerorImport(
         BeanconquerorArchive.read(zip()),
         await repository.beanconquerorJournal(),
+        now: DateTime.utc(2026),
       ),
     );
     final bundle = _HeldCurves();
@@ -253,6 +256,7 @@ void main() {
       () async => planBeanconquerorImport(
         BeanconquerorArchive.read(zip()),
         await repository.beanconquerorJournal(),
+        now: DateTime.utc(2026),
       ),
     );
     await tester.pumpWidget(

@@ -128,6 +128,7 @@ class DriveBackups {
       id: await remote.reserveId(),
       deviceId: deviceId,
       contentHash: payload.hash,
+      createdAt: DateTime.now(),
     );
     await payloads.write(snapshot.id, payload);
     await stateFile.write({...state, 'pending': snapshot.toJson()});

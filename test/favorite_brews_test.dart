@@ -195,6 +195,7 @@ void main() {
         planBeanconquerorImport(
           export,
           await repository.beanconquerorJournal(),
+          now: DateTime.utc(2026),
         ),
       );
     }

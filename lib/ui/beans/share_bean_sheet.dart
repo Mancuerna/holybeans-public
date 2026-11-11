@@ -5,8 +5,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/bean_exchange.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/domain/bean_exchange.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
 import 'package:holybeans/ui/sync/journal_write_feedback.dart';
@@ -24,7 +24,7 @@ Future<void> showBeanTransferSheet(
   final s = AppLocalizations.of(context)!;
   final SharedBean card;
   try {
-    card = SharedBean.fromCoffee(
+    card = sharedBeanFromCoffee(
       coffee,
       await repository.coffeeComponents(coffee.id),
       await repository.coffeeLots(coffee.id),

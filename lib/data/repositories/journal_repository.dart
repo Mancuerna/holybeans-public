@@ -5,6 +5,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/brew_recipe_context.dart';
 import 'package:holybeans/data/repositories/brew_recipe_queries.dart';
 import 'package:holybeans/data/repositories/cafe_repository.dart';
+import 'package:holybeans/data/repositories/coffee_suggestions.dart';
 import 'package:holybeans/data/repositories/cupping_share.dart';
 import 'package:holybeans/data/repositories/journal_read_queries.dart';
 import 'package:holybeans/data/repositories/live_brews.dart';
@@ -360,15 +361,16 @@ class JournalRepository {
       });
 
   /// Reads suggestions once for a bean form, including archived coffees.
-  Future<CoffeeSuggestions> coffeeSuggestions() async => CoffeeSuggestions(
-    await (database.select(
-      database.coffees,
-    )..orderBy([(row) => OrderingTerm.desc(row.updatedAtMs)])).get(),
-    await database.select(database.coffeeComponents).get(),
-    roasterNames: (await database.select(database.roasters).get()).map(
-      (r) => r.name,
-    ),
-  );
+  Future<CoffeeSuggestions> coffeeSuggestions() async =>
+      coffeeSuggestionsFromRows(
+        await (database.select(
+          database.coffees,
+        )..orderBy([(row) => OrderingTerm.desc(row.updatedAtMs)])).get(),
+        await database.select(database.coffeeComponents).get(),
+        roasterNames: (await database.select(database.roasters).get()).map(
+          (r) => r.name,
+        ),
+      );
 
   /// Every inventory record, archived ones included.
   Stream<List<CoffeeLot>> watchLots() =>

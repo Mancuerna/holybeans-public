@@ -207,6 +207,7 @@ void main() {
       id: await legacy.reserveId(),
       deviceId: 'old-phone',
       contentHash: payload.hash,
+      createdAt: DateTime.utc(2026),
     );
     await payloads.write(snapshot.id, payload);
     await legacy.publish(snapshot);

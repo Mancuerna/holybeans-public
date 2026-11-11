@@ -118,6 +118,7 @@ Future<BqImportPlan> _plan(
   return planBeanconquerorImport(
     export,
     await repository.beanconquerorJournal(),
+    now: DateTime.now(),
   );
 }
 

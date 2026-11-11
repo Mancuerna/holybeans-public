@@ -126,13 +126,16 @@ String? _flowProfile(BqObject brew) => switch (bqText(brew['flow_profile'])) {
 /// Works out what importing [export] into [journal] adds. Records with an
 /// ID imported before are skipped (local edits win); methods, grinders and
 /// waters named like one of the journal reuse it.
-BqImportPlan planBeanconquerorImport(BqExport export, BqJournal journal) =>
-    _Planner(export, journal).plan();
+BqImportPlan planBeanconquerorImport(
+  BqExport export,
+  BqJournal journal, {
+  required DateTime now,
+}) => _Planner(export, journal, now).plan();
 
 /// One planning run: the export, the journal and the tallies the plan
 /// reports.
 class _Planner {
-  _Planner(this.export, this.journal)
+  _Planner(this.export, this.journal, this.now)
     : brewScale = _ratingScale(export.settings['brew_rating']),
       beanScale = _ratingScale(export.settings['bean_rating']),
       preparations = {
@@ -141,6 +144,7 @@ class _Planner {
       },
       labels = {...journal.frozenLabels};
 
+  final DateTime now;
   final BqExport export;
   final BqJournal journal;
   final num brewScale;
@@ -382,7 +386,7 @@ class _Planner {
       beanIds.add(id);
       final createdMs = bqTimestampMs(bean['config']);
       final archivedMs = _flag(bean['finished'])
-          ? lastBrewMs[id] ?? createdMs ?? DateTime.now().millisecondsSinceEpoch
+          ? lastBrewMs[id] ?? createdMs ?? now.millisecondsSinceEpoch
           : null;
       if (archivedMs != null) archivedBeans[id] = archivedMs;
       String? changeOf;
@@ -451,7 +455,7 @@ class _Planner {
       origin: BqOrigin(BqKind.bean, id, jsonEncode(bean)),
       name: _name(bean['name'], 'BeanConqueror', 200),
       roaster: _name(bean['roaster'], '', 200),
-      createdAtMs: createdMs ?? DateTime.now().millisecondsSinceEpoch,
+      createdAtMs: createdMs ?? now.millisecondsSinceEpoch,
       notes: bqText(bean['note']),
       paidPriceCents: switch (bqPositive(bean['cost'])) {
         final cost? => (cost * 100).round(),

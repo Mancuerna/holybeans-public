@@ -61,6 +61,7 @@ void main() {
             final plan = planBeanconquerorImport(
               BeanconquerorArchive.read(zip()),
               await repository.beanconquerorJournal(),
+              now: DateTime.utc(2026),
             );
             await tester.pumpWidget(
               _app(

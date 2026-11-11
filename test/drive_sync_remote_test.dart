@@ -74,6 +74,7 @@ void main() {
       deviceId: 'phone',
       contentHash: hash,
       baseId: base,
+      createdAt: DateTime.utc(2026),
     );
   }
 

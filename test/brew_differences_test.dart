@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/domain/brew_comparison.dart';
+import 'package:holybeans/data/repositories/brew_comparison.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 
 const a = Brew(

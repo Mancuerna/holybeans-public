@@ -186,4 +186,5 @@ PlannedCoffee _coffee(Map<String, Object?> fields) => planBeanconquerorImport(
     ],
   ),
   const BqJournal(),
+  now: DateTime.utc(2026),
 ).coffees.single;
