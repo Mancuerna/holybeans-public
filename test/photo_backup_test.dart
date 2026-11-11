@@ -138,6 +138,36 @@ void main() {
     );
   });
 
+  test(
+    'export reads referenced photos once without reading orphan files',
+    () async {
+      final coffee = await repository.createCoffee(
+        name: 'Photos',
+        roaster: 'R',
+      );
+      final brew = await repository.createBrew(
+        coffeeId: coffee,
+        methodName: 'V60',
+        doseGrams: 18,
+      );
+      final first = await photos.add(jpeg);
+      final second = await photos.add(Uint8List.fromList([1, 2, 3]));
+      await photos.add(Uint8List.fromList([9, 9, 9]));
+      const missing = '00000000-0000-0000-0000-000000000000.jpg';
+      await repository.setCoffeePhotos(coffee, [first, missing]);
+      await repository.setBrewPhotos(brew, [first, second]);
+      final observed = _ObservedPhotos(photos.directory);
+
+      final bytes = await JournalBackup(database).referencedPhotos(observed);
+
+      expect(bytes, {
+        first: jpeg,
+        second: Uint8List.fromList([1, 2, 3]),
+      });
+      expect(observed.reads, unorderedEquals([first, second]));
+    },
+  );
+
   test('a v15 backup brings its single photo as the cover', () async {
     final coffeeId = await repository.createCoffee(
       name: 'Old photo coffee',
@@ -167,4 +197,40 @@ void main() {
     final restored = await target.select(target.coffees).getSingle();
     expect(restored.isDecaf, isFalse);
   });
+}
+
+class _ObservedPhotos extends PhotoStore {
+  _ObservedPhotos(super.directory);
+
+  final reads = <String>[];
+
+  @override
+  Future<Map<String, Uint8List>> readAll() async {
+    final result = await super.readAll();
+    reads.addAll(result.keys);
+    return result;
+  }
+
+  @override
+  File file(String name) =>
+      _ObservedFile(super.file(name), () => reads.add(name));
+}
+
+class _ObservedFile implements File {
+  _ObservedFile(this.delegate, this.onRead);
+
+  final File delegate;
+  final void Function() onRead;
+
+  @override
+  bool existsSync() => delegate.existsSync();
+
+  @override
+  Future<Uint8List> readAsBytes() {
+    onRead();
+    return delegate.readAsBytes();
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

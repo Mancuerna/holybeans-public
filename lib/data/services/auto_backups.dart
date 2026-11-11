@@ -36,7 +36,7 @@ class JournalSnapshot {
   );
 
   static Future<JournalSnapshot> take(JournalBackup backup) async {
-    final source = await backup.exportJson();
+    final source = await backup.exportJsonInBackground();
     final digest = await Isolate.run(() => journalDigest(source));
     return JournalSnapshot(
       source: source,
