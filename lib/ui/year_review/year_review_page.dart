@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/coffee_year.dart';
@@ -40,7 +44,13 @@ class _YearReviewPageState extends State<YearReviewPage> {
   final controller = PageController();
   late DateTime now;
   late List<int> years;
-  late CoffeeYear review;
+  CoffeeYear? _review;
+  late int selectedYear;
+  bool updating = false;
+  Object? error;
+  int _requestVersion = 0;
+  (YearReviewRequest, int)? _pending;
+  bool _running = false;
   late List<YearStory> stories;
   int page = 0;
   @override
@@ -55,7 +65,10 @@ class _YearReviewPageState extends State<YearReviewPage> {
   }
 
   void _load(int year) {
-    review = coffeeYearFromJournal(
+    selectedYear = year;
+    error = null;
+    final version = ++_requestVersion;
+    final request = (
       year: year,
       now: now,
       lots: widget.lots,
@@ -64,12 +77,57 @@ class _YearReviewPageState extends State<YearReviewPage> {
       components: widget.components,
       methods: widget.methods,
     );
-    stories = storiesFor(review);
+    updating = widget.brews.length > 200;
+    if (updating) {
+      _pending = (request, version);
+      if (!_running) unawaited(_drain());
+    } else {
+      _pending = null;
+      _accept(prepareYearReview(request));
+    }
+  }
+
+  Future<void> _drain() async {
+    _running = true;
+    try {
+      while (mounted && _pending != null) {
+        final (request, version) = _pending!;
+        _pending = null;
+        try {
+          final result = await compute(
+            prepareYearReview,
+            request,
+            debugLabel: 'journal-year-review',
+          );
+          if (!mounted || version != _requestVersion) continue;
+          setState(() {
+            updating = false;
+            _accept(result);
+          });
+        } catch (failure, stack) {
+          if (!mounted || version != _requestVersion) continue;
+          reportError(failure, stack);
+          setState(() {
+            updating = false;
+            error = failure;
+          });
+        }
+      }
+    } finally {
+      _running = false;
+    }
+  }
+
+  void _accept(CoffeeYear result) {
+    if (controller.hasClients) controller.jumpToPage(0);
+    _review = result;
+    stories = storiesFor(result);
     page = 0;
   }
 
   @override
   void dispose() {
+    _pending = null;
     controller.dispose();
     super.dispose();
   }
@@ -89,6 +147,27 @@ class _YearReviewPageState extends State<YearReviewPage> {
   @override
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context)!;
+    final review = _review;
+    if (review == null) {
+      return Scaffold(
+        backgroundColor: yearPaper,
+        appBar: AppBar(title: Text(s.yearReviewTitle)),
+        body: Center(
+          child: error == null
+              ? const CircularProgressIndicator(key: ValueKey('year-preparing'))
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(s.dataError, key: const ValueKey('year-review-error')),
+                    TextButton(
+                      onPressed: () => setState(() => _load(selectedYear)),
+                      child: Text(s.retry),
+                    ),
+                  ],
+                ),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: yearPaper,
       appBar: AppBar(
@@ -104,9 +183,29 @@ class _YearReviewPageState extends State<YearReviewPage> {
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontSize: 16),
         ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(
+            error == null ? 4 : MediaQuery.textScalerOf(context).scale(40),
+          ),
+          child: error != null
+              ? Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    s.dataError,
+                    key: const ValueKey('year-review-error'),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                )
+              : SizedBox(
+                  height: 4,
+                  child: updating ? const LinearProgressIndicator() : null,
+                ),
+        ),
         actions: [
           PopupMenuButton<String>(
             key: const ValueKey('year-menu'),
+            enabled: !updating && error == null,
             tooltip: s.yearReviewAbout,
             icon: const Icon(Icons.more_horiz),
             onSelected: (value) {
@@ -131,7 +230,7 @@ class _YearReviewPageState extends State<YearReviewPage> {
                 child: DropdownButton<int>(
                   isExpanded: true,
                   key: const ValueKey('year-selector'),
-                  value: review.year,
+                  value: selectedYear,
                   dropdownColor: yearPaper,
                   style: const TextStyle(
                     fontFamily: 'Plex',
@@ -145,8 +244,7 @@ class _YearReviewPageState extends State<YearReviewPage> {
                       DropdownMenuItem(value: year, child: Text('$year')),
                   ],
                   onChanged: (year) {
-                    if (year == null || year == review.year) return;
-                    controller.jumpToPage(0);
+                    if (year == null || year == selectedYear) return;
                     setState(() => _load(year));
                   },
                 ),
@@ -238,7 +336,10 @@ class _YearReviewPageState extends State<YearReviewPage> {
                         foregroundColor: yearPaper,
                       ),
                       onPressed:
-                          review.count == 0 && review.costs.costedCoffees == 0
+                          updating ||
+                              error != null ||
+                              (review.count == 0 &&
+                                  review.costs.costedCoffees == 0)
                           ? null
                           : () => shareCoffeeYear(
                               context,
