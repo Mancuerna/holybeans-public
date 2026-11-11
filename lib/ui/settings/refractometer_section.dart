@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/services/refractometer.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/settings/device_pairing_section.dart';
-import 'package:intl/intl.dart';
 
 /// Short status of the refractometer connection.
 String refractometerStatusLabel(AppLocalizations s, DeviceStatus status) =>
@@ -28,7 +28,7 @@ class RefractometerReadout extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: refractometer,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       final theme = Theme.of(context);
       final tds = refractometer.tdsPercent;
       final busy =
@@ -55,10 +55,11 @@ class RefractometerReadout extends StatelessWidget {
                     if (tds != null)
                       Text(
                         s.refractometerTds(
-                          NumberFormat(
-                            '0.00',
-                            regionalLocale.toString(),
-                          ).format(tds),
+                          formatDecimal(
+                            tds,
+                            pattern: '0.00',
+                            locale: regionalLocale.toString(),
+                          ),
                         ),
                         key: const ValueKey('refractometer-value'),
                         style: theme.textTheme.headlineSmall?.copyWith(
@@ -96,7 +97,7 @@ class RefractometerSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return DevicePairingSection(
       device: refractometer,
       keyPrefix: 'refractometer',

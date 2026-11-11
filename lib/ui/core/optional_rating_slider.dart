@@ -19,7 +19,7 @@ class OptionalRatingSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context)!;
+    final strings = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final number = NumberFormat('0.#', regionalLocale.toString());

@@ -38,7 +38,7 @@ class _ServiceFormState extends State<_ServiceForm> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return AlertDialog(
       title: Text(s.pistonMaintenance),
       content: SingleChildScrollView(

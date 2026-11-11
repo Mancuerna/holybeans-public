@@ -1,4 +1,6 @@
+import 'package:holybeans/domain/calendar_days.dart';
 import 'package:holybeans/domain/freshness.dart';
+import 'package:holybeans/domain/statistics.dart';
 import 'package:holybeans/domain/stock_inputs.dart';
 
 /// Dose used for [coffeeId]: the median of its last five recorded doses, or
@@ -13,12 +15,8 @@ double typicalDose(
           .where((brew) => brew.coffeeId == coffeeId && brew.doseGrams != null)
           .toList()
         ..sort((a, b) => b.brewedAtMs.compareTo(a.brewedAtMs));
-  final doses = [for (final brew in recent.take(5)) brew.doseGrams!]..sort();
-  if (doses.isEmpty) return fallback;
-  final middle = doses.length ~/ 2;
-  return doses.length.isOdd
-      ? doses[middle]
-      : (doses[middle - 1] + doses[middle]) / 2;
+  return median([for (final brew in recent.take(5)) brew.doseGrams!]) ??
+      fallback;
 }
 
 /// A coffee with fewer than two doses of unfrozen coffee left.
@@ -157,11 +155,7 @@ int? oldestFreezeDays(
     }
     final frozen = DateTime.tryParse(portion.frozenDate);
     if (frozen == null) continue;
-    final days = DateTime.utc(
-      now.year,
-      now.month,
-      now.day,
-    ).difference(DateTime.utc(frozen.year, frozen.month, frozen.day)).inDays;
+    final days = calendarDaysBetween(frozen, now);
     if (days >= 0 && (oldest == null || days > oldest)) oldest = days;
   }
   return oldest;

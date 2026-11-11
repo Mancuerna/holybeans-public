@@ -60,11 +60,11 @@ class _LiveStatsPageState extends State<LiveStatsPage> {
           if (!brewSnapshot.hasData || brewSnapshot.hasError) {
             return Scaffold(
               appBar: AppBar(
-                title: Text(AppLocalizations.of(context)!.statsTitle),
+                title: Text(AppLocalizations.of(context).statsTitle),
               ),
               body: Center(
                 child: brewSnapshot.hasError
-                    ? Text(AppLocalizations.of(context)!.dataError)
+                    ? Text(AppLocalizations.of(context).dataError)
                     : const CircularProgressIndicator(),
               ),
             );

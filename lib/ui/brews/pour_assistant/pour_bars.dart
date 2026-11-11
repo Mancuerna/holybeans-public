@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:holybeans/domain/pour_plan.dart';
 import 'package:holybeans/domain/pour_progress.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
+import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:intl/intl.dart';
 
@@ -66,7 +67,7 @@ class _PourBarsState extends State<PourBars> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final progress = PourProgress(
       plan: widget.plan,
@@ -157,7 +158,7 @@ class _PourBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final number = NumberFormat('0.#', regionalLocale.toString());
@@ -168,8 +169,7 @@ class _PourBar extends StatelessWidget {
         ? 0.0
         : (filled! / step.addGrams).clamp(0.0, 1.0);
     final complete = filled != null && ratio >= 1;
-    final clock =
-        '${step.startSecond ~/ 60}:${(step.startSecond % 60).toString().padLeft(2, '0')}';
+    final clock = formatDuration(step.startSecond);
     return Semantics(
       label:
           '$label, ${s.pourAdd(number.format(step.addGrams))}, ${s.pourTo(number.format(step.targetGrams))}',

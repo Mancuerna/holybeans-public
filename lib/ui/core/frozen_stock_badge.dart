@@ -13,7 +13,7 @@ class FrozenStockBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (state == FrozenStockState.none) return const SizedBox.shrink();
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final all = state == FrozenStockState.all;
     final hint = all ? s.frozenAllHint : s.frozenSomeHint;
     final color = frozenColor(context);

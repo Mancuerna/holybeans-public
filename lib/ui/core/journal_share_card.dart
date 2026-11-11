@@ -45,7 +45,7 @@ class JournalShareCard extends StatelessWidget {
               Icon(Icons.coffee_rounded, size: 18, color: colors.primary),
               const SizedBox(width: 6),
               Text(
-                AppLocalizations.of(context)!.appTitle,
+                AppLocalizations.of(context).appTitle,
                 style: theme.textTheme.labelLarge?.copyWith(
                   color: colors.primary,
                   fontWeight: FontWeight.w700,
@@ -77,7 +77,7 @@ class JournalShareCard extends StatelessWidget {
                 bytes,
                 fit: BoxFit.contain,
                 errorBuilder: (_, error, stack) =>
-                    Text(AppLocalizations.of(context)!.photoFailed),
+                    Text(AppLocalizations.of(context).photoFailed),
               ),
             ),
           ],

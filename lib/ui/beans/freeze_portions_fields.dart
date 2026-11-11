@@ -25,7 +25,7 @@ class FreezePortionsFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final division = plan;
     String grams(double value) => formatGrams(value, regionalLocale.toString());
     return Column(

@@ -30,7 +30,7 @@ class _ToolsListState extends State<ToolsList> {
       existing: tool,
     );
     if (result != null && mounted) {
-      showMessage(context, AppLocalizations.of(context)!.toolSaved);
+      showMessage(context, AppLocalizations.of(context).toolSaved);
     }
   }
 
@@ -46,7 +46,7 @@ class _ToolsListState extends State<ToolsList> {
         showOperationError(
           context,
           error,
-          AppLocalizations.of(context)!.saveFailed,
+          AppLocalizations.of(context).saveFailed,
         );
       }
     }
@@ -66,7 +66,7 @@ class _ToolsListState extends State<ToolsList> {
     try {
       await widget.repository.mergeTools(sourceId: tool.id, targetId: target);
       if (mounted) {
-        showMessage(context, AppLocalizations.of(context)!.toolsMerged);
+        showMessage(context, AppLocalizations.of(context).toolsMerged);
       }
     } catch (error, stack) {
       reportError(error, stack);
@@ -74,7 +74,7 @@ class _ToolsListState extends State<ToolsList> {
         showOperationError(
           context,
           error,
-          AppLocalizations.of(context)!.saveFailed,
+          AppLocalizations.of(context).saveFailed,
         );
       }
     }
@@ -82,7 +82,7 @@ class _ToolsListState extends State<ToolsList> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return StreamBuilder<ToolCatalog>(
       stream: catalog,
       builder: (context, snapshot) => StreamBuilder<List<BrewMethod>>(
@@ -186,7 +186,7 @@ class _MergeDialogState extends State<_MergeDialog> {
   String? target;
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return AlertDialog(
       title: Text(s.mergeTools),
       content: SingleChildScrollView(

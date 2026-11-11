@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/domain/stats_comparison.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
@@ -18,7 +19,7 @@ class StatsOverviewTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final stats = data.stats;
     final number = NumberFormat('0.#', regionalLocale.toString());
@@ -55,7 +56,11 @@ class StatsOverviewTab extends StatelessWidget {
             if (stats.brewsPerDay case final perDay? when hasBrews)
               StatItem(
                 s.statsBrewsPerDay,
-                NumberFormat('0.0#', regionalLocale.toString()).format(perDay),
+                formatDecimal(
+                  perDay,
+                  pattern: '0.0#',
+                  locale: regionalLocale.toString(),
+                ),
               ),
             if (stats.averageRating case final rating?)
               StatItem(
@@ -140,7 +145,7 @@ class StatsBeansTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final stats = data.stats;
     final firstCup = data.firstCup;
     return StatsTabList(

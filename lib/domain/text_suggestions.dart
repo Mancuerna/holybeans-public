@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:holybeans/domain/text_folding.dart';
+
 /// Lowercase, accent-free text for matching suggestions without rewriting data.
 String foldSuggestion(String text) {
   final lower = text.trim().toLowerCase();
@@ -15,21 +17,10 @@ String foldSuggestion(String text) {
       continue;
     }
     space = false;
-    buffer[length++] = _foldUnit(code);
+    buffer[length++] = foldLatinAccent(code);
   }
   return String.fromCharCodes(buffer, 0, length);
 }
-
-int _foldUnit(int code) => switch (code) {
-  0xe0 || 0xe1 || 0xe2 || 0xe3 || 0xe4 => 97,
-  0xe8 || 0xe9 || 0xea || 0xeb => 101,
-  0xec || 0xed || 0xee || 0xef => 105,
-  0xf2 || 0xf3 || 0xf4 || 0xf5 || 0xf6 => 111,
-  0xf9 || 0xfa || 0xfb || 0xfc => 117,
-  0xf1 => 110,
-  0xe7 => 99,
-  _ => code,
-};
 
 /// Substring matching with [foldSuggestion]'s exact normalization, stopping at
 /// the first match without allocating a complete normalized copy of each note.
@@ -66,7 +57,7 @@ class FoldedTextMatcher {
         code = 32;
       } else {
         space = false;
-        code = _foldUnit(code);
+        code = foldLatinAccent(code);
       }
       while (matched > 0 && code != _query[matched]) {
         matched = _fallback[matched - 1];

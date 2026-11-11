@@ -51,7 +51,7 @@ class _ComparisonCurvesState extends State<ComparisonCurves>
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final curves = [widget.a, widget.b];
     final available = CurveSeries.values
         .where(

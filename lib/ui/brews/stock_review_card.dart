@@ -23,7 +23,7 @@ class _StockReviewCardState extends State<StockReviewCard> {
   bool failed = false;
   Future<void> resolve(bool deduct) async {
     if (busy) return;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -65,7 +65,7 @@ class _StockReviewCardState extends State<StockReviewCard> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),

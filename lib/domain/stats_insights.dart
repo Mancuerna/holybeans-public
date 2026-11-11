@@ -1,5 +1,6 @@
 import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/freshness.dart';
+import 'package:holybeans/domain/statistics.dart';
 import 'package:holybeans/domain/stats_inputs.dart';
 
 /// How long each bar of a chart over time lasts.
@@ -206,11 +207,13 @@ List<CoffeeValue> bestValue(Iterable<CoffeeValue> values, {int take = 5}) {
       if (value.costPerCup != null && value.averageRating != null) value,
   ];
   if (rated.isEmpty) return const [];
-  final median = _median([for (final value in rated) value.averageRating!])!;
+  final medianRating = median([
+    for (final value in rated) value.averageRating!,
+  ])!;
   final good =
       [
         for (final value in rated)
-          if (value.averageRating! >= median) value,
+          if (value.averageRating! >= medianRating) value,
       ]..sort((a, b) {
         final byCost = a.costPerCup!.compareTo(b.costPerCup!);
         return byCost != 0
@@ -323,7 +326,7 @@ double? medianDaysToFirstBrew(
               case final age when age >= 0)
             age,
   ];
-  return _median(days);
+  return median(days);
 }
 
 /// Typical figures for one brewing style, as medians so a cold brew or a
@@ -361,20 +364,9 @@ Map<BrewStyle, StyleAverages> styleAverages(Iterable<StatsBrew> brews) {
     for (final style in BrewStyle.values)
       if (ratios.containsKey(style) || times.containsKey(style))
         style: StyleAverages(
-          ratio: _median(ratios[style] ?? const []),
-          timeSeconds: _median(times[style] ?? const []),
+          ratio: median(ratios[style] ?? const []),
+          timeSeconds: median(times[style] ?? const []),
           times: times[style] ?? const [],
         ),
   };
-}
-
-/// The middle of [values], or the mean of the two middle ones; null when
-/// there are none.
-double? _median(Iterable<num> values) {
-  final sorted = [...values]..sort();
-  if (sorted.isEmpty) return null;
-  final middle = sorted.length ~/ 2;
-  return sorted.length.isOdd
-      ? sorted[middle].toDouble()
-      : (sorted[middle - 1] + sorted[middle]) / 2;
 }

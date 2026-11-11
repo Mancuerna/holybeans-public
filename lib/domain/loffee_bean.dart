@@ -1,5 +1,6 @@
 import 'package:holybeans/domain/bean_exchange.dart';
 import 'package:holybeans/domain/https_link.dart';
+import 'package:holybeans/domain/journal_codes.dart';
 
 /// Catalog data, separate from the dates, money and stock of one's own bag.
 class LoffeeBean {
@@ -116,14 +117,14 @@ class LoffeeBean {
       .replaceAll(RegExp(r'\s*-\s*'), '-')
       .trim();
   return switch (normalized) {
-    'ultra light' => ('ultra_light', false),
-    'light' => ('light', false),
-    'medium' => ('medium', false),
-    'dark' => ('dark', false),
-    'nordic light' => ('ultra_light', true),
-    'medium-light' || 'light to medium' => ('omni', true),
-    'medium-dark' => ('dark', true),
-    'nordic light to light' => ('light', true),
+    'ultra light' => (RoastLevel.ultraLight.code, false),
+    'light' => (RoastLevel.light.code, false),
+    'medium' => (RoastLevel.medium.code, false),
+    'dark' => (RoastLevel.dark.code, false),
+    'nordic light' => (RoastLevel.ultraLight.code, true),
+    'medium-light' || 'light to medium' => (RoastLevel.omni.code, true),
+    'medium-dark' => (RoastLevel.dark.code, true),
+    'nordic light to light' => (RoastLevel.light.code, true),
     _ => (null, false),
   };
 }

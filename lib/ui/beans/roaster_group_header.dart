@@ -21,7 +21,7 @@ class RoasterGroupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final weight = formatGrams(group.knownGrams, regionalLocale.toString());
     return Card(
       child: ListTile(

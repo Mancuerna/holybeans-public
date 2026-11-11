@@ -39,7 +39,7 @@ class BackupReminders extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: center,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       final Widget? card;
       if (center.folderLost) {
         card = _ReminderCard(
@@ -116,7 +116,7 @@ class _ReminderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return Card(
       color: theme.colorScheme.secondaryContainer,
@@ -190,7 +190,7 @@ class _CompactReminder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return Card(
       color: theme.colorScheme.secondaryContainer,

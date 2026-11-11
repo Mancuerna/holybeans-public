@@ -107,7 +107,7 @@ Future<void> runAppShortcut(
       if (incoming == null) break;
       final text = await scanBeanQr(
         actions,
-        AppLocalizations.of(context)!,
+        AppLocalizations.of(context),
         incoming,
       );
       if (text != null && context.mounted) {

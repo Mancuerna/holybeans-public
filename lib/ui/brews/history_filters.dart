@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/coffee_selection_sheet.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
-import 'package:intl/intl.dart';
 
 /// Filters of the brew history. Owned by the shell, so other screens (e.g.
 /// a method's brews in Equipment) can open the history already filtered.
@@ -53,7 +53,7 @@ Future<void> showHistoryFilters(
   required List<Coffee> coffees,
   required List<String> methods,
 }) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -184,7 +184,7 @@ Future<void> showHistoryFilters(
                       DropdownMenuItem(
                         value: halfStep / 2,
                         child: Text(
-                          '${NumberFormat('0.#', regionalLocale.toString()).format(halfStep / 2)}+',
+                          '${formatDecimal(halfStep / 2, pattern: '0.#', locale: regionalLocale.toString())}+',
                         ),
                       ),
                   ],
@@ -227,7 +227,7 @@ Future<void> _chooseDateRange(
   BuildContext context,
   HistoryFilters filters,
 ) async {
-  final strings = AppLocalizations.of(context)!;
+  final strings = AppLocalizations.of(context);
   final deviceLocale = regionalLocale;
   final today = DateUtils.dateOnly(DateTime.now());
   final selectedStart = await showDatePicker(
@@ -277,7 +277,7 @@ class _CoffeeFilterField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final chosen = coffees.where((coffee) => coffee.id == value).firstOrNull;
     return InkWell(
       key: const ValueKey('history-bean-filter'),

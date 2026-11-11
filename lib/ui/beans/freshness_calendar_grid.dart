@@ -24,7 +24,7 @@ class FreshnessCalendarGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final symbols = DateFormat.yMd(regionalLocale.toString()).dateSymbols;
     final first = (symbols.FIRSTDAYOFWEEK + 1) % 7;
     final offset = (month.weekday % 7 - first + 7) % 7;

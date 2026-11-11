@@ -2,6 +2,8 @@
 // contributors. See assets/licenses/meticulous-piston.txt.
 import 'dart:math' as math;
 
+import 'package:holybeans/domain/statistics.dart';
+
 const pistonAlgorithmVersion = 1;
 
 class PistonReading {
@@ -43,14 +45,8 @@ double? pistonNumber(Object? value) {
   return number != null && number.isFinite ? number : null;
 }
 
-double pistonMedian(Iterable<double> values) {
-  final sorted = values.toList()..sort();
-  if (sorted.isEmpty) throw ArgumentError('Empty median');
-  final middle = sorted.length ~/ 2;
-  return sorted.length.isOdd
-      ? sorted[middle]
-      : (sorted[middle - 1] + sorted[middle]) / 2;
-}
+double pistonMedian(Iterable<double> values) =>
+    median(values) ?? (throw ArgumentError('Empty median'));
 
 PistonReading analyzePiston(Map<String, dynamic> entry) {
   final id = entry['id'];

@@ -45,7 +45,7 @@ class _HomeTabState extends State<HomeTab> {
     final coffees = data.coffees;
     final brews = data.brews;
     final lots = data.lots;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final key = (data, actions.read.portions);
     if (key != _stockKey) {
       _stock = homeStockData(data, key.$2);
@@ -185,7 +185,7 @@ class _LowStockCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     return Card(
@@ -286,7 +286,7 @@ class _YourCoffees extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final freshness = {
       for (final coffee in coffees) coffee.id: journal.freshnessToday(coffee),
     };

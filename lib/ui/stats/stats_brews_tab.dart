@@ -4,6 +4,7 @@ import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/freshness_widgets.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
+import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/stats/stats_charts.dart';
 import 'package:holybeans/ui/stats/stats_data.dart';
@@ -13,7 +14,7 @@ import 'package:intl/intl.dart';
 /// "3:05" for [seconds].
 String _minutes(num seconds) {
   final whole = seconds.round();
-  return '${whole ~/ 60}:${(whole % 60).toString().padLeft(2, '0')}';
+  return formatDuration(whole);
 }
 
 /// Ratios and times, the methods, the rating by style, the extraction map,
@@ -26,7 +27,7 @@ class StatsBrewsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final stats = data.stats;
     final number = NumberFormat('0.#', regionalLocale.toString());
     final averages = data.averages;
@@ -191,7 +192,7 @@ class _TypicalFigures extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final number = NumberFormat('0.#', regionalLocale.toString());
     // Two columns, so each style keeps its own row: filter, then espresso.
     return StatGrid(

@@ -35,7 +35,7 @@ class SharePhotoOverlay extends StatelessWidget {
             errorBuilder: (_, error, stack) => SizedBox(
               height: 255,
               child: Center(
-                child: Text(AppLocalizations.of(context)!.photoFailed),
+                child: Text(AppLocalizations.of(context).photoFailed),
               ),
             ),
           ),
@@ -121,7 +121,7 @@ class SharePhotoOverlayOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final positions = {
       Alignment.topLeft: s.shareOverlayTopLeft,
       Alignment.topRight: s.shareOverlayTopRight,

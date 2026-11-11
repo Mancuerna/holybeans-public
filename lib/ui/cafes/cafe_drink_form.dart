@@ -166,7 +166,7 @@ class _CafeDrinkFormState extends State<CafeDrinkForm> {
         showOperationError(
           context,
           error,
-          AppLocalizations.of(context)!.saveFailed,
+          AppLocalizations.of(context).saveFailed,
         );
       }
     }
@@ -181,7 +181,7 @@ class _CafeDrinkFormState extends State<CafeDrinkForm> {
     int? max,
     List<String>? suggestions,
   }) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     String? validate(String? value) {
       if (required && (value ?? '').trim().isEmpty) return s.cafeRequired;
       if (numeric &&
@@ -228,7 +228,7 @@ class _CafeDrinkFormState extends State<CafeDrinkForm> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return FormExitGuard(
       hasChanges: () => snapshot() != initial || photos.changed,
       busy: () => saving || photos.picking,

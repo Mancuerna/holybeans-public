@@ -46,7 +46,7 @@ class _BrewWaterPlanState extends State<BrewWaterPlan> {
       ?widget.scale,
     ]),
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       final draft = widget.draft;
       final dose = parseNumber(widget.dose.text);
       final water =
@@ -187,7 +187,7 @@ class _BrewWaterPlanState extends State<BrewWaterPlan> {
         subtitle: next == null
             ? null
             : Text(
-                AppLocalizations.of(context)!
+                AppLocalizations.of(context)
                     .pourTo(number.format(next.targetGrams)),
               ),
         children: [child!],

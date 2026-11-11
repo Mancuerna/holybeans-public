@@ -44,7 +44,7 @@ mixin ComparisonPlayback<T extends StatefulWidget> on State<T>, TickerProvider {
   }
 
   Widget playbackButton({required double min, required double max}) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return IconButton.filledTonal(
       key: const ValueKey('comparison-playback'),
       tooltip: _replay.isAnimating ? s.comparisonPause : s.comparisonPlay,

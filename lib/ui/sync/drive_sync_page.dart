@@ -31,7 +31,7 @@ class DriveSyncTile extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: model,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       return ListTile(
         leading: const Icon(Icons.cloud_sync_outlined),
         title: Text(s.driveSyncTitle),
@@ -56,7 +56,7 @@ class DriveSyncPage extends StatelessWidget {
     DriveBackupCopy? copy,
     bool disable = false,
   }) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final accepted = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -88,7 +88,7 @@ class DriveSyncPage extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: model,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       return PopScope(
         canPop: !model.restoring,
         child: Scaffold(

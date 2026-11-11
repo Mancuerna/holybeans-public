@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -40,7 +41,7 @@ class SensoryMapPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context)!;
+    final strings = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(title: Text(strings.sensoryMap)),
@@ -92,15 +93,17 @@ class SensoryMapChart extends StatelessWidget {
   final double? otherTdsPercent;
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context)!;
-    final eyText = NumberFormat(
-      '0.##',
-      regionalLocale.toString(),
-    ).format(eyPercent);
-    final tdsText = NumberFormat(
-      '0.##',
-      regionalLocale.toString(),
-    ).format(tdsPercent);
+    final strings = AppLocalizations.of(context);
+    final eyText = formatDecimal(
+      eyPercent,
+      pattern: '0.##',
+      locale: regionalLocale.toString(),
+    );
+    final tdsText = formatDecimal(
+      tdsPercent,
+      pattern: '0.##',
+      locale: regionalLocale.toString(),
+    );
     final eyValueLabel = '${strings.ey} $eyText%';
     final tdsValueLabel = '${strings.tds} $tdsText%';
     final markerLabel = '${strings.ey} $eyText%, ${strings.tds} $tdsText%';
@@ -113,16 +116,18 @@ class SensoryMapChart extends StatelessWidget {
         tdsPercent <= SensoryMapPage.maxTds;
     final otherEyText = otherEyPercent == null
         ? null
-        : NumberFormat(
-            '0.##',
-            regionalLocale.toString(),
-          ).format(otherEyPercent);
+        : formatDecimal(
+            otherEyPercent,
+            pattern: '0.##',
+            locale: regionalLocale.toString(),
+          );
     final otherTdsText = otherTdsPercent == null
         ? null
-        : NumberFormat(
-            '0.##',
-            regionalLocale.toString(),
-          ).format(otherTdsPercent);
+        : formatDecimal(
+            otherTdsPercent,
+            pattern: '0.##',
+            locale: regionalLocale.toString(),
+          );
     final otherMarkerLabel = otherEyText == null || otherTdsText == null
         ? null
         : '${strings.ey} $otherEyText%, ${strings.tds} $otherTdsText%';

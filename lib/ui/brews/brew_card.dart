@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_ratio.dart';
@@ -10,7 +11,6 @@ import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/core/settle_in.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
-import 'package:intl/intl.dart';
 
 /// The recipe in parts such as "18 g → 288 g", "1:16" and "3:00", without
 /// the [hidden] parameters. With [fill] below 1 the output and the time
@@ -141,7 +141,7 @@ class BrewCard extends StatelessWidget {
   );
 
   Widget _card(BuildContext context, double fill) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final coffee = data.coffees
         .where((row) => row.id == brew.coffeeId)
         .firstOrNull;
@@ -185,7 +185,7 @@ class BrewCard extends StatelessWidget {
             rating: brew.rating!,
             localeName: regionalLocale.toString(),
             semanticLabel:
-                '${s.rating}: ${NumberFormat('0.#', regionalLocale.toString()).format(brew.rating)} / 10',
+                '${s.rating}: ${formatDecimal(brew.rating, pattern: '0.#', locale: regionalLocale.toString())} / 10',
           );
     final subtitle = [
       brew.methodName,
@@ -294,7 +294,7 @@ class BrewCard extends StatelessWidget {
   }
 
   Widget _actionsMenu(BuildContext context, Coffee? coffee) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return PopupMenuButton<String>(
       tooltip: s.actions,
       onSelected: (value) => _onAction(context, value, coffee),

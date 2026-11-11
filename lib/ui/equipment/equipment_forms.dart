@@ -4,6 +4,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/gaggimate_client.dart';
 import 'package:holybeans/data/services/meticulous_client.dart';
+import 'package:holybeans/domain/journal_codes.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/gaggimate_shot_widgets.dart'
     show gaggimateError;
@@ -63,10 +64,12 @@ class _MethodFormState extends State<_MethodForm> {
     super.initState();
     // "Percolation" was offered until October 2026; it brews like a pour
     // over, so editing such a method shows and saves it as one.
-    category = switch (widget.existing?.category) {
-      'percolation' => 'pourover',
-      final other => other,
-    };
+    category =
+        MethodCategory.fromCode(
+          widget.existing?.category,
+          allowLegacy: true,
+        )?.code ??
+        widget.existing?.category;
   }
 
   @override
@@ -81,7 +84,7 @@ class _MethodFormState extends State<_MethodForm> {
   /// Reads the latest shot from the machine, without changing anything.
   Future<void> testConnection() async {
     if (testing) return;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final testedMachine = machine;
     final testedAddress = address.text;
     GaggimateSource? gaggimate;
@@ -195,7 +198,7 @@ class _MethodFormState extends State<_MethodForm> {
         showOperationError(
           context,
           error,
-          AppLocalizations.of(context)!.saveFailed,
+          AppLocalizations.of(context).saveFailed,
         );
       }
     } finally {
@@ -268,14 +271,15 @@ class _MethodFormState extends State<_MethodForm> {
       repository: widget.repository,
       value: recipientId,
       isDefault: true,
-      isPortafilter: category == 'espresso',
+      isPortafilter:
+          MethodCategory.fromCode(category) == MethodCategory.espresso,
       onChanged: (row) => setState(() => recipientId = row?.id),
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return _CatalogFormFrame(
       title: widget.existing == null ? s.addMethod : s.editMethod,
       formKey: formKey,
@@ -298,13 +302,24 @@ class _MethodFormState extends State<_MethodForm> {
           hint: Text(s.none),
           items: [
             DropdownMenuItem(value: '', child: Text(s.none)),
-            DropdownMenuItem(value: 'espresso', child: Text(s.styleEspresso)),
-            DropdownMenuItem(value: 'pourover', child: Text(s.stylePourover)),
-            DropdownMenuItem(value: 'immersion', child: Text(s.styleImmersion)),
+            DropdownMenuItem(
+              value: MethodCategory.espresso.code,
+              child: Text(s.styleEspresso),
+            ),
+            DropdownMenuItem(
+              value: MethodCategory.pourover.code,
+              child: Text(s.stylePourover),
+            ),
+            DropdownMenuItem(
+              value: MethodCategory.immersion.code,
+              child: Text(s.styleImmersion),
+            ),
           ],
           onChanged: (value) => setState(() {
             final next = value == null || value.isEmpty ? null : value;
-            if ((next == 'espresso') != (category == 'espresso')) {
+            if ((MethodCategory.fromCode(next) == MethodCategory.espresso) !=
+                (MethodCategory.fromCode(category) ==
+                    MethodCategory.espresso)) {
               recipientId = null;
             }
             category = next;
@@ -336,7 +351,7 @@ class _MethodFormState extends State<_MethodForm> {
             connection = null;
             // A Meticulous is an espresso machine.
             if (machine != null && category == null) {
-              category = 'espresso';
+              category = MethodCategory.espresso.code;
               recipientId = null;
             }
           }),
@@ -421,7 +436,7 @@ class _GrinderFormState extends State<_GrinderForm> {
         showOperationError(
           context,
           error,
-          AppLocalizations.of(context)!.saveFailed,
+          AppLocalizations.of(context).saveFailed,
         );
       }
     } finally {
@@ -431,7 +446,7 @@ class _GrinderFormState extends State<_GrinderForm> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return _CatalogFormFrame(
       title: widget.existing == null ? s.addGrinder : s.editGrinder,
       formKey: formKey,
@@ -507,7 +522,7 @@ class _CatalogFormFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final keyboard = MediaQuery.viewInsetsOf(context).bottom;
     final available = MediaQuery.sizeOf(context).height - keyboard;
     return Padding(

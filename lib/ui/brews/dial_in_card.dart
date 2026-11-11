@@ -3,6 +3,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/tasting_widgets.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
+import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/motion.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:intl/intl.dart';
@@ -42,7 +43,7 @@ class DialInCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final number = NumberFormat('0.#', regionalLocale.toString());
@@ -59,8 +60,7 @@ class DialInCard extends StatelessWidget {
           if (brew.waterGrams ?? brew.beverageGrams case final out?)
             '${number.format(out)} g',
         ].join(' → '),
-      if (time != null)
-        '${time ~/ 60}:${(time % 60).toString().padLeft(2, '0')}',
+      if (time != null) formatDuration(time),
       if (brew.temperatureC != null) '${number.format(brew.temperatureC)} °C',
     ].join(', ');
     String resultOf(Brew brew) => [
@@ -197,7 +197,7 @@ class _DialInNoteState extends State<DialInNote> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final color = theme.colorScheme.onSecondaryContainer;
     final style = theme.textTheme.bodyMedium?.copyWith(color: color);

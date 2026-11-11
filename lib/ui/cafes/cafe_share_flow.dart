@@ -17,7 +17,7 @@ Future<void> shareCafeDrinkFlow(
   required CafeDrink drink,
   PhotoStore? photos,
 }) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   try {
     Uint8List? photo;
     if (photos != null) {

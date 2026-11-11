@@ -23,7 +23,7 @@ class BeanMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return PopupMenuButton<String>(
       key: ValueKey('bean-menu-${coffee.id}'),
       tooltip: s.moreOptions,

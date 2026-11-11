@@ -42,7 +42,7 @@ class PhotosField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final files = draft.current;
     Future<void> pick() async {
       try {
@@ -164,7 +164,7 @@ class _DetailPhotosState extends State<DetailPhotos> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final files = widget.files;
     final cacheWidth =
         (MediaQuery.sizeOf(context).width *

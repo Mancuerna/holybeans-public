@@ -84,7 +84,7 @@ class _FlowGuidePageState extends State<FlowGuidePage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final number = NumberFormat(
       '0.0',
       Localizations.localeOf(context).toString(),
@@ -199,7 +199,7 @@ class _FlowGuidePageState extends State<FlowGuidePage> {
   }
 
   Widget _weight(BuildContext context, NumberFormat number) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     String value(double? weight) =>
         weight == null ? '—' : number.format(weight);
     final weight = widget.session?.guideWeightGrams;
@@ -221,7 +221,7 @@ class _FlowGuidePageState extends State<FlowGuidePage> {
   }
 
   Widget _readouts(BuildContext context, NumberFormat number, Widget help) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final elapsed = _elapsed;
     final target = widget.guide.targetAt(elapsed);
     final next = widget.guide.targetAt(elapsed + 2000);

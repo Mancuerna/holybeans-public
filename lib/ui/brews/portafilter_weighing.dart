@@ -15,7 +15,7 @@ class PortafilterWeighButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Align(
       alignment: Alignment.centerLeft,
       child: TextButton.icon(
@@ -88,7 +88,7 @@ class _PortafilterWeighingState extends State<_PortafilterWeighing> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final number = NumberFormat('0.#', regionalLocale.toString());
     final net = dose;
     final gross = parseNumber(total.text);

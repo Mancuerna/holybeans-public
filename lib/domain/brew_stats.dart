@@ -1,3 +1,4 @@
+import 'package:holybeans/domain/calendar_days.dart';
 import 'package:holybeans/domain/coffee_countries.dart';
 import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/domain/stats_inputs.dart';
@@ -16,8 +17,7 @@ enum StatsRange {
 }
 
 /// Local calendar day of [time], as a UTC midnight so days compare exactly.
-DateTime statsDay(DateTime time) =>
-    DateTime.utc(time.year, time.month, time.day);
+DateTime statsDay(DateTime time) => calendarDay(time);
 
 /// Purchase cost in euros per kilogram, or null when either amount is
 /// unknown or the purchased weight is not positive.

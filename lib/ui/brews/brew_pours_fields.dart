@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/domain/bloom_water_ratio.dart';
 import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -33,7 +34,7 @@ class BrewPoursFields extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: draft,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       Widget count(BrewPourKind kind, int? value, int max, String label) =>
           DropdownButtonFormField<int>(
             key: ValueKey('brew-${kind.name}-count-$value'),
@@ -140,7 +141,7 @@ class BrewPoursFields extends StatelessWidget {
   );
 
   Widget _phase(BuildContext context, BrewPourKind kind, int number) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final phase = draft.phaseDraft(kind, number);
     return Padding(
       padding: const EdgeInsets.only(top: 12, bottom: 24),
@@ -182,10 +183,11 @@ class BrewPoursFields extends StatelessWidget {
                         padding: const EdgeInsets.only(top: 6, left: 12),
                         child: Text(
                           s.waterPlanBloomRatioValue(
-                            NumberFormat(
-                              '0.##',
-                              regionalLocale.toString(),
-                            ).format(ratio),
+                            formatDecimal(
+                              ratio,
+                              pattern: '0.##',
+                              locale: regionalLocale.toString(),
+                            ),
                           ),
                         ),
                       );
@@ -200,21 +202,24 @@ class BrewPoursFields extends StatelessWidget {
           // Worked out as they are typed.
           ListenableBuilder(
             listenable: Listenable.merge([phase.water, phase.duration]),
-            builder: (context, _) => switch (phase
-                .value(kind, number)
-                .flowGramsPerSecond) {
-              final flow? => Padding(
-                padding: const EdgeInsets.only(top: 6, left: 12),
-                child: Text(
-                  s.pourFlowHint(
-                    NumberFormat('0.0', regionalLocale.toString()).format(flow),
+            builder: (context, _) =>
+                switch (phase.value(kind, number).flowGramsPerSecond) {
+                  final flow? => Padding(
+                    padding: const EdgeInsets.only(top: 6, left: 12),
+                    child: Text(
+                      s.pourFlowHint(
+                        formatDecimal(
+                          flow,
+                          pattern: '0.0',
+                          locale: regionalLocale.toString(),
+                        ),
+                      ),
+                      key: ValueKey('${kind.name}-$number-flow'),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ),
-                  key: ValueKey('${kind.name}-$number-flow'),
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
-              null => const SizedBox.shrink(),
-            },
+                  null => const SizedBox.shrink(),
+                },
           ),
           if (kind == BrewPourKind.bloom) ...[
             const SizedBox(height: 20),
@@ -237,7 +242,7 @@ class BrewPourDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final number = NumberFormat('0.##', regionalLocale.toString());
     return ExpansionTile(
       key: const ValueKey('brew-recorded-pour-details'),
@@ -265,7 +270,11 @@ class BrewPourDetails extends StatelessWidget {
                   s.pourDurationValue(seconds),
                 if (phase.flowGramsPerSecond case final flow?)
                   s.pourFlowValue(
-                    NumberFormat('0.0', regionalLocale.toString()).format(flow),
+                    formatDecimal(
+                      flow,
+                      pattern: '0.0',
+                      locale: regionalLocale.toString(),
+                    ),
                   ),
                 if (phase.restSeconds case final seconds?)
                   s.bloomRestValue(seconds),

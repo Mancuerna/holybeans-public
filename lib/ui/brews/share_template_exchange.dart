@@ -16,7 +16,7 @@ Future<void> exportShareTemplate(
   BuildContext context,
   ShareTemplate template,
 ) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   final box = context.findRenderObject() as RenderBox?;
   try {
     await SharePlus.instance.share(
@@ -47,7 +47,7 @@ Future<ShareTemplate?> importShareTemplate(
   ShareTemplateSettings settings, {
   String? source,
 }) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   try {
     if (source == null) {
       final file = await openFile();

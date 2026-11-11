@@ -101,11 +101,11 @@ WaterComposition customWaterTarget(
       (!calciumGhFraction.isFinite ||
           calciumGhFraction < 0 ||
           calciumGhFraction > 1 ||
-          ghSource.index > 1)) {
+          ghSource.group != WaterSaltGroup.magnesium)) {
     throw ArgumentError('Invalid hardness mixture');
   }
-  if (ghSource.index > 2 ||
-      khSource.index < 3 ||
+  if (!ghSource.contributesGh ||
+      khSource.contributesGh ||
       !gh.isFinite ||
       !kh.isFinite ||
       gh < 0 ||

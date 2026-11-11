@@ -38,7 +38,7 @@ class _CoffeePickerState extends State<CoffeePicker> {
     builder: (context, lotSnapshot) => StreamBuilder<List<FrozenPortion>>(
       stream: portions,
       builder: (context, portionSnapshot) {
-        final s = AppLocalizations.of(context)!;
+        final s = AppLocalizations.of(context);
         final lots = lotSnapshot.data ?? const <CoffeeLot>[];
         final frozen = frozenGramsByCoffee(
           lots,

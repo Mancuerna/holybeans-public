@@ -212,5 +212,5 @@ class JournalRepository {
   }) => records.watchWaterProfiles(includeArchived: includeArchived);
 
   /// Container kinds offered when freezing coffee.
-  static const frozenContainers = allowedFrozenContainers;
+  static final frozenContainers = allowedFrozenContainers;
 }

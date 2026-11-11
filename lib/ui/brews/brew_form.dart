@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -22,12 +23,12 @@ import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/form_exit_guard.dart';
 import 'package:holybeans/ui/core/form_validation.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
+import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/motion.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/equipment/equipment_forms.dart';
 import 'package:holybeans/ui/equipment/method_tools_sheet.dart';
 import 'package:holybeans/ui/equipment/water_profile_form.dart';
-import 'package:intl/intl.dart';
 
 class BrewFormResult {
   const BrewFormResult({
@@ -158,15 +159,18 @@ class _BrewFormState extends State<BrewForm> {
   String? _previousBrewYieldReference(AppLocalizations strings) {
     final value = widget.repeat ? widget.seed?.beverageGrams : null;
     if (value == null) return null;
-    final amount = NumberFormat('0.#', regionalLocale.toString()).format(value);
+    final amount = formatDecimal(
+      value,
+      pattern: '0.#',
+      locale: regionalLocale.toString(),
+    );
     return strings.previousBrewYieldReference(amount);
   }
 
   String? _previousBrewDurationReference(AppLocalizations strings) {
     final seconds = widget.repeat ? widget.seed?.timeSeconds : null;
     if (seconds == null) return null;
-    final duration =
-        '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
+    final duration = formatDuration(seconds);
     return strings.previousBrewDurationReference(duration);
   }
 
@@ -202,7 +206,7 @@ class _BrewFormState extends State<BrewForm> {
       pouredGrams: result.pouredGrams,
     );
     if (mounted) {
-      showMessage(context, AppLocalizations.of(context)!.pourResultApplied);
+      showMessage(context, AppLocalizations.of(context).pourResultApplied);
     }
   }
 
@@ -254,7 +258,7 @@ class _BrewFormState extends State<BrewForm> {
   }
 
   Future<void> save() async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     if (!model.isEspresso && !draft.hasValidPourDetails) {
       draft.pours.detailsExpanded = true;
       await WidgetsBinding.instance.endOfFrame;
@@ -309,7 +313,7 @@ class _BrewFormState extends State<BrewForm> {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: model,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       final draft = model.draft;
       final recipeInputs = Listenable.merge([draft.dose, draft.water]);
       Widget result() => ListenableBuilder(

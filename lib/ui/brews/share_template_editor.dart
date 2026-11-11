@@ -41,7 +41,7 @@ class _ShareTemplateEditorState extends State<ShareTemplateEditor> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (initialBody != null) return;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     initialBody =
         widget.existing?.body ??
         (widget.style == ShareTemplateStyle.espresso
@@ -70,7 +70,7 @@ class _ShareTemplateEditorState extends State<ShareTemplateEditor> {
   }
 
   Future<void> _save(BuildContext context) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     if (saving || !formKey.currentState!.validate()) return;
     final template = ShareTemplate(
       id: widget.existing?.id ?? const Uuid().v4(),
@@ -98,7 +98,7 @@ class _ShareTemplateEditorState extends State<ShareTemplateEditor> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final values = widget.values ?? sampleShareTemplateValues(s, widget.style);
     final unknown = TemplateEngine.unknownTags(body.text);
     final missing = TemplateEngine.missingTags(body.text, values);

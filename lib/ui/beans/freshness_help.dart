@@ -8,7 +8,7 @@ class FreshnessHelp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return AlertDialog(
       scrollable: true,
       title: Text(s.freshnessHelpTitle),

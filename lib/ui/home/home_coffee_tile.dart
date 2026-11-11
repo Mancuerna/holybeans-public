@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -8,7 +9,6 @@ import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
-import 'package:intl/intl.dart';
 
 /// A coffee at hand on Home: what is left, where it stands in its freshness
 /// window and the recipe Repeat starts from (its favourite, else its last
@@ -42,7 +42,7 @@ class HomeCoffeeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final muted = theme.textTheme.bodySmall?.copyWith(
@@ -156,7 +156,7 @@ class _Freshness extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final timing = freshnessTimeLabel(s, freshness.window, freshness.day);
     final label = [freshnessPhaseLabel(s, freshness.phase), ?timing].join(', ');
@@ -210,7 +210,7 @@ class _Recipe extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final parts = brewRecipeParts(
@@ -249,10 +249,11 @@ class _Recipe extends StatelessWidget {
               ),
             ),
             TextSpan(
-              text: NumberFormat(
-                '0.#',
-                regionalLocale.toString(),
-              ).format(rating),
+              text: formatDecimal(
+                rating,
+                pattern: '0.#',
+                locale: regionalLocale.toString(),
+              ),
             ),
           ],
         ],

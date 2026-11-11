@@ -48,7 +48,7 @@ class _PistonPageState extends State<PistonPage> {
     final ok = await model.save(result);
     if (!ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.pistonSaveError)),
+        SnackBar(content: Text(AppLocalizations.of(context).pistonSaveError)),
       );
     }
   }
@@ -57,7 +57,7 @@ class _PistonPageState extends State<PistonPage> {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: model,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       final locale = regionalLocale.toString();
       final number = NumberFormat('0.00', locale);
       final percent = NumberFormat('+0.0;-0.0', locale);

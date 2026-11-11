@@ -24,7 +24,7 @@ class StockAdjustmentSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final operations = <String, List<StockAdjustment>>{};
     for (final row in adjustments) {
       operations.putIfAbsent(row.operationId, () => []).add(row);
@@ -89,7 +89,7 @@ class _AdjustmentRowState extends State<_AdjustmentRow> {
   bool busy = false;
   String? error;
   Future<void> undo() async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -133,7 +133,7 @@ class _AdjustmentRowState extends State<_AdjustmentRow> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final row = widget.rows.first;
     final unknown = widget.rows.any((r) => r.previousGrams == null);
     final delta = widget.rows.fold<double>(

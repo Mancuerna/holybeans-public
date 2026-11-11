@@ -24,7 +24,7 @@ class WaterPlanTimer extends StatelessWidget {
   );
 
   Widget _content(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

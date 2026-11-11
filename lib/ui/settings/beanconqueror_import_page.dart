@@ -45,7 +45,7 @@ Future<BqImportSummary?> importFromBeanconqueror(
   PhotoStore? photos,
   ExportFolder? folder,
 }) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   final source = folder == null
       ? _BqSource.file
       : await showModalBottomSheet<_BqSource>(
@@ -129,7 +129,7 @@ Future<T> _whileReading<T>(
   Future<T> Function() work,
 ) async {
   final navigator = Navigator.of(context, rootNavigator: true);
-  final text = AppLocalizations.of(context)!.bqReadingExport;
+  final text = AppLocalizations.of(context).bqReadingExport;
   unawaited(
     showDialog<void>(
       context: context,
@@ -162,7 +162,7 @@ class _SourceSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -284,7 +284,7 @@ class _BeanconquerorImportPageState extends State<BeanconquerorImportPage> {
   }
 
   Future<void> _import() async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     setState(() => importing = true);
     final stored = <String, String>{};
     try {
@@ -397,7 +397,7 @@ class _BeanconquerorImportPageState extends State<BeanconquerorImportPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final muted = theme.textTheme.bodyMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,

@@ -10,12 +10,18 @@ enum WaterIon {
   bicarbonate,
 }
 
+enum WaterSaltGroup { magnesium, calcium, alkalinity }
+
 enum WaterSalt {
-  epsom,
-  magnesiumChloride,
-  calciumChloride,
-  sodiumBicarbonate,
-  potassiumBicarbonate,
+  epsom(WaterSaltGroup.magnesium),
+  magnesiumChloride(WaterSaltGroup.magnesium),
+  calciumChloride(WaterSaltGroup.calcium),
+  sodiumBicarbonate(WaterSaltGroup.alkalinity),
+  potassiumBicarbonate(WaterSaltGroup.alkalinity);
+
+  const WaterSalt(this.group);
+  final WaterSaltGroup group;
+  bool get contributesGh => group != WaterSaltGroup.alkalinity;
 }
 
 enum CalciumForm { anhydrous, dihydrate }
@@ -247,7 +253,7 @@ class WaterRecipe {
         (!calciumGhFraction!.isFinite ||
             calciumGhFraction! < 0 ||
             calciumGhFraction! > 1 ||
-            ghSource.index > 1)) {
+            ghSource.group != WaterSaltGroup.magnesium)) {
       throw ArgumentError('Invalid hardness mixture');
     }
     if (ionTargets &&
@@ -263,7 +269,7 @@ class WaterRecipe {
         )) {
       throw ArgumentError('Dose requires an unavailable salt');
     }
-    if (ghSource.index > 2 || khSource.index < 3) {
+    if (!ghSource.contributesGh || khSource.contributesGh) {
       throw ArgumentError('Invalid salt sources');
     }
     if (mode != WaterCalculationMode.quantities &&

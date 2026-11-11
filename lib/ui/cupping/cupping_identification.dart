@@ -9,7 +9,7 @@ class CuppingIdentification extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return ListView(
       key: const ValueKey('cupping-identification'),
       padding: const EdgeInsets.all(16),

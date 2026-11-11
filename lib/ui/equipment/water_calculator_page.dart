@@ -80,16 +80,14 @@ class _WaterCalculatorPageState extends State<WaterCalculatorPage> {
     );
     if (saved != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.waterProfileSaved),
-        ),
+        SnackBar(content: Text(AppLocalizations.of(context).waterProfileSaved)),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(s.waterCalculator)),
       body: FutureBuilder<List<WaterProfile>>(

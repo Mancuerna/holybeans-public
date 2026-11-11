@@ -119,7 +119,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
       reportError(problem, stack);
       if (mounted) {
         setState(() {
-          feedback = AppLocalizations.of(context)!.labelConnectionFailed;
+          feedback = AppLocalizations.of(context).labelConnectionFailed;
           error = true;
         });
       }
@@ -135,7 +135,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
       reportError(problem, stack);
       if (mounted) {
         setState(() {
-          feedback = AppLocalizations.of(context)!.labelOutputSaveFailed;
+          feedback = AppLocalizations.of(context).labelOutputSaveFailed;
           error = true;
         });
       }
@@ -154,7 +154,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
   }
 
   void _resetBody() {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     body.text = kind == LabelKind.coffee
         ? s.labelCoffeeBody
         : s.labelFrozenBody;
@@ -202,7 +202,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
 
   Future<bool> _allowReplace() async {
     if (!dirty) return true;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final discard = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -270,7 +270,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
 
   Future<void> _save() async {
     if (busy) return;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final previous = templates
         .where((t) => t.id == selectedTemplate)
         .firstOrNull;
@@ -316,7 +316,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
 
   Future<void> _delete() async {
     if (busy || selectedTemplate == null) return;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final id = selectedTemplate!;
     final accepted = await showDialog<bool>(
       context: context,
@@ -362,7 +362,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
 
   Future<void> _output(LabelLayout layout, {required bool print}) async {
     if (busy || !layout.fitsPaper) return;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     setState(() {
       busy = true;
       feedback = null;
@@ -402,7 +402,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final current = template;
     final unknown = TemplateEngine.unknownTags(
       body.text,

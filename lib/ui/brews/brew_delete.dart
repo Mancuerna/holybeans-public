@@ -20,7 +20,7 @@ Future<void> deleteBrewAfterConfirming(
   JournalActions actions,
   Brew brew,
 ) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   try {
     final returns = await actions.read.queries.brewStockReturn(brew);
     if (!context.mounted) return;

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
-import 'package:intl/intl.dart';
 
 class CafeShareRow {
   const CafeShareRow(this.id, this.label, this.value, {this.personal = false});
@@ -20,7 +20,7 @@ List<CafeShareRow> cafeShareRows(
   CafeDrink drink,
   String? roaster,
 ) {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   final locale = Localizations.localeOf(context).toLanguageTag();
   final rows = <CafeShareRow>[];
   void add(String id, String label, String? value, {bool personal = false}) {
@@ -51,7 +51,7 @@ List<CafeShareRow> cafeShareRows(
     s.rating,
     drink.rating == null
         ? null
-        : NumberFormat('0.#', locale).format(drink.rating),
+        : formatDecimal(drink.rating, pattern: '0.#', locale: locale),
     personal: true,
   );
   add(

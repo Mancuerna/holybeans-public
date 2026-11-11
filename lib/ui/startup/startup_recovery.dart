@@ -77,7 +77,7 @@ class _StartupRecoveryAppState extends State<StartupRecoveryApp> {
   );
 
   Widget _page(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(s.appTitle)),
       body: SafeArea(

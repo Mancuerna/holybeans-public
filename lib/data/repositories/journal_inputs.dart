@@ -1,16 +1,11 @@
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/catalog_validation.dart';
 import 'package:holybeans/domain/altitude.dart';
+import 'package:holybeans/domain/journal_codes.dart';
 
-const allowedFrozenContainers = [
-  'vacuum_bag',
-  'tube',
-  'zip_bag',
-  'jar',
-  'container',
-  'original_bag',
-  'other',
-];
+final allowedFrozenContainers = List<String>.unmodifiable(
+  FrozenContainer.values.map((value) => value.code),
+);
 
 class BrewStockReviewRequiredException implements Exception {
   const BrewStockReviewRequiredException();
@@ -218,7 +213,7 @@ void validatePositiveGrams(double value, String name) {
 }
 
 void validateFrozenContainer(String? value) {
-  if (value != null && !allowedFrozenContainers.contains(value)) {
+  if (value != null && FrozenContainer.fromCode(value) == null) {
     throw ArgumentError.value(value, 'container');
   }
 }
@@ -236,8 +231,7 @@ void validateCoffeePrice(int? value) {
 }
 
 void validateRoastLevel(String? value) {
-  const valid = {'dark', 'medium', 'omni', 'light', 'ultra_light'};
-  if (value != null && !valid.contains(value)) {
+  if (value != null && RoastLevel.fromCode(value) == null) {
     throw ArgumentError.value(value, 'roastLevel');
   }
 }

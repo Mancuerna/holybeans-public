@@ -107,7 +107,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
       reportError(error, stack);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.saveFailed)),
+          SnackBar(content: Text(AppLocalizations.of(context).saveFailed)),
         );
       }
     }
@@ -130,7 +130,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
       reportError(error, stack);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.photoFailed)),
+          SnackBar(content: Text(AppLocalizations.of(context).photoFailed)),
         );
       }
     } finally {
@@ -185,9 +185,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.shareTemplateLoadFailed,
-            ),
+            content: Text(AppLocalizations.of(context).shareTemplateLoadFailed),
           ),
         );
       }
@@ -230,7 +228,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
       if (mounted) setState(() => rendering = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.shareFailed)),
+          SnackBar(content: Text(AppLocalizations.of(context).shareFailed)),
         );
       }
     }
@@ -238,7 +236,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
 
   Future<void> _copy(String source) async {
     if (busy || source.isEmpty) return;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     setState(() {
       copying = true;
       copyMessage = null;
@@ -351,7 +349,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final screenHeight = MediaQuery.sizeOf(context).height;
     final height = math.min(
       screenHeight * 0.88,
@@ -609,7 +607,7 @@ class BrewShareCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final coffeeLabel = BrewParameter.coffee.label(
-      AppLocalizations.of(context)!,
+      AppLocalizations.of(context),
     );
     return JournalShareCard(
       key: const ValueKey('brew-share-card'),
@@ -638,7 +636,7 @@ class _ShareFields extends StatelessWidget {
   final bool enabled;
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return ExpansionTile(
       title: Text(s.shareFields),
       subtitle: Text(s.shareFieldsSettingsHint),
@@ -686,7 +684,7 @@ class _ShareTemplateChoice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return DropdownButtonFormField<String>(
       key: ValueKey('share-template-$selected'),
       initialValue: selected ?? '',

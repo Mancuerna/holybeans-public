@@ -17,7 +17,7 @@ Future<void> shareCuppingFlow(
   JournalRepository repository,
   String sessionId,
 ) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   try {
     final data = await repository.cuppingShareData(sessionId);
     if (!context.mounted) return;
@@ -90,7 +90,7 @@ class _CuppingShareSheetState extends State<CuppingShareSheet> {
       if (mounted) {
         setState(() => rendering = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.shareFailed)),
+          SnackBar(content: Text(AppLocalizations.of(context).shareFailed)),
         );
       }
     }
@@ -98,7 +98,7 @@ class _CuppingShareSheetState extends State<CuppingShareSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return SafeArea(
       top: false,
       child: SizedBox(

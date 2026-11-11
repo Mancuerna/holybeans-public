@@ -36,7 +36,7 @@ class ReleaseNotesObserver extends NavigatorObserver {
     await showDialog<void>(
       context: context,
       builder: (context) {
-        final s = AppLocalizations.of(context)!;
+        final s = AppLocalizations.of(context);
         final language = Localizations.localeOf(context).languageCode;
         return AlertDialog(
           key: const ValueKey('release-notes'),

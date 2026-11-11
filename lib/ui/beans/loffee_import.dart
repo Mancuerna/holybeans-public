@@ -19,7 +19,7 @@ Future<void> importLoffeeBean(
   if (bean == null || !context.mounted) return;
   if (!await confirmBeanImport(context, actions, coffees, bean.card)) return;
   if (!context.mounted) return;
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   final notes = [
     s.loffeeAttribution,
     ?bean.description,

@@ -146,7 +146,7 @@ class _YearReviewPageState extends State<YearReviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final review = _review;
     if (review == null) {
       return Scaffold(

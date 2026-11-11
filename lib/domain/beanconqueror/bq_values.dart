@@ -6,6 +6,8 @@ library;
 import 'dart:convert';
 
 import 'package:holybeans/domain/altitude.dart';
+import 'package:holybeans/domain/fingerprint.dart';
+import 'package:holybeans/domain/journal_codes.dart';
 
 /// A positive number, or null for 0, negatives and anything else.
 double? bqPositive(Object? value) =>
@@ -81,30 +83,32 @@ String? bqRoastLevel(Object? roast) => switch (roast) {
   'AMERICAN_ROAST' ||
   'NEW_ENGLAND_ROAST' ||
   'HALF_CITY_ROAST' ||
-  'MODERATE_LIGHT_ROAST' => 'light',
-  'CITY_ROAST' || 'CITY_PLUS_ROAST' || 'FULL_CITY_ROAST' => 'medium',
+  'MODERATE_LIGHT_ROAST' => RoastLevel.light.code,
+  'CITY_ROAST' ||
+  'CITY_PLUS_ROAST' ||
+  'FULL_CITY_ROAST' => RoastLevel.medium.code,
   'FULL_CITY_PLUS_ROAST' ||
   'ITALIAN_ROAST' ||
   'VIEANNA_ROAST' ||
-  'FRENCH_ROAST' => 'dark',
+  'FRENCH_ROAST' => RoastLevel.dark.code,
   _ => null,
 };
 
 /// A preparation's style as a HolyBeans method category.
 String? bqMethodCategory(Object? styleType) => switch (styleType) {
-  'ESPRESSO' => 'espresso',
-  'POUR OVER' || 'PERCOLATION' => 'pourover',
-  'FULL_IMMERSION' => 'immersion',
+  'ESPRESSO' => MethodCategory.espresso.code,
+  'POUR OVER' || 'PERCOLATION' => MethodCategory.pourover.code,
+  'FULL_IMMERSION' => MethodCategory.immersion.code,
   _ => null,
 };
 
 /// The freezer container of a frozen bean.
 String? bqContainer(Object? storage) => switch (storage) {
-  'COFFEE_BAG' => 'original_bag',
-  'COFFEE_JAR' => 'jar',
-  'ZIP_LOCK' => 'zip_bag',
-  'VACUUM_SEALED' => 'vacuum_bag',
-  'TUBE' => 'tube',
+  'COFFEE_BAG' => FrozenContainer.originalBag.code,
+  'COFFEE_JAR' => FrozenContainer.jar.code,
+  'ZIP_LOCK' => FrozenContainer.zipBag.code,
+  'VACUUM_SEALED' => FrozenContainer.vacuumBag.code,
+  'TUBE' => FrozenContainer.tube.code,
   _ => null,
 };
 
@@ -155,11 +159,7 @@ double? bqIonPpm(
 /// A short stable hash of a record's original JSON (64-bit FNV-1a), to
 /// tell whether it changed in BeanConqueror since it was imported.
 String bqFingerprint(String json) {
-  var hash = 0xcbf29ce484222325;
-  for (final unit in utf8.encode(json)) {
-    hash ^= unit;
-    hash *= 0x100000001b3;
-  }
+  final hash = fnv1a64(utf8.encode(json));
   return hash.toUnsigned(64).toRadixString(16).padLeft(16, '0');
 }
 

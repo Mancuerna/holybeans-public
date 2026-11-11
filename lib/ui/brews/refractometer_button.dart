@@ -11,7 +11,7 @@ class RefractometerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return IconButton(
       key: const ValueKey('refractometer-measure'),
       tooltip: refractometer.measuring

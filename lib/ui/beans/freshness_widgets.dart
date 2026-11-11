@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/domain/coffee_freshness.dart';
 import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -59,7 +60,7 @@ class FreshnessSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final muted = theme.textTheme.bodySmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
@@ -162,10 +163,11 @@ class FreshnessSection extends StatelessWidget {
                           brewStyleLabel(s, entry.key),
                           entry.value.startDay,
                           entry.value.endDay,
-                          NumberFormat(
-                            '0.#',
-                            regionalLocale.toString(),
-                          ).format(entry.value.averageRating),
+                          formatDecimal(
+                            entry.value.averageRating,
+                            pattern: '0.#',
+                            locale: regionalLocale.toString(),
+                          ),
                           entry.value.brewCount,
                         ),
                       ),
@@ -194,7 +196,7 @@ class _FreshnessRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final phase = window.phaseAt(day);
     final timing = freshnessTimeLabel(s, window, day);
@@ -263,7 +265,7 @@ class FreshnessPhaseChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final color = freshnessPhaseColor(context, phase);
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -287,7 +289,7 @@ class _FreshnessLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Wrap(
       spacing: 12,
       runSpacing: 6,
@@ -394,7 +396,7 @@ class FreshnessBar extends StatelessWidget {
             Align(
               alignment: Alignment(marker / width * 2 - 1, 0),
               child: Text(
-                AppLocalizations.of(context)!.today,
+                AppLocalizations.of(context).today,
                 style: Theme.of(context).textTheme.labelSmall,
               ),
             ),
@@ -416,7 +418,7 @@ class _RatingByAgeChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final points = freshness.ratedDays;
     final espresso = points

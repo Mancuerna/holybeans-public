@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/brew_stats.dart';
@@ -22,7 +23,6 @@ import 'package:holybeans/ui/core/photo_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
 import 'package:holybeans/ui/sync/journal_write_feedback.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Opens the bottom sheet with everything about [coffee].
@@ -129,7 +129,7 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
                 const SizedBox(height: 16),
                 StatGrid(
                   items: _coffeeStats(
-                    AppLocalizations.of(context)!,
+                    AppLocalizations.of(context),
                     coffee,
                     stock,
                     brewCount: data.brewCount(coffee.id),
@@ -161,7 +161,7 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
                 _OriginRows(components: components),
                 if (notes.isNotEmpty)
                   DetailRow(
-                    AppLocalizations.of(context)!.notes,
+                    AppLocalizations.of(context).notes,
                     notes,
                     stacked: true,
                   ),
@@ -227,7 +227,7 @@ List<StatItem> _coffeeStats(
     if (coffee.rating case final rating?)
       StatItem(
         s.rating,
-        '${NumberFormat('0.#', regionalLocale.toString()).format(rating)} / 10',
+        '${formatDecimal(rating, pattern: '0.#', locale: regionalLocale.toString())} / 10',
       ),
     if (coffee.paidPriceCents case final cents?)
       StatItem(
@@ -258,7 +258,7 @@ class _Photos extends StatelessWidget {
         child: DetailPhotos(
           store: store,
           files: files,
-          label: AppLocalizations.of(context)!.bagPhoto,
+          label: AppLocalizations.of(context).bagPhoto,
         ),
       ),
     },
@@ -303,13 +303,13 @@ class _Extras extends StatelessWidget {
       data,
       coffee,
       portion,
-      note: AppLocalizations.of(context)!.onlyFrozenLeft,
+      note: AppLocalizations.of(context).onlyFrozenLeft,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -392,7 +392,7 @@ Future<FrozenPortion?> _choosePortion(
   BuildContext context,
   List<FrozenPortion> portions,
 ) {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   final locale = regionalLocale;
   return showDialog<FrozenPortion>(
     context: context,
@@ -447,7 +447,7 @@ class _FreezerSectionState extends State<_FreezerSection> {
   FreezerRepository get repository => widget.actions.commands.freezer;
 
   Future<void> _freeze() async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final labels = await showFreezeSheet(
       context,
       repository,
@@ -465,7 +465,7 @@ class _FreezerSectionState extends State<_FreezerSection> {
   /// Thaws grams the user picks; returns them, or null when cancelled or
   /// failed.
   Future<double?> _thaw(FrozenPortion portion) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final grams = await showThawDialog(context, portion);
     if (grams == null) return null;
     try {
@@ -488,7 +488,7 @@ class _FreezerSectionState extends State<_FreezerSection> {
   }
 
   Future<void> _delete(FrozenPortion portion) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -526,7 +526,7 @@ class _FreezerSectionState extends State<_FreezerSection> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final stock = widget.stock;
     final active = widget.coffee.archivedAtMs == null;
     final canFreeze =
@@ -588,7 +588,7 @@ class _OriginRows extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -644,7 +644,7 @@ class _RecentBrews extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (brews.isEmpty) return const SizedBox.shrink();
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final deviceLocale = regionalLocale;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -683,7 +683,7 @@ class _RecentBrews extends StatelessWidget {
                   rating: rating,
                   localeName: regionalLocale.toString(),
                   semanticLabel:
-                      '${s.rating}: ${NumberFormat('0.#', regionalLocale.toString()).format(rating)} / 10',
+                      '${s.rating}: ${formatDecimal(rating, pattern: '0.#', locale: regionalLocale.toString())} / 10',
                 ),
                 null => const Icon(Icons.chevron_right_rounded),
               },

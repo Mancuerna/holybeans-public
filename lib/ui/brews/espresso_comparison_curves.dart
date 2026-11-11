@@ -94,7 +94,7 @@ class _EspressoComparisonCurvesState extends State<EspressoComparisonCurves>
   }
 
   Widget _highlights(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final number = NumberFormat('0.#', regionalLocale.toString())
       ..turnOffGrouping();
     final pressureA = timeline.peak(CurveSeries.pressure, second: false);
@@ -216,7 +216,7 @@ class _EspressoComparisonCurvesState extends State<EspressoComparisonCurves>
     double cursor,
     bool flowCompatible,
   ) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final number = NumberFormat('0.#', regionalLocale.toString())
       ..turnOffGrouping();
     String value(CurveSeries series, bool second) {
@@ -297,7 +297,7 @@ class _EspressoComparisonCurvesState extends State<EspressoComparisonCurves>
   }
 
   Widget _panel(BuildContext context, CurveSeries series, double cursor) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final number = NumberFormat('0.##', regionalLocale.toString())
       ..turnOffGrouping();
@@ -386,7 +386,7 @@ class _EspressoComparisonCurvesState extends State<EspressoComparisonCurves>
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     Widget atCursor(Widget Function(double) builder) => ValueListenableBuilder(
       valueListenable: position,
@@ -542,7 +542,7 @@ class EspressoCurveSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final timeline = ComparisonTimeline(a: a, b: b);
     final first = a == null
         ? null

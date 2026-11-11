@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/domain/journal_codes.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:intl/intl.dart';
@@ -54,11 +55,12 @@ String formatTimeTick(double seconds, NumberFormat number) {
 String beanDetailLabel(String label) =>
     label.replaceFirst(RegExp(r'\s*\((?:g|€)\)$'), '');
 
-String roastLevelLabel(AppLocalizations strings, String code) => switch (code) {
-  'dark' => strings.roastDark,
-  'medium' => strings.roastMedium,
-  'omni' => strings.roastOmni,
-  'light' => strings.roastLight,
-  'ultra_light' => strings.roastUltraLight,
-  _ => code,
-};
+String roastLevelLabel(AppLocalizations strings, String code) =>
+    switch (RoastLevel.fromCode(code)) {
+      RoastLevel.dark => strings.roastDark,
+      RoastLevel.medium => strings.roastMedium,
+      RoastLevel.omni => strings.roastOmni,
+      RoastLevel.light => strings.roastLight,
+      RoastLevel.ultraLight => strings.roastUltraLight,
+      null => code,
+    };

@@ -18,7 +18,7 @@ class WaterCalculatorResult extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final result = recipe.result;
     final target = recipe.target;
     final number = NumberFormat('0.##', regionalLocale.toString());

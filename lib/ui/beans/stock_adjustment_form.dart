@@ -46,7 +46,7 @@ class _StockAdjustmentFormState extends State<StockAdjustmentForm> {
 
   Future<void> save(BuildContext formContext) async {
     if (busy) return;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final value = grams;
     if (value == null ||
         !value.isFinite ||
@@ -89,7 +89,7 @@ class _StockAdjustmentFormState extends State<StockAdjustmentForm> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final after = reason == 'correction'
         ? grams
         : current == null || grams == null

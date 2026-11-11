@@ -45,7 +45,7 @@ class BrewWeightChart extends StatelessWidget {
         if (!scale.scale.connected && scale.curve == null) {
           return const SizedBox.shrink();
         }
-        final s = AppLocalizations.of(context)!;
+        final s = AppLocalizations.of(context);
         final firstDrip = int.tryParse(model.draft.firstDrip.text);
         final plan =
             !model.isEspresso &&
