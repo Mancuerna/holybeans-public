@@ -19,6 +19,7 @@ class NiimbotConnectionLog {
     final selected = switch (event) {
       'status' => {'previous': data['previous'], 'next': data['next']},
       'adapter' => {'state': data['state']},
+      'scan.stop' => {'supportedDevices': data['supportedDevices']},
       'connection.changed' => {'linked': data['linked']},
       'niimbot.receive' => {
         'bytes': data['bytes'],
@@ -34,6 +35,8 @@ class NiimbotConnectionLog {
       'niimbot.response' ||
       'niimbot.identified' ||
       'niimbot.unexpectedResponse' => data,
+      'scan.error' ||
+      'adapter.error' ||
       'connect.error' ||
       'niimbot.mtu.error' ||
       'reconnect.error' ||
@@ -41,6 +44,7 @@ class NiimbotConnectionLog {
       'permissions.error' ||
       'notification.error' ||
       'disconnect.error' => {'error': _redact('${data['error']}')},
+      'scan.start' ||
       'permissions.request' ||
       'permissions.granted' ||
       'connect.start' ||

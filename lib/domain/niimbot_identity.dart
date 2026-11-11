@@ -15,6 +15,8 @@ class NiimbotIdentity {
     int? protocolVersion,
   }) {
     if (!model.acceptsId(id) ||
+        (model == LabelPrinterModel.d110M &&
+            !const [0, 1, 3, 4, 5].contains(protocolVersion)) ||
         (model == LabelPrinterModel.d11 &&
             protocolVersion != 0 &&
             protocolVersion != 1) ||
@@ -29,6 +31,10 @@ class NiimbotIdentity {
             ? NiimbotPrintFamily.oldD11
             : NiimbotPrintFamily.d110,
       2304 || 2305 || 776 || 777 => NiimbotPrintFamily.d110,
+      // NiimBlueLib selects V4 only for D110_M protocol 4; its default
+      // (including protocol 5) is B1. Firmware numbers are not protocols.
+      2320 =>
+        protocolVersion == 4 ? NiimbotPrintFamily.v4 : NiimbotPrintFamily.b1,
       4096 || 771 || 775 => NiimbotPrintFamily.b1,
       528 || 4097 || 6912 || 6913 => NiimbotPrintFamily.v4,
       768 => NiimbotPrintFamily.b21,

@@ -11,6 +11,7 @@ class PrinterHarness {
     model = switch (profile) {
       LabelPrinterModel.marklifeP12 => throw ArgumentError('Not a Niimbot'),
       LabelPrinterModel.d110 => 2304,
+      LabelPrinterModel.d110M => 2320,
       LabelPrinterModel.d11 => 512,
       LabelPrinterModel.d11H => 528,
       LabelPrinterModel.b1 => 4096,

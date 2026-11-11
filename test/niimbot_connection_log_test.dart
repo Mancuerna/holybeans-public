@@ -3,6 +3,21 @@ import 'package:holybeans/data/services/niimbot_connection_log.dart';
 import 'package:holybeans/domain/label_printer_profile.dart';
 
 void main() {
+  test(
+    'includes scan outcome and redacted failures without device details',
+    () {
+      final log = NiimbotConnectionLog(LabelPrinterModel.d110M);
+      log.record('scan.start', {'name': 'private'});
+      log.record('scan.stop', {'supportedDevices': 0, 'name': 'private'});
+      log.record('scan.error', {'error': 'Failed AA:BB:CC:DD:EE:FF'});
+      expect(log.report, contains('scan.start {}'));
+      expect(log.report, contains('scan.stop {"supportedDevices":0}'));
+      expect(log.report, contains('scan.error {"error":"Failed [address]"}'));
+      expect(log.report, isNot(contains('private')));
+      expect(log.report, isNot(contains('AA:BB')));
+    },
+  );
+
   test('keeps connection evidence without label rows or device addresses', () {
     final log = NiimbotConnectionLog(LabelPrinterModel.b1Pro);
     expect(log.report, isEmpty);
