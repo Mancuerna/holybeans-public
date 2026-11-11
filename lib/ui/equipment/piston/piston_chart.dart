@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 import 'package:holybeans/domain/meticulous/piston_analysis.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -74,15 +75,17 @@ class _PistonChartState extends State<PistonChart> {
                   return GestureDetector(
                     onTapDown: (d) => pick(d.localPosition),
                     onHorizontalDragUpdate: (d) => pick(d.localPosition),
-                    child: CustomPaint(
-                      size: Size(box.maxWidth, 240),
-                      painter: _PistonPainter(
-                        widget.points,
-                        widget.services,
-                        Theme.of(context).colorScheme,
-                        locale,
-                        unit,
-                        selected,
+                    child: RepaintBoundary(
+                      child: CustomPaint(
+                        size: Size(box.maxWidth, 240),
+                        painter: _PistonPainter(
+                          widget.points,
+                          widget.services,
+                          Theme.of(context).colorScheme,
+                          locale,
+                          unit,
+                          selected,
+                        ),
                       ),
                     ),
                   );
@@ -122,9 +125,15 @@ class _PistonPainter extends CustomPainter {
     this.locale,
     this.unit,
     this.selected,
-  );
+  ) : _pointValues = [
+        for (final p in points) (p.timeMs, p.value, p.raw, p.cycle),
+      ],
+      _serviceTimes = [for (final s in services) s.timeMs];
   final List<PistonPoint> points;
   final List<PistonService> services;
+  // Snapshot values before a caller can reuse and update either input list.
+  final List<(int, double, double, int)> _pointValues;
+  final List<int> _serviceTimes;
   final ColorScheme colors;
   final String locale;
   final String unit;
@@ -159,6 +168,7 @@ class _PistonPainter extends CustomPainter {
         canvas,
         Offset(end ? pos.dx - painter.width : pos.dx, pos.dy),
       );
+      painter.dispose();
     }
 
     for (var i = 0; i < 4; i++) {
@@ -242,5 +252,11 @@ class _PistonPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _PistonPainter old) => true;
+  bool shouldRepaint(covariant _PistonPainter old) =>
+      !listEquals(old._pointValues, _pointValues) ||
+      !listEquals(old._serviceTimes, _serviceTimes) ||
+      old.colors != colors ||
+      old.locale != locale ||
+      old.unit != unit ||
+      old.selected != selected;
 }

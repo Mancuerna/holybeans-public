@@ -965,6 +965,23 @@ row accesses, not Android frame times or the number of mounted list elements.
 The catalog retry regression also covers a bundle that throws before returning
 a future, so an immediate source error cannot remain cached.
 
+## Equipment chart repaint retention (November 2026)
+
+Piston and water charts compare captured plotting values and appearance inputs,
+so fresh equivalent point objects do not invalidate the canvas. Capturing values
+also detects changes when a caller reuses and updates an input list. Each canvas
+has a repaint boundary to isolate it from parent painting, and temporary text
+painters are disposed after use.
+
+The same `test/equipment_chart_repaint_test.dart` driver on `c6aeb6b` and this
+change counts actual canvas paints during 100 equivalent parent updates:
+**100 → 0 for piston** and **100 → 0 for water**. Value comparisons alone still
+produced 100 paints because the parent repainted; the boundaries are necessary
+for the measured reduction. Tests also verify repaint requests and actual paints
+for data, maintenance times, units, selection, colors, device region, translated
+water axes and water text scaling. Existing chart interaction assertions remain.
+These are paint-call counts in widget tests, not Android frame/GPU measurements.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
