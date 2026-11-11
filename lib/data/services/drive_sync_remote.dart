@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:holybeans/data/services/atomic_json_file.dart';
 import 'package:holybeans/data/services/drive_sync_coordinator.dart';
@@ -222,14 +223,48 @@ class DriveRemoteAdapter implements DriveSyncRemote {
     return response['body']! as Uint8List;
   }
 
+  Future<bool?> _matches(
+    String id,
+    Uint8List bytes, {
+    String? photoHash,
+  }) async {
+    if (!RegExp(r'^[a-zA-Z0-9_-]{1,128}$').hasMatch(id)) {
+      throw const FormatException('Invalid Drive ID');
+    }
+    if (photoHash != null) {
+      try {
+        final metadata = await _json(
+          _url('files/$id', {'fields': 'sha256Checksum,md5Checksum,size'}),
+        );
+        final size = int.tryParse(metadata['size'] as String? ?? '');
+        if (size != null) {
+          if (size != bytes.length) return false;
+          if (metadata['sha256Checksum'] case final String digest) {
+            return digest == photoHash;
+          }
+          if (metadata['md5Checksum'] case final String digest) {
+            return digest == await _md5(bytes);
+          }
+        }
+      } on DriveHttpException catch (error) {
+        if (error.status == 404) return null;
+        rethrow;
+      }
+    }
+    // Journals retain byte verification; photos fall back when metadata is absent.
+    final existing = await _read(id);
+    return existing == null ? null : await _sameBytes(existing, bytes);
+  }
+
   Future<void> _create(
     String id,
     Uint8List bytes,
-    Map<String, String> props,
-  ) async {
-    final existing = await _read(id);
+    Map<String, String> props, {
+    String? photoHash,
+  }) async {
+    final existing = await _matches(id, bytes, photoHash: photoHash);
     if (existing != null) {
-      if (!await _sameBytes(existing, bytes)) {
+      if (!existing) {
         throw const FormatException('Immutable Drive object mismatch');
       }
       return;
@@ -263,33 +298,52 @@ class DriveRemoteAdapter implements DriveSyncRemote {
       contentType: 'application/octet-stream',
     );
     _check(uploaded);
-    final verified = await _read(id);
-    if (verified == null || !await _sameBytes(verified, bytes)) {
+    if (await _matches(id, bytes, photoHash: photoHash) != true) {
       throw const FormatException('Drive upload verification failed');
     }
   }
 
-  Future<String> _photo(String hash, Uint8List bytes) async {
+  Future<Map<String, Object?>> _photos(DriveSyncPayload payload) async {
+    if (payload.photos.isEmpty) return const {};
     final stored = await photoQueue.read();
     final queue = stored == null
         ? <String, dynamic>{}
         : Map<String, dynamic>.from(stored as Map);
-    if (!queue.containsKey(hash)) {
-      for (final file in await _list('photo', hash: hash)) {
-        final id = file['id'] as String;
-        final existing = await _read(id);
-        if (existing != null && await _digest(existing) == hash) {
-          queue[hash] = id;
-          await photoQueue.write(queue);
-          return id;
+    final byHash = {
+      for (final entry in payload.photos.entries)
+        payload.photoHashes[entry.key]!: entry.value,
+    };
+    final verified = <String>{};
+    var changed = false;
+    for (final entry in byHash.entries) {
+      if (queue[entry.key] != null) continue;
+      String? id;
+      for (final file in await _list('photo', hash: entry.key)) {
+        final candidate = file['id'] as String;
+        if (await _matches(candidate, entry.value, photoHash: entry.key) ==
+            true) {
+          id = candidate;
+          verified.add(entry.key);
+          break;
         }
       }
+      queue[entry.key] = id ?? await reserveId();
+      changed = true;
     }
-    final id = queue[hash] as String? ?? await reserveId();
-    queue[hash] = id;
-    await photoQueue.write(queue);
-    await _create(id, bytes, {'space': space, 'kind': 'photo', 'hash': hash});
-    return id;
+    // Persist every reservation before uploading, including after an uncertain retry.
+    if (changed) await photoQueue.write(queue);
+    for (final entry in byHash.entries) {
+      if (verified.contains(entry.key)) continue;
+      await _create(queue[entry.key] as String, entry.value, {
+        'space': space,
+        'kind': 'photo',
+        'hash': entry.key,
+      }, photoHash: entry.key);
+    }
+    return {
+      for (final entry in payload.photoHashes.entries)
+        entry.key: {'id': queue[entry.value] as String, 'hash': entry.value},
+    };
   }
 
   @override
@@ -298,14 +352,7 @@ class DriveRemoteAdapter implements DriveSyncRemote {
     if (payload.hash != snapshot.contentHash) {
       throw const FormatException('Staged snapshot mismatch');
     }
-    final references = <String, Object?>{};
-    for (final entry in payload.photos.entries) {
-      final hash = payload.photoHashes[entry.key]!;
-      references[entry.key] = {
-        'id': await _photo(hash, entry.value),
-        'hash': hash,
-      };
-    }
+    final references = await _photos(payload);
     final bytes = await Isolate.run(
       () => Uint8List.fromList(
         gzip.encode(
@@ -367,6 +414,9 @@ Future<bool> _sameBytes(Uint8List a, Uint8List b) =>
 
 Future<String> _digest(Uint8List bytes) =>
     Isolate.run(() => driveDigest(bytes));
+
+Future<String> _md5(Uint8List bytes) =>
+    Isolate.run(() => md5.convert(bytes).toString());
 
 Future<Map<String, dynamic>> _decodeEnvelope(Uint8List bytes) =>
     Isolate.run(() => jsonDecode(utf8.decode(bytes)) as Map<String, dynamic>);
