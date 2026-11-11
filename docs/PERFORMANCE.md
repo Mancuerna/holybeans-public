@@ -645,6 +645,21 @@ Flow, weight and elapsed time still advance; disconnection disables starting.
 Existing tests cover stale data, reset, navigation and large text in both locales.
 These are host element counts, not device frame timings.
 
+## Home stock aggregation reuse (November 2026)
+
+Home caches active coffees, stock totals, ordering, low-stock alerts and recipe
+groups for a journal/freezer snapshot. Low-stock calculation runs once per
+snapshot, and recipe cards use coffee-indexed groups. Changing either journal
+data or the frozen-portion list replaces the cache. Date-sensitive week counts,
+seasonal entries and freezer age remain outside it.
+
+`home_stock_rebuild_test.dart` uses a read-counting coffee list with three coffees
+and 100 parent-driven rebuilds without data changes. The same driver on `561ff65`
+and after this change measures **900 → 0 coffee element reads**, excluding the
+initial build. It also verifies freezer-only and journal updates, and advances
+the date by eight days to check the rolling-week count without recalculating stock.
+These are collection-access counts, not total screen work or device frame times.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

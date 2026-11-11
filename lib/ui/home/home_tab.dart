@@ -11,13 +11,14 @@ import 'package:holybeans/ui/core/detail_widgets.dart';
 import 'package:holybeans/ui/core/page_layout.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/home/home_coffee_tile.dart';
+import 'package:holybeans/ui/home/home_stock_data.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
 import 'package:holybeans/ui/year_review/year_review_data.dart';
 import 'package:holybeans/ui/year_review/year_review_entry.dart';
 
 /// Home: stock and the week at a glance, backups, beans running low and the
 /// coffees at hand by freshness, each with the recipe to repeat.
-class HomeTab extends StatelessWidget {
+class HomeTab extends StatefulWidget {
   const HomeTab({
     super.key,
     required this.data,
@@ -30,44 +31,32 @@ class HomeTab extends StatelessWidget {
   final JournalActions actions;
 
   @override
+  State<HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<HomeTab> {
+  JournalData get data => widget.data;
+  JournalActions get actions => widget.actions;
+  DateTime? get now => widget.now;
+  (JournalData, List<FrozenPortion>)? _stockKey;
+  late HomeStockData _stock;
+
+  @override
   Widget build(BuildContext context) {
     final coffees = data.coffees;
     final brews = data.brews;
     final lots = data.lots;
     final s = AppLocalizations.of(context)!;
-    final active = coffees
-        .where((coffee) => coffee.archivedAtMs == null)
-        .toList();
-    final activeIds = {for (final coffee in active) coffee.id};
-    final activeBrews = (data.overview?.seeds.values.toList() ?? brews)
-        .where((brew) => brew.archivedAtMs == null)
-        .toList();
-    final frozenByCoffee = frozenGramsByCoffee(lots, actions.portions);
-    final freshByCoffee = unfrozenGramsByCoffee(lots);
-    double sumActive(Map<String, double> grams) => grams.entries
-        .where((entry) => activeIds.contains(entry.key))
-        .fold(0, (sum, entry) => sum + entry.value);
-    final lastBrewAt = data.lastBrewAt;
-    // Coffees at hand: not archived and with unfrozen coffee (or unknown
-    // stock), most recently brewed first, then the newest unbrewed ones.
-    final atHand =
-        active
-            .where(
-              (coffee) =>
-                  !((frozenByCoffee[coffee.id] ?? 0) > 0 &&
-                      freshByCoffee[coffee.id] == 0),
-            )
-            .toList()
-          ..sort((first, second) {
-            final firstBrew = lastBrewAt[first.id];
-            final secondBrew = lastBrewAt[second.id];
-            if (firstBrew != null || secondBrew != null) {
-              if (firstBrew == null) return 1;
-              if (secondBrew == null) return -1;
-              return secondBrew.compareTo(firstBrew);
-            }
-            return second.createdAtMs.compareTo(first.createdAtMs);
-          });
+    final key = (data, actions.portions);
+    if (key != _stockKey) {
+      _stock = homeStockData(data, key.$2);
+      _stockKey = key;
+    }
+    final active = _stock.active;
+    final activeBrews = _stock.activeBrews;
+    final atHand = _stock.atHand;
+    final lastBrewAt = _stock.lastBrewAt;
+    final freshByCoffee = _stock.freshByCoffee;
     final oldestFreeze = oldestFreezeDays(
       lots,
       actions.portions,
@@ -103,17 +92,11 @@ class HomeTab extends StatelessWidget {
             items: [
               StatItem(
                 s.availableFresh,
-                formatGrams(
-                  sumActive(freshByCoffee),
-                  regionalLocale.toString(),
-                ),
+                formatGrams(_stock.freshTotal, regionalLocale.toString()),
               ),
               StatItem(
                 s.frozen,
-                formatGrams(
-                  sumActive(frozenByCoffee),
-                  regionalLocale.toString(),
-                ),
+                formatGrams(_stock.frozenTotal, regionalLocale.toString()),
                 caption: switch (oldestFreeze) {
                   null => null,
                   0 => s.homeFrozenToday,
@@ -153,14 +136,7 @@ class HomeTab extends StatelessWidget {
           onSaveToFolder: actions.saveBackupToFolder,
           onChooseFolder: actions.chooseBackupFolder,
         ),
-        if (lowStock(
-              typicalDoses: data.overview?.doses,
-              coffees: coffees,
-              brews: brews,
-              freshGrams: freshByCoffee,
-              frozenGrams: frozenByCoffee,
-            )
-            case final low when low.isNotEmpty) ...[
+        if (_stock.low case final low when low.isNotEmpty) ...[
           _LowStockCard(low: low, data: data, actions: actions),
           const SizedBox(height: 22),
         ],
@@ -180,19 +156,10 @@ class HomeTab extends StatelessWidget {
           ),
           _YourCoffees(
             coffees: atHand,
-            brews: activeBrews,
+            brewsByCoffee: _stock.brewsByCoffee,
             lastBrewAt: lastBrewAt,
             freshGrams: freshByCoffee,
-            low: {
-              for (final item in lowStock(
-                typicalDoses: data.overview?.doses,
-                coffees: coffees,
-                brews: brews,
-                freshGrams: freshByCoffee,
-                frozenGrams: frozenByCoffee,
-              ))
-                item.coffee.id,
-            },
+            low: _stock.lowIds,
             data: data,
             actions: actions,
           ),
@@ -295,7 +262,7 @@ class _LowStockCard extends StatelessWidget {
 class _YourCoffees extends StatelessWidget {
   const _YourCoffees({
     required this.coffees,
-    required this.brews,
+    required this.brewsByCoffee,
     required this.lastBrewAt,
     required this.freshGrams,
     required this.low,
@@ -305,8 +272,8 @@ class _YourCoffees extends StatelessWidget {
 
   final List<Coffee> coffees;
 
-  /// Brews not archived, newest first.
-  final List<Brew> brews;
+  /// Active brews grouped by coffee, preserving their original order.
+  final Map<String, List<Brew>> brewsByCoffee;
   final Map<String, int> lastBrewAt;
   final Map<String, double> freshGrams;
 
@@ -342,10 +309,7 @@ class _YourCoffees extends StatelessWidget {
         freshGrams: freshGrams[id],
         freshness: freshness[id],
         seed: repeatSeed(
-          [
-            for (final brew in brews)
-              if (brew.coffeeId == id) brew,
-          ],
+          brewsByCoffee[id] ?? const [],
           isFavorite: (brew) => brew.isFavorite,
           brewedAtMs: (brew) => brew.brewedAtMs,
         ),
