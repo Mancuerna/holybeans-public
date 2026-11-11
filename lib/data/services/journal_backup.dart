@@ -6,6 +6,7 @@ import 'package:archive/archive.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
+import 'package:holybeans/data/repositories/tool_catalog.dart';
 import 'package:holybeans/data/services/journal_lock.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/altitude.dart';
@@ -19,7 +20,6 @@ import 'package:holybeans/domain/recipient_snapshot.dart';
 import 'package:holybeans/domain/remembered_scale.dart';
 import 'package:holybeans/domain/roaster_profile.dart';
 import 'package:holybeans/domain/shot_curve.dart';
-import 'package:holybeans/domain/tool_catalog.dart';
 import 'package:holybeans/domain/water_chemistry.dart';
 
 part 'journal_backup/backup_rows.dart';

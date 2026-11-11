@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/preferences/list_options_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/domain/list_options.dart';
-import 'package:holybeans/domain/stock.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/bean_card.dart';
 

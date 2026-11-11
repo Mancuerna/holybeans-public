@@ -1,11 +1,11 @@
-import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/domain/tool_inputs.dart';
 
 /// Shared tools, compatibility and distinct brew counts (archived included).
 class ToolCatalog {
   ToolCatalog({
-    required List<MethodTool> tools,
-    required List<ToolMethodLink> links,
-    required List<BrewToolSelection> selections,
+    required List<CatalogTool> tools,
+    required List<CatalogLink> links,
+    required List<CatalogSelection> selections,
   }) : byId = {for (final tool in tools) tool.id: tool} {
     for (final tool in tools) {
       canonicalId(tool.id); // Reject cycles and missing merge targets.
@@ -26,7 +26,7 @@ class ToolCatalog {
     });
   }
 
-  final Map<String, MethodTool> byId;
+  final Map<String, CatalogTool> byId;
   final Map<String, Set<String>> methodsByTool = {};
   final Map<String, int> useCounts = {};
 
@@ -43,7 +43,7 @@ class ToolCatalog {
     }
   }
 
-  List<MethodTool> visible({bool includeArchived = false}) =>
+  List<CatalogTool> visible({bool includeArchived = false}) =>
       [
         for (final tool in byId.values)
           if (tool.mergedIntoId == null &&
@@ -54,7 +54,7 @@ class ToolCatalog {
         return name == 0 ? a.id.compareTo(b.id) : name;
       });
 
-  List<MethodTool> forMethod(
+  List<CatalogTool> forMethod(
     String methodId, {
     bool includeArchived = false,
     Iterable<String> retainedIds = const [],

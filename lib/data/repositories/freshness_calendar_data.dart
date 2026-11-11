@@ -1,7 +1,7 @@
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_data.dart';
+import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/domain/freshness_calendar.dart';
-import 'package:holybeans/domain/stock.dart';
 
 List<CalendarLot> calendarLots(JournalData data, List<FrozenPortion> portions) {
   final coffees = {

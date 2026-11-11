@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/preferences/backup_settings.dart';
 import 'package:holybeans/data/repositories/backup_reminder.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/main.dart';
 
 import 'helpers/test_database.dart';

@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/domain/brew_stats.dart';
+import 'package:holybeans/data/repositories/stats_insights.dart';
 import 'package:holybeans/domain/freshness.dart';
-import 'package:holybeans/domain/stats_insights.dart';
 
 import 'helpers/test_database.dart';
 

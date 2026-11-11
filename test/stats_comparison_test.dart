@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/stats_comparison.dart';
 
 import 'helpers/test_database.dart';

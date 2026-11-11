@@ -1,6 +1,6 @@
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_data.dart';
-import 'package:holybeans/domain/stock.dart';
+import 'package:holybeans/data/repositories/stock.dart';
 
 /// Home's stock and recipe inputs, independent of the current date or locale.
 typedef HomeStockData = ({

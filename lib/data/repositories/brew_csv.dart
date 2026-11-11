@@ -1,6 +1,6 @@
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
 import 'package:holybeans/domain/brew_csv.dart';
-import 'package:holybeans/domain/brew_stats.dart';
 
 String brewsCsv({
   required List<Brew> brews,

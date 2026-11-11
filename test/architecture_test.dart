@@ -69,14 +69,6 @@ void main() {
 
   test('application files stay small and data/domain do not depend on presentation', () {
     final violations = <String>[];
-    // Existing domain adapters use the immutable generated journal rows.
-    // This documented exception does not permit new database dependencies.
-    const journalRowAdapters = {
-      'brew_stats.dart',
-      'stats_insights.dart',
-      'stock.dart',
-      'tool_catalog.dart',
-    };
     final imports = RegExp(r'''(?:import|export)\s+['"]([^'"]+)['"]''');
     for (final file in Directory(
       'lib',
@@ -117,9 +109,7 @@ void main() {
           if (uri == 'dart:io') {
             violations.add('${file.path}: platform I/O belongs in data');
           }
-          if (uri.contains('/data/') &&
-              !(uri.endsWith('/data/database/app_database.dart') &&
-                  journalRowAdapters.contains(path.basename(file.path)))) {
+          if (uri.contains('/data/')) {
             violations.add('${file.path}: undocumented data dependency $uri');
           }
         }

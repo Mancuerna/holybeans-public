@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/stats_insights.dart';
 import 'package:holybeans/data/services/drive_backups.dart';
 import 'package:holybeans/data/services/drive_sync_coordinator.dart';
 import 'package:holybeans/domain/drive_sync.dart';
-import 'package:holybeans/domain/stats_insights.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/freshness_calendar_grid.dart';
 import 'package:holybeans/ui/cafes/cafe_share_text.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
 import 'package:holybeans/data/services/photo_store.dart';
-import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/stats/stats_brews_tab.dart';
 import 'package:holybeans/ui/stats/stats_costs_tab.dart';

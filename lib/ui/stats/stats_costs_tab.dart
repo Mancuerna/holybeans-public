@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:holybeans/domain/stats_insights.dart';
+import 'package:holybeans/data/repositories/stats_insights.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
 import 'package:holybeans/ui/core/formatters.dart';
