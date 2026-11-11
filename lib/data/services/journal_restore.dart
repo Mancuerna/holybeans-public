@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:holybeans/data/services/journal_backup.dart';
@@ -38,7 +39,7 @@ class JournalRestore {
     // Fail before staging or moving photos when a synchronized diary is stale.
     backup.database.writeGate.checkWriteAllowed();
     // Reject invalid input before writing anything or replacing the diary.
-    JournalBackup.inspectJson(source);
+    await JournalBackup.inspectJsonInBackground(source);
     await _recover();
     if (_pending.existsSync()) {
       throw StateError('Previous restore cleanup is still pending');
@@ -47,22 +48,22 @@ class JournalRestore {
     // JSON or an older ZIP) can link them again and undoing it loses none.
     final current = await photos.names();
     final availablePhotos = {...current, ...files.keys};
-    JournalBackup.validate(source, availablePhotos.contains);
+    final prepared = await JournalBackup.prepareRestore(
+      source,
+      availablePhotos: availablePhotos,
+    );
     await photos.directory.create(recursive: true);
     await _pending.create();
     try {
       await _file('journal.json')
-          .writeAsString(await backup.exportJson(), flush: true);
+          .writeAsString(await backup.exportJsonInBackground(), flush: true);
       await photos.stageReplacement(_staged, files);
       await _file('ready').writeAsString('1', flush: true);
       if (photos.directory.existsSync()) {
         await photos.directory.rename(_previous.path);
       }
       await photos.promoteReplacement(_staged);
-      final summary = await backup.restoreJson(
-        source,
-        availablePhotos: availablePhotos,
-      );
+      final summary = await backup.restorePrepared(prepared);
       // Rename keeps recovery from mistaking a partially written marker for
       // a completed restore. This is the operation's commit point.
       await _file('committed.tmp').writeAsString('1', flush: true);
@@ -157,7 +158,7 @@ extension JournalBackupRestore on JournalBackup {
     Uint8List bytes,
     PhotoStore? photos,
   ) async {
-    final (source, files) = JournalBackup.readArchive(bytes);
+    final (source, files) = await _readArchiveInBackground(bytes);
     return restoreWithPhotos(source, files, photos);
   }
 
@@ -169,3 +170,7 @@ extension JournalBackupRestore on JournalBackup {
       ? restoreJson(source)
       : JournalRestore(this, photos).replace(source, files);
 }
+
+Future<(String, Map<String, Uint8List>)> _readArchiveInBackground(
+  Uint8List bytes,
+) => Isolate.run(() => JournalBackup.readArchive(bytes));

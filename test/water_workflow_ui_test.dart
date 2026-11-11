@@ -119,7 +119,9 @@ void main() {
         await tester.tap(find.text(s.save).last);
         await tester.pumpAndSettle();
         final backup = JournalBackup(db);
-        await backup.restoreJson(await backup.exportJson());
+        await tester.runAsync(() async {
+          await backup.restoreJson(await backup.exportJson());
+        });
         final profile = (await db.select(db.waterProfiles).get()).singleWhere(
           (p) => p.name == 'My ion target',
         );

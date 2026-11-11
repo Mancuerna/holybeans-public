@@ -122,7 +122,7 @@ class JournalBackup {
   final AppDatabase database;
 
   /// Counts records before a restore so the UI can explain what will replace
-  /// the current journal. Full row validation still happens in [restoreJson].
+  /// the current journal. Full row validation is performed by [prepareRestore].
   static BackupSummary inspectJson(String source) {
     final (:data, version: _) = _readBackup(source);
     int count(String key) {
@@ -160,6 +160,26 @@ class JournalBackup {
       legacyPayloads: count('legacyPayloads'),
     );
   }
+
+  /// Counts backup records in a worker before asking to replace the journal.
+  static Future<BackupSummary> inspectJsonInBackground(String source) =>
+      Isolate.run(() => inspectJson(source));
+
+  /// Reads a ZIP or legacy JSON backup once and prepares its preview in a worker.
+  ///
+  /// If [archiveOnly] is true, legacy JSON inputs are rejected.
+  static Future<BackupContents> readInBackground(
+    Uint8List bytes, {
+    bool archiveOnly = false,
+  }) => Isolate.run(() {
+    final isZip =
+        archiveOnly ||
+        (bytes.length > 3 && bytes[0] == 0x50 && bytes[1] == 0x4B);
+    final (source, files) = isZip
+        ? readArchive(bytes)
+        : (utf8.decode(bytes), <String, Uint8List>{});
+    return BackupContents._(source, files, inspectJson(source));
+  });
 
   Future<String> exportJson() async => jsonEncode(await _exportData());
 
@@ -338,10 +358,29 @@ class JournalBackup {
   Future<BackupSummary> restoreJson(
     String source, {
     Set<String> availablePhotos = const {},
-  }) async {
-    final journal = _validatedJournal(source, availablePhotos.contains);
-    await journal.replace(database);
-    return journal.summary;
+  }) async => restorePrepared(
+    await prepareRestore(source, availablePhotos: availablePhotos),
+  );
+
+  /// Decodes and validates rows in a worker without writing the journal.
+  ///
+  /// Photo references are selected from a snapshot of [availablePhotos].
+  static Future<PreparedBackup> prepareRestore(
+    String source, {
+    Set<String> availablePhotos = const {},
+  }) {
+    final available = Set<String>.of(availablePhotos);
+    return Isolate.run(
+      () => PreparedBackup._(_validatedJournal(source, available.contains)),
+    );
+  }
+
+  /// Applies rows already checked by [prepareRestore] in one transaction.
+  ///
+  /// The caller must obtain explicit confirmation as required by [restoreJson].
+  Future<BackupSummary> restorePrepared(PreparedBackup prepared) async {
+    await prepared._journal.replace(database);
+    return prepared.summary;
   }
 
   /// Checks every backup row and relation without changing the journal.
@@ -444,6 +483,24 @@ class JournalBackup {
 
   static BackupSummary inspectArchive(Uint8List bytes) =>
       inspectJson(readArchive(bytes).$1);
+}
+
+/// A decoded backup and its preview, retained while the user confirms a restore.
+class BackupContents {
+  BackupContents._(this.source, Map<String, Uint8List> photos, this.summary)
+    : photos = Map.unmodifiable(photos);
+
+  final String source;
+  final Map<String, Uint8List> photos;
+  final BackupSummary summary;
+}
+
+/// Validated backup rows ready to apply without decoding or validating again.
+class PreparedBackup {
+  PreparedBackup._(this._journal);
+
+  final _RestoredJournal _journal;
+  BackupSummary get summary => _journal.summary;
 }
 
 class BackupSummary {

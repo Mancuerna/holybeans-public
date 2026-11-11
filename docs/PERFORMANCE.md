@@ -460,6 +460,30 @@ not Android frame timings, network speeds or CI timing thresholds. The
 `manualExportSamples` records include all elapsed times, maximum gaps and timer
 tick counts so the comparison can be repeated.
 
+## Backup restore workers (November 2026)
+
+Backup previews decode ZIP or legacy JSON in a worker and retain the decoded
+source and photos across confirmation. Restoration validates rows in a worker
+before creating the staging directory, then applies those same validated rows
+after photo promotion. Undo snapshots also encode JSON in the background;
+the existing journal lock, write gate and durable rollback markers remain.
+
+The same host harness measures `restoreArchive` with its 2 ms heartbeat. These
+are single complete restores per fixture, before at `dc4dffa` and after the
+change, using the same driver and fixture parameters. Every restored collection,
+inventory amount, curve and photo is compared with its source.
+
+| Preparations / photos | Restore before → after | Largest gap before → after |
+| --- | --- | --- |
+| 50 / 2 | 121.2 → 106.4 ms | 56.5 → 16.0 ms |
+| 500 / 10 | 388.1 → 269.7 ms | 144.7 → 50.7 ms |
+| 2,500 / 40 | 1,261.2 → 1,001.5 ms | 520.0 → 178.4 ms |
+
+These observations do not establish Android frame budgets or sustained
+throughput. SQLite writes and photo coordination still run on the caller;
+the largest fixture retains a noticeable pause. The `restoreSample` record
+contains elapsed time, maximum event-loop gap and heartbeat count.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

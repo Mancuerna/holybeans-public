@@ -74,15 +74,12 @@ class _FailDatabase extends JournalBackup {
   _FailDatabase(super.database);
   bool fail = true;
   @override
-  Future<BackupSummary> restoreJson(
-    String source, {
-    Set<String> availablePhotos = const {},
-  }) async {
+  Future<BackupSummary> restorePrepared(PreparedBackup prepared) async {
     if (fail) {
       fail = false;
       throw StateError('Database restore failed');
     }
-    return super.restoreJson(source, availablePhotos: availablePhotos);
+    return super.restorePrepared(prepared);
   }
 }
 
