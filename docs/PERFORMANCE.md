@@ -807,6 +807,21 @@ explicit output before the delay and cancellation on disposal. These are
 request counts, not pixel-conversion timings; text layout remains immediate.
 Existing printer tests use simulated transports and preserve their assertions.
 
+## Label pixel-conversion worker (November 2026)
+
+Monochrome conversion, rotation and RGBA packing run in a pure worker after the
+engine supplies the rendered label pixels. Rotation uses an indexed buffer and
+packing writes four channels directly, eliminating the previous per-pixel list.
+Engine drawing, image extraction and PNG encoding retain their existing APIs.
+
+`label_raster_worker_test.dart` renders a gradient graphic normally and rotated.
+The same driver on `e4675f8` and this change measures **107,654 → 0 contrast
+property reads on the original UI-side options object** after layout creation.
+The worker receives a copy: conversion still runs, but outside the UI isolate.
+The test checks rotation, binary printer dots and every RGBA pixel against the
+PNG. Existing renderer/print tests retain their assertions. This counter excludes
+engine work, worker transfers and initial layout; it is not a timing claim.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
