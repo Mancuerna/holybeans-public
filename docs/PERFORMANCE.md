@@ -982,6 +982,21 @@ for data, maintenance times, units, selection, colors, device region, translated
 water axes and water text scaling. Existing chart interaction assertions remain.
 These are paint-call counts in widget tests, not Android frame/GPU measurements.
 
+## Statistics chart repaint retention (November 2026)
+
+Bar and scatter canvases compare plotting values, labels, selection and styling
+and use repaint boundaries to retain unchanged drawings. The bar painter captures
+the marked-index set so in-place caller edits still invalidate it. Temporary text
+painters are disposed after measurement or painting.
+
+The same `test/stats_chart_repaint_test.dart` driver on `8583185` and this change
+counts actual canvas paints across 100 equivalent parent updates: **100 → 0 for
+bars** and **100 → 0 for scatter**. It also verifies repaint requests and actual
+painting for changed values, reused input collections, marked bars, scale limits,
+axis/value formatting, plot height, colors, text style/scaling and selection.
+Existing statistics and comparison interaction assertions remain unchanged.
+These are widget-test paint counts, not Android frame-time measurements.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

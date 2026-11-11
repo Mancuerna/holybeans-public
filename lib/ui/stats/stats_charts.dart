@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show listEquals, setEquals;
 import 'package:flutter/material.dart';
 
 /// One bar: what it is called, its value and the text read for it.
@@ -92,23 +93,25 @@ class _StatsBarChartState extends State<StatsBarChart> {
 
               return GestureDetector(
                 onTapUp: (details) => pick(details.localPosition),
-                child: CustomPaint(
-                  size: Size(width, widget.height),
-                  painter: _BarsPainter(
-                    values: [for (final bar in bars) bar.value],
-                    top: top,
-                    color: colors.onSurfaceVariant,
-                    highlight: colors.primary,
-                    track: colors.surfaceContainerHighest,
-                    selected: picked,
-                    marked: widget.marked,
-                    markColor: colors.tertiary,
-                    markBand: colors.tertiaryContainer,
-                    valueLabels: format == null
-                        ? null
-                        : [for (final bar in bars) format(bar.value)],
-                    textStyle: label.copyWith(color: colors.onSurface),
-                    textScaler: scaler,
+                child: RepaintBoundary(
+                  child: CustomPaint(
+                    size: Size(width, widget.height),
+                    painter: _BarsPainter(
+                      values: [for (final bar in bars) bar.value],
+                      top: top,
+                      color: colors.onSurfaceVariant,
+                      highlight: colors.primary,
+                      track: colors.surfaceContainerHighest,
+                      selected: picked,
+                      marked: widget.marked,
+                      markColor: colors.tertiary,
+                      markBand: colors.tertiaryContainer,
+                      valueLabels: format == null
+                          ? null
+                          : [for (final bar in bars) format(bar.value)],
+                      textStyle: label.copyWith(color: colors.onSurface),
+                      textScaler: scaler,
+                    ),
                   ),
                 ),
               );
@@ -124,7 +127,9 @@ class _StatsBarChartState extends State<StatsBarChart> {
                   textDirection: TextDirection.ltr,
                   textScaler: scaler,
                 )..layout();
-                return math.max(widest, painter.width);
+                final width = painter.width;
+                painter.dispose();
+                return math.max(widest, width);
               });
               final fit = math.max(
                 1,
@@ -165,10 +170,10 @@ class _BarsPainter extends CustomPainter {
     required this.valueLabels,
     required this.textStyle,
     required this.textScaler,
-    this.marked = const {},
+    Set<int> marked = const {},
     this.markColor,
     this.markBand,
-  });
+  }) : marked = Set.of(marked);
 
   final List<double> values;
   final double top;
@@ -242,16 +247,24 @@ class _BarsPainter extends CustomPainter {
         );
       }
     }
+    for (final text in texts) {
+      text.dispose();
+    }
   }
 
   @override
   bool shouldRepaint(_BarsPainter old) =>
-      old.values != values ||
+      !listEquals(old.values, values) ||
       old.top != top ||
       old.selected != selected ||
       old.color != color ||
-      old.marked.join() != marked.join() ||
-      old.valueLabels?.join() != valueLabels?.join() ||
+      old.highlight != highlight ||
+      old.track != track ||
+      !setEquals(old.marked, marked) ||
+      old.markColor != markColor ||
+      old.markBand != markBand ||
+      !listEquals(old.valueLabels, valueLabels) ||
+      old.textStyle != textStyle ||
       old.textScaler != textScaler;
 }
 
@@ -367,31 +380,33 @@ class _StatsScatterState extends State<StatsScatter> {
 
               return GestureDetector(
                 onTapUp: (details) => pick(details.localPosition),
-                child: CustomPaint(
-                  size: size,
-                  painter: _ScatterPainter(
-                    plot: plot,
-                    points: [for (final point in points) at(point)],
-                    selected: picked,
-                    color: colors.onSurfaceVariant,
-                    highlight: colors.primary,
-                    grid: colors.outlineVariant,
-                    labelStyle: label,
-                    textScaler: MediaQuery.textScalerOf(context),
-                    yLabels: [
-                      for (final value in [widget.yMin, widget.yMax])
-                        (
-                          widget.yFormat(value),
-                          plot.bottom -
-                              plot.height *
-                                  (value - widget.yMin) /
-                                  (widget.yMax - widget.yMin),
-                        ),
-                    ],
-                    xLabels: [
-                      (widget.xFormat(low), plot.left),
-                      (widget.xFormat(high), plot.right),
-                    ],
+                child: RepaintBoundary(
+                  child: CustomPaint(
+                    size: size,
+                    painter: _ScatterPainter(
+                      plot: plot,
+                      points: [for (final point in points) at(point)],
+                      selected: picked,
+                      color: colors.onSurfaceVariant,
+                      highlight: colors.primary,
+                      grid: colors.outlineVariant,
+                      labelStyle: label,
+                      textScaler: MediaQuery.textScalerOf(context),
+                      yLabels: [
+                        for (final value in [widget.yMin, widget.yMax])
+                          (
+                            widget.yFormat(value),
+                            plot.bottom -
+                                plot.height *
+                                    (value - widget.yMin) /
+                                    (widget.yMax - widget.yMin),
+                          ),
+                      ],
+                      xLabels: [
+                        (widget.xFormat(low), plot.left),
+                        (widget.xFormat(high), plot.right),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -459,6 +474,7 @@ class _ScatterPainter extends CustomPainter {
         canvas,
         Offset(plot.left - 4 - painter.width, dy - painter.height / 2),
       );
+      painter.dispose();
     }
     for (final (index, (text, dx)) in xLabels.indexed) {
       final painter = _text(text);
@@ -466,6 +482,7 @@ class _ScatterPainter extends CustomPainter {
         canvas,
         Offset(index == 0 ? dx : dx - painter.width, plot.bottom + 3),
       );
+      painter.dispose();
     }
     for (final (index, point) in points.indexed) {
       final chosen = index == selected;
@@ -479,8 +496,14 @@ class _ScatterPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_ScatterPainter old) =>
-      old.points != points ||
+      !listEquals(old.points, points) ||
       old.selected != selected ||
       old.plot != plot ||
-      old.textScaler != textScaler;
+      old.color != color ||
+      old.highlight != highlight ||
+      old.grid != grid ||
+      old.labelStyle != labelStyle ||
+      old.textScaler != textScaler ||
+      !listEquals(old.xLabels, xLabels) ||
+      !listEquals(old.yLabels, yLabels);
 }
