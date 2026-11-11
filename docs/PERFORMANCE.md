@@ -888,6 +888,23 @@ photo candidates, shared files and duplicate ordering. The index test's two
 photo lookups move from SCAN to covering indexed SEARCH, including on reopen.
 These are result-row, statement and query-plan observations, not timing claims.
 
+## Scoped stock adjustment streams (November 2026)
+
+The shell watches only non-reversed adjustments belonging to active lots;
+coffee details watch that coffee's full history, including reversed adjustments
+and archived lots. The default repository stream remains unfiltered. The active
+query also follows lot-table changes, including archive and restore, and keeps
+unknown starting balances and active lots owned by archived coffees.
+
+`stock_adjustment_reads_test.dart` runs the actual `JournalViewModel` and
+`CoffeeDetailsSheet` against the same 154-row fixture on `a1f9458` and this
+change. Returned adjustment rows fall **154 → 3** for the shell and **154 → 53**
+for details. The detail still exposes all 53 own history entries, and both
+paths preserve the 20 g consumption result. Additional stream assertions cover
+lot archive/restore, reversal, unknown balances and unchanged default ordering.
+These counts measure SQLite result rows delivered to Dart, not scanned rows
+inside SQLite or elapsed time. Existing stock and UI assertions are unchanged.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
