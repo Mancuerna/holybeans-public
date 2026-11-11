@@ -1,11 +1,12 @@
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   for (final narrow in [false, true]) {
     test('roaster migration preserves names and links with narrow=$narrow', () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       if (narrow) {
         // Prove the migration needs no columns beyond its historical inputs.

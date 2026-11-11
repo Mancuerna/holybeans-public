@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -14,6 +12,9 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/share_brew_flow.dart';
 import 'package:holybeans/ui/brews/share_sheet.dart';
 import 'package:holybeans/ui/core/share_photo_card.dart';
+
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   for (final scenario in ['brew', 'coffee', 'missing', 'none']) {
@@ -24,7 +25,7 @@ void main() {
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(db.close);
         final repo = JournalRepository(db);
         final directory = Directory.systemTemp.createTempSync(
@@ -63,10 +64,8 @@ void main() {
         final coffee = (await repo.coffee(coffeeId))!;
         final brew = (await repo.brew(brewId))!;
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: const Locale('en'),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: Builder(
                 builder: (context) => TextButton(

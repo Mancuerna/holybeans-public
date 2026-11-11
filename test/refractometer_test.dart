@@ -1,27 +1,22 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/refractometer.dart';
 import 'package:holybeans/domain/difluid_r2_protocol.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/settings/refractometer_section.dart';
 
 import 'helpers/fake_refractometer.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 /// A frame from the R2: header, Device Action, [command], data, checksum.
 List<int> _frame(int command, List<int> data) => difluidFrame(3, command, data);
 
 void main() {
-  Widget app(Widget home) => MaterialApp(
-    locale: const Locale('en'),
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    home: home,
-  );
+  Widget app(Widget home) =>
+      localizedApp(locale: const Locale('en'), home: home);
 
   test('the R2 is asked to measure with the documented frame and its '
       'reports are read', () {
@@ -110,7 +105,7 @@ void main() {
 
   testWidgets('the TDS measures with the connected refractometer and takes '
       'readings made with its own button', (tester) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(400, 900);
     tester.view.devicePixelRatio = 1;

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,8 +9,10 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/share_clipboard.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/share_template.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/share_sheet.dart';
+
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 class _Clipboard extends ShareClipboard {
   final texts = <String>[];
@@ -45,7 +46,7 @@ void main() {
   final share = find.byKey(const ValueKey('share-confirm'));
 
   setUp(() async {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     final repo = JournalRepository(db);
     final id = await repo.createCoffee(
       name: 'Clipboard coffee',
@@ -70,10 +71,8 @@ void main() {
     Future<Uint8List?> Function()? render,
   }) async {
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: Locale(language),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(
             context,

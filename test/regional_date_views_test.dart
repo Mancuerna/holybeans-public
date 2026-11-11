@@ -14,6 +14,8 @@ import 'package:holybeans/ui/sync/drive_sync_page.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
+import 'helpers/ui_test_support.dart';
+
 class _DriveDates extends ChangeNotifier implements DriveSyncModel {
   _DriveDates(this.lastBackupAt);
   @override
@@ -45,12 +47,8 @@ class _DriveDates extends ChangeNotifier implements DriveSyncModel {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-Widget _app(Widget child, Locale language) => MaterialApp(
-  locale: language,
-  supportedLocales: AppLocalizations.supportedLocales,
-  localizationsDelegates: AppLocalizations.localizationsDelegates,
-  home: child,
-);
+Widget _app(Widget child, Locale language) =>
+    localizedApp(locale: language, home: child);
 
 void main() {
   setUpAll(initializeDateFormatting);

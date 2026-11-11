@@ -1,11 +1,11 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/share_sheet.dart';
+
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 class _Pops extends NavigatorObserver {
   int pops = 0;
@@ -19,7 +19,7 @@ void main() {
   testWidgets('two text share callbacks close only the share sheet', (
     tester,
   ) async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
     addTearDown(db.close);
     final repository = JournalRepository(db);
     final coffeeId = await repository.createCoffee(
@@ -35,10 +35,8 @@ void main() {
     final observer = _Pops();
     ShareBrewResult? result;
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         navigatorObservers: [observer],
         home: Scaffold(
           body: Builder(

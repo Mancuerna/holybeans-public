@@ -1,17 +1,16 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/data/services/scale.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/settings/settings_page.dart';
 
 import 'helpers/fake_pressure_sensor.dart';
 import 'helpers/fake_refractometer.dart';
 import 'helpers/fake_scale.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   for (final locale in ['es', 'en']) {
@@ -24,7 +23,7 @@ void main() {
             tester.view.devicePixelRatio = 1;
             addTearDown(tester.view.resetPhysicalSize);
             addTearDown(tester.view.resetDevicePixelRatio);
-            final db = AppDatabase.forTesting(NativeDatabase.memory());
+            final db = memoryDatabase();
             final scale = FakeScale(name: 'ACAIA PEARL');
             final pressure = FakePressureSensor(name: 'BOOKOO EM');
             final refractometer = FakeRefractometer(name: 'DiFluid R2');
@@ -33,11 +32,9 @@ void main() {
             addTearDown(pressure.dispose);
             addTearDown(refractometer.dispose);
             await tester.pumpWidget(
-              MaterialApp(
+              localizedApp(
                 theme: AppTheme.light(),
                 locale: Locale(locale),
-                localizationsDelegates: AppLocalizations.localizationsDelegates,
-                supportedLocales: AppLocalizations.supportedLocales,
                 builder: (context, child) => MediaQuery(
                   data: MediaQuery.of(context)
                       .copyWith(textScaler: TextScaler.linear(textScale)),

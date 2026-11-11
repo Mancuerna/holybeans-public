@@ -7,6 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/share_image.dart';
 
+import 'helpers/ui_test_support.dart';
+
 void main() {
   for (final language in ['es', 'en']) {
     for (final camera in [true, false]) {
@@ -38,10 +40,8 @@ void main() {
         );
         Uint8List? result;
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: Builder(
                 builder: (context) => TextButton(

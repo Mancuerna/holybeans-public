@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form_fields.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/equipment/water_calculator_model.dart';
 import 'package:holybeans/ui/equipment/water_profile_card.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+import 'helpers/ui_test_support.dart';
 
 void main() {
   setUpAll(initializeDateFormatting);
@@ -23,10 +24,8 @@ void main() {
       addTearDown(controller.dispose);
       final form = GlobalKey<FormState>();
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: Locale(comma ? 'en' : 'es'),
-          supportedLocales: AppLocalizations.supportedLocales,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
           home: Scaffold(
             body: Form(
               key: form,
@@ -111,14 +110,12 @@ void main() {
     expect(formatRegionalTime(date, regionalLocale), '15:05');
     expect(formatRegionalDateTime(date, regionalLocale), '10/17/2026 15:05');
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
           child: child!,
         ),
-        supportedLocales: AppLocalizations.supportedLocales,
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
         home: Scaffold(
           body: BrewDateTimeChips(value: date, onChanged: (_) {}),
         ),

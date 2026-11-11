@@ -1,9 +1,9 @@
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/stats_comparison.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   test('relative change compares with the period before', () {
@@ -34,7 +34,7 @@ void main() {
   test(
     'the previous period ends the day before the current one starts',
     () async {
-      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final database = memoryDatabase();
       addTearDown(database.close);
       final repository = JournalRepository(database);
       final coffee = await repository.createCoffee(name: 'C', roaster: 'R');

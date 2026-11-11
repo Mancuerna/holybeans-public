@@ -6,6 +6,8 @@ import 'package:holybeans/ui/brews/share_template_editor.dart';
 import 'package:holybeans/ui/brews/share_template_values.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'helpers/ui_test_support.dart';
+
 void main() {
   setUpAll(initializeDateFormatting);
 
@@ -46,10 +48,8 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ShareTemplateEditor(
             style: ShareTemplateStyle.filter,

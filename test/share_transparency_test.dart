@@ -1,10 +1,8 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
@@ -15,6 +13,9 @@ import 'package:holybeans/ui/beans/bean_share_text.dart';
 import 'package:holybeans/ui/brews/share_sheet.dart';
 import 'package:holybeans/ui/core/share_image.dart';
 import 'package:holybeans/ui/core/share_image_appearance.dart';
+
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   for (final bean in [false, true]) {
@@ -28,7 +29,7 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
         addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(db.close);
         final repo = JournalRepository(db);
         final id = await repo.createCoffee(name: 'Coffee', roaster: 'Roaster');
@@ -44,13 +45,11 @@ void main() {
         final s = lookupAppLocalizations(Locale(language));
         Uint8List? exported;
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             theme: ThemeData(
               brightness: light ? Brightness.light : Brightness.dark,
             ),
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: Builder(
                 builder: (context) => TextButton(

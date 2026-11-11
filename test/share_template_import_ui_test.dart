@@ -1,8 +1,6 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/data/services/incoming_shares.dart';
 import 'package:holybeans/domain/share_template.dart';
@@ -11,12 +9,14 @@ import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/share_template_editor.dart';
 import 'package:holybeans/ui/brews/share_templates_page.dart';
 
+import 'helpers/test_database.dart';
+
 void main() {
   for (final style in ShareTemplateStyle.values) {
     testWidgets(
       'incoming $style template previews cancels and saves a new copy without changing defaults',
       (tester) async {
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(db.close);
         final settings = ShareTemplateSettings(db);
         final original = ShareTemplate(

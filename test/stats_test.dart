@@ -1,18 +1,19 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/freshness.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/stats/stats_page.dart';
+
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 final _now = DateTime(2026, 9, 30, 18);
 
 Future<AppDatabase> _journal() async {
-  final database = AppDatabase.forTesting(NativeDatabase.memory());
+  final database = memoryDatabase();
   final repository = JournalRepository(database);
   final kenya = await repository.createCoffeeWithComponents(
     name: 'Kenya',
@@ -183,10 +184,8 @@ void main() {
       final components = await database.select(database.coffeeComponents).get();
 
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: const Locale('en'),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: StatsPage(
             coffees: coffees,
             brews: brews,
@@ -299,10 +298,8 @@ void main() {
 
   testWidgets('an empty period says so', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('es'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: StatsPage(
           coffees: const [],
           brews: const [],
@@ -321,7 +318,7 @@ void main() {
   });
 
   testWidgets('stats stay up to date while open', (tester) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;
@@ -356,7 +353,7 @@ void main() {
   testWidgets('the overview compares each figure with the period before', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final repository = JournalRepository(database);
     final coffee = await repository.createCoffee(name: 'C', roaster: 'R');
@@ -370,10 +367,8 @@ void main() {
       );
     }
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: StatsPage(
           coffees: await database.select(database.coffees).get(),
           brews: await database.select(database.brews).get(),

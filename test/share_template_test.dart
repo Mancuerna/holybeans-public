@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:drift/native.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -14,6 +13,8 @@ import 'package:holybeans/domain/share_template.dart';
 import 'package:holybeans/l10n/app_localizations_es.dart';
 import 'package:holybeans/ui/brews/share_template_values.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -117,7 +118,7 @@ void main() {
   test(
     'templates, defaults and field choices survive backup and restore',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final settings = ShareTemplateSettings(db);
       final fields = BrewParameterSettings(db);
@@ -146,7 +147,7 @@ void main() {
   test(
     'editing and removing templates retain the other style and shared fields',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final settings = ShareTemplateSettings(db);
       await settings.saveTemplate(espresso);
@@ -178,7 +179,7 @@ void main() {
   test(
     'concurrent field and template saves do not overwrite one another',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final settings = ShareTemplateSettings(db);
       await Future.wait([
@@ -197,7 +198,7 @@ void main() {
   test(
     'real espresso and filter tags use their own ratio and localized values',
     () async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final repo = JournalRepository(db);
       final coffeeId = await repo.createCoffee(

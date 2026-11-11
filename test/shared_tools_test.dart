@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -12,6 +11,8 @@ import 'package:holybeans/domain/tool_catalog.dart';
 
 import 'helpers/beanconqueror_fixture.dart' as bq;
 
+import 'helpers/test_database.dart';
+
 void main() {
   late AppDatabase db;
   late JournalRepository repo;
@@ -20,7 +21,7 @@ void main() {
   late String origami;
 
   setUp(() async {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     repo = JournalRepository(db);
     coffee = await repo.createCoffee(
       name: 'Coffee',

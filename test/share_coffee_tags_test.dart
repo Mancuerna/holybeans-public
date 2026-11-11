@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart' show Value;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -13,6 +12,8 @@ import 'package:holybeans/ui/brews/brew_share_text.dart';
 import 'package:holybeans/ui/brews/share_template_values.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'helpers/test_database.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
@@ -24,7 +25,7 @@ void main() {
   late Coffee coffee;
   late Brew brew;
   setUp(() async {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     repo = JournalRepository(db);
     final id = await repo.createCoffee(
       name: 'Blend',

@@ -1,10 +1,11 @@
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/domain/stats_insights.dart';
+
+import 'helpers/test_database.dart';
 
 final _now = DateTime(2026, 9, 30, 18);
 
@@ -13,7 +14,7 @@ void main() {
   late JournalRepository repository;
 
   setUp(() {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     repository = JournalRepository(database);
   });
   tearDown(() => database.close());

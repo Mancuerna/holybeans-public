@@ -1,12 +1,12 @@
 import 'dart:ui' show CheckedState, Tristate;
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
+
+import 'helpers/test_database.dart';
 
 /// Nodes a screen reader would announce without a name: text fields,
 /// switches, checkboxes and tappable controls whose label, value and tooltip
@@ -44,7 +44,7 @@ void main() {
   testWidgets('main screens and the brew form name every control', (
     tester,
   ) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;

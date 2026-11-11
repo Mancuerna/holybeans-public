@@ -1,27 +1,26 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form_fields.dart';
 import 'package:holybeans/ui/equipment/method_tools_sheet.dart';
 import 'package:holybeans/ui/equipment/tool_form.dart';
 
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
+
 void main() {
   late AppDatabase db;
   late JournalRepository repo;
   setUp(() {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     repo = JournalRepository(db);
   });
   tearDown(() => db.close());
 
-  Widget frame(Widget Function(BuildContext) body) => MaterialApp(
+  Widget frame(Widget Function(BuildContext) body) => localizedApp(
     locale: const Locale('en'),
-    supportedLocales: AppLocalizations.supportedLocales,
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
     home: Scaffold(body: Builder(builder: body)),
   );
 
