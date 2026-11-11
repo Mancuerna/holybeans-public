@@ -66,7 +66,7 @@ class _BrewDifferencesSummaryState extends State<BrewDifferencesSummary> {
   Widget build(BuildContext context) => FutureBuilder<List<String?>>(
     future: tools,
     builder: (context, snapshot) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       final theme = Theme.of(context);
       final rows = widget.comparison
           .differences(
@@ -148,7 +148,7 @@ List<Widget> _group(
   List<BrewDifference> rows,
   String? Function(BrewDifference row, Object? v) value,
 ) {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   final emptyA = rows.every((row) => row.a == null);
   final emptyB = rows.every((row) => row.b == null);
   String? difference(BrewDifference row) {

@@ -257,9 +257,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    final strings = AppLocalizations.of(
-      tester.element(find.text('HolyBeans')),
-    )!;
+    final strings = AppLocalizations.of(tester.element(find.text('HolyBeans')));
     await tapBottomDestination(tester, 2);
 
     final deviceLocale = tester.binding.platformDispatcher.locale;

@@ -98,7 +98,7 @@ class _PressureGuidePageState extends State<PressureGuidePage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) widget.timer.stop();
@@ -185,7 +185,7 @@ class _PressureGuidePageState extends State<PressureGuidePage> {
   }
 
   Widget _readouts(BuildContext context, Widget markers) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final elapsed = _elapsed;
     final target = widget.guide.targetAt(elapsed);
     final next = widget.guide.targetAt(elapsed + 2000);

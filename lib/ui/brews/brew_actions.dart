@@ -67,11 +67,11 @@ class BrewActions {
       if (seed != null) seed = await repository.brew(seed.id) ?? seed;
     } catch (error, stack) {
       reportError(error, stack);
-      if (context.mounted) message(AppLocalizations.of(context)!.dataError);
+      if (context.mounted) message(AppLocalizations.of(context).dataError);
       return;
     }
     if (!context.mounted) return;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final available = coffees
         .where(
           (coffee) =>
@@ -153,7 +153,7 @@ class BrewActions {
       brew = await repository.brew(brew.id) ?? brew;
     } catch (error, stack) {
       reportError(error, stack);
-      if (context.mounted) message(AppLocalizations.of(context)!.dataError);
+      if (context.mounted) message(AppLocalizations.of(context).dataError);
       return;
     }
     if (!context.mounted) return;
@@ -178,7 +178,7 @@ class BrewActions {
   ) async {
     final reminders = this.reminders;
     if (reminders == null) return;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       final minutes = await reminderSettings.loadMinutes();
       if (minutes == null) return;
@@ -224,7 +224,7 @@ class BrewActions {
       brew = await repository.brew(brew.id) ?? brew;
     } catch (error, stack) {
       reportError(error, stack);
-      if (context.mounted) message(AppLocalizations.of(context)!.dataError);
+      if (context.mounted) message(AppLocalizations.of(context).dataError);
       return;
     }
     if (!context.mounted) return;
@@ -236,12 +236,12 @@ class BrewActions {
     );
     if (saved == true) {
       await reminders?.cancel(brew.id);
-      if (context.mounted) message(AppLocalizations.of(context)!.brewRated);
+      if (context.mounted) message(AppLocalizations.of(context).brewRated);
     }
   }
 
   Future<void> archiveBrew(Brew brew) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       await repository.setBrewArchived(
         brew.id,
@@ -260,7 +260,7 @@ class BrewActions {
     required bool favorite,
     bool announce = true,
   }) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       await repository.setBrewFavorite(brew.id, favorite: favorite);
     } catch (error, stack) {

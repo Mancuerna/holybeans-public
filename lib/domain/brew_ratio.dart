@@ -1,4 +1,5 @@
-import 'package:intl/intl.dart';
+import 'package:holybeans/core/decimal_format.dart';
+import 'package:holybeans/domain/journal_codes.dart';
 
 /// Extraction yield in percent: the share of the dose that ended up
 /// dissolved in the cup. Null unless dose, beverage and TDS are positive.
@@ -31,7 +32,8 @@ double? filterRecipeRatio(double? dose, double? water) =>
 
 bool isEspressoMethod({required String? category, required String methodName}) {
   final normalizedCategory = category?.trim().toLowerCase();
-  return normalizedCategory == 'espresso' ||
+  return MethodCategory.fromCode(normalizedCategory) ==
+          MethodCategory.espresso ||
       (normalizedCategory == null &&
           methodName.trim().toLowerCase() == 'espresso');
 }
@@ -61,7 +63,7 @@ double? espressoTargetRatioOf({double? doseGrams, double? beverageGrams}) {
 }
 
 String formatBrewRatioMultiplier(double ratio, String localeName) =>
-    NumberFormat('0.#', localeName).format(ratio);
+    formatDecimal(ratio, pattern: '0.#', locale: localeName);
 
 /// Returns a displayed 1:X brew ratio from the method's extraction measure.
 /// Espresso uses beverage output; other methods use brew water.

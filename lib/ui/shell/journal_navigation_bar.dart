@@ -14,7 +14,7 @@ class JournalNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return NavigationBar(
       selectedIndex: selected,
       onDestinationSelected: onSelected,

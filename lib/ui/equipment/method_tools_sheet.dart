@@ -39,7 +39,7 @@ class _MethodToolsSheetState extends State<_MethodToolsSheet> {
       initialMethodId: widget.method.id,
     );
     if (saved != null && mounted) {
-      showMessage(context, AppLocalizations.of(context)!.toolSaved);
+      showMessage(context, AppLocalizations.of(context).toolSaved);
     }
   }
 
@@ -50,7 +50,7 @@ class _MethodToolsSheetState extends State<_MethodToolsSheet> {
       existing: tool,
     );
     if (saved != null && mounted) {
-      showMessage(context, AppLocalizations.of(context)!.toolSaved);
+      showMessage(context, AppLocalizations.of(context).toolSaved);
     }
   }
 
@@ -70,7 +70,7 @@ class _MethodToolsSheetState extends State<_MethodToolsSheet> {
         showOperationError(
           context,
           error,
-          AppLocalizations.of(context)!.saveFailed,
+          AppLocalizations.of(context).saveFailed,
         );
       }
     }
@@ -78,7 +78,7 @@ class _MethodToolsSheetState extends State<_MethodToolsSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return SafeArea(
       child: SizedBox(
         height: MediaQuery.sizeOf(context).height * .72,

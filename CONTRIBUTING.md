@@ -74,7 +74,16 @@ reliably enforce. App translations remain in English and Spanish.
   services; UI notifiers forward lifecycle events and present their state.
   The brew form owns independent catalog and tool notifiers, including their
   subscriptions, retry errors and guards against stale loads.
-- `lib/l10n/`: English and Spanish ARB sources; generated translations are ignored.
+- `lib/l10n/`: English and Spanish ARB sources; generated translations are ignored. The
+  generated localization accessor is non-null; optional hosts should use
+  `Localizations.of<AppLocalizations>` explicitly.
+- Stored roast, method and container codes are declared in `journal_codes.dart`;
+  serialize their explicit `code`, never an enum ordinal. Keep legacy aliases
+  and unknown-value handling at the existing boundaries.
+- Reuse the shared median, accent, fingerprint and calendar-day helpers while
+  preserving each caller's empty-input, punctuation, hash serialization and
+  elapsed-time contracts. Decimal formatting caches remain private and include
+  the locale, pattern and grouping mode in their keys.
 - `test/`: unit, widget and persistence tests.
 - `drift_schemas/`: historical schemas needed to verify migration paths.
 - `patrol_test/`: Android integration flows using an isolated app package.

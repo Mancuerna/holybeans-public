@@ -245,7 +245,7 @@ class _JournalShellState extends State<JournalShell>
         source: text,
       );
       if (imported != null && mounted) {
-        message(AppLocalizations.of(context)!.shareTemplateSaved);
+        message(AppLocalizations.of(context).shareTemplateSaved);
         await Navigator.of(context).push(
           MaterialPageRoute<void>(
             builder: (_) =>
@@ -277,7 +277,7 @@ class _JournalShellState extends State<JournalShell>
       ),
     );
     if (saved != null && mounted) {
-      message(AppLocalizations.of(context)!.beanSaved);
+      message(AppLocalizations.of(context).beanSaved);
     }
   }
 
@@ -291,7 +291,7 @@ class _JournalShellState extends State<JournalShell>
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Shortcuts, widget and notice follow the app's language.
-    surfaces.relabel(surfaceLabels(AppLocalizations.of(context)!));
+    surfaces.relabel(surfaceLabels(AppLocalizations.of(context)));
   }
 
   @override
@@ -340,23 +340,23 @@ class _JournalShellState extends State<JournalShell>
       ),
     );
     if (saved is String && mounted) {
-      message(AppLocalizations.of(context)!.frozenSaved(saved));
+      message(AppLocalizations.of(context).frozenSaved(saved));
     } else if (saved == true && mounted) {
-      message(AppLocalizations.of(context)!.beanSaved);
+      message(AppLocalizations.of(context).beanSaved);
     }
   }
 
   Future<void> addMethod() async {
     final saved = await showMethodForm(context, repository);
     if (saved != null && mounted) {
-      message(AppLocalizations.of(context)!.methodSaved);
+      message(AppLocalizations.of(context).methodSaved);
     }
   }
 
   Future<void> addGrinder() async {
     final saved = await showGrinderForm(context, repository);
     if (saved != null && mounted) {
-      message(AppLocalizations.of(context)!.grinderSaved);
+      message(AppLocalizations.of(context).grinderSaved);
     }
   }
 
@@ -372,7 +372,7 @@ class _JournalShellState extends State<JournalShell>
   Future<void> addWaterProfile() async {
     final saved = await showWaterProfileForm(context, repository);
     if (saved != null && mounted) {
-      message(AppLocalizations.of(context)!.waterProfileSaved);
+      message(AppLocalizations.of(context).waterProfileSaved);
     }
   }
 
@@ -384,7 +384,7 @@ class _JournalShellState extends State<JournalShell>
       folder: services.exportFolder,
     );
     if (summary == null || !mounted) return;
-    message(bqSummaryMessage(AppLocalizations.of(context)!, summary));
+    message(bqSummaryMessage(AppLocalizations.of(context), summary));
   }
 
   void openSettings() {
@@ -549,7 +549,7 @@ class _JournalShellState extends State<JournalShell>
       ),
     );
     if (decision == null || !mounted) return false;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       await repository.setCoffeeArchived(
         coffee.id,
@@ -569,7 +569,7 @@ class _JournalShellState extends State<JournalShell>
   Future<void> addTool() async {
     final saved = await showToolForm(context, repository);
     if (saved != null && mounted) {
-      message(AppLocalizations.of(context)!.toolSaved);
+      message(AppLocalizations.of(context).toolSaved);
     }
   }
 
@@ -681,7 +681,7 @@ class _JournalShellState extends State<JournalShell>
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: journal,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       final (fabLabel, fabAction) = _floatingAction(s);
       // Back from another tab returns to Home instead of leaving the app.
       return PopScope(

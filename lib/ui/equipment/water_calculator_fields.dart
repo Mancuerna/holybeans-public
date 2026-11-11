@@ -32,7 +32,7 @@ class WaterCompositionInputs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     Widget ionField(WaterIon ion, {bool optional = true}) => Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: waterInput(
@@ -87,7 +87,7 @@ class WaterDerivedValues extends StatelessWidget {
   final WaterComposition water;
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final number = NumberFormat('0.##', regionalLocale.toString());
     final gh = water.calculatedGh;
     final ratio = water.calciumMagnesiumMassRatio;

@@ -24,7 +24,7 @@ class _YearDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final n = NumberFormat.decimalPattern(regionalLocale.toString());
     final euros = NumberFormat.currency(
       locale: regionalLocale.toString(),

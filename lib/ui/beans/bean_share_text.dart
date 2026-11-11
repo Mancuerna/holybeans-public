@@ -1,3 +1,4 @@
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/domain/altitude.dart';
@@ -5,7 +6,6 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
 import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
-import 'package:intl/intl.dart';
 
 class BeanShareRow {
   const BeanShareRow(this.id, this.label, this.value, {this.personal = false});
@@ -65,7 +65,7 @@ List<BeanShareRow> beanShareRows(
     s.rating,
     coffee.rating == null
         ? null
-        : NumberFormat('0.#', locale).format(coffee.rating),
+        : formatDecimal(coffee.rating, pattern: '0.#', locale: locale),
     personal: true,
   );
   add('notes', s.notes, coffee.notes, personal: true);

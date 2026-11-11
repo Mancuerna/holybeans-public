@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:archive/archive.dart';
 import 'package:holybeans/domain/altitude.dart';
 import 'package:holybeans/domain/https_link.dart';
+import 'package:holybeans/domain/journal_codes.dart';
 
 typedef SharedCoffee = ({
   String name,
@@ -40,7 +41,9 @@ const beanFormat = 'holybeans-beans';
 const beanFormatVersion = 1;
 
 /// Roast levels as stored, from darkest to lightest.
-const beanRoastLevels = ['dark', 'medium', 'omni', 'light', 'ultra_light'];
+final beanRoastLevels = List<String>.unmodifiable(
+  RoastLevel.values.map((value) => value.code),
+);
 
 /// One origin of a coffee: a single origin has one, a blend several.
 class SharedOrigin {

@@ -106,7 +106,7 @@ class _LoffeeSearchPageState extends State<LoffeeSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(s.loffeeSearchTitle),
@@ -247,7 +247,7 @@ class _BeanResult extends StatelessWidget {
   final bool enabled;
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final origin = bean.card.origins.firstOrNull;
     final details = [
       bean.card.roaster,

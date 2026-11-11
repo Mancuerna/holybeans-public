@@ -3,7 +3,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 
 Future<ImageSource?> choosePhotoSource(BuildContext context) {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   return showModalBottomSheet<ImageSource>(
     context: context,
     showDragHandle: true,

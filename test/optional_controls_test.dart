@@ -51,7 +51,7 @@ void main() {
             );
             final s = AppLocalizations.of(
               tester.element(find.byType(OptionalRatingSlider)),
-            )!;
+            );
             expect(_sliderValues(tester), [s.noRating]);
             expect(rating, isNull);
             final clear = find.byTooltip(s.clearSearch);

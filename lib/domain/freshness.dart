@@ -13,6 +13,9 @@ library;
 
 import 'dart:math' as math;
 
+import 'package:holybeans/domain/calendar_days.dart';
+import 'package:holybeans/domain/journal_codes.dart';
+
 enum BrewStyle { espresso, filter }
 
 enum FreshnessPhase { degassing, prime, good, aging, stale }
@@ -53,13 +56,18 @@ class DegassingCurve {
 /// medium and light (about 116 Pt), takes the midpoint of those two fits.
 /// The light roast measured over 800 h, where the release keeps slowing,
 /// stands in for ultra-light.
-const degassingCurves = {
-  'dark': DegassingCurve(scaleDays: 190 / 24, shape: 0.93),
-  'medium': DegassingCurve(scaleDays: 232 / 24, shape: 0.99),
-  'omni': DegassingCurve(scaleDays: 304.5 / 24, shape: 0.995),
-  'light': DegassingCurve(scaleDays: 377 / 24, shape: 1.0),
-  'ultra_light': DegassingCurve(scaleDays: 715 / 24, shape: 0.842),
+const _degassingCurves = {
+  RoastLevel.dark: DegassingCurve(scaleDays: 190 / 24, shape: 0.93),
+  RoastLevel.medium: DegassingCurve(scaleDays: 232 / 24, shape: 0.99),
+  RoastLevel.omni: DegassingCurve(scaleDays: 304.5 / 24, shape: 0.995),
+  RoastLevel.light: DegassingCurve(scaleDays: 377 / 24, shape: 1.0),
+  RoastLevel.ultraLight: DegassingCurve(scaleDays: 715 / 24, shape: 0.842),
 };
+
+/// Curves indexed by their stored code for existing consumers.
+final degassingCurves = Map<String, DegassingCurve>.unmodifiable({
+  for (final entry in _degassingCurves.entries) entry.key.code: entry.value,
+});
 
 /// Released-gas share at which each phase ends, per style. Filter is ready
 /// once 40 % of the gas is out, espresso at 55 %; aromas are at their best
@@ -126,7 +134,9 @@ class FreshnessWindow {
   required String? roastLevel,
   int? restDays,
 }) {
-  final curve = degassingCurves[roastLevel] ?? degassingCurves['medium']!;
+  final curve =
+      _degassingCurves[RoastLevel.fromCode(roastLevel)] ??
+      _degassingCurves[RoastLevel.medium]!;
   if (restDays == null || restDays <= 0) return (curve: curve, offsetDays: 0);
   final filterPrime = _thresholds[BrewStyle.filter]!.prime;
   final factor = (restDays / curve.dayReleasing(filterPrime)).clamp(0.5, 3.0);
@@ -176,9 +186,7 @@ FreshnessWindow freshnessWindow({
 /// Whole local days between [roastDate] and [now], or null when the roast
 /// date lies in the future (e.g. a device clock that is behind).
 int? daysSinceRoast(DateTime roastDate, DateTime now) {
-  final roastDay = DateTime.utc(roastDate.year, roastDate.month, roastDate.day);
-  final today = DateTime.utc(now.year, now.month, now.day);
-  final days = today.difference(roastDay).inDays;
+  final days = calendarDaysBetween(roastDate, now);
   return days < 0 ? null : days;
 }
 
@@ -197,16 +205,11 @@ int? effectiveRoastAge(
   int frozenPauseDays = 0,
   DateTime? openedDate,
 }) {
-  int daysBetween(DateTime from, DateTime to) => DateTime.utc(
-    to.year,
-    to.month,
-    to.day,
-  ).difference(DateTime.utc(from.year, from.month, from.day)).inDays;
-  final days = daysBetween(roastDate, today);
+  final days = calendarDaysBetween(roastDate, today);
   if (days < 0) return null;
   var age = (days - frozenPauseDays).toDouble();
   if (openedDate != null) {
-    final open = daysBetween(openedDate, today).clamp(0, days);
+    final open = calendarDaysBetween(openedDate, today).clamp(0, days);
     age += open * (openedBagAgingFactor - 1);
   }
   return age < 0 ? 0 : age.round();

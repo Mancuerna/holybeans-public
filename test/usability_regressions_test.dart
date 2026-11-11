@@ -105,7 +105,7 @@ void main() {
           await tester.tap(find.text(lang == 'es' ? 'Guardar' : 'Save'));
           await tester.pumpAndSettle();
           expect(price.hitTestable(), findsOneWidget);
-          final strings = AppLocalizations.of(tester.element(price))!;
+          final strings = AppLocalizations.of(tester.element(price));
           expect(find.text(strings.invalidPrice).hitTestable(), findsOneWidget);
           expect(await db.select(db.coffees).get(), before);
           expect(await db.select(db.coffeeLots).get(), lots);

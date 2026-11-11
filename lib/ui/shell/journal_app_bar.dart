@@ -27,7 +27,7 @@ class JournalAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return AppBar(
       title: Text(switch (tab) {
         1 => s.beansTitle,

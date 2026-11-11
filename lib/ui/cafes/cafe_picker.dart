@@ -80,7 +80,7 @@ class _CafePickerState extends State<CafePicker> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(s.cafeChooseVenue)),
       body: Column(

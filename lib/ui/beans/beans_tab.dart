@@ -108,7 +108,7 @@ class _BeansTabState extends State<BeansTab> {
       _listKey = key;
       _aggregates = BeanListData(key.$1, key.$2);
     }
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final query = foldSuggestion(search.text);
     final mostRecentBrewByCoffee = _aggregates.lastBrewAt;
     final latestRoastDateByCoffee = _aggregates.latestRoastDates;
@@ -250,7 +250,7 @@ class _BeansTabState extends State<BeansTab> {
   }
 
   Widget _listHeader(BuildContext context, bool empty, String query) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -277,7 +277,7 @@ class _BeansTabState extends State<BeansTab> {
   }
 
   Widget _viewMenu(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return PopupMenuButton<int>(
       key: const ValueKey('beans-view-menu'),
       tooltip:
@@ -319,7 +319,7 @@ class _BeansTabState extends State<BeansTab> {
   }
 
   Widget _sortMenu(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return PopupMenuButton<int>(
       key: const ValueKey('bean-sort'),
       tooltip:
@@ -408,7 +408,7 @@ class _BeansTabState extends State<BeansTab> {
   });
 
   Widget _coffeeCard(Coffee coffee) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return SwipeActions(
       id: coffee.id,
       // Right brews with an available bean; left archives it, or
@@ -456,7 +456,7 @@ class _BeansTabState extends State<BeansTab> {
         showOperationError(
           context,
           error,
-          AppLocalizations.of(context)!.saveFailed,
+          AppLocalizations.of(context).saveFailed,
         );
       }
     }

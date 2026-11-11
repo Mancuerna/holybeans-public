@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
-import 'package:intl/intl.dart';
 
 /// Date and time of a brew as two chips that open the pickers.
 class BrewDateTimeChips extends StatelessWidget {
@@ -65,7 +65,7 @@ class BrewDateTimeChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -171,7 +171,7 @@ class MethodToolChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final shown = [
       for (final tool in tools)
         if (tool.archivedAtMs == null || selected.contains(tool.id)) tool,
@@ -231,7 +231,7 @@ class MethodMemoryHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final color = theme.colorScheme.onSurfaceVariant;
     return Row(
@@ -267,7 +267,7 @@ class IntegerField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return TextFormField(
       controller: controller,
       keyboardType: TextInputType.number,
@@ -288,7 +288,7 @@ String inventoryLotLabel(CoffeeLot lot, int itemNumber, AppLocalizations s) => [
   if (lot.roastDate case final roastDate?)
     formatRegionalDate(DateTime.parse(roastDate), regionalLocale),
   if (lot.remainingGrams case final grams?)
-    '${NumberFormat('0.#', regionalLocale.toString()).format(grams)} g'
+    '${formatDecimal(grams, pattern: '0.#', locale: regionalLocale.toString())} g'
   else
     s.unknownStock,
 ].join(', ');

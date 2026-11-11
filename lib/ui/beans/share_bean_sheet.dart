@@ -20,7 +20,7 @@ Future<void> showBeanTransferSheet(
   Coffee coffee,
 ) async {
   final repository = actions.queries;
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   final SharedBean card;
   try {
     card = sharedBeanFromCoffee(
@@ -58,7 +58,7 @@ class _ShareBeanSheet extends StatelessWidget {
   }
 
   Future<void> _sendFile(BuildContext context) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       await SharePlus.instance.share(
         ShareParams(
@@ -78,7 +78,7 @@ class _ShareBeanSheet extends StatelessWidget {
   }
 
   Future<void> _sendQrImage(BuildContext context) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       final png = await _qrPng(
         beanQrText(card),
@@ -99,7 +99,7 @@ class _ShareBeanSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),

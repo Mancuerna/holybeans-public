@@ -29,7 +29,7 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                s = AppLocalizations.of(context)!;
+                s = AppLocalizations.of(context);
                 return AnimatedBuilder(
                   animation: model,
                   builder: (context, _) => ListView(

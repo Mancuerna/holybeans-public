@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:holybeans/domain/fingerprint.dart';
+
 /// How many automatic copies stay inside the app, newest first.
 const autoBackupsKept = 7;
 
@@ -156,21 +158,11 @@ bool folderBackupDue({
   final coffees = data['coffees'];
   final brews = data['brews'];
   return (
-    fingerprint: _fnv1a64(utf8.encode(jsonEncode(data))),
+    fingerprint: fingerprintHex(fnv1a64(utf8.encode(jsonEncode(data)))),
     empty:
         (coffees is! List || coffees.isEmpty) &&
         (brews is! List || brews.isEmpty),
   );
-}
-
-String _fnv1a64(List<int> bytes) {
-  // 64-bit FNV-1a; native ints wrap on overflow, as the algorithm expects.
-  var hash = 0xcbf29ce484222325;
-  for (final byte in bytes) {
-    hash ^= byte;
-    hash *= 0x100000001b3;
-  }
-  return fingerprintHex(hash);
 }
 
 /// 16 lowercase hex digits of a 64-bit [value], negative ones included

@@ -4,6 +4,8 @@
 /// through the brew timer.
 library;
 
+import 'package:holybeans/domain/statistics.dart';
+
 /// Follows the scale's own timer, which every reading carries, to tell when
 /// its button starts or stops it. A reading with a later time means it
 /// runs; two more readings with the same time mean it stopped; a lower time
@@ -60,12 +62,6 @@ class ScaleTimerWatch {
 /// a Bookoo at rest wanders by up to 0.3 g with the machine vibrating.
 const _zeroGrams = 0.3;
 
-/// The median of [values].
-double _median(Iterable<double> values) {
-  final sorted = values.toList()..sort();
-  return sorted[sorted.length ~/ 2];
-}
-
 /// Finds the first drop once the cup is on the tared scale: first a
 /// reading at zero (the tare has applied), then the weight, as the median
 /// of the last [window] readings, at [thresholdGrams] or more. A knock or a
@@ -89,7 +85,7 @@ class FirstDripWatch {
     _recent.add(grams);
     if (_recent.length > window) _recent.removeAt(0);
     if (_recent.length < window ~/ 2 + 1) return null;
-    return _median(_recent) >= thresholdGrams ? since : null;
+    return upperMedian(_recent) >= thresholdGrams ? since : null;
   }
 }
 
@@ -119,7 +115,7 @@ class ShotEndWatch {
   int? add({required int elapsedMs, required double grams, double? doseGrams}) {
     _raw.add(grams);
     if (_raw.length > 3) _raw.removeAt(0);
-    final weight = _median(_raw);
+    final weight = upperMedian(_raw);
     _smoothed.add((elapsedMs, weight));
     // Keep one reading from before the quiet stretch to compare with.
     while (_smoothed.length > 1 && _smoothed[1].$1 <= elapsedMs - quietMs) {

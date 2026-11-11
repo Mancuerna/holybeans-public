@@ -26,7 +26,7 @@ class _YearMoneyState extends State<_YearMoney> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return SafeArea(
       child: SizedBox(
         height: MediaQuery.sizeOf(context).height * .88,

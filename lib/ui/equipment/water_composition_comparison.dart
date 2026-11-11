@@ -17,7 +17,7 @@ class WaterCompositionComparison extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final number = NumberFormat('0.##', regionalLocale.toString());
     final waters = [
       recipe.base,

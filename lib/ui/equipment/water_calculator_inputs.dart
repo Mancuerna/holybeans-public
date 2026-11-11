@@ -18,7 +18,7 @@ class WaterCalculatorInputs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -425,8 +425,11 @@ class WaterCalculatorInputs extends StatelessWidget {
         ),
         items: [
           for (final salt in WaterSalt.values.where(
-            (s) =>
-                hardness ? s.index < (model.mixHardness ? 2 : 3) : s.index >= 3,
+            (s) => hardness
+                ? (model.mixHardness
+                      ? s.group == WaterSaltGroup.magnesium
+                      : s.contributesGh)
+                : !s.contributesGh,
           ))
             DropdownMenuItem(
               value: salt,

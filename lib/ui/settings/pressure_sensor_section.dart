@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/services/pressure_sensor.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/settings/device_pairing_section.dart';
-import 'package:intl/intl.dart';
 
 /// Short status of the pressure sensor connection.
 String pressureSensorStatusLabel(AppLocalizations s, DeviceStatus status) =>
@@ -31,7 +31,7 @@ class PressureReadout extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: sensor,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       final theme = Theme.of(context);
       final bar = sensor.bar;
       final busy =
@@ -58,10 +58,11 @@ class PressureReadout extends StatelessWidget {
                     if (sensor.connected && bar != null)
                       Text(
                         s.sensorBar(
-                          NumberFormat(
-                            '0.0',
-                            regionalLocale.toString(),
-                          ).format(bar),
+                          formatDecimal(
+                            bar,
+                            pattern: '0.0',
+                            locale: regionalLocale.toString(),
+                          ),
                         ),
                         key: const ValueKey('pressure-value'),
                         style: theme.textTheme.headlineSmall?.copyWith(
@@ -101,7 +102,7 @@ class PressureSensorSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return DevicePairingSection(
       device: sensor,
       keyPrefix: 'sensor',

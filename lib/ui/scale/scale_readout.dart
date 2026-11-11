@@ -44,7 +44,7 @@ class ScaleReadout extends StatelessWidget {
   );
 
   Widget _build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final reading = scale.reading;
     final connected = scale.connected && reading != null;

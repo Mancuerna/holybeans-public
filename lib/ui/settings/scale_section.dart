@@ -13,7 +13,7 @@ class ScaleSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return ListenableBuilder(
       listenable: scale,
       builder: (context, _) => Column(

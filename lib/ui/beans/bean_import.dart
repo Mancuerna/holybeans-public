@@ -25,7 +25,7 @@ Future<void> importBeansFromText(
   List<Coffee> coffees,
   String text,
 ) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   final List<ReadBean> read;
   try {
     read = await _readInBackground(text);
@@ -71,7 +71,7 @@ Future<void> _reviewBeans(
   List<ReadBean> read,
 ) async {
   if (!context.mounted) return;
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   if (read.length > 1) {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -125,7 +125,7 @@ Future<bool> confirmBeanImport(
   List<Coffee> coffees,
   SharedBean card,
 ) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   if (existingCoffee(card, coffees) case final mine?) {
     final choice = await showDialog<bool>(
       context: context,
@@ -179,7 +179,7 @@ List<BeanAddAction> beanImportActions(
   IncomingShares? incoming, {
   VoidCallback? searchLoffee,
 }) {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   Future<void> importText(String? text) async {
     if (text == null || !context.mounted) return;
     await importBeansFromText(context, actions, coffees, text);
@@ -305,7 +305,7 @@ class _BeanImportPageState extends State<BeanImportPage> {
   bool _saving = false;
 
   Future<void> _import() async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     setState(() => _saving = true);
     var added = 0;
     try {
@@ -325,7 +325,7 @@ class _BeanImportPageState extends State<BeanImportPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final muted = theme.textTheme.bodyMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
@@ -457,7 +457,7 @@ class _PasteDialogState extends State<_PasteDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return AlertDialog(
       key: const ValueKey('paste-dialog'),
       title: Text(s.importPaste),

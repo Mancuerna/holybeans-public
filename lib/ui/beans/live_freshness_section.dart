@@ -61,7 +61,7 @@ class _LiveFreshnessSectionState extends State<LiveFreshnessSection> {
     initialData: stream == null ? widget.data.brews : null,
     builder: (context, snapshot) {
       if (snapshot.hasError) {
-        return Text(AppLocalizations.of(context)!.dataError);
+        return Text(AppLocalizations.of(context).dataError);
       }
       if (!snapshot.hasData) return const LinearProgressIndicator();
       return _CalculatedFreshness(
@@ -130,7 +130,7 @@ class _CalculatedFreshnessState extends State<_CalculatedFreshness> {
           future: future,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return Text(AppLocalizations.of(context)!.dataError);
+              return Text(AppLocalizations.of(context).dataError);
             }
             return snapshot.connectionState == ConnectionState.done
                 ? _section(snapshot.data)

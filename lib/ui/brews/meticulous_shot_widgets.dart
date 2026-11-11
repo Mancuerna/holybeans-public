@@ -55,11 +55,11 @@ class _ShotPickerState extends State<_ShotPicker> {
       if (mounted) setState(() => shots = recent);
     } on FormatException {
       if (!mounted) return;
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       setState(() => error = s.meticulousInvalidAddress);
     } on MeticulousException catch (failure) {
       if (!mounted) return;
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       setState(() => error = s.meticulousConnectFailed(failure.message));
     } finally {
       source?.close();
@@ -69,7 +69,7 @@ class _ShotPickerState extends State<_ShotPicker> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final deviceLocale = regionalLocale;
     final number = NumberFormat('0.#', regionalLocale.toString());
@@ -206,7 +206,7 @@ class MeticulousShotCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final picked = shot;
     return Card(

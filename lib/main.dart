@@ -181,7 +181,7 @@ class _HolyBeansAppState extends State<HolyBeansApp>
   Widget build(BuildContext context) => AppServicesScope(
     services: widget.services,
     child: MaterialApp(
-      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,

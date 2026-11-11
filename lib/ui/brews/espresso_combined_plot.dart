@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/domain/axis_ticks.dart';
 import 'package:holybeans/domain/comparison_timeline.dart';
 import 'package:holybeans/domain/shot_curve.dart';
@@ -42,7 +43,7 @@ class EspressoCombinedPlot extends StatelessWidget {
         );
         return Semantics(
           label:
-              '${NumberFormat('0.#', regionalLocale.toString()).format(cursorMs / 1000)} s',
+              '${formatDecimal(cursorMs / 1000, pattern: '0.#', locale: regionalLocale.toString())} s',
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTapDown: (event) => seek(event.localPosition.dx),

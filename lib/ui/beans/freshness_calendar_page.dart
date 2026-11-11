@@ -83,7 +83,7 @@ class _FreshnessCalendarPageState extends State<FreshnessCalendarPage>
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final material = MaterialLocalizations.of(context);
     final days = <DateTime, CalendarDay>{};
     for (
@@ -212,7 +212,7 @@ class _LotSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Card(
       child: ExpansionTile(
         key: PageStorageKey('calendar-section-$title'),

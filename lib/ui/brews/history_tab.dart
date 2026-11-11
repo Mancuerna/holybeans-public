@@ -125,7 +125,7 @@ class _HistoryTabState extends State<HistoryTab> {
 
   Widget _buildList(BuildContext context) {
     final coffees = widget.data.coffees;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final query = _query.text;
     final activeFilterCount = filters.activeCount;
     return JournalListPage(
@@ -263,7 +263,7 @@ class _HistoryTabState extends State<HistoryTab> {
   }
 
   Widget _dayHeader(BuildContext context, int brewedAtMs) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final day = DateTime.fromMillisecondsSinceEpoch(brewedAtMs);
     final now = DateTime.now();
     final label = _sameLocalDay(brewedAtMs, now.millisecondsSinceEpoch)

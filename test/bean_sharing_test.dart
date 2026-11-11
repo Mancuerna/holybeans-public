@@ -156,7 +156,7 @@ void main() {
     );
     final strings = AppLocalizations.of(
       tester.element(find.byKey(const ValueKey('paste-dialog'))),
-    )!;
+    );
     await expectVisible(
       tester,
       find.text(strings.importInvalidJson),
@@ -218,7 +218,7 @@ void main() {
           );
           final dialog = find.byKey(const ValueKey('import-dropped'));
           await expectVisible(tester, dialog, findsOneWidget);
-          final strings = AppLocalizations.of(tester.element(dialog))!;
+          final strings = AppLocalizations.of(tester.element(dialog));
           await expectVisible(
             tester,
             find.textContaining(strings.paidPrice),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/brew_ratio.dart';
@@ -143,7 +144,7 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
   /// The map for the brew's EY and TDS: the sensory map (a study of drip
   /// coffee) for filter, the espresso map, with its ratio, for espresso.
   Widget? _extractionMap(BuildContext context, BrewMethod? method) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final ey = brewExtractionYield(brew);
     final tds = brew.tdsPercent;
     if (ey == null || !ey.isFinite || ey <= 0) return null;
@@ -233,13 +234,13 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
               ? const CircularProgressIndicator()
               : TextButton(
                   onPressed: _load,
-                  child: Text(AppLocalizations.of(context)!.dataError),
+                  child: Text(AppLocalizations.of(context).dataError),
                 ),
         ),
       );
     }
 
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final coffee = widget.coffee;
     final method = actions.read.methods
         .where((row) => row.id == brew.methodId)
@@ -453,7 +454,7 @@ class _FavoriteNote extends StatelessWidget {
           const SizedBox(width: 6),
           Expanded(
             child: Text(
-              AppLocalizations.of(context)!.favoriteRecipeNote(methodName),
+              AppLocalizations.of(context).favoriteRecipeNote(methodName),
               style: theme.textTheme.bodySmall,
             ),
           ),
@@ -477,7 +478,7 @@ class _RevealHiddenButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Align(
       alignment: AlignmentDirectional.centerStart,
       child: TextButton.icon(
@@ -575,7 +576,7 @@ List<(BrewParameter?, StatItem)> _brewStats(
         BrewParameter.tds,
         StatItem(
           brew.brix != null ? s.estimatedTds : s.tds,
-          '${NumberFormat('0.##', regionalLocale.toString()).format(tds)} %',
+          '${formatDecimal(tds, pattern: '0.##', locale: regionalLocale.toString())} %',
         ),
       ),
     if (ey != null)
@@ -583,7 +584,7 @@ List<(BrewParameter?, StatItem)> _brewStats(
         BrewParameter.ey,
         StatItem(
           brew.brix != null ? '${s.ey} ≈' : s.ey,
-          '${NumberFormat('0.0', regionalLocale.toString()).format(ey)} %',
+          '${formatDecimal(ey, pattern: '0.0', locale: regionalLocale.toString())} %',
         ),
       ),
     if (cost != null)
@@ -636,7 +637,7 @@ class _CurveSection extends StatelessWidget {
                 Semantics(
                   header: true,
                   child: Text(
-                    AppLocalizations.of(context)!.extractionCurve,
+                    AppLocalizations.of(context).extractionCurve,
                     style: Theme.of(context).textTheme.titleMedium
                         ?.copyWith(fontWeight: FontWeight.w700),
                   ),
@@ -669,7 +670,7 @@ class _TastingSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final tasting = BrewTasting.of(brew);
     if (tasting.isEmpty) return const SizedBox.shrink();
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -713,7 +714,7 @@ class _EquipmentRows extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final grinderName = brew.grinderName?.trim() ?? '';
     final grinder = [
       if (grinderName.isNotEmpty && shows(BrewParameter.grinder)) grinderName,
@@ -738,7 +739,7 @@ class _EquipmentRows extends StatelessWidget {
             (brew.recipientIsPortafilter || shows(BrewParameter.beverage)))
           DetailRow(
             brew.recipientIsPortafilter ? s.portafilter : s.recipient,
-            '${brew.recipientName} · ${NumberFormat('0.#', regionalLocale.toString()).format(brew.recipientGrams)} g',
+            '${brew.recipientName} · ${formatDecimal(brew.recipientGrams, pattern: '0.#', locale: regionalLocale.toString())} g',
           ),
         if (brew.waterProfileName case final water?
             when shows(BrewParameter.waterProfile))

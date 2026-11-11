@@ -85,7 +85,7 @@ class _SheetFrameState extends State<SheetFrame> {
           showOperationError(
             context,
             const JournalReadOnlyException(),
-            AppLocalizations.of(context)!.saveFailed,
+            AppLocalizations.of(context).saveFailed,
           );
         }
         return;
@@ -98,7 +98,7 @@ class _SheetFrameState extends State<SheetFrame> {
       showOperationError(
         context,
         const JournalReadOnlyException(),
-        AppLocalizations.of(context)!.saveFailed,
+        AppLocalizations.of(context).saveFailed,
       );
       return;
     }
@@ -107,7 +107,7 @@ class _SheetFrameState extends State<SheetFrame> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final screen = MediaQuery.sizeOf(context).height;
     final keyboard = MediaQuery.viewInsetsOf(context).bottom;
     final available =
@@ -301,7 +301,7 @@ Widget numberField(
   Widget? suffix,
   String? Function(double?)? validate,
 }) {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   return TextFormField(
     key: key,
     controller: controller,

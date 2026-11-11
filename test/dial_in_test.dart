@@ -169,7 +169,7 @@ void main() {
           );
           final strings = AppLocalizations.of(
             tester.element(find.byType(DialInCard)),
-          )!;
+          );
           final label = tester
               .widget<Text>(find.byKey(const ValueKey('brew-dial-in-latest')))
               .data;

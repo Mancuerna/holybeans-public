@@ -26,7 +26,7 @@ class _CoffeeDetailsHeaderState extends State<CoffeeDetailsHeader> {
   late bool favorite = widget.coffee.isFavorite;
 
   Future<void> _toggleFavorite() async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final next = !favorite;
     setState(() => favorite = next);
     try {
@@ -42,7 +42,7 @@ class _CoffeeDetailsHeaderState extends State<CoffeeDetailsHeader> {
   }
 
   Future<void> _toggleArchive() async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final commands = widget.commands;
     final coffee = widget.coffee;
     if (coffee.archivedAtMs == null) {
@@ -61,7 +61,7 @@ class _CoffeeDetailsHeaderState extends State<CoffeeDetailsHeader> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final coffee = widget.coffee;
     final archived = coffee.archivedAtMs != null;
     return Column(

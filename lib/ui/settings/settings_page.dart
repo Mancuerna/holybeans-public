@@ -75,7 +75,7 @@ class _SettingsPageState extends State<SettingsPage> {
     if (_backupBusy) return;
     setState(() => _backupBusy = true);
     final navigator = Navigator.of(context, rootNavigator: true);
-    final text = AppLocalizations.of(context)!.backupWorking;
+    final text = AppLocalizations.of(context).backupWorking;
     final progress = DialogRoute<void>(
       context: context,
       barrierDismissible: false,
@@ -142,7 +142,7 @@ class _SettingsPageState extends State<SettingsPage> {
       .watchMinutes();
 
   Future<void> _setReminder(int? minutes) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     if (minutes != null && !(await services.reminders!.requestPermission())) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -160,7 +160,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     Widget languageOption(String? code, String label) => ListTile(
       key: ValueKey('language-${code ?? 'system'}'),
       title: Text(label),
@@ -327,7 +327,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }) => ListenableBuilder(
     listenable: device,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       return ListTile(
         key: ValueKey(key),
         leading: Icon(icon),
@@ -395,7 +395,7 @@ class _ReminderOptions extends StatelessWidget {
   final ValueChanged<int?> onChanged;
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return StreamBuilder<int?>(
       stream: stream,
       builder: (context, snapshot) {

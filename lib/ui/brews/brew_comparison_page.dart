@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/brew_comparison.dart';
@@ -59,7 +60,7 @@ class _BrewComparisonPageState extends State<BrewComparisonPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final a = widget.a;
     final b = widget.b;
     final rows = _ComparisonRows(s, a, b, widget.actions);
@@ -290,7 +291,7 @@ class _BrewComparisonPageState extends State<BrewComparisonPage> {
       Text(brew.methodName),
       if (brew.doseGrams != null && brew.beverageGrams != null)
         Text(
-          '${NumberFormat('0.##', regionalLocale.toString()).format(brew.doseGrams)} g → ${NumberFormat('0.##', regionalLocale.toString()).format(brew.beverageGrams)} g',
+          '${formatDecimal(brew.doseGrams, pattern: '0.##', locale: regionalLocale.toString())} g → ${formatDecimal(brew.beverageGrams, pattern: '0.##', locale: regionalLocale.toString())} g',
           style: Theme.of(context).textTheme.bodySmall,
         ),
       Text(

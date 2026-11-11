@@ -29,7 +29,7 @@ Future<void> shareBrewFlow(
   required BrewMethod? method,
   required void Function(String text) message,
 }) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   try {
     final lots = await repository.watchLots().first;
     final lot = lots.where((lot) => lot.id == brew.lotId).firstOrNull;

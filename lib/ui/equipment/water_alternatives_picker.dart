@@ -13,7 +13,7 @@ class WaterAlternativesPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (model.alternatives.length < 2) return const SizedBox.shrink();
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final grams = NumberFormat('0.000', regionalLocale.toString());
     return ExpansionTile(
       key: const ValueKey('water-alternatives'),

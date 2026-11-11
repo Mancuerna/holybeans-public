@@ -115,7 +115,7 @@ void main() {
         await tester.pumpAndSettle();
         final strings = AppLocalizations.of(
           tester.element(find.byType(EspressoMapContent)),
-        )!;
+        );
         final localizedRatio = language == 'es'
             ? displayed.replaceAll('.', ',')
             : displayed;
@@ -185,7 +185,7 @@ void main() {
         await tester.pumpAndSettle();
         final strings = AppLocalizations.of(
           tester.element(find.byType(EspressoMapContent)),
-        )!;
+        );
         final a = language == 'es' ? '1:2,51' : '1:2.51';
         final b = language == 'es' ? '1:2,55' : '1:2.55';
         expect(

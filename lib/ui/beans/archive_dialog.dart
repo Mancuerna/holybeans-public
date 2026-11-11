@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/repositories/brew_stats.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/optional_rating_slider.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
-import 'package:intl/intl.dart';
 
 /// The rating chosen when archiving a coffee, possibly none.
 class CoffeeArchiveDecision {
@@ -41,7 +41,7 @@ class _CoffeeArchiveDialogState extends State<CoffeeArchiveDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return AlertDialog(
       key: const ValueKey('coffee-archive-dialog'),
       title: Text(s.archiveBeanTitle),
@@ -71,10 +71,11 @@ class _CoffeeArchiveDialogState extends State<CoffeeArchiveDialog> {
                     children: [
                       Text(
                         s.averageBrewRating(
-                          NumberFormat(
-                            '0.#',
-                            regionalLocale.toString(),
-                          ).format(average),
+                          formatDecimal(
+                            average,
+                            pattern: '0.#',
+                            locale: regionalLocale.toString(),
+                          ),
                           widget.brewRatings.length,
                         ),
                         key: const ValueKey('archive-average-rating'),

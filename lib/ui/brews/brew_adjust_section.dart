@@ -37,7 +37,7 @@ class StepField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return ListenableBuilder(
       listenable: controller,
       builder: (context, _) {
@@ -112,7 +112,7 @@ class BrewAdjustSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final draft = model.draft;
     final number = NumberFormat('0.##', regionalLocale.toString());
     String? grams(double? value) =>

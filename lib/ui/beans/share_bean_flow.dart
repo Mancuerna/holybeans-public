@@ -17,7 +17,7 @@ Future<void> showShareBeanSheet(
   JournalActions actions,
   Coffee coffee,
 ) async {
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   try {
     final repository = actions.read.queries;
     final components = await repository.coffeeComponents(coffee.id);

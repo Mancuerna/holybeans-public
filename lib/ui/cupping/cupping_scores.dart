@@ -31,7 +31,7 @@ class CuppingScores extends StatelessWidget {
   final CuppingModel model;
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Column(
       children: [
         Padding(
@@ -74,7 +74,7 @@ class _ByCup extends StatelessWidget {
   final CuppingModel model;
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final i = model.selected;
     final cup = model.draft.cups[i];
     final labels = cuppingLabels(s);
@@ -179,7 +179,7 @@ class CuppingScore extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cup = model.draft.cups[index];
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final n = NumberFormat('0.#', regionalLocale.toString());
     final slot = score == null ? 0 : score! + 1;
     final value = cup.notEvaluated[slot]
@@ -222,7 +222,7 @@ class CuppingMatrix extends StatelessWidget {
   final CuppingModel model;
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final labels = [s.rating, ...cuppingLabels(s)];
     final width = (190 * MediaQuery.textScalerOf(context).scale(1)).clamp(
       190.0,

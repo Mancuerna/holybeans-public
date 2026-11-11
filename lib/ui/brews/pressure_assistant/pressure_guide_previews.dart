@@ -48,7 +48,7 @@ Widget flowGuideExample({bool dark = false}) => MaterialApp(
   supportedLocales: AppLocalizations.supportedLocales,
   home: Builder(
     builder: (context) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       final reference = <GuidePoint>[
         (elapsedMs: 500, value: 0, breakBefore: true),
         (elapsedMs: 5000, value: 0, breakBefore: false),

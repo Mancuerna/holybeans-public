@@ -8,6 +8,7 @@ import 'package:holybeans/data/repositories/journal_inputs.dart';
 import 'package:holybeans/data/repositories/journal_record_queries.dart';
 import 'package:holybeans/domain/cupping.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
+import 'package:holybeans/domain/journal_codes.dart';
 import 'package:uuid/uuid.dart';
 
 class CuppingStockException implements Exception {
@@ -253,7 +254,7 @@ class CuppingRepository {
     )..where((m) => m.templateType.equals('cupping'))).get();
     final active = existing.where((m) => m.archivedAtMs == null).firstOrNull;
     if (active != null &&
-        active.category == 'immersion' &&
+        MethodCategory.fromCode(active.category) == MethodCategory.immersion &&
         active.machine == null) {
       return active;
     }
@@ -266,7 +267,7 @@ class CuppingRepository {
           BrewMethodsCompanion.insert(
             id: id,
             name: 'Cupping',
-            category: const Value('immersion'),
+            category: Value(MethodCategory.immersion.code),
             templateType: const Value('cupping'),
           ),
         );

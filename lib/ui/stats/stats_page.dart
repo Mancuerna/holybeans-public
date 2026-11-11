@@ -81,7 +81,7 @@ class _StatsPageState extends State<StatsPage> {
     prices: widget.pricePerKg,
     range: range,
     now: widget.now ?? DateUtils.dateOnly(DateTime.now()),
-    language: AppLocalizations.of(context)!.localeName,
+    language: AppLocalizations.of(context).localeName,
     remaining: widget.remainingGrams,
     frozen: widget.frozenGrams,
   ));
@@ -97,7 +97,7 @@ class _StatsPageState extends State<StatsPage> {
   );
 
   Widget _build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final now = widget.now ?? DateTime.now();
     final data = model.value;

@@ -36,7 +36,7 @@ class BrewPoursFromCurve extends StatelessWidget {
             null => null,
           };
           if (found == null) return const SizedBox.shrink();
-          final s = AppLocalizations.of(context)!;
+          final s = AppLocalizations.of(context);
           final colors = Theme.of(context).colorScheme;
           return Card(
             key: const ValueKey('brew-detail-pours-from-curve'),

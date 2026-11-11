@@ -33,7 +33,7 @@ Future<void> showBrewComparison(
   } catch (error, stack) {
     reportError(error, stack);
     if (context.mounted) {
-      actions.navigation.message(AppLocalizations.of(context)!.dataError);
+      actions.navigation.message(AppLocalizations.of(context).dataError);
     }
     return;
   }
@@ -144,7 +144,7 @@ class _ComparisonPickerState extends State<_ComparisonPicker> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final names = {
       for (final coffee in widget.data.coffees) coffee.id: coffee.name,
     };

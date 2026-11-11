@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/cupping_share.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -25,7 +26,7 @@ class CuppingShareCard extends StatelessWidget {
   );
 
   Widget _build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final date = DateTime.fromMillisecondsSinceEpoch(
       data.session.startedAtMs ?? data.session.createdAtMs,
@@ -169,7 +170,7 @@ class _CupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final brew = cup.brew;
     final grinder = cup.grinder?.name ?? brew?.grinderName;
@@ -213,10 +214,11 @@ class _CupCard extends StatelessWidget {
               Text(
                 brew?.rating == null
                     ? '—'
-                    : NumberFormat(
-                        '0.0',
-                        regionalLocale.toString(),
-                      ).format(brew!.rating),
+                    : formatDecimal(
+                        brew!.rating,
+                        pattern: '0.0',
+                        locale: regionalLocale.toString(),
+                      ),
                 style: AppTheme.figures(
                   TextStyle(fontSize: 36, height: 1, color: colors.primary),
                 ),
@@ -302,7 +304,7 @@ List<(String, String)> _recipeValues(Brew brew, AppLocalizations s) {
       s.ratio,
       brew.doseGrams == null || brew.doseGrams! <= 0 || brew.waterGrams == null
           ? '—'
-          : '1:${NumberFormat('0.#', regionalLocale.toString()).format(brew.waterGrams! / brew.doseGrams!)}',
+          : '1:${formatDecimal(brew.waterGrams! / brew.doseGrams!, pattern: '0.#', locale: regionalLocale.toString())}',
     ),
   ];
 }
@@ -329,7 +331,7 @@ class _Recipe extends StatelessWidget {
         children: [
           for (final (label, value) in _recipeValues(
             brew,
-            AppLocalizations.of(context)!,
+            AppLocalizations.of(context),
           ))
             Expanded(
               child: Column(
@@ -361,7 +363,7 @@ class _ScoreGrid extends StatelessWidget {
   final List<CuppingShareCup> cups;
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final labels = cuppingLabels(s);
     Widget cell(String value, {bool heading = false}) => Padding(

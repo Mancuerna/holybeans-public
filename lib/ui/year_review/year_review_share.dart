@@ -104,7 +104,7 @@ class _YearShareState extends State<_YearShare> {
       reportError(error, stack);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.shareFailed)),
+          SnackBar(content: Text(AppLocalizations.of(context).shareFailed)),
         );
       }
     } finally {
@@ -119,7 +119,7 @@ class _YearShareState extends State<_YearShare> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return SafeArea(
       child: SizedBox(
         height: MediaQuery.sizeOf(context).height * .9,

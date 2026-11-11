@@ -43,7 +43,7 @@ class ShareChartOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Column(
       children: [
         CheckboxListTile(
@@ -92,7 +92,7 @@ class BrewShareCharts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final title = Theme.of(context).textTheme.titleMedium;
     final curve = includeCurve && data.hasCurve;
     final map = includeMap && data.hasMap;

@@ -16,7 +16,7 @@ class CuppingEntry extends StatelessWidget {
   /// above the methods, opening its sessions, with Start beside it.
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return Card(
       color: colors.secondaryContainer,
@@ -51,7 +51,7 @@ class CuppingSessionsPage extends StatefulWidget {
 class _CuppingSessionsPageState extends State<CuppingSessionsPage> {
   late final sessions = widget.repository.watchCuppingSessions();
   Future<void> _discard(CuppingSession session) async {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final yes = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -82,7 +82,7 @@ class _CuppingSessionsPageState extends State<CuppingSessionsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(s.cuppingSessions)),
       floatingActionButton: FloatingActionButton.extended(

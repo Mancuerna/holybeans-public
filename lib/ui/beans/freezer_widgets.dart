@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/freezer_repository.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/domain/freeze_plan.dart';
+import 'package:holybeans/domain/journal_codes.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/freeze_portions_fields.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
@@ -13,16 +13,17 @@ import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/core/semantic_colors.dart';
 import 'package:intl/intl.dart';
 
-String frozenContainerLabel(AppLocalizations s, String? code) => switch (code) {
-  'vacuum_bag' => s.containerVacuumBag,
-  'tube' => s.containerTube,
-  'zip_bag' => s.containerZipBag,
-  'jar' => s.containerJar,
-  'container' => s.containerBox,
-  'original_bag' => s.containerOriginalBag,
-  'other' => s.containerOther,
-  _ => '',
-};
+String frozenContainerLabel(AppLocalizations s, String? code) =>
+    switch (FrozenContainer.fromCode(code)) {
+      FrozenContainer.vacuumBag => s.containerVacuumBag,
+      FrozenContainer.tube => s.containerTube,
+      FrozenContainer.zipBag => s.containerZipBag,
+      FrozenContainer.jar => s.containerJar,
+      FrozenContainer.container => s.containerBox,
+      FrozenContainer.originalBag => s.containerOriginalBag,
+      FrozenContainer.other => s.containerOther,
+      null => '',
+    };
 
 String _isoDate(DateTime date) =>
     '${date.year.toString().padLeft(4, '0')}-'
@@ -136,7 +137,7 @@ class _FreezeFormState extends State<_FreezeForm> {
 
   Future<void> _save() async {
     if (saving || !formKey.currentState!.validate() || lotId == null) return;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     setState(() => saving = true);
     try {
       final value = _parseGrams(grams.text)!;
@@ -255,7 +256,7 @@ class _FreezeFormState extends State<_FreezeForm> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final maximum = maximumGrams;
     final existing = widget.existing;
@@ -304,12 +305,13 @@ class _FreezeFormState extends State<_FreezeForm> {
               spacing: 8,
               runSpacing: 4,
               children: [
-                for (final code in allowedFrozenContainers)
+                for (final containerType in FrozenContainer.values)
                   ChoiceChip(
-                    label: Text(frozenContainerLabel(s, code)),
-                    selected: container == code,
-                    onSelected: (selected) =>
-                        setState(() => container = selected ? code : null),
+                    label: Text(frozenContainerLabel(s, containerType.code)),
+                    selected: container == containerType.code,
+                    onSelected: (selected) => setState(
+                      () => container = selected ? containerType.code : null,
+                    ),
                   ),
               ],
             ),
@@ -396,7 +398,7 @@ class _ThawDialogState extends State<_ThawDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final remaining = widget.portion.remainingGrams;
     return AlertDialog(
       key: const ValueKey('thaw-dialog'),
@@ -477,7 +479,7 @@ class FrozenPortionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final thawed = portion.remainingGrams <= 0;

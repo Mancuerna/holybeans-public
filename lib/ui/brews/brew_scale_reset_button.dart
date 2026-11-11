@@ -23,7 +23,7 @@ class _BrewScaleResetButtonState extends State<BrewScaleResetButton> {
   Future<void> _reset() async {
     if (_busy) return;
     setState(() => _busy = true);
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     try {
       if (widget.timer.running) {
         final confirmed = await showDialog<bool>(
@@ -63,7 +63,7 @@ class _BrewScaleResetButtonState extends State<BrewScaleResetButton> {
     listenable: widget.session,
     builder: (context, _) => IconButton(
       key: const ValueKey('scale-reset'),
-      tooltip: AppLocalizations.of(context)!.scaleReset,
+      tooltip: AppLocalizations.of(context).scaleReset,
       icon: const Icon(Icons.restart_alt_rounded, size: 20),
       color: Theme.of(context).colorScheme.onSurfaceVariant,
       onPressed:

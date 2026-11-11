@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/services/device_feedback.dart';
 import 'package:holybeans/data/services/pressure_sensor.dart';
 import 'package:holybeans/data/services/scale.dart';
@@ -21,13 +22,17 @@ class ScaleFillButton extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: scale,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       final grams = scale.connected ? scale.reading?.grams : null;
       return IconButton(
         tooltip: grams == null
             ? s.scaleUseWeightOff
             : s.scaleUseWeight(
-                NumberFormat('0.0', regionalLocale.toString()).format(grams),
+                formatDecimal(
+                  grams,
+                  pattern: '0.0',
+                  locale: regionalLocale.toString(),
+                ),
               ),
         icon: const Icon(Icons.scale_outlined),
         onPressed: grams == null ? null : () => onUse(grams),
@@ -193,7 +198,7 @@ class ScaleStatusRow extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: scale,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       final reading = scale.connected ? scale.reading : null;
       final grams = NumberFormat('0.0', regionalLocale.toString());
       return DeviceStatusRow(
@@ -256,7 +261,7 @@ class PressureStatusRow extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: sensor,
     builder: (context, _) {
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       final bar = sensor.connected ? sensor.bar : null;
       return DeviceStatusRow(
         key: const ValueKey('pressure-readout'),
@@ -265,7 +270,11 @@ class PressureStatusRow extends StatelessWidget {
         text: bar == null
             ? sensor.name ?? ''
             : s.sensorBar(
-                NumberFormat('0.0', regionalLocale.toString()).format(bar),
+                formatDecimal(
+                  bar,
+                  pattern: '0.0',
+                  locale: regionalLocale.toString(),
+                ),
               ),
         status: bar == null
             ? pressureSensorStatusLabel(s, sensor.status)

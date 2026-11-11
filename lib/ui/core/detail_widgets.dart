@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/domain/flavor_descriptors.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 import 'package:holybeans/ui/core/flavor_note_chip.dart';
 import 'package:holybeans/ui/core/flavor_note_labels.dart';
 import 'package:holybeans/ui/core/semantic_colors.dart';
-import 'package:intl/intl.dart';
 
 /// One value in a [StatGrid], e.g. "Dose" / "18 g".
 class StatItem {
@@ -268,7 +268,7 @@ class RatingBadge extends StatelessWidget {
           Icon(Icons.star_rounded, size: 15, color: colors.onSurfaceVariant),
           const SizedBox(width: 2),
           Text(
-            NumberFormat('0.#', localeName).format(rating),
+            formatDecimal(rating, pattern: '0.#', locale: localeName),
             style: AppTheme.figures(theme.textTheme.titleLarge)
                 .copyWith(color: colors.onSurface),
           ),
@@ -282,7 +282,7 @@ class RatingBadge extends StatelessWidget {
 /// Grams with one decimal at most and the language's grouping, so large
 /// totals read the same everywhere ("1,466.3 g", "14.839 g").
 String formatGrams(double grams, String localeName) =>
-    '${NumberFormat('#,##0.#', localeName).format(grams)} g';
+    '${formatDecimal(grams, pattern: '#,##0.#', locale: localeName)} g';
 
 /// Tasting notes from a comma-separated flavour profile, as small chips.
 class FlavorNotes extends StatelessWidget {
@@ -300,7 +300,7 @@ class FlavorNotes extends StatelessWidget {
     final notes = split(profile);
     final shown = maxNotes == null ? notes : notes.take(maxNotes!).toList();
     final hidden = notes.length - shown.length;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Semantics(
       label: notes.map((note) => flavorNoteLabel(note, s)).join(', '),
       excludeSemantics: true,

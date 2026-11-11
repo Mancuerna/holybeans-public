@@ -28,7 +28,7 @@ class _CoffeeSelectionSheetState extends State<CoffeeSelectionSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final needle = foldSuggestion(query);
     final matches =
         widget.coffees

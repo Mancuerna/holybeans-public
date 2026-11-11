@@ -39,7 +39,7 @@ class _BeanAddButtonState extends State<BeanAddButton> {
 
   Future<void> _open(BuildContext context) async {
     if (_expanded) return;
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final box = context.findRenderObject()! as RenderBox;
     final position = box.localToGlobal(Offset.zero);
     final bottom =
@@ -132,7 +132,7 @@ class _BeanAddButtonState extends State<BeanAddButton> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Opacity(
       opacity: _expanded ? 0 : 1,
       child: GestureDetector(

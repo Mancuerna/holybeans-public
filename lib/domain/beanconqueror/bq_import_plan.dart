@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:holybeans/domain/beanconqueror/bq_plan_models.dart';
 import 'package:holybeans/domain/beanconqueror/bq_values.dart';
+import 'package:holybeans/domain/calendar_days.dart';
 import 'package:holybeans/domain/flavor_notes.dart';
 import 'package:holybeans/domain/https_link.dart';
 
@@ -446,9 +447,10 @@ class _Planner {
         : null;
     // These are calendar dates; a daylight-saving change is still one day.
     final pauseDays = frozenDate != null && thawedDate != null
-        ? DateTime.parse('${thawedDate}T00:00:00Z')
-              .difference(DateTime.parse('${frozenDate}T00:00:00Z'))
-              .inDays
+        ? calendarDaysBetween(
+            DateTime.parse(frozenDate),
+            DateTime.parse(thawedDate),
+          )
         : null;
 
     return PlannedCoffee(

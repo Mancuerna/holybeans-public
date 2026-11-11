@@ -19,7 +19,7 @@ class PistonCredits extends StatelessWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.pistonProjectUnavailable),
+          content: Text(AppLocalizations.of(context).pistonProjectUnavailable),
         ),
       );
     }
@@ -27,7 +27,7 @@ class PistonCredits extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -115,7 +115,7 @@ class _WaterProfileFormState extends State<_WaterProfileForm> {
   }
 
   Future<void> _save() async {
-    final strings = AppLocalizations.of(context)!;
+    final strings = AppLocalizations.of(context);
     if (saving || !formKey.currentState!.validate()) return;
     setState(() => saving = true);
     try {
@@ -277,7 +277,7 @@ class _WaterProfileFormState extends State<_WaterProfileForm> {
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context)!;
+    final strings = AppLocalizations.of(context);
     final keyboard = MediaQuery.viewInsetsOf(context).bottom;
     final maxHeight = MediaQuery.sizeOf(context).height - keyboard - 24;
     return Padding(

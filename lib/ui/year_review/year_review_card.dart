@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/domain/coffee_countries.dart';
 import 'package:holybeans/domain/coffee_year.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -22,7 +23,7 @@ class YearStoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final locale = regionalLocale.toString();
     final number = NumberFormat.decimalPattern(locale);
     String n(num value) => number.format(value);
@@ -146,7 +147,7 @@ class YearStoryCard extends StatelessWidget {
         final brew = year.rated.first;
         body.add(
           hero(
-            '${NumberFormat('0.#', locale).format(brew.rating)} / 10',
+            '${formatDecimal(brew.rating, pattern: '0.#', locale: locale)} / 10',
             year.topRatingTies > 1
                 ? s.yearReviewJointRating
                 : s.yearReviewTopRating,
@@ -368,7 +369,7 @@ class _YearTotals extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final n = NumberFormat.decimalPattern(regionalLocale.toString());
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -397,7 +398,7 @@ class _MonthBars extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final max = year.monthlyCoffees.reduce((a, b) => a > b ? a : b);
     final months = year.isPartial ? year.asOf.month : 12;
     return Column(

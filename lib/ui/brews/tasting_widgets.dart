@@ -60,7 +60,7 @@ class ExtractionCompass extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final axis = theme.textTheme.labelMedium?.copyWith(
@@ -160,7 +160,7 @@ class FlavorRadar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final labels = flavorScoreLabels(s);
     final colors = Theme.of(context).colorScheme;
     return Semantics(
@@ -397,7 +397,7 @@ class _RateBrewSheetState extends State<_RateBrewSheet> {
     } catch (error, stack) {
       reportError(error, stack);
       if (!mounted) return;
-      final s = AppLocalizations.of(context)!;
+      final s = AppLocalizations.of(context);
       setState(() {
         saving = false;
         saveError =
@@ -410,7 +410,7 @@ class _RateBrewSheetState extends State<_RateBrewSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final advice = compassAdvice(s, balance, strength);
     final section = theme.textTheme.titleMedium?.copyWith(

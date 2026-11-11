@@ -24,7 +24,7 @@ class _BrewRowsLoaderState extends State<BrewRowsLoader> {
           child: snapshot.hasError
               ? TextButton(
                   onPressed: () => setState(() => rows = widget.load()),
-                  child: Text(AppLocalizations.of(context)!.dataError),
+                  child: Text(AppLocalizations.of(context).dataError),
                 )
               : const CircularProgressIndicator(),
         ),

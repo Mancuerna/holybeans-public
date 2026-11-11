@@ -17,7 +17,7 @@ Future<void> showCoffeeLabelPage(
   Coffee coffee,
 ) async {
   final printers = <LabelPrinter>[];
-  final s = AppLocalizations.of(context)!;
+  final s = AppLocalizations.of(context);
   try {
     final repository = actions.read.queries;
     final settings = actions.commands.templateSettings;

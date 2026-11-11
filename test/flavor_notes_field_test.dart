@@ -159,7 +159,7 @@ void main() {
           );
           expect(tester.takeException(), isNull);
           final context = tester.element(input);
-          final s = AppLocalizations.of(context)!;
+          final s = AppLocalizations.of(context);
           for (final descriptor in FlavorDescriptor.values) {
             expect(
               descriptor.aliases.any((alias) => alias == descriptor.label(s)),

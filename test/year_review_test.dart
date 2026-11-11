@@ -62,7 +62,7 @@ void main() {
           await tester.pumpAndSettle();
           final s = AppLocalizations.of(
             tester.element(find.byType(YearReviewPage)),
-          )!;
+          );
           expect(
             find.text(
               s.yearReviewUntil(
