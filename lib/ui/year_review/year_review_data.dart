@@ -4,6 +4,27 @@ import 'package:holybeans/domain/coffee_year.dart';
 import 'package:holybeans/domain/coffee_year_costs.dart';
 import 'package:holybeans/domain/stats_insights.dart';
 
+typedef YearReviewRequest = ({
+  int year,
+  DateTime now,
+  List<Brew> brews,
+  List<Coffee> coffees,
+  List<CoffeeComponent> components,
+  List<BrewMethod> methods,
+  List<CoffeeLot> lots,
+});
+
+CoffeeYear prepareYearReview(YearReviewRequest request) =>
+    coffeeYearFromJournal(
+      year: request.year,
+      now: request.now,
+      brews: request.brews,
+      coffees: request.coffees,
+      components: request.components,
+      methods: request.methods,
+      lots: request.lots,
+    );
+
 CoffeeYear coffeeYearFromJournal({
   required int year,
   required DateTime now,

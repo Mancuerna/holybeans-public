@@ -775,6 +775,22 @@ The final version preserves the offset and displays the latest total, then
 verifies retained content through a failed refresh and successful recovery.
 This measures widget retention, not worker latency or device frame time.
 
+## Annual-review aggregation worker (November 2026)
+
+Year reviews with more than 200 brews prepare their aggregation in a worker.
+Only one request runs at a time and the newest pending selection replaces older
+ones. The last complete review stays visible while switching years; failures
+are reported and shown without replacing it. Small journals remain synchronous.
+
+`year_review_worker_test.dart` opens the real page with 300 brews split across
+two years and changes year ten times. The same driver on `0d09cf7` and this
+change measures original UI-list reads **600 → 300 on opening** and
+**3,000 → 0 during year selection**. The remaining opening reads enumerate
+available years. Worker-side reads and transfer costs are not counted, so this
+is evidence of moving aggregation off the UI, not a frame-time speedup.
+The test checks totals, rapid selection, failure recovery and closure during
+work; existing bilingual, large-text and sharing assertions remain unchanged.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
