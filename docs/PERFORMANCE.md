@@ -905,6 +905,30 @@ lot archive/restore, reversal, unknown balances and unchanged default ordering.
 These counts measure SQLite result rows delivered to Dart, not scanned rows
 inside SQLite or elapsed time. Existing stock and UI assertions are unchanged.
 
+## Numeric field formatter reuse (November 2026)
+
+Numeric fields retain private formatters for the current device region and each
+requested decimal precision. A region change discards that cache. Parsing,
+unrounded saved values, decimal input normalization and grouping rejection keep
+their existing behavior; mutable formatter instances are not exposed to callers.
+
+`benchmark/numeric_fields_benchmark_test.dart` runs 5,000 formatting/parsing
+iterations per sample, with two warmups and nine measured repetitions. The same
+driver on `d85bd29` and this implementation produced these host Flutter test
+measurements (milliseconds):
+
+| Device region | Median before → after | p95 before → after |
+| --- | ---: | ---: |
+| en_US | 71.861 → 19.455 | 83.802 → 30.422 |
+| es_ES | 71.282 → 18.497 | 74.128 → 19.647 |
+| ar_EG | 90.344 → 32.010 | 104.241 → 37.427 |
+| en_US after switching back | 69.152 → 18.110 | 73.251 → 21.518 |
+
+The driver verifies the accumulated parsed values, rounding at multiple
+precisions, exact saved values and locale changes. These are host microbenchmark
+results, not Android frame-time or end-to-end typing latency measurements; no
+timing threshold is enforced.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks
