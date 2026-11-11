@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/rate_reminder_settings.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
@@ -43,11 +44,11 @@ class SettingsPage extends StatefulWidget {
   /// The explicitly chosen app locale, or null when following the system.
   final Locale? locale;
   final ValueChanged<Locale?> onLocaleChanged;
-  final VoidCallback onExportBackup;
+  final Future<void> Function() onExportBackup;
 
   /// Shares every brew as CSV for spreadsheets.
   final VoidCallback onExportCsv;
-  final VoidCallback onImportBackup;
+  final Future<void> Function() onImportBackup;
 
   /// Automatic copies and the daily copy folder, below the manual backup.
   final Widget? backupTiles;
@@ -83,6 +84,50 @@ class _SettingsPageState extends State<SettingsPage> {
   Timer? _versionTapTimer;
   int _versionTaps = 0;
   bool _gameOpen = false;
+  bool _backupBusy = false;
+
+  Future<void> _runBackup(
+    Future<void> Function() work,
+    String failureMessage,
+  ) async {
+    if (_backupBusy) return;
+    setState(() => _backupBusy = true);
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final text = AppLocalizations.of(context)!.backupWorking;
+    final progress = DialogRoute<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => PopScope(
+        canPop: false,
+        child: AlertDialog(
+          key: const ValueKey('backup-progress'),
+          content: Row(
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: 24),
+              Expanded(child: Text(text)),
+            ],
+          ),
+        ),
+      ),
+    );
+    navigator.push(progress);
+    try {
+      await work();
+    } catch (error, stack) {
+      reportError(error, stack);
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(failureMessage)));
+      }
+    } finally {
+      // A restore confirmation may be above this route; never pop that instead.
+      if (navigator.mounted && progress.isActive) {
+        navigator.removeRoute(progress);
+      }
+      if (mounted) setState(() => _backupBusy = false);
+    }
+  }
 
   void _tapVersion() {
     if (_gameOpen) return;
@@ -214,12 +259,14 @@ class _SettingsPageState extends State<SettingsPage> {
           ListTile(
             leading: const Icon(Icons.ios_share_rounded),
             title: Text(s.exportBackup),
-            onTap: widget.onExportBackup,
+            enabled: !_backupBusy,
+            onTap: () => _runBackup(widget.onExportBackup, s.backupFailed),
           ),
           ListTile(
             leading: const Icon(Icons.restore_rounded),
             title: Text(s.importBackup),
-            onTap: widget.onImportBackup,
+            enabled: !_backupBusy,
+            onTap: () => _runBackup(widget.onImportBackup, s.restoreFailed),
           ),
           ?widget.backupTiles,
           _SettingsHeader(s.settingsTransfers),

@@ -94,6 +94,7 @@
   "backup": "Copia de seguridad",
   "exportBackup": "Compartir copia de seguridad",
   "importBackup": "Restaurar copia de seguridad",
+  "backupWorking": "Procesando copia de seguridad…",
   "backupFailed": "No se pudo preparar la copia",
   "restoreFailed": "No se pudo restaurar la copia",
   "restoreTitle": "Restaurar diario",

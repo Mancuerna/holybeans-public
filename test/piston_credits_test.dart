@@ -103,9 +103,9 @@ void main() {
             home: SettingsPage(
               locale: Locale(language),
               onLocaleChanged: (_) {},
-              onExportBackup: () {},
+              onExportBackup: () async {},
               onExportCsv: () {},
-              onImportBackup: () {},
+              onImportBackup: () async {},
               parameterSettings: BrewParameterSettings(db),
               templateSettings: ShareTemplateSettings(db),
             ),
