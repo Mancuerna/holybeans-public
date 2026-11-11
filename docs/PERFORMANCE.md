@@ -526,6 +526,28 @@ unreadable upload state conservatively keeps files and logs the cleanup error.
 These file counts are covered by `drive_backup_retention_test.dart` and
 `drive_backup_export_test.dart`, including retry and content checks.
 
+## Scale control rebuilds (November 2026)
+
+The timing section and reset control now listen to scale-session state instead
+of every reading. Timer-dependent controls also follow the timer. The weight
+chart subscribes to raw scale readings only while recording; live weight readouts
+continue following the scale in both states.
+
+`brew_scale_rebuild_test.dart` drives 100 readings with one widget pump per
+reading and counts the actual listener elements through Flutter's debug rebuild
+hook. With the same driver at `2c7baf1` and after the change:
+
+| Element | Idle rebuilds before → after | Recording rebuilds before → after |
+| --- | ---: | ---: |
+| Timing section | 100 → 0 | 100 → 0 |
+| Timer controls | 100 → 0 | 100 → 0 |
+| Scale reset control | 100 → 0 | 100 → 0 |
+| Weight chart listener | 100 → 0 | 100 → 100 |
+
+The tests also check the latest displayed weight, connection changes, drip
+waiting and timer ticks. These are host widget rebuild counts, not device frame
+times. Active charts deliberately keep receiving samples during recording.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

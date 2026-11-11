@@ -520,7 +520,7 @@ class BrewTimingSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: model.scaleSession?.scale ?? model.timer,
+    listenable: model.scaleSession ?? model.timer,
     builder: (context, _) => _content(context),
   );
 
@@ -536,7 +536,7 @@ class BrewTimingSection extends StatelessWidget {
         scale != null && (scale.scale.connected || scale.curve != null);
     return _Section([
       ListenableBuilder(
-        listenable: scale?.scale ?? model.timer,
+        listenable: Listenable.merge([?scale, model.timer]),
         builder: (context, _) => ExtractionTimerField(
           timer: model.timer,
           previousDuration: previousDuration,

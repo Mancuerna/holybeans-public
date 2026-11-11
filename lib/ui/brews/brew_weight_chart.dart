@@ -4,6 +4,7 @@ import 'package:holybeans/domain/filter_brew_progress.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
+import 'package:holybeans/ui/brews/brew_scale_session.dart';
 import 'package:holybeans/ui/brews/espresso_brew_readout.dart';
 import 'package:holybeans/ui/brews/extraction_chart.dart';
 import 'package:holybeans/ui/brews/filter_brew_readout.dart';
@@ -23,8 +24,15 @@ class BrewWeightChart extends StatelessWidget {
     final scale = model.scaleSession;
     if (scale == null) return const SizedBox.shrink();
     return ListenableBuilder(
+      listenable: scale,
+      builder: (context, _) => _liveChart(scale),
+    );
+  }
+
+  Widget _liveChart(BrewScaleSession scale) {
+    return ListenableBuilder(
       listenable: Listenable.merge([
-        scale.scale,
+        if (scale.recording) scale.scale,
         model.timer,
         model.draft.firstDrip,
         model.draft.dose,
