@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +16,9 @@ import 'package:holybeans/ui/cafes/cafe_share_sheet.dart';
 import 'package:holybeans/ui/cafes/cafe_share_text.dart';
 import 'package:holybeans/ui/cafes/cafes_page.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
+
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 const _cafe = Cafe(
   id: 'cafe',
@@ -50,10 +52,8 @@ void main() {
   testWidgets('a minimal drink shares only known values', (tester) async {
     late List<CafeShareRow> rows;
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: Builder(
           builder: (context) {
             rows = cafeShareRows(
@@ -105,10 +105,8 @@ void main() {
         final s = lookupAppLocalizations(Locale(language));
         CafeShareResult? result;
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(language),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: Builder(
                 builder: (context) => TextButton(
@@ -250,7 +248,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
     addTearDown(db.close);
     final directory = Directory.systemTemp.createTempSync('cafe-share-flow');
     addTearDown(() => directory.deleteSync(recursive: true));
@@ -311,10 +309,8 @@ void main() {
       ),
     );
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: CafesPage(repository: repository, photos: photos),
       ),
     );
@@ -402,7 +398,7 @@ void main() {
   testWidgets('cafe ratings and amounts follow the Spanish region', (
     tester,
   ) async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
     addTearDown(db.close);
     tester.view.physicalSize = const Size(320, 800);
     tester.view.devicePixelRatio = 1;
@@ -423,10 +419,8 @@ void main() {
       );
     }
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('es', 'ES'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         home: CafesPage(repository: repository),
       ),
     );

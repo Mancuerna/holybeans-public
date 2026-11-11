@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -11,6 +10,8 @@ import 'package:holybeans/l10n/app_localizations_es.dart';
 import 'package:holybeans/ui/brews/brew_pours_draft.dart';
 import 'package:holybeans/ui/brews/brew_share_text.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -127,7 +128,7 @@ void main() {
     late String coffee;
     setUpAll(() => initializeDateFormatting('es'));
     setUp(() async {
-      db = AppDatabase.forTesting(NativeDatabase.memory());
+      db = memoryDatabase();
       repo = JournalRepository(db);
       coffee = await repo.createCoffee(
         name: 'Filter test',

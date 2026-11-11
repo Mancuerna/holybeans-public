@@ -1,4 +1,3 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,6 +9,9 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/cafes/cafe_drink_form.dart';
 import 'package:holybeans/ui/cafes/cafe_picker.dart';
 
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
+
 void main() {
   for (final (region, language, displayed, input) in [
     (const Locale('en', 'GB'), const Locale('en'), '23/10/2026', '23/10/2026'),
@@ -20,7 +22,7 @@ void main() {
     ) async {
       tester.platformDispatcher.localeTestValue = region;
       addTearDown(tester.platformDispatcher.clearLocaleTestValue);
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final drink = CafeDrink(
         id: 'drink',
@@ -32,10 +34,8 @@ void main() {
         updatedAtMs: 0,
       );
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: language,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: CafeDrinkForm(
             repository: CafeRepository(db),
             data: const CafeJournalData(
@@ -89,7 +89,7 @@ void main() {
     testWidgets(
       'saved cafe city takes priority or receives explicit suggestion: $manualCity',
       (tester) async {
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(db.close);
         final repo = CafeRepository(db);
         final entries = await tester.runAsync(CafeCatalog.load);
@@ -112,9 +112,7 @@ void main() {
         final before = (await tester.runAsync(repo.read))!;
         CafeInput? selected;
         await tester.pumpWidget(
-          MaterialApp(
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
+          localizedApp(
             home: Builder(
               builder: (context) => TextButton(
                 onPressed: () async {
@@ -148,7 +146,7 @@ void main() {
     testWidgets('cafe origin suggests flags and Brazil feedback in $locale', (
       tester,
     ) async {
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = memoryDatabase();
       addTearDown(db.close);
       final calls = <String>[];
       const channel = MethodChannel('holybeans/device');
@@ -165,10 +163,8 @@ void main() {
         ),
       );
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: Locale(locale),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: CafeDrinkForm(
             repository: CafeRepository(db),
             data: const CafeJournalData([], [], [], []),
@@ -203,13 +199,11 @@ void main() {
     testWidgets(
       'cafe form validates and keeps a dirty draft in $locale at large text',
       (tester) async {
-        final db = AppDatabase.forTesting(NativeDatabase.memory());
+        final db = memoryDatabase();
         addTearDown(db.close);
         await tester.pumpWidget(
-          MaterialApp(
+          localizedApp(
             locale: Locale(locale),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
             builder: (context, child) => MediaQuery(
               data: MediaQuery.of(context)
                   .copyWith(textScaler: const TextScaler.linear(2)),
@@ -259,10 +253,8 @@ void main() {
   }
   testWidgets('catalog loads offline and supports searching', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: CafePicker(data: CafeJournalData([], [], [], [])),
+      localizedApp(
+        home: const CafePicker(data: CafeJournalData([], [], [], [])),
       ),
     );
     await tester.runAsync(

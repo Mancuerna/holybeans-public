@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart' show driftRuntimeOptions;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
@@ -8,6 +7,7 @@ import 'package:holybeans/domain/brew_stats.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'helpers/journal_test_support.dart';
+import 'helpers/test_database.dart';
 
 void main() {
   late AppDatabase database;
@@ -20,7 +20,7 @@ void main() {
   });
 
   setUp(() {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     repository = JournalRepository(database);
   });
 

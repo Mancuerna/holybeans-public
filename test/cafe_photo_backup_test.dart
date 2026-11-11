@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/cafe_repository.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
@@ -11,10 +9,12 @@ import 'package:holybeans/data/services/journal_restore.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/cafe_journal.dart';
 
+import 'helpers/test_database.dart';
+
 void main() {
   test('cafe-only photo is exported and restored with the journal', () async {
     final dir = await Directory.systemTemp.createTemp('cafe-photo-backup-');
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = memoryDatabase();
     final store = PhotoStore(Directory('${dir.path}/photos'));
     try {
       final bytes = Uint8List.fromList([255, 216, 255, 1, 2, 3, 255, 217]);

@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show driftRuntimeOptions;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+import 'helpers/test_database.dart';
 
 void main() {
   late AppDatabase database;
@@ -19,7 +20,7 @@ void main() {
   });
 
   setUp(() {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
+    database = memoryDatabase();
     repository = JournalRepository(database);
   });
 
@@ -344,7 +345,7 @@ void main() {
         ..remove('isFavorite')
         ..remove('flavorProfile');
     }
-    final target = AppDatabase.forTesting(NativeDatabase.memory());
+    final target = memoryDatabase();
     addTearDown(target.close);
     await JournalBackup(target).restoreJson(jsonEncode(backup));
     final restored = await target.select(target.coffees).getSingle();

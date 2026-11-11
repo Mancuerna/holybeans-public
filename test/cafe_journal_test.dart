@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/cafe_repository.dart';
@@ -10,11 +9,13 @@ import 'package:holybeans/domain/cafe_journal.dart';
 import 'package:holybeans/domain/cafe_stats.dart';
 import 'package:holybeans/domain/roaster_profile.dart';
 
+import 'helpers/test_database.dart';
+
 void main() {
   late AppDatabase db;
   late CafeRepository cafes;
   setUp(() {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     cafes = CafeRepository(db);
   });
   tearDown(() => db.close());

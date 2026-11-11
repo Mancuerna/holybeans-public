@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/domain/brew_pours.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_pours_draft.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
+
+import 'helpers/ui_test_support.dart';
 
 void main() {
   testWidgets(
@@ -12,9 +13,7 @@ void main() {
       final draft = BrewPoursDraft();
       addTearDown(draft.dispose);
       await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
+        localizedApp(
           locale: const Locale('es'),
           home: Scaffold(
             body: ListView(children: [BrewPoursFields(draft: draft)]),
@@ -134,9 +133,7 @@ void main() {
     addTearDown(draft.dispose);
     addTearDown(bloom.dispose);
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+      localizedApp(
         locale: const Locale('es'),
         home: Scaffold(
           body: ListView(
@@ -177,9 +174,7 @@ void main() {
     final draft = BrewPoursDraft()..setCount(BrewPourKind.pour, 1);
     addTearDown(draft.dispose);
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+      localizedApp(
         locale: const Locale('es'),
         home: Scaffold(
           body: ListView(children: [BrewPoursFields(draft: draft)]),
@@ -198,9 +193,7 @@ void main() {
     expect(tester.widget<Text>(flow).data, 'Caudal: 8.3 g/s');
 
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+      localizedApp(
         locale: const Locale('es'),
         home: Scaffold(body: BrewPourDetails(pours: draft.value)),
       ),
@@ -216,9 +209,7 @@ void main() {
       ..setCount(BrewPourKind.pour, 10);
     addTearDown(draft.dispose);
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+      localizedApp(
         home: MediaQuery(
           data: const MediaQueryData(
             size: Size(320, 640),

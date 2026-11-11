@@ -1,14 +1,13 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/services/paired_device.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/core/device_toasts.dart';
 
 import 'helpers/fake_refractometer.dart';
 import 'helpers/fake_scale.dart';
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 void main() {
   test('only connecting and disconnecting are changes', () {
@@ -30,7 +29,7 @@ void main() {
 
   testWidgets('a device connecting or going away is said, and the notice '
       'goes away by itself', (tester) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final scale = FakeScale(name: 'BOOKOO_SC_U');
     final refractometer = FakeRefractometer(name: 'R2 Extract');
@@ -71,10 +70,8 @@ void main() {
     addTearDown(scale.dispose);
     var taps = 0;
     await tester.pumpWidget(
-      MaterialApp(
+      localizedApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         builder: (context, child) =>
             DeviceToasts(devices: {DeviceKind.scale: scale}, child: child!),
         home: Builder(
@@ -115,9 +112,7 @@ void main() {
       final scale = FakeScale(name: 'BOOKOO_SC_U');
       addTearDown(scale.dispose);
       await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
+        localizedApp(
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context).copyWith(disableAnimations: reduced),
             child: DeviceToasts(
@@ -137,7 +132,7 @@ void main() {
 
   testWidgets('a device switched on again reconnects by itself while the '
       'app is open, but not one the user disconnected', (tester) async {
-    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final database = memoryDatabase();
     addTearDown(database.close);
     final scale = FakeScale(name: 'BOOKOO_SC_U');
     addTearDown(scale.dispose);

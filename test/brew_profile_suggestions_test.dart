@@ -1,17 +1,18 @@
 import 'dart:async';
 
 import 'package:drift/drift.dart' hide isNotNull, isNull;
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/profile_suggestions.dart';
-import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_form_sections.dart';
+
+import 'helpers/test_database.dart';
+import 'helpers/ui_test_support.dart';
 
 class _DelayedProfiles extends JournalRepository {
   _DelayedProfiles(super.database);
@@ -29,7 +30,7 @@ void main() {
   late String method;
   late String other;
   setUp(() async {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = memoryDatabase();
     repository = JournalRepository(db);
     coffee = await repository.createCoffee(name: 'Beans', roaster: 'Test');
     method = await repository.createMethod(
@@ -85,10 +86,8 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           locale: Locale(locale),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: BrewForm(
               repository: repository,
