@@ -60,7 +60,7 @@ class _BrewScaleResetButtonState extends State<BrewScaleResetButton> {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: Listenable.merge([widget.session, widget.session.scale]),
+    listenable: widget.session,
     builder: (context, _) => IconButton(
       key: const ValueKey('scale-reset'),
       tooltip: AppLocalizations.of(context)!.scaleReset,
