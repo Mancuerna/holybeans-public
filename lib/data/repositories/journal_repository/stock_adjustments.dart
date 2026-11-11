@@ -6,12 +6,24 @@ class StockAdjustmentException implements Exception {
 }
 
 extension StockAdjustmentOperations on JournalRepository {
-  Stream<List<StockAdjustment>> watchStockAdjustments() =>
-      (database.select(database.stockAdjustments)..orderBy([
-            (r) => OrderingTerm.desc(r.createdAtMs),
-            (r) => OrderingTerm.asc(r.id),
-          ]))
-          .watch();
+  Stream<List<StockAdjustment>> watchStockAdjustments({
+    String? coffeeId,
+    bool activeOnly = false,
+  }) {
+    final query = database.select(database.stockAdjustments);
+    if (coffeeId != null) query.where((r) => r.coffeeId.equals(coffeeId));
+    if (activeOnly) {
+      final lots = database.selectOnly(database.coffeeLots)
+        ..addColumns([database.coffeeLots.id])
+        ..where(database.coffeeLots.archivedAtMs.isNull());
+      query.where((r) => r.reversedAtMs.isNull() & r.lotId.isInQuery(lots));
+    }
+    query.orderBy([
+      (r) => OrderingTerm.desc(r.createdAtMs),
+      (r) => OrderingTerm.asc(r.id),
+    ]);
+    return query.watch();
+  }
 
   Future<List<StockAdjustment>> stockAdjustments(String coffeeId) =>
       (database.select(database.stockAdjustments)

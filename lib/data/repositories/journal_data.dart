@@ -51,6 +51,9 @@ class JournalData {
   final List<Coffee> coffees;
   final List<Brew> brews;
   final List<CoffeeLot> lots;
+
+  /// Shell snapshots carry non-reversed adjustments of active lots. Detail
+  /// history is queried separately; standalone snapshots may include it all.
   final List<StockAdjustment> adjustments;
   final List<CoffeeComponent> components;
 

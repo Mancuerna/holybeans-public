@@ -29,7 +29,7 @@ class JournalViewModel extends ChangeNotifier {
       _watch(_coffees, repository.watchCoffees(includeArchived: true)),
       _watch(_overview, repository.reads.watchOverview()),
       _watch(_lots, repository.watchLots()),
-      _watch(_adjustments, repository.watchStockAdjustments()),
+      _watch(_adjustments, repository.watchStockAdjustments(activeOnly: true)),
       _watch(_components, repository.watchComponents()),
       _watch(_methods, repository.watchMethods(includeArchived: true)),
       _watch(_portions, repository.watchFrozenPortions()),

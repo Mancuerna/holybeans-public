@@ -70,8 +70,9 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
       .repository
       .watchFrozenPortions();
 
-  late final adjustmentStream = widget.actions.repository
-      .watchStockAdjustments();
+  late final adjustmentStream = widget.actions.repository.watchStockAdjustments(
+    coffeeId: widget.coffee.id,
+  );
 
   @override
   Widget build(BuildContext context) => StreamBuilder<List<StockAdjustment>>(
