@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 import 'package:holybeans/domain/axis_ticks.dart';
 import 'package:holybeans/domain/comparison_timeline.dart';
@@ -53,18 +54,20 @@ class ComparisonPlot extends StatelessWidget {
             child: SizedBox(
               height: 160,
               width: double.infinity,
-              child: CustomPaint(
-                painter: ComparisonPlotPainter(
-                  first: first,
-                  second: second,
-                  minMs: minMs,
-                  maxMs: maxMs,
-                  cursorMs: cursorMs,
-                  colorA: color,
-                  colorB: color,
-                  grid: colors.outlineVariant,
-                  textColor: colors.onSurfaceVariant,
-                  locale: locale,
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  painter: ComparisonPlotPainter(
+                    first: first,
+                    second: second,
+                    minMs: minMs,
+                    maxMs: maxMs,
+                    cursorMs: cursorMs,
+                    colorA: color,
+                    colorB: color,
+                    grid: colors.outlineVariant,
+                    textColor: colors.onSurfaceVariant,
+                    locale: regionalLocale.toString(),
+                  ),
                 ),
               ),
             ),
@@ -76,9 +79,9 @@ class ComparisonPlot extends StatelessWidget {
 }
 
 class ComparisonPlotPainter extends CustomPainter {
-  const ComparisonPlotPainter({
-    required this.first,
-    required this.second,
+  ComparisonPlotPainter({
+    required List<ComparisonPoint> first,
+    required List<ComparisonPoint> second,
     required this.minMs,
     required this.maxMs,
     required this.cursorMs,
@@ -87,7 +90,8 @@ class ComparisonPlotPainter extends CustomPainter {
     required this.grid,
     required this.textColor,
     required this.locale,
-  });
+  }) : first = List.of(first),
+       second = List.of(second);
 
   final List<ComparisonPoint> first;
   final List<ComparisonPoint> second;
@@ -103,7 +107,7 @@ class ComparisonPlotPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final area = Rect.fromLTRB(44, 12, size.width - 8, size.height - 30);
-    final samples = [...first, ...second];
+    final samples = first.followedBy(second);
     final lowest = samples.fold<double>(
       0,
       (min, point) => math.min(min, point.value),
@@ -115,8 +119,7 @@ class ComparisonPlotPainter extends CustomPainter {
     final ticks = lowest < 0 ? rangeTicks(lowest, highest) : axisTicks(highest);
     final minY = lowest < 0 ? lowest : 0.0;
     final maxY = lowest < 0 ? highest : ticks.last;
-    final number = NumberFormat('0.#', regionalLocale.toString())
-      ..turnOffGrouping();
+    final number = NumberFormat('0.#', locale)..turnOffGrouping();
     void label(String text, Offset offset) {
       final painter = TextPainter(
         text: TextSpan(
@@ -126,6 +129,7 @@ class ComparisonPlotPainter extends CustomPainter {
         textDirection: TextDirection.ltr,
       )..layout();
       painter.paint(canvas, offset);
+      painter.dispose();
     }
 
     final axis = Paint()
@@ -194,5 +198,15 @@ class ComparisonPlotPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(ComparisonPlotPainter oldDelegate) => true;
+  bool shouldRepaint(ComparisonPlotPainter old) =>
+      !listEquals(old.first, first) ||
+      !listEquals(old.second, second) ||
+      old.minMs != minMs ||
+      old.maxMs != maxMs ||
+      old.cursorMs != cursorMs ||
+      old.colorA != colorA ||
+      old.colorB != colorB ||
+      old.grid != grid ||
+      old.textColor != textColor ||
+      old.locale != locale;
 }

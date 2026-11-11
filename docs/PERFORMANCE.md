@@ -997,6 +997,23 @@ axis/value formatting, plot height, colors, text style/scaling and selection.
 Existing statistics and comparison interaction assertions remain unchanged.
 These are widget-test paint counts, not Android frame-time measurements.
 
+## Comparison chart repaint retention (November 2026)
+
+Filter comparison curves and individual espresso comparison panels capture their
+sample values and compare bounds, cursor, colors and number locale. Repaint
+boundaries retain equivalent canvases; changed caller lists still invalidate
+them. Painters use the captured device region for labels and dispose temporary
+text painters. Espresso panels traverse both sample sequences without creating
+another combined list during painting.
+
+The same `test/comparison_chart_repaint_test.dart` driver on `16dd684` and this
+change counts actual canvas paints during 100 equivalent parent updates:
+**100 → 0 for filter comparisons** and **100 → 0 for espresso panels**. The
+driver also verifies changes to both sample sets, duration/bounds, cursor,
+colors and device region, including reused mutable input lists. Existing
+playback, seeking, alignment and comparison assertions remain unchanged.
+These counts describe widget-test painting, not Android rendering latency.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

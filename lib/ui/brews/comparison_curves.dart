@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 import 'package:holybeans/domain/axis_ticks.dart';
 import 'package:holybeans/domain/brew_comparison.dart';
@@ -92,18 +93,20 @@ class _ComparisonCurvesState extends State<ComparisonCurves>
         'comparison-plot-${first != null ? 'a' : 'b'}-${series.name}',
       ),
       height: 240,
-      child: CustomPaint(
-        painter: _ComparisonPainter(
-          a: first,
-          b: second,
-          series: series,
-          durationMs: duration,
-          cursorMs: timeMs,
-          colorA: colorA,
-          colorB: colorB,
-          grid: theme.colorScheme.outlineVariant,
-          textColor: theme.colorScheme.onSurfaceVariant,
-          locale: s.localeName,
+      child: RepaintBoundary(
+        child: CustomPaint(
+          painter: _ComparisonPainter(
+            a: first,
+            b: second,
+            series: series,
+            durationMs: duration,
+            cursorMs: timeMs,
+            colorA: colorA,
+            colorB: colorB,
+            grid: theme.colorScheme.outlineVariant,
+            textColor: theme.colorScheme.onSurfaceVariant,
+            locale: regionalLocale.toString(),
+          ),
         ),
       ),
     );
@@ -196,9 +199,9 @@ class _ComparisonCurvesState extends State<ComparisonCurves>
 }
 
 class _ComparisonPainter extends CustomPainter {
-  const _ComparisonPainter({
-    required this.a,
-    required this.b,
+  _ComparisonPainter({
+    required ComparisonCurve? a,
+    required ComparisonCurve? b,
     required this.series,
     required this.durationMs,
     required this.cursorMs,
@@ -207,10 +210,11 @@ class _ComparisonPainter extends CustomPainter {
     required this.grid,
     required this.textColor,
     required this.locale,
-  });
+  }) : first = a?.samples(series) ?? [],
+       second = b?.samples(series) ?? [];
 
-  final ComparisonCurve? a;
-  final ComparisonCurve? b;
+  final List<({int timeMs, double value})> first;
+  final List<({int timeMs, double value})> second;
   final CurveSeries series;
   final double durationMs;
   final double cursorMs;
@@ -223,8 +227,6 @@ class _ComparisonPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final area = Rect.fromLTRB(44, 12, size.width - 8, size.height - 30);
-    final first = a?.samples(series) ?? [];
-    final second = b?.samples(series) ?? [];
     final samples = [...first, ...second];
     // Isolated spikes, like a knock on the scale, are clipped instead of
     // squashing both brews.
@@ -235,8 +237,7 @@ class _ComparisonPainter extends CustomPainter {
     final ticks = lowest < 0 ? rangeTicks(lowest, highest) : axisTicks(highest);
     final minY = lowest < 0 ? lowest : 0.0;
     final maxY = lowest < 0 ? highest : ticks.last;
-    final number = NumberFormat('0.#', regionalLocale.toString())
-      ..turnOffGrouping();
+    final number = NumberFormat('0.#', locale)..turnOffGrouping();
     void label(String text, Offset offset) {
       final painter = TextPainter(
         text: TextSpan(
@@ -246,6 +247,7 @@ class _ComparisonPainter extends CustomPainter {
         textDirection: TextDirection.ltr,
       )..layout();
       painter.paint(canvas, offset);
+      painter.dispose();
     }
 
     final axis = Paint()
@@ -313,5 +315,15 @@ class _ComparisonPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_ComparisonPainter oldDelegate) => true;
+  bool shouldRepaint(_ComparisonPainter old) =>
+      !listEquals(old.first, first) ||
+      !listEquals(old.second, second) ||
+      old.series != series ||
+      old.durationMs != durationMs ||
+      old.cursorMs != cursorMs ||
+      old.colorA != colorA ||
+      old.colorB != colorB ||
+      old.grid != grid ||
+      old.textColor != textColor ||
+      old.locale != locale;
 }
