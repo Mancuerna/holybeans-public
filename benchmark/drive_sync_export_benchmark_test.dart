@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -91,6 +92,21 @@ void main() {
       watch.reset();
       final compressedJson = gzip.encode(utf8.encode(source));
       final gzipMs = watch.elapsedMilliseconds;
+      final manualExportSamples = <Map<String, num>>[];
+      for (var sample = 0; sample < 3; sample++) {
+        final (manualArchive, timing) = await _measureEventLoop(
+          () => backup.exportArchive(photos),
+        );
+        manualExportSamples.add(timing);
+        final (manualSource, manualPhotos) = JournalBackup.readArchive(
+          manualArchive,
+        );
+        expect(
+          (jsonDecode(manualSource) as Map<String, dynamic>)['data'],
+          (jsonDecode(source) as Map<String, dynamic>)['data'],
+        );
+        expect(manualPhotos, photoBytes);
+      }
       final (readSource, readPhotos) = JournalBackup.readArchive(archive);
       expect(jsonDecode(readSource), jsonDecode(source));
       expect(readPhotos, photoBytes);
@@ -128,9 +144,44 @@ void main() {
       final nextZip = JournalBackup.encodeArchive(next, nextPhotos);
       final nextCompressedJson = gzip.encode(utf8.encode(next));
       stdout.writeln(
-        'DRIVE_EXPORT_BENCHMARK ${jsonEncode({'fixture': fixture.name, 'environment': 'host Flutter test; in-memory SQLite', 'coffees': fixture.coffees, 'brews': fixture.brews, 'curves': fixture.brews ~/ 2, 'curveSamples': 301, 'photos': fixture.photos, 'photoWidth': 640, 'photoHeight': 480, 'jpegQuality': 85, 'jsonBytes': utf8.encode(source).length, 'gzipJsonBytes': compressedJson.length, 'photoBytes': photoBytes.values.fold<int>(0, (sum, bytes) => sum + bytes.length), 'zipBytes': archive.length, 'exportMs': exportMs, 'zipMs': zipMs, 'gzipMs': gzipMs, 'restoreMs': restoreMs, 'nextZipBytes': nextZip.length, 'nextGzipJsonBytes': nextCompressedJson.length, 'nextNewPhotoBytes': 0, 'allCollectionsAndPhotosEqual': true})}',
+        'DRIVE_EXPORT_BENCHMARK ${jsonEncode({'fixture': fixture.name, 'environment': 'host Flutter test; in-memory SQLite', 'coffees': fixture.coffees, 'brews': fixture.brews, 'curves': fixture.brews ~/ 2, 'curveSamples': 301, 'photos': fixture.photos, 'photoWidth': 640, 'photoHeight': 480, 'jpegQuality': 85, 'jsonBytes': utf8.encode(source).length, 'gzipJsonBytes': compressedJson.length, 'photoBytes': photoBytes.values.fold<int>(0, (sum, bytes) => sum + bytes.length), 'zipBytes': archive.length, 'exportMs': exportMs, 'zipMs': zipMs, 'gzipMs': gzipMs, 'restoreMs': restoreMs, 'manualExportSamples': manualExportSamples, 'nextZipBytes': nextZip.length, 'nextGzipJsonBytes': nextCompressedJson.length, 'nextNewPhotoBytes': 0, 'allCollectionsAndPhotosEqual': true})}',
       );
     }, timeout: const Timeout(Duration(minutes: 3)));
+  }
+}
+
+Future<(T, Map<String, num>)> _measureEventLoop<T>(
+  Future<T> Function() action,
+) async {
+  final watch = Stopwatch()..start();
+  var lastTick = 0;
+  var maximumGap = 0;
+  var ticks = 0;
+  void recordGap() {
+    final now = watch.elapsedMicroseconds;
+    maximumGap = max(maximumGap, now - lastTick);
+    lastTick = now;
+  }
+
+  final heartbeat = Timer.periodic(const Duration(milliseconds: 2), (_) {
+    ticks++;
+    recordGap();
+  });
+  try {
+    final result = await action();
+    final elapsed = watch.elapsedMicroseconds;
+    recordGap();
+    return (
+      result,
+      {
+        'elapsedMs': elapsed / 1000,
+        'maxEventLoopGapMs': maximumGap / 1000,
+        'timerTicks': ticks,
+      },
+    );
+  } finally {
+    heartbeat.cancel();
+    watch.stop();
   }
 }
 

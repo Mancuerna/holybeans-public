@@ -433,6 +433,33 @@ Relevant code: [history matching](../lib/ui/brews/history_tab.dart),
 [normalization](../lib/domain/text_suggestions.dart), and
 [live charts](../lib/ui/brews/extraction_chart.dart).
 
+## Manual backup export workers (November 2026)
+
+Manual exports encode JSON and ZIP data in workers while retaining the journal
+lock and database transaction for a consistent snapshot. Photo capture reads
+only referenced files, once each; missing photos remain omitted. Automatic
+journal snapshots also use background JSON encoding.
+
+The host benchmark now measures the actual `JournalBackup.exportArchive` path
+three times per fixture. A 2 ms periodic timer records the largest event-loop
+gap during each export. The table reports medians across those three samples,
+before production changes at `c623dd6` and after this optimization, using the
+same driver and fixture parameters on the same Linux host (Flutter 3.47.5,
+Dart 3.13.4, in-memory SQLite). Every sample checks journal and photo equality.
+
+| Preparations / photos | Export before → after | Largest gap before → after |
+| --- | --- | --- |
+| 50 / 2 | 65.0 → 74.2 ms | 51.8 → 12.0 ms |
+| 500 / 10 | 348.0 → 322.5 ms | 283.3 → 27.3 ms |
+| 2,500 / 40 | 1,368.7 → 1,370.5 ms | 1,089.6 → 128.2 ms |
+
+This reduces main-isolate blocking rather than establishing faster throughput.
+Database reads and snapshot preparation still run on the calling isolate, and
+the largest fixture still has a measurable pause. These are host observations,
+not Android frame timings, network speeds or CI timing thresholds. The
+`manualExportSamples` records include all elapsed times, maximum gaps and timer
+tick counts so the comparison can be repeated.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

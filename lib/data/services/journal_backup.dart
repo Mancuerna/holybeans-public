@@ -368,17 +368,18 @@ class JournalBackup {
     )..validate();
   }
 
-  /// A ZIP with the JSON journal and the photos it references.
+  /// Exports the journal and its photos with JSON and ZIP encoding in workers.
   Future<Uint8List> exportArchive(PhotoStore? photos) =>
       JournalLock.withJournalLock(
         photos,
-        () => database.transaction(
-          () async =>
-              encodeArchive(await exportJson(), await referencedPhotos(photos)),
-        ),
+        () => database.transaction(() async {
+          final source = await exportJsonInBackground();
+          final files = await referencedPhotos(photos);
+          return _encodeArchiveInBackground(source, files);
+        }),
       );
 
-  /// The stored photos the journal references, by name.
+  /// Reads only the stored photos the journal references, by name.
   Future<Map<String, Uint8List>> referencedPhotos(PhotoStore? photos) async {
     if (photos == null) return const {};
     final referenced = {
@@ -389,9 +390,19 @@ class JournalBackup {
       for (final photo in await database.select(database.brewPhotos).get())
         photo.fileName,
     };
-    final stored = await photos.readAll();
-    return {for (final name in referenced) name: ?stored[name]};
+    final stored = <String, Uint8List>{};
+    for (final name in referenced) {
+      if (!PhotoStore.isValidName(name)) continue;
+      final file = photos.file(name);
+      if (file.existsSync()) stored[name] = await file.readAsBytes();
+    }
+    return stored;
   }
+
+  static Future<Uint8List> _encodeArchiveInBackground(
+    String source,
+    Map<String, Uint8List> photos,
+  ) => Isolate.run(() => encodeArchive(source, photos));
 
   /// A ZIP with the journal [source] and [photos]. Pure, so it can run in
   /// another isolate.
