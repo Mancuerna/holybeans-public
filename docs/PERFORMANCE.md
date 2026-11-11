@@ -822,6 +822,22 @@ The test checks rotation, binary printer dots and every RGBA pixel against the
 PNG. Existing renderer/print tests retain their assertions. This counter excludes
 engine work, worker transfers and initial layout; it is not a timing claim.
 
+## Tool lookup reads (November 2026)
+
+Tool compatibility and mutation paths no longer load the journal's complete
+selection history. Method lookups read only that method's associations; brew
+lookups read only that brew's selections. Saving resolves defaults and validates
+retained tools against one catalog. Tool identities remain available for merge
+redirect validation, and the full catalog still includes use counts for its UI.
+
+`tool_lookup_reads_test.dart` seeds 100 brews, merged/archived tools and 20
+unrelated associations. On `fd128a8` and this change, returned selection rows
+fall **100 → 0 for method tools**, **101 → 1 for a brew**, and **302 → 1 for an
+edit**. Association rows fall **21 → 1**, **21 → 0**, and **63 → 1** respectively.
+It verifies retained archived selections, untouched historical aliases and
+complete use counts. These are SQLite result-row counts, not query timings;
+full tool identity reads are intentionally retained.
+
 ## Reproduce the measurements
 
 Use the Flutter and Dart versions pinned in the README. Run the host benchmarks

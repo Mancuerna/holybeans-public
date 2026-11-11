@@ -115,12 +115,12 @@ extension _BrewSaveSteps on JournalRepository {
     final grinder = grinderId == null
         ? null
         : await _requireGrinderRow(grinderId);
-    final toolIds =
-        input.methodToolIds ??
-        (methodMatchesPrevious
-            ? await brewToolIds(previous.id)
-            : const <String>[]);
-    await _validateMethodTools(methodId, toolIds, previous: previous);
+    final toolIds = await _resolveBrewTools(
+      methodId,
+      input.methodToolIds,
+      previous: previous,
+      keepPrevious: methodMatchesPrevious,
+    );
     return (
       methodId: methodId,
       method: method,
