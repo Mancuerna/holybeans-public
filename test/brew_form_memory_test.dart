@@ -7,6 +7,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 class _HoldMemory extends QueryInterceptor {
   String? coffee;
@@ -71,8 +72,11 @@ void main() {
         );
         hold.coffee = a;
         final model = BrewFormModel(
-          repository: repository,
-          settings: BrewParameterSettings(db),
+          services: AppServices.forJournal(
+            repository,
+            parameterSettings: BrewParameterSettings(db),
+          ),
+
           coffees: await repository.allCoffees(),
           initialCoffeeId: a,
           initialMethodId: method,
@@ -128,8 +132,11 @@ void main() {
     );
     hold.coffee = coffee;
     final model = BrewFormModel(
-      repository: repository,
-      settings: BrewParameterSettings(db),
+      services: AppServices.forJournal(
+        repository,
+        parameterSettings: BrewParameterSettings(db),
+      ),
+
       coffees: await repository.allCoffees(),
       initialCoffeeId: coffee,
       initialMethodId: method,
@@ -159,8 +166,11 @@ void main() {
     );
     hold.coffee = coffee;
     final model = BrewFormModel(
-      repository: repository,
-      settings: BrewParameterSettings(db),
+      services: AppServices.forJournal(
+        repository,
+        parameterSettings: BrewParameterSettings(db),
+      ),
+
       coffees: await repository.allCoffees(),
       initialCoffeeId: coffee,
       initialMethodId: method,

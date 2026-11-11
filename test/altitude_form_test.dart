@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_details_sheet.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
@@ -19,7 +20,10 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
         await tester.pumpWidget(
-          HolyBeansApp(database: db, initialLocale: Locale(locale)),
+          HolyBeansApp(
+            services: AppServices(database: db),
+            initialLocale: Locale(locale),
+          ),
         );
         await tester.pumpAndSettle();
         final spanish = locale == 'es';

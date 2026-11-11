@@ -6,6 +6,7 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/equipment/equipment_forms.dart';
 import 'package:patrol/patrol.dart';
 
@@ -83,7 +84,10 @@ void main() {
         await $.tap(find.text('Save').last);
         expect((await repo.allMethods()).single.machine, 'gaggimate');
         await $.pumpWidgetAndSettle(
-          HolyBeansApp(database: db, initialLocale: const Locale('en')),
+          HolyBeansApp(
+            services: AppServices(database: db),
+            initialLocale: const Locale('en'),
+          ),
         );
         await $.tap(find.text('Brew').last);
         final method = find.byWidgetPredicate(

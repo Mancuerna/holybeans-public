@@ -5,6 +5,7 @@ import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 /// Hides a parameter from Settings → Brew parameters and checks that the
@@ -34,7 +35,10 @@ Future<void> checkBrewParameters(
   );
   await BrewParameterSettings(database).saveShared({BrewParameter.dose});
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: database, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: database),
+      initialLocale: const Locale('en'),
+    ),
   );
 
   await $.tap(find.byTooltip('Settings'));

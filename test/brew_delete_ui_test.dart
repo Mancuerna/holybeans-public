@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 
@@ -34,7 +35,10 @@ Future<(AppDatabase, String)> _journal(
     await repository.setCoffeeArchived(coffeeId, archived: true);
   }
   await tester.pumpWidget(
-    HolyBeansApp(database: database, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: database),
+      initialLocale: const Locale('en'),
+    ),
   );
   await tester.pumpAndSettle();
   final bounds = tester.getRect(find.byType(NavigationBar));

@@ -7,6 +7,7 @@ import 'package:holybeans/data/services/scale.dart';
 import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 import 'package:universal_ble/universal_ble.dart';
 
@@ -31,7 +32,10 @@ void main() {
         );
         await repo.createMethod(name: 'Plan V60', category: 'pourover');
         await $.pumpWidgetAndSettle(
-          HolyBeansApp(database: db, initialLocale: const Locale('en')),
+          HolyBeansApp(
+            services: AppServices(database: db),
+            initialLocale: const Locale('en'),
+          ),
         );
         await _openMethod($, 'Plan V60');
         final form = verticalScrollable(find.byType(BrewForm));
@@ -111,9 +115,8 @@ void main() {
         expect(scale.connected, isTrue);
         await $.pumpWidgetAndSettle(
           HolyBeansApp(
-            database: db,
+            services: AppServices(database: db, scale: scale),
             initialLocale: const Locale('en'),
-            scale: scale,
           ),
         );
         await _openMethod($, 'Drip espresso');

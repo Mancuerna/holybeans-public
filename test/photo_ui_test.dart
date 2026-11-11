@@ -7,6 +7,7 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/photo_widgets.dart';
 
 import 'helpers/test_database.dart';
@@ -40,9 +41,8 @@ void main() {
 
     await tester.pumpWidget(
       HolyBeansApp(
-        database: database,
+        services: AppServices(database: database, photos: photos),
         initialLocale: const Locale('en'),
-        photos: photos,
       ),
     );
     await tester.pumpAndSettle();

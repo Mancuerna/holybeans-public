@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 import '../../test/helpers/escaped_bean_card.dart';
@@ -14,7 +15,10 @@ Future<void> checkBeanPaste(
   final previous = await Clipboard.getData(Clipboard.kTextPlain);
   try {
     await $.pumpWidgetAndSettle(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await Clipboard.setData(const ClipboardData(text: escapedBeanCard));
     await $.tap(find.byKey(const ValueKey('bean-add-options')));

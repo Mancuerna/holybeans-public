@@ -5,6 +5,7 @@ import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
@@ -21,7 +22,10 @@ void main() {
     addTearDown(tester.view.resetViewInsets);
 
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     final navigation = tester.getRect(find.byType(NavigationBar));
@@ -356,8 +360,11 @@ Widget _brewHarness(
             isScrollControlled: true,
             showDragHandle: true,
             builder: (context) => BrewForm(
-              repository: repository,
-              settings: BrewParameterSettings(repository.database),
+              services: AppServices.forJournal(
+                repository,
+                parameterSettings: BrewParameterSettings(repository.database),
+              ),
+
               coffees: [coffee],
               seed: seed,
               repeat: repeat,

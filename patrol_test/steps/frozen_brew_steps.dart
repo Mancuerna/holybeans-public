@@ -4,6 +4,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 import '../support/smoke_support.dart';
@@ -25,7 +26,10 @@ Future<void> checkFrozenBrewDeletion(
   final original = (await repository.frozenPortionsForLot(lot)).single;
   await repository.createMethod(name: 'V60', category: 'pourover');
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: database, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: database),
+      initialLocale: const Locale('en'),
+    ),
   );
   await $.tap(
     find.descendant(

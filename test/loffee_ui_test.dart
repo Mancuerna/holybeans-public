@@ -12,6 +12,7 @@ import 'package:holybeans/domain/loffee_bean.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
 import 'package:holybeans/ui/beans/loffee_search_page.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:image/image.dart' as img;
 
 import 'helpers/fake_loffee.dart';
@@ -39,10 +40,12 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
       HolyBeansApp(
-        database: database,
+        services: AppServices(
+          database: database,
+          photos: photos,
+          loffee: LoffeeServices(api: api, keys: keys),
+        ),
         initialLocale: locale,
-        photos: photos,
-        loffee: LoffeeServices(api: api, keys: keys),
       ),
     );
     await tester.pumpAndSettle();

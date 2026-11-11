@@ -2,17 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
-import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/rate_reminder_settings.dart';
-import 'package:holybeans/data/preferences/share_template_settings.dart';
 import 'package:holybeans/data/services/device_feedback.dart';
 import 'package:holybeans/data/services/pressure_sensor.dart';
-import 'package:holybeans/data/services/rate_reminders.dart';
 import 'package:holybeans/data/services/refractometer.dart';
 import 'package:holybeans/data/services/scale.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/share_templates_page.dart';
 import 'package:holybeans/ui/coffee_maze/coffee_maze_page.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/scale/scale_readout.dart';
 import 'package:holybeans/ui/settings/brew_parameters_page.dart';
 import 'package:holybeans/ui/settings/pressure_sensor_section.dart';
@@ -22,6 +20,7 @@ import 'package:holybeans/ui/settings/scale_section.dart';
 /// App-wide preferences and data tools that do not belong to a single tab.
 class SettingsPage extends StatefulWidget {
   const SettingsPage({
+    this.services,
     super.key,
     required this.locale,
     required this.onLocaleChanged,
@@ -32,14 +31,9 @@ class SettingsPage extends StatefulWidget {
     this.onImportBeanconqueror,
     this.onConfigureLoffee,
     this.onFillPoursFromCurves,
-    required this.parameterSettings,
-    required this.templateSettings,
-    this.reminders,
-    this.reminderSettings,
-    this.scale,
-    this.pressureSensor,
-    this.refractometer,
   });
+
+  final AppServices? services;
 
   /// The explicitly chosen app locale, or null when following the system.
   final Locale? locale;
@@ -61,25 +55,13 @@ class SettingsPage extends StatefulWidget {
 
   /// Fills blooms and pours of saved filter brews from their curves.
   final VoidCallback? onFillPoursFromCurves;
-  final BrewParameterSettings parameterSettings;
-  final ShareTemplateSettings templateSettings;
-  final RateReminders? reminders;
-  final RateReminderSettings? reminderSettings;
-
-  /// Bluetooth scale; its section is hidden without one.
-  final Scale? scale;
-
-  /// Bluetooth pressure sensor; its section is hidden without one.
-  final PressureSensor? pressureSensor;
-
-  /// Bluetooth refractometer; its section is hidden without one.
-  final Refractometer? refractometer;
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  late final services = widget.services ?? AppServicesScope.read(context);
   late final _version = const DeviceFeedback().appVersion();
   Timer? _versionTapTimer;
   int _versionTaps = 0;
@@ -156,19 +138,19 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   late String? languageCode = widget.locale?.languageCode;
-  late final Stream<int?>? reminderMinutes = widget.reminderSettings
-      ?.watchMinutes();
+  late final Stream<int?>? reminderMinutes = services.reminderSettings
+      .watchMinutes();
 
   Future<void> _setReminder(int? minutes) async {
     final s = AppLocalizations.of(context)!;
-    if (minutes != null && !(await widget.reminders!.requestPermission())) {
+    if (minutes != null && !(await services.reminders!.requestPermission())) {
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(s.notificationsDenied)));
       }
       return;
     }
-    await widget.reminderSettings!.saveMinutes(minutes);
+    await services.reminderSettings.saveMinutes(minutes);
   }
 
   void _selectLanguage(String? code) {
@@ -202,11 +184,11 @@ class _SettingsPageState extends State<SettingsPage> {
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (_) =>
-                    BrewParametersPage(settings: widget.parameterSettings),
+                    BrewParametersPage(settings: services.parameterSettings),
               ),
             ),
           ),
-          if (widget.reminders != null && reminderMinutes != null) ...[
+          if (services.reminders != null && reminderMinutes != null) ...[
             const Divider(height: 24),
             _ReminderOptions(stream: reminderMinutes!, onChanged: _setReminder),
           ],
@@ -219,15 +201,15 @@ class _SettingsPageState extends State<SettingsPage> {
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (_) =>
-                    ShareTemplatesPage(settings: widget.templateSettings),
+                    ShareTemplatesPage(settings: services.templateSettings),
               ),
             ),
           ),
-          if (widget.scale != null ||
-              widget.pressureSensor != null ||
-              widget.refractometer != null)
+          if (services.scale != null ||
+              services.pressureSensor != null ||
+              services.refractometer != null)
             _SettingsHeader(s.settingsDevices),
-          if (widget.scale case final scale?)
+          if (services.scale case final scale?)
             _deviceTile(
               'settings-scale',
               s.scaleSection,
@@ -236,7 +218,7 @@ class _SettingsPageState extends State<SettingsPage> {
               device: scale,
               status: scaleStatusLabel,
             ),
-          if (widget.pressureSensor case final sensor?)
+          if (services.pressureSensor case final sensor?)
             _deviceTile(
               'settings-pressure',
               s.sensorSection,
@@ -245,7 +227,7 @@ class _SettingsPageState extends State<SettingsPage> {
               device: sensor,
               status: pressureSensorStatusLabel,
             ),
-          if (widget.refractometer case final refractometer?)
+          if (services.refractometer case final refractometer?)
             _deviceTile(
               'settings-refractometer',
               s.refractometerSection,

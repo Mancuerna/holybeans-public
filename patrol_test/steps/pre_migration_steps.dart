@@ -7,6 +7,7 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/pre_migration_copies.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/backup/backup_center.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:patrol/patrol.dart';
@@ -47,13 +48,15 @@ Future<void> checkPreMigrationCopy(
   final base = await openTestBackupServices();
   await $.pumpWidgetAndSettle(
     HolyBeansApp(
-      database: database,
-      initialLocale: const Locale('en'),
-      backupServices: BackupServices(
-        autoBackups: base.autoBackups,
-        state: base.state,
-        preMigration: copies,
+      services: AppServices(
+        database: database,
+        backupServices: BackupServices(
+          autoBackups: base.autoBackups,
+          state: base.state,
+          preMigration: copies,
+        ),
       ),
+      initialLocale: const Locale('en'),
     ),
   );
   await $.tap(find.byTooltip('Settings'));

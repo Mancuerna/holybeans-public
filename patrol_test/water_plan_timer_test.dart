@@ -5,6 +5,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/brew_form_sections.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 import '../test/helpers/fake_scale.dart';
@@ -31,9 +32,8 @@ void main() {
           await repo.createMethod(name: 'V60', category: 'pourover');
           await $.pumpWidgetAndSettle(
             HolyBeansApp(
-              database: db,
+              services: AppServices(database: db, scale: scale),
               initialLocale: Locale(language),
-              scale: scale,
             ),
           );
           final s = lookupAppLocalizations(Locale(language));

@@ -5,6 +5,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 
@@ -39,8 +40,11 @@ void main() {
           category: 'pourover',
         );
         final model = BrewFormModel(
-          repository: repo,
-          settings: BrewParameterSettings(db),
+          services: AppServices.forJournal(
+            repo,
+            parameterSettings: BrewParameterSettings(db),
+          ),
+
           coffees: await repo.allCoffees(),
           initialCoffeeId: coffee,
           initialMethodId: method,
@@ -92,8 +96,11 @@ void main() {
     final lot = (await repo.coffeeLots(coffee)).single.id;
     final method = await repo.createMethod(name: 'V60', category: 'pourover');
     final model = BrewFormModel(
-      repository: repo,
-      settings: BrewParameterSettings(db),
+      services: AppServices.forJournal(
+        repo,
+        parameterSettings: BrewParameterSettings(db),
+      ),
+
       coffees: await repo.allCoffees(),
       initialCoffeeId: coffee,
       initialMethodId: method,

@@ -6,6 +6,7 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/extraction_timer.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/optional_rating_slider.dart';
 
 import 'helpers/test_database.dart';
@@ -237,8 +238,13 @@ Future<void> _openBrewForm(
                 context: context,
                 isScrollControlled: true,
                 builder: (_) => BrewForm(
-                  repository: repository,
-                  settings: BrewParameterSettings(repository.database),
+                  services: AppServices.forJournal(
+                    repository,
+                    parameterSettings: BrewParameterSettings(
+                      repository.database,
+                    ),
+                  ),
+
                   coffees: coffees,
                   initialMethodId: methodId,
                 ),

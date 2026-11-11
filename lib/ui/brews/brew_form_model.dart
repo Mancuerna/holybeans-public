@@ -7,10 +7,6 @@ import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/meticulous_client.dart';
 import 'package:holybeans/data/services/meticulous_free_pour.dart';
-import 'package:holybeans/data/services/photo_store.dart';
-import 'package:holybeans/data/services/pressure_sensor.dart';
-import 'package:holybeans/data/services/refractometer.dart';
-import 'package:holybeans/data/services/scale.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_ratio.dart';
 import 'package:holybeans/domain/freeze_plan.dart';
@@ -29,6 +25,7 @@ import 'package:holybeans/ui/brews/brew_pressure_session.dart';
 import 'package:holybeans/ui/brews/brew_scale_session.dart';
 import 'package:holybeans/ui/brews/brew_timer.dart';
 import 'package:holybeans/ui/brews/brew_timer_notice.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/core/photos_draft.dart';
 
@@ -42,8 +39,7 @@ part 'brew_form_loading.dart';
 /// The view reads fields; changes through methods notify listeners.
 class BrewFormModel extends ChangeNotifier {
   BrewFormModel({
-    required this.repository,
-    required this.settings,
+    required this.services,
     required this.coffees,
     this.existing,
     this.seed,
@@ -53,18 +49,14 @@ class BrewFormModel extends ChangeNotifier {
     double? initialDoseGrams,
     this.initialFrozenSource,
     String? initialMethodId,
-    PhotoStore? photos,
     List<String> savedPhotos = const [],
-    Scale? scale,
-    PressureSensor? pressureSensor,
-    Refractometer? refractometer,
   }) : draft = BrewDraft(
          existing: existing,
          seed: seed,
          repeat: repeat,
          initialDoseGrams: initialDoseGrams,
        ),
-       photoDraft = PhotosDraft(photos, savedPhotos),
+       photoDraft = PhotosDraft(services.photos, savedPhotos),
        rating = existing?.rating,
        brewedAt = existing == null
            ? DateTime.now()
@@ -97,9 +89,9 @@ class BrewFormModel extends ChangeNotifier {
       draft: draft,
       timer: timer,
       isEspresso: () => isEspresso,
-      scale: scale,
-      pressureSensor: pressureSensor,
-      refractometer: refractometer,
+      scale: services.scale,
+      pressureSensor: services.pressureSensor,
+      refractometer: services.refractometer,
       onMeasurement: _notify,
     );
     devices.scale?.addListener(_notify);
@@ -139,8 +131,9 @@ class BrewFormModel extends ChangeNotifier {
 
   static const preGroundChoice = '__holybeans_pre_ground__';
 
-  final JournalRepository repository;
-  final BrewParameterSettings settings;
+  final AppServices services;
+  JournalRepository get repository => services.repository;
+  BrewParameterSettings get settings => services.parameterSettings;
   final List<Coffee> coffees;
 
   /// The brew being edited.

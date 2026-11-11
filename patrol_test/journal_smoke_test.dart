@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 import 'steps/architecture_steps.dart';
@@ -515,7 +516,10 @@ void main() {
       try {
         await clearTestData(database);
         await $.pumpWidgetAndSettle(
-          HolyBeansApp(database: database, initialLocale: const Locale('en')),
+          HolyBeansApp(
+            services: AppServices(database: database),
+            initialLocale: const Locale('en'),
+          ),
         );
         await addFirstBean($, database);
         await brewFirstCup($, database);
@@ -540,7 +544,10 @@ void main() {
         );
         expect(lots.single.remainingGrams, 214);
         await $.pumpWidgetAndSettle(
-          HolyBeansApp(database: database, initialLocale: const Locale('en')),
+          HolyBeansApp(
+            services: AppServices(database: database),
+            initialLocale: const Locale('en'),
+          ),
         );
         await $.waitUntilVisible(find.text('Patrol Kenya'));
 

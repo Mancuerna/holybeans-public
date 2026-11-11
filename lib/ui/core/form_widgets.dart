@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:holybeans/data/services/journal_write_gate.dart';
+import 'package:holybeans/data/database/journal_write_gate.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/form_exit_guard.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';

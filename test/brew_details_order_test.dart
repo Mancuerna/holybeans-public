@@ -6,6 +6,7 @@ import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_details_sheet.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
@@ -45,7 +46,10 @@ void main() {
 
   Future<void> openBrew(WidgetTester tester, AppDatabase database) async {
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     await tapBottomDestination(tester, 2);

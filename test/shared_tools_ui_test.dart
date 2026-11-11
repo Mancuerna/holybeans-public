@@ -4,6 +4,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form_fields.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/equipment/method_tools_sheet.dart';
 import 'package:holybeans/ui/equipment/tool_form.dart';
 
@@ -84,7 +85,10 @@ void main() {
       final source = await repo.createTool(name: 'Old paper', methodIds: [v60]);
       final target = await repo.createTool(name: 'Paper', methodIds: [origami]);
       await tester.pumpWidget(
-        HolyBeansApp(database: db, initialLocale: const Locale('en')),
+        HolyBeansApp(
+          services: AppServices(database: db),
+          initialLocale: const Locale('en'),
+        ),
       );
       await tester.pumpAndSettle();
       await tester.tap(

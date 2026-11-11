@@ -5,6 +5,7 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/coffee_countries.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 
@@ -53,7 +54,10 @@ void main() {
     );
 
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     final bounds = tester.getRect(find.byType(NavigationBar));
@@ -92,7 +96,10 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('es')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('es'),
+      ),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Añadir grano').first);
@@ -150,7 +157,10 @@ void main() {
     );
 
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('es')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('es'),
+      ),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Añadir grano').first);

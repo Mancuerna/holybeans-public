@@ -6,6 +6,7 @@ import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/coffee_form.dart';
 import 'package:holybeans/ui/brews/brew_comparison_page.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 import '../support/smoke_support.dart';
@@ -33,7 +34,10 @@ Future<void> checkUsability(PatrolIntegrationTester $, AppDatabase db) async {
     );
   }
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: db, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: db),
+      initialLocale: const Locale('en'),
+    ),
   );
   Future<void> tab(String name) => $.tap(
     find.descendant(of: find.byType(NavigationBar), matching: find.text(name)),

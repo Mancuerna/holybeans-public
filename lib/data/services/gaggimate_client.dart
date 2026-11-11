@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:holybeans/domain/gaggimate/binary.dart';
 import 'package:holybeans/domain/gaggimate/shot.dart';
+import 'package:holybeans/domain/machine_address.dart';
 
 enum GaggimateFailure { connection, unavailable, invalidData }
 
@@ -38,24 +39,7 @@ class GaggimateClient implements GaggimateSource {
   static const _timeout = Duration(seconds: 15);
   static const _maxBytes = 16 * 1024 * 1024;
 
-  static Uri normalizeAddress(String address) {
-    final text = address.trim();
-    if (text.isEmpty) throw const FormatException('Empty address');
-    final uri = Uri.parse(text.contains('://') ? text : 'http://$text');
-    if (uri.host.isEmpty ||
-        !{'http', 'https'}.contains(uri.scheme) ||
-        uri.userInfo.isNotEmpty ||
-        uri.hasQuery ||
-        uri.hasFragment ||
-        (uri.path.isNotEmpty && uri.path != '/')) {
-      throw const FormatException('Invalid machine address');
-    }
-    return Uri(
-      scheme: uri.scheme,
-      host: uri.host.toLowerCase(),
-      port: uri.port,
-    );
-  }
+  static Uri normalizeAddress(String address) => gaggimateAddress(address);
 
   @override
   String get machineAddress => base.toString();

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
@@ -37,8 +38,11 @@ void main() {
         locale: const Locale('en'),
         home: Scaffold(
           body: BrewForm(
-            repository: repository,
-            settings: BrewParameterSettings(database),
+            services: AppServices.forJournal(
+              repository,
+              parameterSettings: BrewParameterSettings(database),
+            ),
+
             coffees: coffees,
           ),
         ),

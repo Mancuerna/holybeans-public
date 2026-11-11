@@ -4,6 +4,7 @@ import 'package:holybeans/data/repositories/brew_stats.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 
@@ -81,7 +82,10 @@ void main() {
     );
 
     await tester.pumpWidget(
-      HolyBeansApp(database: database, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: database),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     final bounds = tester.getRect(find.byType(NavigationBar));

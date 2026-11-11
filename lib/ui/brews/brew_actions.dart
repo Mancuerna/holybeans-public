@@ -15,6 +15,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/share_brew_flow.dart';
 import 'package:holybeans/ui/brews/tasting_widgets.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart' show formatGrams;
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -22,36 +23,29 @@ import 'package:holybeans/ui/core/regional_dates.dart';
 /// Brew flows used by the shell's JournalActions implementation.
 class BrewActions {
   BrewActions({
+    required this.services,
     required this.context,
-    required this.repository,
-    required this.parameterSettings,
-    required this.templateSettings,
-    required this.reminderSettings,
     required this.methods,
     required this.message,
     required this.showBeans,
     required this.confirmArchive,
-    this.photos,
-    this.scale,
-    this.pressureSensor,
-    this.refractometer,
-    this.reminders,
   });
 
+  final AppServices services;
   final BuildContext context;
-  final JournalRepository repository;
-  final BrewParameterSettings parameterSettings;
-  final ShareTemplateSettings templateSettings;
-  final RateReminderSettings reminderSettings;
+  JournalRepository get repository => services.repository;
+  BrewParameterSettings get parameterSettings => services.parameterSettings;
+  ShareTemplateSettings get templateSettings => services.templateSettings;
+  RateReminderSettings get reminderSettings => services.reminderSettings;
   final List<BrewMethod> Function() methods;
   final void Function(String) message;
   final void Function() showBeans;
   final Future<bool> Function(Coffee, bool, String?) confirmArchive;
-  final PhotoStore? photos;
-  final Scale? scale;
-  final PressureSensor? pressureSensor;
-  final Refractometer? refractometer;
-  final RateReminders? reminders;
+  PhotoStore? get photos => services.photos;
+  Scale? get scale => services.scale;
+  PressureSensor? get pressureSensor => services.pressureSensor;
+  Refractometer? get refractometer => services.refractometer;
+  RateReminders? get reminders => services.reminders;
   final _stockArchiveOffered = <String>{};
 
   Future<void> openBrewForm(
@@ -98,9 +92,7 @@ class BrewActions {
       context,
       BrewForm(
         savedPhotos: savedPhotos,
-        photos: photos,
-        repository: repository,
-        settings: parameterSettings,
+
         coffees: available,
         existing: existing,
         seed: seed,
@@ -111,9 +103,6 @@ class BrewActions {
         initialMethodId: initialMethodId,
         repeat: repeat,
         adjust: adjust,
-        scale: scale,
-        pressureSensor: pressureSensor,
-        refractometer: refractometer,
       ),
     );
     if (result != null && context.mounted) {

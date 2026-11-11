@@ -11,6 +11,7 @@ import 'package:holybeans/domain/brew_input.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/ui/beans/coffee_form_model.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 
 class _FailWriteOnce extends QueryInterceptor {
   String? table;
@@ -201,12 +202,15 @@ void main() {
         category: 'pourover',
       );
       final model = BrewFormModel(
-        repository: repository,
-        settings: BrewParameterSettings(db),
+        services: AppServices.forJournal(
+          repository,
+          parameterSettings: BrewParameterSettings(db),
+          photos: _FailCleanup(),
+        ),
+
         coffees: await repository.allCoffees(),
         initialCoffeeId: coffee,
         initialMethodId: method,
-        photos: _FailCleanup(),
       );
       addTearDown(model.dispose);
       await _settle(model);

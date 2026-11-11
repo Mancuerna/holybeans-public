@@ -4,6 +4,7 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/brews/coffee_picker.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/optional_rating_slider.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:intl/intl.dart';
@@ -72,7 +73,10 @@ void main() {
 
       try {
         await tester.pumpWidget(
-          HolyBeansApp(database: database, initialLocale: const Locale('en')),
+          HolyBeansApp(
+            services: AppServices(database: database),
+            initialLocale: const Locale('en'),
+          ),
         );
         await tester.pumpAndSettle();
 
@@ -377,7 +381,10 @@ void main() {
 
     try {
       await tester.pumpWidget(
-        HolyBeansApp(database: database, initialLocale: const Locale('en')),
+        HolyBeansApp(
+          services: AppServices(database: database),
+          initialLocale: const Locale('en'),
+        ),
       );
       await tester.pumpAndSettle();
       await tester.tap(find.text('Brews').last);

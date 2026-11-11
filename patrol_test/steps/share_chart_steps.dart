@@ -15,6 +15,7 @@ import 'package:holybeans/domain/share_template.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/share_sheet.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:patrol/patrol.dart';
 
 Future<void> checkShareCharts(
@@ -91,8 +92,7 @@ Future<void> checkShareCharts(
       );
       await $.pumpWidgetAndSettle(
         HolyBeansApp(
-          database: database,
-          photos: photos,
+          services: AppServices(database: database, photos: photos),
           initialLocale: const Locale('en'),
         ),
       );

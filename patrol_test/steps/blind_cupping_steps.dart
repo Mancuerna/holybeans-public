@@ -4,6 +4,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/cupping.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/cupping/cupping_scores.dart';
 import 'package:patrol/patrol.dart';
 
@@ -24,7 +25,10 @@ Future<void> checkBlindCupping(
     frozenDate: '2026-10-09',
   );
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: db, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: db),
+      initialLocale: const Locale('en'),
+    ),
   );
   await $.tap(
     find.descendant(

@@ -5,6 +5,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/language_setting.dart';
 import 'package:holybeans/data/preferences/release_notes_settings.dart';
 import 'package:holybeans/data/preferences/scale_settings.dart';
+import 'package:holybeans/data/services/backup_coordinator.dart';
 import 'package:holybeans/data/services/backup_folder.dart';
 import 'package:holybeans/data/services/ble_link.dart';
 import 'package:holybeans/data/services/ble_scale.dart';
@@ -16,7 +17,6 @@ import 'package:holybeans/data/services/pressure_sensor.dart';
 import 'package:holybeans/data/services/rate_reminders.dart';
 import 'package:holybeans/data/services/refractometer.dart';
 import 'package:holybeans/data/services/scale.dart';
-import 'package:holybeans/ui/backup/backup_center.dart';
 import 'package:holybeans/ui/sync/drive_sync_model.dart';
 
 class StartupServices {

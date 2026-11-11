@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/beans/beans_tab.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/journal_search_toolbar.dart';
 import 'package:holybeans/ui/home/home_tab.dart';
 
@@ -32,7 +33,10 @@ void main() {
       doseGrams: 18,
     );
     await tester.pumpWidget(
-      HolyBeansApp(database: db, initialLocale: const Locale('en')),
+      HolyBeansApp(
+        services: AppServices(database: db),
+        initialLocale: const Locale('en'),
+      ),
     );
     await tester.pumpAndSettle();
     await tapBottomDestination(tester, 1);

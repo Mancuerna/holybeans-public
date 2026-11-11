@@ -4,6 +4,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/equipment/equipment_page.dart';
 import 'package:patrol/patrol.dart';
 
@@ -36,7 +37,10 @@ Future<void> checkInterfaceUxForm(
     timeSeconds: 170,
   );
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: database, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: database),
+      initialLocale: const Locale('en'),
+    ),
   );
   await $.tap(find.text('Brew'));
   await $.waitUntilVisible(find.byType(BrewForm));
@@ -177,7 +181,10 @@ Future<void> checkInterfaceUxHistory(
   );
   await repository.updateMethod(id: methodId, name: 'Renamed lever');
   await $.pumpWidgetAndSettle(
-    HolyBeansApp(database: database, initialLocale: const Locale('en')),
+    HolyBeansApp(
+      services: AppServices(database: database),
+      initialLocale: const Locale('en'),
+    ),
   );
 
   Future<void> tab(String name) => $.tap(
