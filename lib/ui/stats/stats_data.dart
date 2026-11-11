@@ -2,11 +2,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/domain/brew_stats.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
+import 'package:holybeans/data/repositories/stats_insights.dart';
 import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/domain/grinder_consumption.dart';
 import 'package:holybeans/domain/stats_comparison.dart';
-import 'package:holybeans/domain/stats_insights.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:intl/intl.dart';
@@ -46,9 +46,15 @@ class StatsData {
   final double remainingGrams;
   final double frozenGrams;
 
+  late final _rangeIds = {for (final brew in stats.brews) brew.id};
+  late final _rangeBrews = [
+    for (final brew in allBrews)
+      if (_rangeIds.contains(brew.id)) brew,
+  ];
+
   late final perPeriod = totalsPerPeriod(
     [
-      for (final brew in stats.brews)
+      for (final brew in _rangeBrews)
         (DateTime.fromMillisecondsSinceEpoch(brew.brewedAtMs), 1.0),
     ],
     period,
@@ -56,8 +62,8 @@ class StatsData {
     from: from,
   );
   late final activity = brewsPerDay(allBrews);
-  late final firstCup = medianDaysToFirstBrew(allBrews, stats.brews, lots);
-  late final averages = styleAverages(stats.brews, styleOf);
+  late final firstCup = medianDaysToFirstBrew(allBrews, _rangeBrews, lots);
+  late final averages = styleAverages(_rangeBrews, styleOf);
   late final espressoHistogram = histogram([
     for (final seconds in averages[BrewStyle.espresso]?.times ?? const <int>[])
       if (seconds <= 120) seconds,
@@ -70,15 +76,15 @@ class StatsData {
   late final bestEspressoTimes = espressoHistogram.length < 2
       ? null
       : bestShotTimes([
-          for (final brew in stats.brews)
+          for (final brew in _rangeBrews)
             if (styleOf(brew) == BrewStyle.espresso)
               if (brew.timeSeconds case final seconds? when seconds <= 120)
                 (seconds: seconds, rating: brew.rating),
         ]);
-  late final learning = learningCurve(allBrews, stats.brews);
-  late final temperatures = ratingByTemperature(stats.brews);
+  late final learning = learningCurve(allBrews, _rangeBrews);
+  late final temperatures = ratingByTemperature(_rangeBrews);
   late final bought = purchases(lots, pricePerKg, from: from);
-  late final values = coffeeValues(stats.brews, coffees, pricePerKg);
+  late final values = coffeeValues(_rangeBrews, coffees, pricePerKg);
   late final spent = bought.fold<double>(0, (sum, bag) => sum + bag.price);
   late final boughtGrams = bought.fold<double>(
     0,
@@ -108,7 +114,7 @@ class StatsData {
       .where((total) => total.value > 0)
       .length;
   late final consumption = consumptionByGrinder([
-    for (final brew in stats.brews)
+    for (final brew in _rangeBrews)
       (
         grinderId: brew.grinderId,
         grinderName: brew.grinderName,
@@ -119,7 +125,7 @@ class StatsData {
   ]);
   late final consumedPeriods = totalsPerPeriod(
     [
-      for (final brew in stats.brews)
+      for (final brew in _rangeBrews)
         if (brew.doseGrams case final grams? when grams.isFinite && grams > 0)
           (DateTime.fromMillisecondsSinceEpoch(brew.brewedAtMs), grams),
     ],

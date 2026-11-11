@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/domain/altitude.dart';
-import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/coffee_countries.dart';
 import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
-import 'package:holybeans/domain/stock.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/coffee_details_header.dart';
 import 'package:holybeans/ui/beans/freezer_widgets.dart';

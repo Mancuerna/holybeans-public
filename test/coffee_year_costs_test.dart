@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
-import 'package:holybeans/domain/brew_stats.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
+import 'package:holybeans/data/repositories/stats_insights.dart';
 import 'package:holybeans/domain/coffee_year.dart';
 import 'package:holybeans/domain/coffee_year_costs.dart';
-import 'package:holybeans/domain/stats_insights.dart';
 import 'package:holybeans/ui/year_review/year_review_data.dart';
 import 'package:holybeans/ui/year_review/year_review_stories.dart';
 

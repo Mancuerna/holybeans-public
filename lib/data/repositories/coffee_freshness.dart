@@ -1,9 +1,9 @@
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_data.dart';
+import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/domain/brew_ratio.dart';
 import 'package:holybeans/domain/coffee_freshness.dart';
 import 'package:holybeans/domain/freshness.dart';
-import 'package:holybeans/domain/stock.dart';
 
 BrewStyle brewStyleOf(Brew brew, List<BrewMethod> methods) {
   final method = methods.where((row) => row.id == brew.methodId).firstOrNull;

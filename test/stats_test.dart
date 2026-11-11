@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/stats/stats_page.dart';
@@ -81,7 +81,7 @@ void main() {
       final brews = await database.select(database.brews).get();
       final coffees = await database.select(database.coffees).get();
       final components = await database.select(database.coffeeComponents).get();
-      BrewStats compute(StatsRange range) => BrewStats.compute(
+      BrewStats compute(StatsRange range) => brewStatsFromRows(
         brews: brews,
         coffees: coffees,
         components: components,
@@ -140,7 +140,7 @@ void main() {
                   .isAfter(_now.subtract(const Duration(days: 6))),
         )
         .toList();
-    BrewStats compute(List<Brew> brews, StatsRange range) => BrewStats.compute(
+    BrewStats compute(List<Brew> brews, StatsRange range) => brewStatsFromRows(
       brews: brews,
       coffees: const [],
       components: const [],

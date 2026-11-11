@@ -1,9 +1,13 @@
-import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/domain/freshness.dart';
+import 'package:holybeans/domain/stock_inputs.dart';
 
 /// Dose used for [coffeeId]: the median of its last five recorded doses, or
 /// [fallback] when it has none yet.
-double typicalDose(String coffeeId, List<Brew> brews, {double fallback = 15}) {
+double typicalDose(
+  String coffeeId,
+  List<StockBrewFacts> brews, {
+  double fallback = 15,
+}) {
   final recent =
       brews
           .where((brew) => brew.coffeeId == coffeeId && brew.doseGrams != null)
@@ -26,7 +30,7 @@ class LowStock {
     required this.dose,
   });
 
-  final Coffee coffee;
+  final StockCoffeeFacts coffee;
   final double freshGrams;
   final double frozenGrams;
   final double dose;
@@ -39,8 +43,8 @@ class LowStock {
 /// unfrozen coffee left are not included: they are either used up or kept
 /// in the freezer on purpose.
 List<LowStock> lowStock({
-  required List<Coffee> coffees,
-  required List<Brew> brews,
+  required List<StockCoffeeFacts> coffees,
+  required List<StockBrewFacts> brews,
   required Map<String, double> freshGrams,
   required Map<String, double> frozenGrams,
   Map<String, double>? typicalDoses,
@@ -67,7 +71,7 @@ List<LowStock> lowStock({
 /// Whole days between roasting and freezing: while frozen the coffee does
 /// not keep ageing, so this is its age for as long as it stays frozen.
 /// Null without a roast date or when frozen before the recorded roast date.
-int? frozenAtRoastAge(FrozenPortion portion, DateTime? roastDate) {
+int? frozenAtRoastAge(StockPortionFacts portion, DateTime? roastDate) {
   if (roastDate == null) return null;
   final frozen = DateTime.tryParse(portion.frozenDate);
   if (frozen == null) return null;
@@ -75,7 +79,7 @@ int? frozenAtRoastAge(FrozenPortion portion, DateTime? roastDate) {
 }
 
 /// Visible unfrozen grams of a lot, or null when its stock is unknown.
-double? unfrozenGrams(CoffeeLot lot) {
+double? unfrozenGrams(StockLotFacts lot) {
   final remaining = lot.remainingGrams;
   if (remaining == null) return null;
   final balance = remaining - (lot.overdrawGrams ?? 0);
@@ -84,8 +88,8 @@ double? unfrozenGrams(CoffeeLot lot) {
 
 /// Grams still frozen per coffee, across its active lots.
 Map<String, double> frozenGramsByCoffee(
-  List<CoffeeLot> lots,
-  List<FrozenPortion> portions,
+  List<StockLotFacts> lots,
+  List<StockPortionFacts> portions,
 ) {
   final coffeeByLot = {
     for (final lot in lots)
@@ -101,8 +105,8 @@ Map<String, double> frozenGramsByCoffee(
 }
 
 Map<String, DateTime> oldestFrozenDatesByCoffee(
-  List<CoffeeLot> lots,
-  List<FrozenPortion> portions,
+  List<StockLotFacts> lots,
+  List<StockPortionFacts> portions,
 ) {
   final coffeeByLot = {
     for (final lot in lots)
@@ -121,7 +125,7 @@ Map<String, DateTime> oldestFrozenDatesByCoffee(
 }
 
 /// Known unfrozen grams per coffee; coffees with unknown stock are absent.
-Map<String, double> unfrozenGramsByCoffee(List<CoffeeLot> lots) {
+Map<String, double> unfrozenGramsByCoffee(List<StockLotFacts> lots) {
   final result = <String, double>{};
   final unknown = <String>{};
   for (final lot in lots.where((lot) => lot.archivedAtMs == null)) {
@@ -138,8 +142,8 @@ Map<String, double> unfrozenGramsByCoffee(List<CoffeeLot> lots) {
 /// Days the oldest coffee still in the freezer has been frozen, or null
 /// when nothing is frozen.
 int? oldestFreezeDays(
-  List<CoffeeLot> lots,
-  List<FrozenPortion> portions,
+  List<StockLotFacts> lots,
+  List<StockPortionFacts> portions,
   DateTime now,
 ) {
   final activeLots = {
@@ -165,7 +169,7 @@ int? oldestFreezeDays(
 
 /// Mean recorded dose for this coffee and method, including archived brews.
 /// Older brews without a method ID are matched by the recorded method name.
-double? meanMethodDose(Brew brew, List<Brew> history) {
+double? meanMethodDose(StockBrewFacts brew, List<StockBrewFacts> history) {
   var total = 0.0;
   var count = 0;
   for (final previous in history) {
@@ -190,7 +194,7 @@ class StockArchiveSuggestion {
     this.methodName,
   );
 
-  final Coffee coffee;
+  final StockCoffeeFacts coffee;
   final double remainingGrams;
   final double meanDose;
   final String methodName;
@@ -199,11 +203,11 @@ class StockArchiveSuggestion {
 /// Suggests archiving only with known stock, a recorded dose for the method
 /// just used, counting both available coffee and remaining frozen portions.
 StockArchiveSuggestion? stockArchiveSuggestion({
-  required Coffee coffee,
-  required Brew brew,
-  required List<Brew> history,
-  required List<CoffeeLot> lots,
-  required List<FrozenPortion> portions,
+  required StockCoffeeFacts coffee,
+  required StockBrewFacts brew,
+  required List<StockBrewFacts> history,
+  required List<StockLotFacts> lots,
+  required List<StockPortionFacts> portions,
 }) {
   if (coffee.archivedAtMs != null || coffee.id != brew.coffeeId) return null;
   final available = unfrozenGramsByCoffee(lots)[coffee.id];
@@ -222,7 +226,7 @@ StockArchiveSuggestion? stockArchiveSuggestion({
 class CoffeeStock {
   CoffeeStock({
     required this.lots,
-    required List<FrozenPortion> portions,
+    required List<StockPortionFacts> portions,
     this.adjustments = const [],
   }) : frozen = [
          for (final portion in portions)
@@ -233,15 +237,15 @@ class CoffeeStock {
            if (_belongs(lots, portion) && portion.remainingGrams <= 0) portion,
        ];
 
-  static bool _belongs(List<CoffeeLot> lots, FrozenPortion portion) =>
+  static bool _belongs(List<StockLotFacts> lots, StockPortionFacts portion) =>
       lots.any((lot) => lot.id == portion.lotId);
 
-  final List<CoffeeLot> lots;
-  final List<StockAdjustment> adjustments;
+  final List<StockLotFacts> lots;
+  final List<StockAdjustmentFacts> adjustments;
 
   /// Portions with coffee left, and used-up ones.
-  final List<FrozenPortion> frozen;
-  final List<FrozenPortion> thawed;
+  final List<StockPortionFacts> frozen;
+  final List<StockPortionFacts> thawed;
 
   /// Grams bought, when every lot records it.
   double? get initialGrams =>
@@ -279,7 +283,7 @@ class CoffeeStock {
 
   /// Portions with coffee left, the longest frozen first: the one to thaw
   /// next.
-  List<FrozenPortion> get frozenOldestFirst => [...frozen]
+  List<StockPortionFacts> get frozenOldestFirst => [...frozen]
     ..sort((a, b) {
       final byDate = a.frozenDate.compareTo(b.frozenDate);
       return byDate != 0 ? byDate : a.label.compareTo(b.label);
@@ -304,7 +308,7 @@ class CoffeeStock {
     );
   }
 
-  DateTime? roastDateOf(FrozenPortion portion) => DateTime.tryParse(
+  DateTime? roastDateOf(StockPortionFacts portion) => DateTime.tryParse(
     lots.where((lot) => lot.id == portion.lotId).firstOrNull?.roastDate ?? '',
   );
 

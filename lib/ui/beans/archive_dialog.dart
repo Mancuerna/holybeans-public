@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:holybeans/domain/brew_stats.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/optional_rating_slider.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';

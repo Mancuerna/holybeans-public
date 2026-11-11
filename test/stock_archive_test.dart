@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/domain/brew_input.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
-import 'package:holybeans/domain/stock.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 

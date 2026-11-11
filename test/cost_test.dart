@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:holybeans/data/repositories/brew_stats.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/domain/brew_stats.dart';
 import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/main.dart';
 
@@ -45,7 +45,7 @@ void main() {
     );
     expect(brewCost(eighteen, prices), closeTo(1.08, 1e-9));
 
-    final stats = BrewStats.compute(
+    final stats = brewStatsFromRows(
       brews: brews,
       coffees: coffees,
       components: const [],

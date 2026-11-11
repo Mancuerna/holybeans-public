@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
-import 'package:holybeans/domain/stock.dart';
+import 'package:holybeans/data/repositories/stock.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/coffee_selection_sheet.dart';
 import 'package:holybeans/ui/core/frozen_stock_badge.dart';
