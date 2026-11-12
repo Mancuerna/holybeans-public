@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:holybeans/domain/extraction_profile.dart';
+import 'package:holybeans/domain/flow_guide.dart';
 import 'package:holybeans/domain/pressure_trace.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_pressure_session.dart';
@@ -9,6 +10,8 @@ import 'package:holybeans/ui/brews/brew_scale_session.dart';
 import 'package:holybeans/ui/brews/brew_timer.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/pressure_readouts.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/shot_guide_chart.dart';
+import 'package:holybeans/ui/profiles/profile_guide_chart.dart';
+import 'package:holybeans/ui/profiles/profile_guide_summary.dart';
 import 'package:intl/intl.dart';
 
 class ProfileGuidePage extends StatefulWidget {
@@ -34,6 +37,15 @@ class _ProfileGuidePageState extends State<ProfileGuidePage> {
   Timer? stale;
   StreamSubscription<double>? subscription;
   double? pressure;
+  bool combined = true;
+  List<GuidePoint> get pressurePoints => [
+    for (final point in widget.pressure?.trace.points ?? <PressureTracePoint>[])
+      (
+        elapsedMs: point.elapsedMs,
+        value: point.bar,
+        breakBefore: point.breakBefore,
+      ),
+  ];
   int get elapsed =>
       widget.timer.elapsedSeconds * 1000 +
       tick.elapsedMilliseconds.clamp(0, 999);
@@ -90,6 +102,8 @@ class _ProfileGuidePageState extends State<ProfileGuidePage> {
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context);
     final p = widget.profile;
+    final both = p.flow.isNotEmpty && p.pressure.isNotEmpty;
+
     final n = NumberFormat('0.0', Localizations.localeOf(context).toString());
     String value(double? v) => v == null ? '—' : n.format(v);
     return PopScope(
@@ -143,103 +157,160 @@ class _ProfileGuidePageState extends State<ProfileGuidePage> {
         ),
         body: ListenableBuilder(
           listenable: updates,
-          builder: (context, _) => SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ExpansionTile(
-                  title: Text(s.shotAssistant),
-                  children: [Text(s.profileManual), Text(s.profileClock)],
-                ),
-                const SizedBox(height: 12),
-                if (elapsed > p.durationMs) Text(s.pressureGuideComplete),
-                for (final channel in [
-                  p.primary,
-                  p.primary == 'flow' ? 'pressure' : 'flow',
-                ])
-                  if ((channel == 'flow' ? p.flow : p.pressure).isNotEmpty) ...[
-                    Text(
-                      channel == 'flow' ? s.curveFlow : s.curvePressure,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    if (p.flow.isEmpty || p.pressure.isEmpty)
-                      PressureReadouts(
-                        target: value(
-                          p.targetAt(
-                            channel == 'flow' ? p.flow : p.pressure,
-                            elapsed,
-                          ),
+          builder: (context, _) {
+            final frameMs = elapsed;
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ExpansionTile(
+                    title: Text(s.shotAssistant),
+                    children: [Text(s.profileManual), Text(s.profileClock)],
+                  ),
+                  const SizedBox(height: 12),
+                  if (frameMs > p.durationMs) Text(s.pressureGuideComplete),
+                  if (both) ...[
+                    SegmentedButton<bool>(
+                      segments: [
+                        ButtonSegment(
+                          value: true,
+                          label: Text(s.profileCombined),
+                          icon: const Icon(Icons.show_chart),
                         ),
-                        actual: value(
-                          !widget.timer.running
+                        ButtonSegment(
+                          value: false,
+                          label: Text(s.profileSeparate),
+                          icon: const Icon(Icons.view_agenda_outlined),
+                        ),
+                      ],
+                      selected: {combined},
+                      onSelectionChanged: (value) =>
+                          setState(() => combined = value.single),
+                    ),
+                    const SizedBox(height: 12),
+                    if (combined) ...[
+                      ProfileGuideSummary(
+                        profile: p,
+                        elapsedMs: frameMs,
+                        flowActual: widget.timer.running
+                            ? widget.scale?.flowGramsPerSecond
+                            : null,
+                        pressureActual: widget.timer.running ? pressure : null,
+                      ),
+                      const SizedBox(height: 8),
+                      ProfileGuideChart(
+                        profile: p,
+                        elapsedMs: frameMs,
+                        flowTrace: widget.scale?.flowTrace.points ?? const [],
+                        pressureTrace: pressurePoints,
+                        flowActual: widget.timer.running
+                            ? widget.scale?.flowGramsPerSecond
+                            : null,
+                        pressureActual: widget.timer.running ? pressure : null,
+                      ),
+                      Text(
+                        s.profileGuideLegend,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                  ],
+                  for (final channel in [
+                    p.primary,
+                    p.primary == 'flow' ? 'pressure' : 'flow',
+                  ])
+                    if ((!both || !combined) &&
+                        (channel == 'flow' ? p.flow : p.pressure)
+                            .isNotEmpty) ...[
+                      Text(
+                        channel == 'flow' ? s.curveFlow : s.curvePressure,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      if (p.flow.isEmpty || p.pressure.isEmpty)
+                        PressureReadouts(
+                          target: value(
+                            p.targetAt(
+                              channel == 'flow' ? p.flow : p.pressure,
+                              frameMs,
+                            ),
+                          ),
+                          actual: value(
+                            !widget.timer.running
+                                ? null
+                                : channel == 'flow'
+                                ? widget.scale?.flowGramsPerSecond
+                                : pressure,
+                          ),
+                          unit: channel == 'flow' ? 'g/s' : 'bar',
+                          keyPrefix: 'profile-$channel',
+                          actualLabel: channel == 'flow'
+                              ? s.flowGuideActual
+                              : null,
+                        ),
+                      if (p.flow.isNotEmpty && p.pressure.isNotEmpty)
+                        Wrap(
+                          spacing: 20,
+                          runSpacing: 4,
+                          children: [
+                            Text(
+                              '${s.pressureGuideTarget}: ${value(p.targetAt(channel == 'flow' ? p.flow : p.pressure, frameMs))} ${channel == 'flow' ? 'g/s' : 'bar'}',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            Text(
+                              '${channel == 'flow' ? s.flowGuideActual : s.pressureGuideActual}: ${value(!widget.timer.running
+                                  ? null
+                                  : channel == 'flow'
+                                  ? widget.scale?.flowGramsPerSecond
+                                  : pressure)} ${channel == 'flow' ? 'g/s' : 'bar'}',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                      Text(
+                        '${s.pressureGuideAhead}: ${value(p.targetAt(channel == 'flow' ? p.flow : p.pressure, frameMs + 2000))} ${channel == 'flow' ? 'g/s' : 'bar'}',
+                      ),
+                      if (!both || !combined)
+                        ShotGuideChart(
+                          height: p.flow.isNotEmpty && p.pressure.isNotEmpty
+                              ? 145
+                              : 250,
+                          reference: channel == 'flow' ? p.flow : p.pressure,
+                          target: p.targetAt(
+                            channel == 'flow' ? p.flow : p.pressure,
+                            frameMs,
+                          ),
+                          elapsedMs: frameMs,
+                          actual: !widget.timer.running
                               ? null
                               : channel == 'flow'
                               ? widget.scale?.flowGramsPerSecond
                               : pressure,
+                          trace: channel == 'flow'
+                              ? widget.scale?.flowTrace.points ?? const []
+                              : pressurePoints,
+                          unit: channel == 'flow' ? 'g/s' : 'bar',
                         ),
-                        unit: channel == 'flow' ? 'g/s' : 'bar',
-                        keyPrefix: 'profile-$channel',
-                        actualLabel: channel == 'flow'
-                            ? s.flowGuideActual
-                            : null,
-                      ),
-                    if (p.flow.isNotEmpty && p.pressure.isNotEmpty)
-                      Wrap(
-                        spacing: 20,
-                        runSpacing: 4,
-                        children: [
-                          Text(
-                            '${s.pressureGuideTarget}: ${value(p.targetAt(channel == 'flow' ? p.flow : p.pressure, elapsed))} ${channel == 'flow' ? 'g/s' : 'bar'}',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          Text(
-                            '${channel == 'flow' ? s.flowGuideActual : s.pressureGuideActual}: ${value(!widget.timer.running
-                                ? null
-                                : channel == 'flow'
-                                ? widget.scale?.flowGramsPerSecond
-                                : pressure)} ${channel == 'flow' ? 'g/s' : 'bar'}',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ],
-                      ),
-                    Text(
-                      '${s.pressureGuideAhead}: ${value(p.targetAt(channel == 'flow' ? p.flow : p.pressure, elapsed + 2000))} ${channel == 'flow' ? 'g/s' : 'bar'}',
-                    ),
-                    ShotGuideChart(
-                      height: p.flow.isNotEmpty && p.pressure.isNotEmpty
-                          ? 145
-                          : 250,
-                      reference: channel == 'flow' ? p.flow : p.pressure,
-                      target: p.targetAt(
-                        channel == 'flow' ? p.flow : p.pressure,
-                        elapsed,
-                      ),
-                      elapsedMs: elapsed,
-                      actual: !widget.timer.running
-                          ? null
-                          : channel == 'flow'
-                          ? widget.scale?.flowGramsPerSecond
-                          : pressure,
-                      trace: channel == 'flow'
-                          ? widget.scale?.flowTrace.points ?? const []
-                          : [
-                              for (final point
-                                  in widget.pressure?.trace.points ??
-                                      <PressureTracePoint>[])
-                                (
-                                  elapsedMs: point.elapsedMs,
-                                  value: point.bar,
-                                  breakBefore: point.breakBefore,
-                                ),
-                            ],
-                      unit: channel == 'flow' ? 'g/s' : 'bar',
-                    ),
-                    if (channel == 'flow' &&
-                        widget.scale?.scale.connected != true)
+                      if (channel == 'flow' &&
+                          widget.scale?.scale.connected != true)
+                        Text(s.flowGuideConnect),
+                      if (channel == 'flow' &&
+                          widget.scale?.scale.connected == true &&
+                          widget.timer.running &&
+                          widget.scale?.flowGramsPerSecond == null)
+                        Text(
+                          widget.scale!.hasRecentFlowReading
+                              ? s.flowGuideWaiting
+                              : s.flowGuideStale,
+                        ),
+                      if (channel == 'pressure' && pressure == null)
+                        Text(s.pressureGuideManual),
+                      const SizedBox(height: 16),
+                    ],
+                  if (both && combined) ...[
+                    if (widget.scale?.scale.connected != true)
                       Text(s.flowGuideConnect),
-                    if (channel == 'flow' &&
-                        widget.scale?.scale.connected == true &&
+                    if (widget.scale?.scale.connected == true &&
                         widget.timer.running &&
                         widget.scale?.flowGramsPerSecond == null)
                       Text(
@@ -247,16 +318,15 @@ class _ProfileGuidePageState extends State<ProfileGuidePage> {
                             ? s.flowGuideWaiting
                             : s.flowGuideStale,
                       ),
-                    if (channel == 'pressure' && pressure == null)
-                      Text(s.pressureGuideManual),
-                    const SizedBox(height: 16),
+                    if (pressure == null) Text(s.pressureGuideManual),
                   ],
-                if (p.weightAt(elapsed) case final weight?)
-                  Text(s.flowGuideExpectedWeight(value(weight))),
-                Text(s.pressureGuideExit),
-              ],
-            ),
-          ),
+                  if (p.weightAt(frameMs) case final weight?)
+                    Text(s.flowGuideExpectedWeight(value(weight))),
+                  Text(s.pressureGuideExit),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );

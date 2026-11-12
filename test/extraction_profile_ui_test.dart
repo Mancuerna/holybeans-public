@@ -4,6 +4,7 @@ import 'package:holybeans/domain/extraction_profile.dart';
 import 'package:holybeans/ui/brews/brew_timer.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/shot_guide_chart.dart';
 import 'package:holybeans/ui/profiles/profile_editor_page.dart';
+import 'package:holybeans/ui/profiles/profile_guide_chart.dart';
 import 'package:holybeans/ui/profiles/profile_guide_page.dart';
 
 import 'helpers/ui_test_support.dart';
@@ -93,6 +94,14 @@ void main() {
     timer.toggle();
     await tester.pump(const Duration(seconds: 2));
     await tester.pump();
+    final combined = tester.widget<ProfileGuideChart>(
+      find.byType(ProfileGuideChart),
+    );
+    expect(combined.elapsedMs, greaterThanOrEqualTo(2000));
+    expect(find.byType(ShotGuideChart), findsNothing);
+    await tester.tap(find.text('Separate'));
+    await tester.pump();
+    expect(timer.running, isTrue);
     final charts = tester
         .widgetList<ShotGuideChart>(find.byType(ShotGuideChart))
         .toList();
