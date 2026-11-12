@@ -6,6 +6,7 @@ void main() {
   test('model identity cannot be substituted by another profile', () {
     final ids = {
       LabelPrinterModel.d110: 2304,
+      LabelPrinterModel.d110M: 2320,
       LabelPrinterModel.d11: 512,
       LabelPrinterModel.d11H: 528,
       LabelPrinterModel.b1: 4096,

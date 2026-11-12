@@ -511,9 +511,11 @@ class BrewTimingSection extends StatelessWidget {
     super.key,
     required this.model,
     this.previousDuration,
+    this.liveChartKey,
   });
 
   final BrewFormModel model;
+  final Key? liveChartKey;
 
   /// The repeated brew's time, as a reference.
   final String? previousDuration;
@@ -622,7 +624,7 @@ class BrewTimingSection extends StatelessWidget {
                 },
         ),
       if (scale?.startFailed ?? false) Text(s.scaleStartFailed),
-      if (scale != null) BrewWeightChart(model: model),
+      if (scale != null) BrewWeightChart(key: liveChartKey, model: model),
     ]);
   }
 }

@@ -99,7 +99,9 @@ class NiimbotLabelPrinter extends BleLink<NiimbotPacket>
     // B5 can occupy 23 bytes, exceeding the default 20-byte ATT payload.
     // Ask Android for a larger receive MTU; keep writes and decoding compatible
     // with the minimum if negotiation is refused. This is connection-local.
-    if ((model == LabelPrinterModel.b1Pro || model == LabelPrinterModel.d11H) &&
+    if ((model == LabelPrinterModel.b1Pro ||
+            model == LabelPrinterModel.d11H ||
+            model == LabelPrinterModel.d110M) &&
         !kIsWeb &&
         defaultTargetPlatform == TargetPlatform.android) {
       traceEvent('niimbot.mtu.request', {'requested': 247});

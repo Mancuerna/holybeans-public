@@ -6,9 +6,9 @@ import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/sync/journal_write_feedback.dart';
 
-/// Finds the filter brews whose scale curve shows their blooms and pours
-/// but has none recorded, and fills them all after confirming. What was
-/// written by hand, including a number of blooms, is kept.
+/// Fills missing bloom and pour rows from filter curves after confirmation.
+///
+/// Keeps existing counts and phase details.
 Future<void> fillPoursFromCurves(
   BuildContext context, {
   required JournalRepository repository,

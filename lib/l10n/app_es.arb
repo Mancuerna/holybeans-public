@@ -1734,9 +1734,9 @@
     }
   },
   "poursFromCurvesTitle": "Blooms y vertidos desde las curvas",
-  "poursFromCurvesHint": "Rellena las preparaciones de filtro con curva de báscula que aún no los tienen.",
-  "poursFromCurvesNone": "No hay preparaciones de filtro con curva y sin blooms ni vertidos.",
-  "poursFromCurvesConfirm": "{count, plural, =1{Se rellenarán los blooms y vertidos de 1 preparación a partir de su curva} other{Se rellenarán los blooms y vertidos de {count} preparaciones a partir de sus curvas}}. Las que ya los tengan, o en las que hayas escrito algo, no se tocan.",
+  "poursFromCurvesHint": "Completa los blooms y vertidos que faltan en las preparaciones de filtro con curva de báscula.",
+  "poursFromCurvesNone": "No hay preparaciones de filtro con curva a las que les falten blooms o vertidos.",
+  "poursFromCurvesConfirm": "{count, plural, =1{Se rellenarán los blooms y vertidos de 1 preparación a partir de su curva} other{Se rellenarán los blooms y vertidos de {count} preparaciones a partir de sus curvas}}. Se conservan los contadores y los detalles de las fases existentes.",
   "poursFromCurvesFill": "Rellenar",
   "poursFromCurvesDone": "{count, plural, =1{1 preparación rellenada} other{{count} preparaciones rellenadas}}",
   "@poursFromCurvesConfirm": {

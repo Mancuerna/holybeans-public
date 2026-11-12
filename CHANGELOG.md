@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.9.0](https://github.com/Mancuerna/holybeans-public/compare/v1.8.0...v1.9.0) (2026-11-12)
+
+
+### Features
+
+* **brews:** reveal live chart when scale timer starts ([#131](https://github.com/Mancuerna/holybeans-public/issues/131)) ([525f8fc](https://github.com/Mancuerna/holybeans-public/commit/525f8fc10925241d50757d146f7976182ee96051))
+
+
+### Bug Fixes
+
+* **brews:** complete missing pour details from saved curves ([c7c3cda](https://github.com/Mancuerna/holybeans-public/commit/c7c3cda5f110d46f1cc6bd79da2af4c2b8c39ebe))
+* **labels:** support Niimbot D110_M discovery and printing ([#132](https://github.com/Mancuerna/holybeans-public/issues/132)) ([7c448e9](https://github.com/Mancuerna/holybeans-public/commit/7c448e91011e1c8faf68ad4febc0df80c29be75f))
+
 ## [1.8.0](https://github.com/Mancuerna/holybeans-public/compare/v1.7.0...v1.8.0) (2026-11-11)
 
 

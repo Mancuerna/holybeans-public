@@ -2,6 +2,7 @@ import 'package:holybeans/domain/marklife_protocol.dart';
 
 enum LabelPrinterModel {
   d110('D110', 96, 203, 2),
+  d110M('D110_M', 96, 203, 3),
   b1('B1', 384, 203, 3),
   b1Pro('B1 Pro', 576, 300, 3),
   b21('B21', 384, 203, 3),
@@ -29,12 +30,17 @@ enum LabelPrinterModel {
       isNiimbot ? 'Niimbot $label' : 'Pristar / Marklife P12';
   bool get continuousTape => this == marklifeP12;
   bool get rotateForFeed =>
-      this == d110 || this == d11 || this == d11H || this == marklifeP12;
+      this == d110 ||
+      this == d110M ||
+      this == d11 ||
+      this == d11H ||
+      this == marklifeP12;
   bool get needsProtocolVersion =>
       this == b1Pro || this == b2 || this == b2Pro || this == d11H;
   bool acceptsId(int id) => switch (this) {
     marklifeP12 => false,
     d110 => id == 2304 || id == 2305,
+    d110M => id == 2320,
     d11 => id == 512,
     d11H => id == 528,
     b1 => id == 4096,
@@ -49,6 +55,7 @@ enum LabelPrinterModel {
     final pattern = switch (this) {
       marklifeP12 => throw StateError('Handled by Marklife protocol'),
       d110 => r'^D110(?:-|$)',
+      d110M => r'^D110[ _]?M(?:-|$)',
       d11 => r'^D11(?:-|$)',
       d11H => r'^D11(?:[_ -]?H)?(?:-|$)',
       b1 => r'^B1(?:-|$)',
