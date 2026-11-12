@@ -1,7 +1,7 @@
 name: holybeans
 description: A coffee journal with BeanConqueror import
 publish_to: none
-version: 1.8.0+166
+version: 1.9.0+167
 
 environment:
   sdk: ^3.13.4
