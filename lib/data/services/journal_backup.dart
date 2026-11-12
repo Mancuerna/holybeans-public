@@ -14,6 +14,7 @@ import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/domain/brix.dart';
 import 'package:holybeans/domain/cafe_journal.dart';
 import 'package:holybeans/domain/cupping.dart';
+import 'package:holybeans/domain/extraction_profile.dart';
 import 'package:holybeans/domain/meticulous/piston_analysis.dart';
 import 'package:holybeans/domain/pour_plan.dart';
 import 'package:holybeans/domain/recipient_snapshot.dart';
@@ -26,6 +27,7 @@ part 'journal_backup/backup_rows.dart';
 part 'journal_backup/cafe_backup.dart';
 part 'journal_backup/piston_backup.dart';
 part 'journal_backup/restored_journal.dart';
+part 'journal_backup/restore_clear.dart';
 
 /// Versioned, portable JSON for HolyBeans data. The file picker and sharing UI
 /// can use this service without knowing how records are stored in SQLite.
@@ -37,7 +39,7 @@ class JournalBackup {
   /// Fires after any write to the journal, so automatic copies know when
   /// there is something new to save.
   Stream<void> watchChanges() => database.tableUpdates().map((_) {});
-  static const version = 36;
+  static const version = 37;
 
   /// Name of the journal inside a ZIP backup; photos go under `photos/`.
   static const archiveJournal = 'holybeans-backup.json';
@@ -82,8 +84,10 @@ class JournalBackup {
     34,
     35,
     36,
+    37,
   };
   static const _collections = {
+    'extractionProfiles',
     'pistonMachines',
     'pistonMethodLinks',
     'pistonMeasurements',
@@ -335,6 +339,11 @@ class JournalBackup {
         database.select(database.legacyPayloads).get(),
         (LegacyPayload value) => value.importRecordId,
         (LegacyPayload value) => value.toJson(),
+      ),
+      'extractionProfiles': await _encode(
+        database.select(database.extractionProfiles).get(),
+        (ExtractionProfileRow r) => r.id,
+        (ExtractionProfileRow r) => r.toJson(),
       ),
       'preferences': await _encode(
         database.select(database.appPreferences).get(),

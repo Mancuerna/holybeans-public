@@ -8,6 +8,7 @@ part of '../journal_backup.dart';
 class _RestoredJournal {
   _RestoredJournal._({
     required this.recipients,
+    required this.extractionProfiles,
     required this.cafeData,
     required this.pistonData,
     required this.adjustments,
@@ -188,6 +189,9 @@ class _RestoredJournal {
     }
 
     return _RestoredJournal._(
+      extractionProfiles: data.containsKey('extractionProfiles')
+          ? _decode(data, 'extractionProfiles', ExtractionProfileRow.fromJson)
+          : [],
       recipients: recipients,
       adjustments: data.containsKey('stockAdjustments')
           ? _decode(data, 'stockAdjustments', StockAdjustment.fromJson)
@@ -236,6 +240,7 @@ class _RestoredJournal {
   final _PistonBackup pistonData;
   final bool restoreBrewJugs;
   final List<Recipient> recipients;
+  final List<ExtractionProfileRow> extractionProfiles;
   final List<StockAdjustment> adjustments;
   final List<CuppingSession> sessions;
   final List<CuppingSessionCup> sessionCups;
@@ -295,6 +300,19 @@ class _RestoredJournal {
   /// Throws a [FormatException] at the first row that breaks the journal's
   /// rules: repeated IDs, missing relations or impossible values.
   void validate() {
+    final ids = <String>{};
+    for (final row in extractionProfiles) {
+      final profile = ExtractionProfile.decode(row.dataJson);
+      if (profile.id != row.id || !ids.add(row.id)) {
+        throw const FormatException('Invalid profile identity');
+      }
+    }
+    for (final brew in brews) {
+      if (brew.extractionProfileJson case final source?) {
+        ExtractionProfile.decode(source);
+      }
+    }
+
     cafeData.validate(coffees);
     pistonData.validate(methods);
     _checkUniqueIds();
@@ -707,8 +725,9 @@ class _RestoredJournal {
   /// Replaces every table of [database] with these rows, in one
   /// transaction: a failure leaves the journal as it was.
   Future<void> replace(AppDatabase database) => database.transaction(() async {
-    await _clear(database);
+    await _clearJournal(database);
     await database.batch((batch) {
+      batch.insertAll(database.extractionProfiles, extractionProfiles);
       batch.insertAll(database.coffees, coffees);
       batch.insertAll(database.coffeeComponents, components);
       batch.insertAll(database.coffeeLots, lots);
@@ -765,36 +784,4 @@ class _RestoredJournal {
     await database.mergeMigratedRecipients();
     if (restoreBrewJugs) await database.restoreLegacyBrewRecipients();
   });
-
-  /// Empties every table, children before the rows they reference.
-  static Future<void> _clear(AppDatabase database) async {
-    await _PistonBackup.clear(database);
-    await _CafeBackup.clear(database);
-    await database.delete(database.stockAdjustments).go();
-    await database.delete(database.cuppingSessionCups).go();
-    await database.delete(database.cuppingSessions).go();
-    await database.delete(database.appPreferences).go();
-    await database.delete(database.legacyPayloads).go();
-    await database.delete(database.importRecords).go();
-    await database.delete(database.brewToolSelections).go();
-    await database.delete(database.brewCurves).go();
-    await database.delete(database.brewPhotos).go();
-    await database.delete(database.coffeePhotos).go();
-    await database.delete(database.brews).go();
-    await database.delete(database.waterProfiles).go();
-    await database.delete(database.toolMethodLinks).go();
-    // Redirects reference other tools. Clear them before deleting the
-    // catalog, inside the confirmed restore transaction.
-    await database.customStatement(
-      'UPDATE method_tools SET merged_into_id = NULL',
-    );
-    await database.delete(database.methodTools).go();
-    await database.delete(database.grinders).go();
-    await database.delete(database.frozenPortions).go();
-    await database.delete(database.coffeeLots).go();
-    await database.delete(database.coffeeComponents).go();
-    await database.delete(database.brewMethods).go();
-    await database.delete(database.recipients).go();
-    await database.delete(database.coffees).go();
-  }
 }

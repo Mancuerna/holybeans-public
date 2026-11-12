@@ -11,6 +11,7 @@ import 'package:holybeans/data/repositories/coffee_repository.dart';
 import 'package:holybeans/data/repositories/cupping_repository.dart';
 import 'package:holybeans/data/repositories/cupping_share.dart';
 import 'package:holybeans/data/repositories/equipment_repository.dart';
+import 'package:holybeans/data/repositories/extraction_profile_repository.dart';
 import 'package:holybeans/data/repositories/freezer_repository.dart';
 import 'package:holybeans/data/repositories/journal_inputs.dart';
 import 'package:holybeans/data/repositories/journal_read_queries.dart';
@@ -135,6 +136,7 @@ class JournalRepository {
   late final CafeRepository cafes = CafeRepository(database);
 
   final AppDatabase database;
+  late final extractionProfiles = ExtractionProfileRepository(database);
   late final PistonRepository piston = PistonRepository(database);
   late final _recipeQueries = BrewRecipeQueries(
     database,

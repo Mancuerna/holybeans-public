@@ -13,6 +13,7 @@ class ShotGuideChart extends StatelessWidget {
     required this.target,
     required this.unit,
     this.minimumMaximum = 2,
+    this.height = 250,
     required this.elapsedMs,
     this.actual,
     this.trace = const [],
@@ -21,6 +22,7 @@ class ShotGuideChart extends StatelessWidget {
   final double? target;
   final String unit;
   final double minimumMaximum;
+  final double height;
   final int elapsedMs;
   final double? actual;
   final List<GuidePoint> trace;
@@ -39,7 +41,7 @@ class ShotGuideChart extends StatelessWidget {
       NumberFormat('0.#', Localizations.localeOf(context).toString()),
     );
     return SizedBox(
-      height: 250,
+      height: height,
       width: double.infinity,
       child: Stack(
         fit: StackFit.expand,

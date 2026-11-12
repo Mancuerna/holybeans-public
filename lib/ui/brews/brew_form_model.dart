@@ -9,6 +9,7 @@ import 'package:holybeans/data/services/meticulous_client.dart';
 import 'package:holybeans/data/services/meticulous_free_pour.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_ratio.dart';
+import 'package:holybeans/domain/extraction_profile.dart';
 import 'package:holybeans/domain/freeze_plan.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
 import 'package:holybeans/domain/gaggimate/shot.dart';
@@ -62,6 +63,9 @@ class BrewFormModel extends ChangeNotifier {
        brewedAt = existing == null
            ? DateTime.now()
            : DateTime.fromMillisecondsSinceEpoch(existing.brewedAtMs) {
+    extractionProfileJson =
+        existing?.extractionProfileJson ??
+        (repeat ? seed?.extractionProfileJson : null);
     draft.pours.addListener(_notify);
     photoDraft.addListener(_notify);
     timer = BrewTimer(
@@ -534,6 +538,21 @@ class BrewFormModel extends ChangeNotifier {
     return plan != null && plan.problem == null;
   }
 
+  String? extractionProfileJson;
+
+  void useExtractionProfile(ExtractionProfile profile) {
+    if (timer.running) return;
+    timer.reset();
+    draft.dose.text = '${profile.doseGrams}';
+    draft.temperature.text = '${profile.temperatureC}';
+    if (profile.predictedGrams ?? profile.targetGrams case final grams?) {
+      draft.beverage.text = grams.toStringAsFixed(1);
+    }
+    extractionProfileJson = profile.encode();
+    draft.profile.text = profile.name;
+    _notify();
+  }
+
   /// Whether the form is still loading or saving, so it cannot be saved. A
   /// missing method is not: Save then says what is missing.
   bool get busy =>
@@ -749,6 +768,7 @@ class BrewFormModel extends ChangeNotifier {
         gaggimateShot: gaggimateMethod == null ? null : importedGaggimateShot,
         freePour: importedFreePour,
         curve: devices.curve,
+        extractionProfileJson: extractionProfileJson,
       );
     } finally {
       photoDraft.endSave();

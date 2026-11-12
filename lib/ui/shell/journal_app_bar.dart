@@ -9,6 +9,7 @@ class JournalAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.showArchivedEquipment,
     required this.onStats,
     this.onCafes,
+    this.onProfiles,
     required this.onRoasters,
     required this.onToggleArchivedEquipment,
     required this.onSettings,
@@ -18,6 +19,7 @@ class JournalAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showArchivedEquipment;
   final VoidCallback onStats;
   final VoidCallback? onCafes;
+  final VoidCallback? onProfiles;
   final VoidCallback onRoasters;
   final VoidCallback onToggleArchivedEquipment;
   final VoidCallback onSettings;
@@ -36,6 +38,13 @@ class JournalAppBar extends StatelessWidget implements PreferredSizeWidget {
         _ => s.appTitle,
       }),
       actions: [
+        if (tab == 3 && onProfiles != null)
+          IconButton(
+            key: const ValueKey('profiles-button'),
+            tooltip: s.profilesTitle,
+            icon: const Icon(Icons.show_chart),
+            onPressed: onProfiles,
+          ),
         if ((tab == 0 || tab == 2) && onCafes != null)
           IconButton(
             key: const ValueKey('cafes-button'),

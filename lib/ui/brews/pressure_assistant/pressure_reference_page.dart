@@ -3,6 +3,7 @@ import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/domain/extraction_profile.dart';
 import 'package:holybeans/domain/flow_guide.dart';
 import 'package:holybeans/domain/pressure_guide.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -10,6 +11,10 @@ import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/flow_guide_page.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/pressure_guide_page.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
+import 'package:holybeans/ui/profiles/profile_editor_page.dart';
+import 'package:holybeans/ui/profiles/profile_guide_page.dart';
+import 'package:holybeans/ui/profiles/profile_library_page.dart';
+import 'package:uuid/uuid.dart';
 
 class PressureAssistantButton extends StatelessWidget {
   const PressureAssistantButton({super.key, required this.model});
@@ -96,6 +101,34 @@ class _PressureReferencePageState extends State<PressureReferencePage> {
       body: SafeArea(
         child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: FilledButton.tonalIcon(
+                icon: const Icon(Icons.folder_outlined),
+                label: Text(s.profilesTitle),
+                onPressed: () => Navigator.of(context).push<void>(
+                  MaterialPageRoute(
+                    builder: (_) => ProfileLibraryPage(
+                      repository: widget.model.repository.extractionProfiles,
+                      onUse: (profile) async {
+                        if (widget.model.timer.running) return;
+                        widget.model.useExtractionProfile(profile);
+                        await Navigator.of(context).push<void>(
+                          MaterialPageRoute(
+                            builder: (_) => ProfileGuidePage(
+                              profile: profile,
+                              timer: widget.model.timer,
+                              scale: widget.model.scaleSession,
+                              pressure: widget.model.pressureSession,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: SegmentedButton<_GuideMode>(
@@ -193,8 +226,50 @@ class _PressureReferencePageState extends State<PressureReferencePage> {
                           '${formatDecimal((item.pressure?.endMs ?? item.flow!.endMs) / 1000, pattern: '0.#', locale: locale)} s',
                         ),
                         isThreeLine: true,
-                        trailing: const Icon(Icons.chevron_right),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.bookmark_add_outlined),
+                          tooltip: s.profileFromShot,
+                          onPressed: () async {
+                            try {
+                              final recording = await widget.model.repository
+                                  .brewCurve(item.brew.id);
+                              if (recording == null || !context.mounted) return;
+                              final profile = ExtractionProfile.fromShot(
+                                id: const Uuid().v4(),
+                                name: _name(item.brew).substring(
+                                  0,
+                                  _name(item.brew).length.clamp(0, 80),
+                                ),
+                                curve: recording.curve,
+                                doseGrams: item.brew.doseGrams,
+                                temperatureC: item.brew.temperatureC,
+                                targetGrams: item.brew.beverageGrams,
+                              );
+                              await Navigator.of(context)
+                                  .push<ExtractionProfile>(
+                                    MaterialPageRoute(
+                                      builder: (_) => ProfileEditorPage(
+                                        profile: profile,
+                                        onSave: widget
+                                            .model
+                                            .repository
+                                            .extractionProfiles
+                                            .save,
+                                      ),
+                                    ),
+                                  );
+                            } catch (error, stack) {
+                              reportError(error, stack);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(s.profileError)),
+                                );
+                              }
+                            }
+                          },
+                        ),
                         onTap: () {
+                          widget.model.extractionProfileJson = null;
                           FocusManager.instance.primaryFocus?.unfocus();
                           Navigator.of(context).push<void>(
                             MaterialPageRoute(

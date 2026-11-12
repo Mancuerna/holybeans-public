@@ -4,15 +4,17 @@ import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/brew_ratio.dart';
 import 'package:holybeans/data/repositories/brew_stats.dart';
-import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/data/repositories/extraction_profile_repository.dart';
+import 'package:holybeans/data/repositories/journal_inputs.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_pours.dart';
+import 'package:holybeans/domain/extraction_profile.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
 import 'package:holybeans/ui/brews/brew_pours_from_curve.dart';
+import 'package:holybeans/ui/brews/brew_profile_section.dart';
 import 'package:holybeans/ui/brews/espresso_map_page.dart';
-import 'package:holybeans/ui/brews/extraction_chart.dart';
 import 'package:holybeans/ui/brews/sensory_map_page.dart';
 import 'package:holybeans/ui/brews/stock_review_card.dart';
 import 'package:holybeans/ui/brews/tasting_widgets.dart';
@@ -20,9 +22,11 @@ import 'package:holybeans/ui/core/detail_widgets.dart';
 import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/photo_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
+import 'package:holybeans/ui/profiles/profile_editor_page.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
 import 'package:holybeans/ui/sync/journal_write_feedback.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 /// Opens the bottom sheet with everything recorded for [brew].
 void showBrewDetailsSheet(
@@ -129,6 +133,39 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
   /// The brew shown; blooms and pours saved from its curve update it here.
   late Brew brew = widget.brew;
   JournalActions get actions => widget.actions;
+
+  Future<void> _saveProfile(ShotCurve recording) async {
+    final s = AppLocalizations.of(context);
+    try {
+      final name = brew.profileName?.trim().isNotEmpty == true
+          ? brew.profileName!
+          : widget.coffee?.name ?? brew.methodName;
+      final profile = ExtractionProfile.fromShot(
+        id: const Uuid().v4(),
+        name: name.substring(0, name.length.clamp(0, 80)),
+        curve: recording,
+        doseGrams: brew.doseGrams,
+        temperatureC: brew.temperatureC,
+        targetGrams: brew.beverageGrams,
+      );
+      await Navigator.of(context).push<ExtractionProfile>(
+        MaterialPageRoute(
+          builder: (_) => ProfileEditorPage(
+            profile: profile,
+            onSave: ExtractionProfileRepository(
+              actions.commands.backupCenter.database,
+            ).save,
+          ),
+        ),
+      );
+    } catch (error, stack) {
+      reportError(error, stack);
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(s.profileError)));
+      }
+    }
+  }
 
   bool shows(BrewParameter? parameter) =>
       reveal ||
@@ -373,7 +410,16 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                           ),
                         },
                   ),
-                _CurveSection(
+                if (brew.extractionProfileJson case final source?)
+                  BrewProfileSnapshot(source: source),
+                BrewCurveSection(
+                  onSaveProfile:
+                      isEspressoMethod(
+                        category: method?.category,
+                        methodName: brew.methodName,
+                      )
+                      ? _saveProfile
+                      : null,
                   espresso: isEspressoMethod(
                     category: method?.category,
                     methodName: brew.methodName,
@@ -607,55 +653,6 @@ Set<BrewParameter> _recordedRows(Brew brew, BrewPours pours) {
     if (brew.notes?.trim().isNotEmpty ?? false) BrewParameter.notes,
     if (pours.phases.isNotEmpty) BrewParameter.pourDetails,
   };
-}
-
-/// The saved extraction curve, if the brew has one.
-class _CurveSection extends StatelessWidget {
-  const _CurveSection({
-    required this.curve,
-    required this.espresso,
-    this.firstDripMs,
-  });
-
-  final bool espresso;
-
-  final Future<({ShotCurve curve, String source})?> curve;
-  final int? firstDripMs;
-
-  @override
-  Widget build(BuildContext context) =>
-      FutureBuilder<({ShotCurve curve, String source})?>(
-        future: curve,
-        builder: (context, snapshot) => switch (snapshot.data) {
-          (:final curve, :final source) => Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Semantics(
-                  header: true,
-                  child: Text(
-                    AppLocalizations.of(context).extractionCurve,
-                    style: Theme.of(context).textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w700),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                ExtractionChart(
-                  curve: curve,
-                  firstDripMs: firstDripMs,
-                  showFlowStatistics: espresso,
-                  // Scales, and BeanConqueror, weigh the flow.
-                  flowUnit: source == ImportOperations.meticulousSource
-                      ? 'ml/s'
-                      : 'g/s',
-                ),
-              ],
-            ),
-          ),
-          null => const SizedBox.shrink(),
-        },
-      );
 }
 
 /// The taste compass and flavour radar, when the brew was tasted.

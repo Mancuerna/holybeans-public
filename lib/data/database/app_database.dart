@@ -247,6 +247,7 @@ class ToolMethodLinks extends Table {
 }
 
 class Brews extends Table {
+  TextColumn get extractionProfileJson => text().nullable()();
   TextColumn get id => text()();
   TextColumn get coffeeId =>
       text().references(Coffees, #id, onDelete: KeyAction.restrict)();
@@ -433,6 +434,17 @@ class LegacyPayloads extends Table {
   Set<Column> get primaryKey => {importRecordId};
 }
 
+@DataClassName('ExtractionProfileRow')
+class ExtractionProfiles extends Table {
+  TextColumn get id => text()();
+  TextColumn get dataJson => text()();
+  BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
+  IntColumn get updatedAtMs => integer()();
+  IntColumn get lastUsedAtMs => integer().nullable()();
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 class AppPreferences extends Table {
   IntColumn get id => integer()();
   TextColumn get shareFieldsJson => text()();
@@ -494,6 +506,7 @@ class AppPreferences extends Table {
     ImportRecords,
     LegacyPayloads,
     AppPreferences,
+    ExtractionProfiles,
     StockAdjustments,
     CuppingSessions,
     CuppingSessionCups,
@@ -514,7 +527,7 @@ class AppDatabase extends _$AppDatabase {
   final JournalWriteGate writeGate;
 
   /// The schema this version of the app writes.
-  static const currentSchema = 38;
+  static const currentSchema = 39;
 
   /// Where the journal lives.
   static Future<File> file() async {
@@ -600,6 +613,13 @@ class AppDatabase extends _$AppDatabase {
               await m.addColumn(
                 schema.waterProfiles,
                 schema.waterProfiles.recipeJson,
+              );
+            },
+            from38To39: (m, schema) async {
+              await m.createTable(schema.extractionProfiles);
+              await m.addColumn(
+                schema.brews,
+                schema.brews.extractionProfileJson,
               );
             },
             from37To38: (m, schema) async {

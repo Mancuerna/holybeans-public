@@ -25,6 +25,7 @@ backups and device connections are optional.
 
 ## Make every cup your own
 
+- **Extraction profiles:** create cup-flow curves, pressure curves or both from Equipment or a saved shot. Edit control points, keep favorites and follow them in the assistant on one clock. Share profiles as JSON; backups include the library and the reference used for each shot.
 - **Know your beans.** Track roasters, origins, roast dates, remaining coffee,
   frozen portions and the coffees you have finished.
 - **Find your recipe.** Record espresso and filter brews with dose, yield, grind,

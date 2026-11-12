@@ -279,6 +279,9 @@ class BrewWriter {
           previous.methodId == catalog.methodId,
       notes: trimOrNull(input.notes),
       profileName: trimOrNull(input.profileName),
+      extractionProfileJson: input.replaceExtractionProfile
+          ? input.extractionProfileJson
+          : input.extractionProfileJson ?? previous?.extractionProfileJson,
       brewedAtMs:
           (input.brewedAt ??
                   (previous == null

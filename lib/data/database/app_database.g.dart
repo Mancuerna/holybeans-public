@@ -9898,6 +9898,17 @@ class $BrewsTable extends Brews with TableInfo<$BrewsTable, Brew> {
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $BrewsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _extractionProfileJsonMeta =
+      const VerificationMeta('extractionProfileJson');
+  @override
+  late final GeneratedColumn<String> extractionProfileJson =
+      GeneratedColumn<String>(
+        'extraction_profile_json',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -10490,6 +10501,7 @@ class $BrewsTable extends Brews with TableInfo<$BrewsTable, Brew> {
   );
   @override
   List<GeneratedColumn> get $columns => [
+    extractionProfileJson,
     id,
     coffeeId,
     lotId,
@@ -10554,6 +10566,15 @@ class $BrewsTable extends Brews with TableInfo<$BrewsTable, Brew> {
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('extraction_profile_json')) {
+      context.handle(
+        _extractionProfileJsonMeta,
+        extractionProfileJson.isAcceptableOrUnknown(
+          data['extraction_profile_json']!,
+          _extractionProfileJsonMeta,
+        ),
+      );
+    }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
@@ -10962,6 +10983,10 @@ class $BrewsTable extends Brews with TableInfo<$BrewsTable, Brew> {
   Brew map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Brew(
+      extractionProfileJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}extraction_profile_json'],
+      ),
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -11176,6 +11201,7 @@ class $BrewsTable extends Brews with TableInfo<$BrewsTable, Brew> {
 }
 
 class Brew extends DataClass implements Insertable<Brew> {
+  final String? extractionProfileJson;
   final String id;
   final String coffeeId;
   final String? lotId;
@@ -11253,6 +11279,7 @@ class Brew extends DataClass implements Insertable<Brew> {
   final bool? archivedByCoffee;
   final bool? stockReviewPending;
   const Brew({
+    this.extractionProfileJson,
     required this.id,
     required this.coffeeId,
     this.lotId,
@@ -11308,6 +11335,9 @@ class Brew extends DataClass implements Insertable<Brew> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || extractionProfileJson != null) {
+      map['extraction_profile_json'] = Variable<String>(extractionProfileJson);
+    }
     map['id'] = Variable<String>(id);
     map['coffee_id'] = Variable<String>(coffeeId);
     if (!nullToAbsent || lotId != null) {
@@ -11448,6 +11478,9 @@ class Brew extends DataClass implements Insertable<Brew> {
 
   BrewsCompanion toCompanion(bool nullToAbsent) {
     return BrewsCompanion(
+      extractionProfileJson: extractionProfileJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(extractionProfileJson),
       id: Value(id),
       coffeeId: Value(coffeeId),
       lotId: lotId == null && nullToAbsent
@@ -11588,6 +11621,9 @@ class Brew extends DataClass implements Insertable<Brew> {
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Brew(
+      extractionProfileJson: serializer.fromJson<String?>(
+        json['extractionProfileJson'],
+      ),
       id: serializer.fromJson<String>(json['id']),
       coffeeId: serializer.fromJson<String>(json['coffeeId']),
       lotId: serializer.fromJson<String?>(json['lotId']),
@@ -11649,6 +11685,9 @@ class Brew extends DataClass implements Insertable<Brew> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'extractionProfileJson': serializer.toJson<String?>(
+        extractionProfileJson,
+      ),
       'id': serializer.toJson<String>(id),
       'coffeeId': serializer.toJson<String>(coffeeId),
       'lotId': serializer.toJson<String?>(lotId),
@@ -11704,6 +11743,7 @@ class Brew extends DataClass implements Insertable<Brew> {
   }
 
   Brew copyWith({
+    Value<String?> extractionProfileJson = const Value.absent(),
     String? id,
     String? coffeeId,
     Value<String?> lotId = const Value.absent(),
@@ -11756,6 +11796,9 @@ class Brew extends DataClass implements Insertable<Brew> {
     Value<bool?> archivedByCoffee = const Value.absent(),
     Value<bool?> stockReviewPending = const Value.absent(),
   }) => Brew(
+    extractionProfileJson: extractionProfileJson.present
+        ? extractionProfileJson.value
+        : this.extractionProfileJson,
     id: id ?? this.id,
     coffeeId: coffeeId ?? this.coffeeId,
     lotId: lotId.present ? lotId.value : this.lotId,
@@ -11837,6 +11880,9 @@ class Brew extends DataClass implements Insertable<Brew> {
   );
   Brew copyWithCompanion(BrewsCompanion data) {
     return Brew(
+      extractionProfileJson: data.extractionProfileJson.present
+          ? data.extractionProfileJson.value
+          : this.extractionProfileJson,
       id: data.id.present ? data.id.value : this.id,
       coffeeId: data.coffeeId.present ? data.coffeeId.value : this.coffeeId,
       lotId: data.lotId.present ? data.lotId.value : this.lotId,
@@ -11966,6 +12012,7 @@ class Brew extends DataClass implements Insertable<Brew> {
   @override
   String toString() {
     return (StringBuffer('Brew(')
+          ..write('extractionProfileJson: $extractionProfileJson, ')
           ..write('id: $id, ')
           ..write('coffeeId: $coffeeId, ')
           ..write('lotId: $lotId, ')
@@ -12023,6 +12070,7 @@ class Brew extends DataClass implements Insertable<Brew> {
 
   @override
   int get hashCode => Object.hashAll([
+    extractionProfileJson,
     id,
     coffeeId,
     lotId,
@@ -12079,6 +12127,7 @@ class Brew extends DataClass implements Insertable<Brew> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Brew &&
+          other.extractionProfileJson == this.extractionProfileJson &&
           other.id == this.id &&
           other.coffeeId == this.coffeeId &&
           other.lotId == this.lotId &&
@@ -12133,6 +12182,7 @@ class Brew extends DataClass implements Insertable<Brew> {
 }
 
 class BrewsCompanion extends UpdateCompanion<Brew> {
+  final Value<String?> extractionProfileJson;
   final Value<String> id;
   final Value<String> coffeeId;
   final Value<String?> lotId;
@@ -12186,6 +12236,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
   final Value<bool?> stockReviewPending;
   final Value<int> rowid;
   const BrewsCompanion({
+    this.extractionProfileJson = const Value.absent(),
     this.id = const Value.absent(),
     this.coffeeId = const Value.absent(),
     this.lotId = const Value.absent(),
@@ -12240,6 +12291,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
     this.rowid = const Value.absent(),
   });
   BrewsCompanion.insert({
+    this.extractionProfileJson = const Value.absent(),
     required String id,
     required String coffeeId,
     this.lotId = const Value.absent(),
@@ -12299,6 +12351,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
        createdAtMs = Value(createdAtMs),
        updatedAtMs = Value(updatedAtMs);
   static Insertable<Brew> custom({
+    Expression<String>? extractionProfileJson,
     Expression<String>? id,
     Expression<String>? coffeeId,
     Expression<String>? lotId,
@@ -12353,6 +12406,8 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (extractionProfileJson != null)
+        'extraction_profile_json': extractionProfileJson,
       if (id != null) 'id': id,
       if (coffeeId != null) 'coffee_id': coffeeId,
       if (lotId != null) 'lot_id': lotId,
@@ -12411,6 +12466,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
   }
 
   BrewsCompanion copyWith({
+    Value<String?>? extractionProfileJson,
     Value<String>? id,
     Value<String>? coffeeId,
     Value<String?>? lotId,
@@ -12465,6 +12521,8 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
     Value<int>? rowid,
   }) {
     return BrewsCompanion(
+      extractionProfileJson:
+          extractionProfileJson ?? this.extractionProfileJson,
       id: id ?? this.id,
       coffeeId: coffeeId ?? this.coffeeId,
       lotId: lotId ?? this.lotId,
@@ -12524,6 +12582,11 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (extractionProfileJson.present) {
+      map['extraction_profile_json'] = Variable<String>(
+        extractionProfileJson.value,
+      );
+    }
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
@@ -12688,6 +12751,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
   @override
   String toString() {
     return (StringBuffer('BrewsCompanion(')
+          ..write('extractionProfileJson: $extractionProfileJson, ')
           ..write('id: $id, ')
           ..write('coffeeId: $coffeeId, ')
           ..write('lotId: $lotId, ')
@@ -15206,6 +15270,385 @@ class AppPreferencesCompanion extends UpdateCompanion<AppPreference> {
   }
 }
 
+class $ExtractionProfilesTable extends ExtractionProfiles
+    with TableInfo<$ExtractionProfilesTable, ExtractionProfileRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExtractionProfilesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dataJsonMeta = const VerificationMeta(
+    'dataJson',
+  );
+  @override
+  late final GeneratedColumn<String> dataJson = GeneratedColumn<String>(
+    'data_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isFavoriteMeta = const VerificationMeta(
+    'isFavorite',
+  );
+  @override
+  late final GeneratedColumn<bool> isFavorite = GeneratedColumn<bool>(
+    'is_favorite',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_favorite" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _updatedAtMsMeta = const VerificationMeta(
+    'updatedAtMs',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAtMs = GeneratedColumn<int>(
+    'updated_at_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lastUsedAtMsMeta = const VerificationMeta(
+    'lastUsedAtMs',
+  );
+  @override
+  late final GeneratedColumn<int> lastUsedAtMs = GeneratedColumn<int>(
+    'last_used_at_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    dataJson,
+    isFavorite,
+    updatedAtMs,
+    lastUsedAtMs,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'extraction_profiles';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ExtractionProfileRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('data_json')) {
+      context.handle(
+        _dataJsonMeta,
+        dataJson.isAcceptableOrUnknown(data['data_json']!, _dataJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dataJsonMeta);
+    }
+    if (data.containsKey('is_favorite')) {
+      context.handle(
+        _isFavoriteMeta,
+        isFavorite.isAcceptableOrUnknown(data['is_favorite']!, _isFavoriteMeta),
+      );
+    }
+    if (data.containsKey('updated_at_ms')) {
+      context.handle(
+        _updatedAtMsMeta,
+        updatedAtMs.isAcceptableOrUnknown(
+          data['updated_at_ms']!,
+          _updatedAtMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMsMeta);
+    }
+    if (data.containsKey('last_used_at_ms')) {
+      context.handle(
+        _lastUsedAtMsMeta,
+        lastUsedAtMs.isAcceptableOrUnknown(
+          data['last_used_at_ms']!,
+          _lastUsedAtMsMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ExtractionProfileRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExtractionProfileRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      dataJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}data_json'],
+      )!,
+      isFavorite: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_favorite'],
+      )!,
+      updatedAtMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at_ms'],
+      )!,
+      lastUsedAtMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}last_used_at_ms'],
+      ),
+    );
+  }
+
+  @override
+  $ExtractionProfilesTable createAlias(String alias) {
+    return $ExtractionProfilesTable(attachedDatabase, alias);
+  }
+}
+
+class ExtractionProfileRow extends DataClass
+    implements Insertable<ExtractionProfileRow> {
+  final String id;
+  final String dataJson;
+  final bool isFavorite;
+  final int updatedAtMs;
+  final int? lastUsedAtMs;
+  const ExtractionProfileRow({
+    required this.id,
+    required this.dataJson,
+    required this.isFavorite,
+    required this.updatedAtMs,
+    this.lastUsedAtMs,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['data_json'] = Variable<String>(dataJson);
+    map['is_favorite'] = Variable<bool>(isFavorite);
+    map['updated_at_ms'] = Variable<int>(updatedAtMs);
+    if (!nullToAbsent || lastUsedAtMs != null) {
+      map['last_used_at_ms'] = Variable<int>(lastUsedAtMs);
+    }
+    return map;
+  }
+
+  ExtractionProfilesCompanion toCompanion(bool nullToAbsent) {
+    return ExtractionProfilesCompanion(
+      id: Value(id),
+      dataJson: Value(dataJson),
+      isFavorite: Value(isFavorite),
+      updatedAtMs: Value(updatedAtMs),
+      lastUsedAtMs: lastUsedAtMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastUsedAtMs),
+    );
+  }
+
+  factory ExtractionProfileRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExtractionProfileRow(
+      id: serializer.fromJson<String>(json['id']),
+      dataJson: serializer.fromJson<String>(json['dataJson']),
+      isFavorite: serializer.fromJson<bool>(json['isFavorite']),
+      updatedAtMs: serializer.fromJson<int>(json['updatedAtMs']),
+      lastUsedAtMs: serializer.fromJson<int?>(json['lastUsedAtMs']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'dataJson': serializer.toJson<String>(dataJson),
+      'isFavorite': serializer.toJson<bool>(isFavorite),
+      'updatedAtMs': serializer.toJson<int>(updatedAtMs),
+      'lastUsedAtMs': serializer.toJson<int?>(lastUsedAtMs),
+    };
+  }
+
+  ExtractionProfileRow copyWith({
+    String? id,
+    String? dataJson,
+    bool? isFavorite,
+    int? updatedAtMs,
+    Value<int?> lastUsedAtMs = const Value.absent(),
+  }) => ExtractionProfileRow(
+    id: id ?? this.id,
+    dataJson: dataJson ?? this.dataJson,
+    isFavorite: isFavorite ?? this.isFavorite,
+    updatedAtMs: updatedAtMs ?? this.updatedAtMs,
+    lastUsedAtMs: lastUsedAtMs.present ? lastUsedAtMs.value : this.lastUsedAtMs,
+  );
+  ExtractionProfileRow copyWithCompanion(ExtractionProfilesCompanion data) {
+    return ExtractionProfileRow(
+      id: data.id.present ? data.id.value : this.id,
+      dataJson: data.dataJson.present ? data.dataJson.value : this.dataJson,
+      isFavorite: data.isFavorite.present
+          ? data.isFavorite.value
+          : this.isFavorite,
+      updatedAtMs: data.updatedAtMs.present
+          ? data.updatedAtMs.value
+          : this.updatedAtMs,
+      lastUsedAtMs: data.lastUsedAtMs.present
+          ? data.lastUsedAtMs.value
+          : this.lastUsedAtMs,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExtractionProfileRow(')
+          ..write('id: $id, ')
+          ..write('dataJson: $dataJson, ')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('updatedAtMs: $updatedAtMs, ')
+          ..write('lastUsedAtMs: $lastUsedAtMs')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, dataJson, isFavorite, updatedAtMs, lastUsedAtMs);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExtractionProfileRow &&
+          other.id == this.id &&
+          other.dataJson == this.dataJson &&
+          other.isFavorite == this.isFavorite &&
+          other.updatedAtMs == this.updatedAtMs &&
+          other.lastUsedAtMs == this.lastUsedAtMs);
+}
+
+class ExtractionProfilesCompanion
+    extends UpdateCompanion<ExtractionProfileRow> {
+  final Value<String> id;
+  final Value<String> dataJson;
+  final Value<bool> isFavorite;
+  final Value<int> updatedAtMs;
+  final Value<int?> lastUsedAtMs;
+  final Value<int> rowid;
+  const ExtractionProfilesCompanion({
+    this.id = const Value.absent(),
+    this.dataJson = const Value.absent(),
+    this.isFavorite = const Value.absent(),
+    this.updatedAtMs = const Value.absent(),
+    this.lastUsedAtMs = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ExtractionProfilesCompanion.insert({
+    required String id,
+    required String dataJson,
+    this.isFavorite = const Value.absent(),
+    required int updatedAtMs,
+    this.lastUsedAtMs = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       dataJson = Value(dataJson),
+       updatedAtMs = Value(updatedAtMs);
+  static Insertable<ExtractionProfileRow> custom({
+    Expression<String>? id,
+    Expression<String>? dataJson,
+    Expression<bool>? isFavorite,
+    Expression<int>? updatedAtMs,
+    Expression<int>? lastUsedAtMs,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (dataJson != null) 'data_json': dataJson,
+      if (isFavorite != null) 'is_favorite': isFavorite,
+      if (updatedAtMs != null) 'updated_at_ms': updatedAtMs,
+      if (lastUsedAtMs != null) 'last_used_at_ms': lastUsedAtMs,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ExtractionProfilesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? dataJson,
+    Value<bool>? isFavorite,
+    Value<int>? updatedAtMs,
+    Value<int?>? lastUsedAtMs,
+    Value<int>? rowid,
+  }) {
+    return ExtractionProfilesCompanion(
+      id: id ?? this.id,
+      dataJson: dataJson ?? this.dataJson,
+      isFavorite: isFavorite ?? this.isFavorite,
+      updatedAtMs: updatedAtMs ?? this.updatedAtMs,
+      lastUsedAtMs: lastUsedAtMs ?? this.lastUsedAtMs,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (dataJson.present) {
+      map['data_json'] = Variable<String>(dataJson.value);
+    }
+    if (isFavorite.present) {
+      map['is_favorite'] = Variable<bool>(isFavorite.value);
+    }
+    if (updatedAtMs.present) {
+      map['updated_at_ms'] = Variable<int>(updatedAtMs.value);
+    }
+    if (lastUsedAtMs.present) {
+      map['last_used_at_ms'] = Variable<int>(lastUsedAtMs.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExtractionProfilesCompanion(')
+          ..write('id: $id, ')
+          ..write('dataJson: $dataJson, ')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('updatedAtMs: $updatedAtMs, ')
+          ..write('lastUsedAtMs: $lastUsedAtMs, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $StockAdjustmentsTable extends StockAdjustments
     with TableInfo<$StockAdjustmentsTable, StockAdjustment> {
   @override
@@ -16750,6 +17193,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ImportRecordsTable importRecords = $ImportRecordsTable(this);
   late final $LegacyPayloadsTable legacyPayloads = $LegacyPayloadsTable(this);
   late final $AppPreferencesTable appPreferences = $AppPreferencesTable(this);
+  late final $ExtractionProfilesTable extractionProfiles =
+      $ExtractionProfilesTable(this);
   late final $StockAdjustmentsTable stockAdjustments = $StockAdjustmentsTable(
     this,
   );
@@ -16790,6 +17235,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     importRecords,
     legacyPayloads,
     appPreferences,
+    extractionProfiles,
     stockAdjustments,
     cuppingSessions,
     cuppingSessionCups,
@@ -26484,6 +26930,7 @@ typedef $$ToolMethodLinksTableProcessedTableManager =
       PrefetchHooks Function({bool toolId, bool methodId})
     >;
 typedef $$BrewsTableCreateCompanionBuilder = BrewsCompanion Function({
+  Value<String?> extractionProfileJson,
   required String id,
   required String coffeeId,
   Value<String?> lotId,
@@ -26538,6 +26985,7 @@ typedef $$BrewsTableCreateCompanionBuilder = BrewsCompanion Function({
   Value<int> rowid,
 });
 typedef $$BrewsTableUpdateCompanionBuilder = BrewsCompanion Function({
+  Value<String?> extractionProfileJson,
   Value<String> id,
   Value<String> coffeeId,
   Value<String?> lotId,
@@ -26804,6 +27252,11 @@ class $$BrewsTableFilterComposer extends Composer<_$AppDatabase, $BrewsTable> {
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<String> get extractionProfileJson => $composableBuilder(
+    column: $table.extractionProfileJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnFilters(column),
@@ -27295,6 +27748,11 @@ class $$BrewsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<String> get extractionProfileJson => $composableBuilder(
+    column: $table.extractionProfileJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnOrderings(column),
@@ -27686,6 +28144,11 @@ class $$BrewsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<String> get extractionProfileJson => $composableBuilder(
+    column: $table.extractionProfileJson,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
@@ -28188,6 +28651,7 @@ class $$BrewsTableTableManager
               $$BrewsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
+                Value<String?> extractionProfileJson = const Value.absent(),
                 Value<String> id = const Value.absent(),
                 Value<String> coffeeId = const Value.absent(),
                 Value<String?> lotId = const Value.absent(),
@@ -28241,6 +28705,7 @@ class $$BrewsTableTableManager
                 Value<bool?> stockReviewPending = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BrewsCompanion(
+                extractionProfileJson: extractionProfileJson,
                 id: id,
                 coffeeId: coffeeId,
                 lotId: lotId,
@@ -28296,6 +28761,7 @@ class $$BrewsTableTableManager
               ),
           createCompanionCallback:
               ({
+                Value<String?> extractionProfileJson = const Value.absent(),
                 required String id,
                 required String coffeeId,
                 Value<String?> lotId = const Value.absent(),
@@ -28349,6 +28815,7 @@ class $$BrewsTableTableManager
                 Value<bool?> stockReviewPending = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BrewsCompanion.insert(
+                extractionProfileJson: extractionProfileJson,
                 id: id,
                 coffeeId: coffeeId,
                 lotId: lotId,
@@ -30783,6 +31250,236 @@ typedef $$AppPreferencesTableProcessedTableManager =
       AppPreference,
       PrefetchHooks Function()
     >;
+typedef $$ExtractionProfilesTableCreateCompanionBuilder =
+    ExtractionProfilesCompanion Function({
+      required String id,
+      required String dataJson,
+      Value<bool> isFavorite,
+      required int updatedAtMs,
+      Value<int?> lastUsedAtMs,
+      Value<int> rowid,
+    });
+typedef $$ExtractionProfilesTableUpdateCompanionBuilder =
+    ExtractionProfilesCompanion Function({
+      Value<String> id,
+      Value<String> dataJson,
+      Value<bool> isFavorite,
+      Value<int> updatedAtMs,
+      Value<int?> lastUsedAtMs,
+      Value<int> rowid,
+    });
+
+class $$ExtractionProfilesTableFilterComposer
+    extends Composer<_$AppDatabase, $ExtractionProfilesTable> {
+  $$ExtractionProfilesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dataJson => $composableBuilder(
+    column: $table.dataJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAtMs => $composableBuilder(
+    column: $table.updatedAtMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lastUsedAtMs => $composableBuilder(
+    column: $table.lastUsedAtMs,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ExtractionProfilesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ExtractionProfilesTable> {
+  $$ExtractionProfilesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dataJson => $composableBuilder(
+    column: $table.dataJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAtMs => $composableBuilder(
+    column: $table.updatedAtMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lastUsedAtMs => $composableBuilder(
+    column: $table.lastUsedAtMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ExtractionProfilesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ExtractionProfilesTable> {
+  $$ExtractionProfilesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get dataJson =>
+      $composableBuilder(column: $table.dataJson, builder: (column) => column);
+
+  GeneratedColumn<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get updatedAtMs => $composableBuilder(
+    column: $table.updatedAtMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lastUsedAtMs => $composableBuilder(
+    column: $table.lastUsedAtMs,
+    builder: (column) => column,
+  );
+}
+
+class $$ExtractionProfilesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ExtractionProfilesTable,
+          ExtractionProfileRow,
+          $$ExtractionProfilesTableFilterComposer,
+          $$ExtractionProfilesTableOrderingComposer,
+          $$ExtractionProfilesTableAnnotationComposer,
+          $$ExtractionProfilesTableCreateCompanionBuilder,
+          $$ExtractionProfilesTableUpdateCompanionBuilder,
+          (
+            ExtractionProfileRow,
+            BaseReferences<
+              _$AppDatabase,
+              $ExtractionProfilesTable,
+              ExtractionProfileRow
+            >,
+          ),
+          ExtractionProfileRow,
+          PrefetchHooks Function()
+        > {
+  $$ExtractionProfilesTableTableManager(
+    _$AppDatabase db,
+    $ExtractionProfilesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExtractionProfilesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ExtractionProfilesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ExtractionProfilesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> dataJson = const Value.absent(),
+                Value<bool> isFavorite = const Value.absent(),
+                Value<int> updatedAtMs = const Value.absent(),
+                Value<int?> lastUsedAtMs = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExtractionProfilesCompanion(
+                id: id,
+                dataJson: dataJson,
+                isFavorite: isFavorite,
+                updatedAtMs: updatedAtMs,
+                lastUsedAtMs: lastUsedAtMs,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String dataJson,
+                Value<bool> isFavorite = const Value.absent(),
+                required int updatedAtMs,
+                Value<int?> lastUsedAtMs = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExtractionProfilesCompanion.insert(
+                id: id,
+                dataJson: dataJson,
+                isFavorite: isFavorite,
+                updatedAtMs: updatedAtMs,
+                lastUsedAtMs: lastUsedAtMs,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ExtractionProfilesTable, ExtractionProfileRow>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ExtractionProfilesTable,
+                    ExtractionProfileRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ExtractionProfilesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ExtractionProfilesTable,
+      ExtractionProfileRow,
+      $$ExtractionProfilesTableFilterComposer,
+      $$ExtractionProfilesTableOrderingComposer,
+      $$ExtractionProfilesTableAnnotationComposer,
+      $$ExtractionProfilesTableCreateCompanionBuilder,
+      $$ExtractionProfilesTableUpdateCompanionBuilder,
+      (
+        ExtractionProfileRow,
+        BaseReferences<
+          _$AppDatabase,
+          $ExtractionProfilesTable,
+          ExtractionProfileRow
+        >,
+      ),
+      ExtractionProfileRow,
+      PrefetchHooks Function()
+    >;
 typedef $$StockAdjustmentsTableCreateCompanionBuilder =
     StockAdjustmentsCompanion Function({
       required String id,
@@ -32218,6 +32915,8 @@ class $AppDatabaseManager {
       $$LegacyPayloadsTableTableManager(_db, _db.legacyPayloads);
   $$AppPreferencesTableTableManager get appPreferences =>
       $$AppPreferencesTableTableManager(_db, _db.appPreferences);
+  $$ExtractionProfilesTableTableManager get extractionProfiles =>
+      $$ExtractionProfilesTableTableManager(_db, _db.extractionProfiles);
   $$StockAdjustmentsTableTableManager get stockAdjustments =>
       $$StockAdjustmentsTableTableManager(_db, _db.stockAdjustments);
   $$CuppingSessionsTableTableManager get cuppingSessions =>
