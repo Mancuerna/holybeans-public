@@ -346,7 +346,7 @@ void main() {
           'V60',
           pours: BrewPours(bloomCount: 1, pourCount: 1),
         ),
-        'detailed': await brew(
+        'partial': await brew(
           filter,
           'V60',
           pours: BrewPours(
@@ -361,12 +361,32 @@ void main() {
             ],
           ),
         ),
+        'detailed': await brew(
+          filter,
+          'V60',
+          pours: brewPoursFromCurve(bloomAndPour(), doseGrams: 15),
+        ),
+        'missingBloom': await brew(
+          filter,
+          'V60',
+          pours: BrewPours(
+            bloomCount: 1,
+            pourCount: 1,
+            phases: const [
+              BrewPourPhase(
+                kind: BrewPourKind.pour,
+                number: 1,
+                waterGrams: 190,
+              ),
+            ],
+          ),
+        ),
         'espresso': await brew(espresso, 'Espresso'),
       };
     });
 
     test(
-      'filter brews without details are offered, and saving is not an edit',
+      'filter brews with missing rows are offered, and saving is not an edit',
       () async {
         final found = await repository.poursFromCurves();
         expect(found.map((entry) => entry.brew.id).toSet(), {
@@ -374,6 +394,8 @@ void main() {
           brews['oneBloomGiven'],
           brews['countsOnly'],
           brews['pourCountOnly'],
+          brews['partial'],
+          brews['missingBloom'],
         });
         final before = (await repository.brew(brews['blank']!))!.updatedAtMs;
         await repository.savePoursFromCurves(found);
@@ -391,97 +413,165 @@ void main() {
         expect((onlyPours.bloomCount, onlyPours.pourCount), (0, 2));
         expect(onlyPours.bloomSeconds, isNull);
         expect(onlyPours.pourPhasesJson, contains('"waterGrams":200'));
-        final detailed = (await repository.brew(brews['detailed']!))!;
-        expect(detailed.pourPhasesJson, contains('"waterGrams":40'));
-        expect(detailed.bloomSeconds, 58);
+        final partial = (await repository.brew(brews['partial']!))!;
+        expect(partial.pourPhasesJson, contains('"waterGrams":40'));
+        expect(partial.pourPhasesJson, contains('"waterGrams":200'));
+        expect(partial.bloomSeconds, 58);
+        final missingBloom = (await repository.brew(brews['missingBloom']!))!;
+        expect(missingBloom.pourPhasesJson, contains('"waterGrams":190'));
+        expect(missingBloom.pourPhasesJson, contains('"waterGrams":50'));
+        expect(missingBloom.bloomSeconds, 31);
         expect(await repository.poursFromCurves(), isEmpty);
+      },
+    );
+
+    test(
+      'saving an old suggestion keeps phase edits made since discovery',
+      () async {
+        final found = await repository.poursFromCurves();
+        final id = brews['partial']!;
+        final brew = (await repository.brew(id))!;
+        await repository.saveBrew(
+          id: id,
+          coffeeId: brew.coffeeId,
+          methodId: brew.methodId,
+          methodName: brew.methodName,
+          bloomSeconds: 74,
+          pours: BrewPours(
+            bloomCount: 1,
+            pourCount: 1,
+            phases: const [
+              BrewPourPhase(
+                kind: BrewPourKind.bloom,
+                number: 1,
+                waterGrams: 42,
+              ),
+            ],
+          ),
+        );
+        await repository.savePoursFromCurves(found);
+        final saved = (await repository.brew(id))!;
+        expect(saved.pourPhasesJson, contains('"waterGrams":42'));
+        expect(saved.pourPhasesJson, contains('"waterGrams":200'));
+        expect(saved.bloomSeconds, 74);
       },
     );
   });
 
-  testWidgets('a saved brew offers its blooms and pours, one by one or all '
-      'at once from Settings', (tester) async {
-    tester.view.physicalSize = const Size(400, 900);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    final repository = JournalRepository(database);
-    late String first;
-    await tester.runAsync(() async {
-      final coffee = (await repository.allCoffees()).single.id;
-      final method = await repository.createMethod(
-        name: 'V60',
-        category: 'pourover',
-      );
-      for (var i = 0; i < 2; i++) {
-        final id = await repository.createBrew(
-          coffeeId: coffee,
-          methodId: method,
-          methodName: 'V60',
-          doseGrams: 15,
-          bloomSeconds: 58,
-          brewedAt: DateTime.now().subtract(Duration(hours: i + 1)),
+  for (final partial in [false, true]) {
+    testWidgets(
+      'a saved brew (partial: $partial) offers its blooms and pours, one by one or all '
+      'at once from Settings',
+      (tester) async {
+        tester.view.physicalSize = const Size(400, 900);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        final repository = JournalRepository(database);
+        late String first;
+        await tester.runAsync(() async {
+          final coffee = (await repository.allCoffees()).single.id;
+          final method = await repository.createMethod(
+            name: 'V60',
+            category: 'pourover',
+          );
+          for (var i = 0; i < 2; i++) {
+            final id = await repository.createBrew(
+              coffeeId: coffee,
+              methodId: method,
+              methodName: 'V60',
+              doseGrams: 15,
+              bloomSeconds: 58,
+              pours: partial && i == 0
+                  ? BrewPours(
+                      bloomCount: 1,
+                      pourCount: 1,
+                      phases: const [
+                        BrewPourPhase(
+                          kind: BrewPourKind.bloom,
+                          number: 1,
+                          waterGrams: 49,
+                          durationSeconds: 7,
+                          restSeconds: 51,
+                        ),
+                      ],
+                    )
+                  : null,
+              brewedAt: DateTime.now().subtract(Duration(hours: i + 1)),
+            );
+            await repository.saveScaleCurve(id, bloomAndPour());
+            if (i == 0) first = id;
+          }
+        });
+        Future<void> settle(Finder finder) => tester.runAsync(() async {
+          for (var i = 0; i < 100 && finder.evaluate().isEmpty; i++) {
+            await Future<void>.delayed(const Duration(milliseconds: 30));
+            await tester.pump();
+          }
+        });
+        await tester.pumpWidget(
+          HolyBeansApp(
+            services: AppServices(database: database),
+            initialLocale: const Locale('en'),
+          ),
         );
-        await repository.saveScaleCurve(id, bloomAndPour());
-        if (i == 0) first = id;
-      }
-    });
-    Future<void> settle(Finder finder) => tester.runAsync(() async {
-      for (var i = 0; i < 100 && finder.evaluate().isEmpty; i++) {
-        await Future<void>.delayed(const Duration(milliseconds: 30));
-        await tester.pump();
-      }
-    });
-    await tester.pumpWidget(
-      HolyBeansApp(
-        services: AppServices(database: database),
-        initialLocale: const Locale('en'),
-      ),
-    );
-    await settleWithWorkers(tester);
-    await tester.tap(find.text('Brews').last);
-    await settleWithWorkers(tester);
-    await tester.tap(find.byKey(ValueKey('brew-card-$first')));
-    await settleWithWorkers(tester);
-    final card = find.byKey(const ValueKey('brew-detail-pours-from-curve'));
-    await settle(card);
-    expect(find.text('The curve shows 1 bloom and 1 pour.'), findsOneWidget);
-    await tester.ensureVisible(card);
-    database.writeGate.writable = false;
-    await tester.tap(find.byKey(const ValueKey('brew-detail-pours-save')));
-    await settleWithWorkers(tester);
-    expect(tester.takeException(), isNull);
-    final s = lookupAppLocalizations(const Locale('en'));
-    expect(find.textContaining(s.driveWriteChecking), findsOneWidget);
-    expect(card, findsOneWidget);
-    database.writeGate.writable = true;
-    await tester.tap(find.byKey(const ValueKey('brew-detail-pours-save')));
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 100)),
-    );
-    await settleWithWorkers(tester);
-    expect(card, findsNothing);
-    final saved = (await tester.runAsync(() => repository.brew(first)))!;
-    expect((saved.bloomCount, saved.pourCount), (1, 1));
-    expect(saved.bloomSeconds, 31);
-    expect(find.text('31 s'), findsOneWidget);
-    expect(find.text('58 s'), findsNothing);
-    Navigator.of(tester.element(find.byType(BottomSheet))).pop();
-    await settleWithWorkers(tester);
+        await settleWithWorkers(tester);
+        await tester.tap(find.text('Brews').last);
+        await settleWithWorkers(tester);
+        await tester.tap(find.byKey(ValueKey('brew-card-$first')));
+        await settleWithWorkers(tester);
+        final card = find.byKey(const ValueKey('brew-detail-pours-from-curve'));
+        await settle(card);
+        expect(
+          find.text('The curve shows 1 bloom and 1 pour.'),
+          findsOneWidget,
+        );
+        await tester.ensureVisible(card);
+        database.writeGate.writable = false;
+        await tester.tap(find.byKey(const ValueKey('brew-detail-pours-save')));
+        await settleWithWorkers(tester);
+        expect(tester.takeException(), isNull);
+        final s = lookupAppLocalizations(const Locale('en'));
+        expect(find.textContaining(s.driveWriteChecking), findsOneWidget);
+        expect(card, findsOneWidget);
+        database.writeGate.writable = true;
+        await tester.tap(find.byKey(const ValueKey('brew-detail-pours-save')));
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 100)),
+        );
+        await settleWithWorkers(tester);
+        expect(card, findsNothing);
+        final saved = (await tester.runAsync(() => repository.brew(first)))!;
+        expect((saved.bloomCount, saved.pourCount), (1, 1));
+        expect(saved.bloomSeconds, partial ? 58 : 31);
+        expect(find.text(partial ? '58 s' : '31 s'), findsOneWidget);
+        final savedPours = BrewPours.fromStorage(
+          bloomCount: saved.bloomCount,
+          pourCount: saved.pourCount,
+          phasesJson: saved.pourPhasesJson,
+        );
+        expect(savedPours.phases.map((phase) => phase.waterGrams), [
+          partial ? 49 : 50,
+          200,
+        ]);
+        Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+        await settleWithWorkers(tester);
 
-    await tester.tap(find.byTooltip('Settings'));
-    await settleWithWorkers(tester);
-    final tile = find.byKey(const ValueKey('pours-from-curves'));
-    await tester.scrollUntilVisible(tile, 300);
-    await tester.ensureVisible(tile);
-    await settleWithWorkers(tester);
-    await tester.tap(tile);
-    final fill = find.byKey(const ValueKey('pours-from-curves-fill'));
-    await settle(fill);
-    expect(find.textContaining('of 1 brew will be filled'), findsOneWidget);
-    await tester.tap(fill);
-    await settle(find.text('1 brew filled'));
-    expect(find.text('1 brew filled'), findsOneWidget);
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump(const Duration(milliseconds: 10));
-  });
+        await tester.tap(find.byTooltip('Settings'));
+        await settleWithWorkers(tester);
+        final tile = find.byKey(const ValueKey('pours-from-curves'));
+        await tester.scrollUntilVisible(tile, 300);
+        await tester.ensureVisible(tile);
+        await settleWithWorkers(tester);
+        await tester.tap(tile);
+        final fill = find.byKey(const ValueKey('pours-from-curves-fill'));
+        await settle(fill);
+        expect(find.textContaining('of 1 brew will be filled'), findsOneWidget);
+        await tester.tap(fill);
+        await settle(find.text('1 brew filled'));
+        expect(find.text('1 brew filled'), findsOneWidget);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump(const Duration(milliseconds: 10));
+      },
+    );
+  }
 }

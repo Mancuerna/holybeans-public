@@ -99,6 +99,40 @@ class BrewPours {
   final int? pourCount;
   final List<BrewPourPhase> phases;
 
+  /// Whether every recorded bloom and pour has a detail row.
+  bool get hasAllPhases =>
+      bloomCount != null &&
+      pourCount != null &&
+      phases.length == bloomCount! + pourCount!;
+
+  /// Fills missing phase rows from [detected], keeping existing rows unchanged.
+  ///
+  /// Returns `null` when detection is incomplete, counts disagree or no rows
+  /// can be added.
+  BrewPours? fillMissingPhases(BrewPours detected) {
+    if (!detected.hasAllPhases ||
+        (bloomCount != null && bloomCount != detected.bloomCount) ||
+        (pourCount != null && pourCount != detected.pourCount)) {
+      return null;
+    }
+    final recorded = {
+      for (final phase in phases) (phase.kind, phase.number): phase,
+    };
+    if (!detected.phases.any(
+      (phase) => !recorded.containsKey((phase.kind, phase.number)),
+    )) {
+      return null;
+    }
+    return BrewPours(
+      bloomCount: detected.bloomCount,
+      pourCount: detected.pourCount,
+      phases: [
+        for (final phase in detected.phases)
+          recorded[(phase.kind, phase.number)] ?? phase,
+      ],
+    );
+  }
+
   /// The sum of recorded bloom pouring and resting times, in seconds.
   int get bloomSeconds => phases
       .where((phase) => phase.kind == BrewPourKind.bloom)

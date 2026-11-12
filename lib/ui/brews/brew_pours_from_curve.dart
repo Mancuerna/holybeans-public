@@ -5,8 +5,7 @@ import 'package:holybeans/domain/pour_detection.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 
-/// Blooms and pours found on the brew's curve, offered to be saved when
-/// none are recorded.
+/// Missing bloom and pour rows offered from the brew's curve.
 class BrewPoursFromCurve extends StatelessWidget {
   const BrewPoursFromCurve({
     super.key,
@@ -27,11 +26,14 @@ class BrewPoursFromCurve extends StatelessWidget {
         future: curve,
         builder: (context, snapshot) {
           final found = switch (snapshot.data) {
-            (:final curve, source: _) => brewPoursFromCurve(
+            (:final curve, source: _) => completeBrewPoursFromCurve(
               curve,
               doseGrams: brew.doseGrams,
-              bloomCount: brew.bloomCount,
-              pourCount: brew.pourCount,
+              recorded: BrewPours.fromStorage(
+                bloomCount: brew.bloomCount,
+                pourCount: brew.pourCount,
+                phasesJson: brew.pourPhasesJson,
+              ),
             ),
             null => null,
           };
