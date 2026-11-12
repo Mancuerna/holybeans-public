@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.10.0](https://github.com/Mancuerna/holybeans-public/compare/v1.9.0...v1.10.0) (2026-11-12)
+
+
+### Features
+
+* **profiles:** add reusable extraction profile library and editor ([#136](https://github.com/Mancuerna/holybeans-public/issues/136)) ([a210705](https://github.com/Mancuerna/holybeans-public/commit/a21070515c2fbdb7aff42f177b3477b24fac349d))
+
+
+### Bug Fixes
+
+* **brews:** use current portafilter tare when repeating ([#130](https://github.com/Mancuerna/holybeans-public/issues/130)) ([82c0d15](https://github.com/Mancuerna/holybeans-public/commit/82c0d15a9473baa333c80f7bb071bcebad29def8))
+* **profiles:** correct point dragging and combine live guides ([#137](https://github.com/Mancuerna/holybeans-public/issues/137)) ([b30fa7f](https://github.com/Mancuerna/holybeans-public/commit/b30fa7f5d29ded6891a0f1a7142117feb95f87ff))
+
 ## [1.9.0](https://github.com/Mancuerna/holybeans-public/compare/v1.8.0...v1.9.0) (2026-11-12)
 
 
