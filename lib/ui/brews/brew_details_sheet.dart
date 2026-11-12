@@ -4,9 +4,11 @@ import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/brew_ratio.dart';
 import 'package:holybeans/data/repositories/brew_stats.dart';
+import 'package:holybeans/data/repositories/extraction_profile_repository.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_pours.dart';
+import 'package:holybeans/domain/extraction_profile.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
@@ -20,9 +22,12 @@ import 'package:holybeans/ui/core/detail_widgets.dart';
 import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/photo_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
+import 'package:holybeans/ui/profiles/profile_editor_page.dart';
+import 'package:holybeans/ui/profiles/profile_plot.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
 import 'package:holybeans/ui/sync/journal_write_feedback.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 /// Opens the bottom sheet with everything recorded for [brew].
 void showBrewDetailsSheet(
@@ -129,6 +134,39 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
   /// The brew shown; blooms and pours saved from its curve update it here.
   late Brew brew = widget.brew;
   JournalActions get actions => widget.actions;
+
+  Future<void> _saveProfile(ShotCurve recording) async {
+    final s = AppLocalizations.of(context);
+    try {
+      final name = brew.profileName?.trim().isNotEmpty == true
+          ? brew.profileName!
+          : widget.coffee?.name ?? brew.methodName;
+      final profile = ExtractionProfile.fromShot(
+        id: const Uuid().v4(),
+        name: name.substring(0, name.length.clamp(0, 80)),
+        curve: recording,
+        doseGrams: brew.doseGrams,
+        temperatureC: brew.temperatureC,
+        targetGrams: brew.beverageGrams,
+      );
+      await Navigator.of(context).push<ExtractionProfile>(
+        MaterialPageRoute(
+          builder: (_) => ProfileEditorPage(
+            profile: profile,
+            onSave: ExtractionProfileRepository(
+              actions.commands.backupCenter.database,
+            ).save,
+          ),
+        ),
+      );
+    } catch (error, stack) {
+      reportError(error, stack);
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(s.profileError)));
+      }
+    }
+  }
 
   bool shows(BrewParameter? parameter) =>
       reveal ||
@@ -373,7 +411,16 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                           ),
                         },
                   ),
+                if (brew.extractionProfileJson case final source?)
+                  _ProfileSnapshot(source: source),
                 _CurveSection(
+                  onSaveProfile:
+                      isEspressoMethod(
+                        category: method?.category,
+                        methodName: brew.methodName,
+                      )
+                      ? _saveProfile
+                      : null,
                   espresso: isEspressoMethod(
                     category: method?.category,
                     methodName: brew.methodName,
@@ -615,12 +662,14 @@ class _CurveSection extends StatelessWidget {
     required this.curve,
     required this.espresso,
     this.firstDripMs,
+    this.onSaveProfile,
   });
 
   final bool espresso;
 
   final Future<({ShotCurve curve, String source})?> curve;
   final int? firstDripMs;
+  final Future<void> Function(ShotCurve)? onSaveProfile;
 
   @override
   Widget build(BuildContext context) =>
@@ -640,6 +689,15 @@ class _CurveSection extends StatelessWidget {
                         ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
+                if (onSaveProfile != null)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      onPressed: () => onSaveProfile!(curve),
+                      icon: const Icon(Icons.bookmark_add_outlined),
+                      label: Text(AppLocalizations.of(context).profileFromShot),
+                    ),
+                  ),
                 const SizedBox(height: 6),
                 ExtractionChart(
                   curve: curve,
@@ -744,5 +802,24 @@ class _EquipmentRows extends StatelessWidget {
           DetailRow(s.waterProfile, water),
       ],
     );
+  }
+}
+
+class _ProfileSnapshot extends StatelessWidget {
+  const _ProfileSnapshot({required this.source});
+  final String source;
+  @override
+  Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context);
+    try {
+      final profile = ExtractionProfile.decode(source);
+      return ExpansionTile(
+        title: Text(s.profileReference),
+        subtitle: Text(profile.name),
+        children: [ProfilePlot(profile: profile)],
+      );
+    } on FormatException {
+      return Text(s.profileError);
+    }
   }
 }

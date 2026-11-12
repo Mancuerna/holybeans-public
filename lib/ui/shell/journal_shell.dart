@@ -54,6 +54,7 @@ import 'package:holybeans/ui/equipment/recipients_page.dart';
 import 'package:holybeans/ui/equipment/tool_form.dart';
 import 'package:holybeans/ui/equipment/water_profile_form.dart';
 import 'package:holybeans/ui/home/home_tab.dart';
+import 'package:holybeans/ui/profiles/profile_library_page.dart';
 import 'package:holybeans/ui/roasters/roaster_routes.dart';
 import 'package:holybeans/ui/settings/beanconqueror_import_page.dart';
 import 'package:holybeans/ui/settings/pours_from_curves.dart';
@@ -694,6 +695,13 @@ class _JournalShellState extends State<JournalShell>
           // would lay out every tab on each frame of its animation.
           resizeToAvoidBottomInset: ModalRoute.of(context)?.isCurrent ?? true,
           appBar: JournalAppBar(
+            onProfiles: () => Navigator.of(context).push<void>(
+              MaterialPageRoute(
+                builder: (_) => ProfileLibraryPage(
+                  repository: repository.extractionProfiles,
+                ),
+              ),
+            ),
             onCafes: () => Navigator.of(context).push<void>(
               MaterialPageRoute(
                 builder: (_) => CafesPage(

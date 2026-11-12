@@ -25,6 +25,7 @@ en Google Drive y las conexiones con dispositivos son opcionales.
 
 ## De los granos a la taza
 
+- **Perfiles de extracción:** crea curvas de flujo en taza, presión o ambas desde Equipo o desde un tiro guardado. Edítalas por puntos, guarda favoritos y úsalas en el asistente con un reloj común. Puedes compartirlas como JSON; la biblioteca y la referencia usada en cada tiro se incluyen en el backup.
 - **Tus cafés:** tostadores, orígenes, fechas de tueste, existencias y porciones congeladas.
 - **Tus recetas:** espresso y filtro con dosis, bebida, molienda, temperatura, tiempo,
   valoraciones y notas. Repite una preparación o compara tus experimentos.

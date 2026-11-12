@@ -85,6 +85,7 @@ List<T> _decode<T>(
       throw FormatException('Invalid field type in backup collection: $key');
     }
     final knownKeys = switch (value) {
+      final ExtractionProfileRow row => row.toJson().keys.toSet(),
       final PistonMachine row => row.toJson().keys.toSet(),
       final PistonMethodLink row => row.toJson().keys.toSet(),
       final PistonMeasurement row => row.toJson().keys.toSet(),

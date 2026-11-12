@@ -1,5 +1,6 @@
 import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/domain/brix.dart';
+import 'package:holybeans/domain/extraction_profile.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
 import 'package:holybeans/domain/recipient_snapshot.dart';
 
@@ -40,6 +41,8 @@ class BrewInput {
     this.rating,
     this.notes,
     this.profileName,
+    this.extractionProfileJson,
+    this.replaceExtractionProfile = false,
     this.brewedAt,
   }) : methodToolIds = methodToolIds == null
            ? null
@@ -76,11 +79,16 @@ class BrewInput {
   final double? rating;
   final String? notes;
   final String? profileName;
+  final String? extractionProfileJson;
+  final bool replaceExtractionProfile;
   final DateTime? brewedAt;
 
   /// Rejects invalid recipe values before any writes take place.
   void validate() {
     recipient?.validate();
+    if (extractionProfileJson case final source?) {
+      ExtractionProfile.decode(source);
+    }
     final timeSeconds = this.timeSeconds;
     final temperatureC = this.temperatureC;
     final tdsPercent = this.tdsPercent;

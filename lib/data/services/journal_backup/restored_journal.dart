@@ -8,6 +8,7 @@ part of '../journal_backup.dart';
 class _RestoredJournal {
   _RestoredJournal._({
     required this.recipients,
+    required this.extractionProfiles,
     required this.cafeData,
     required this.pistonData,
     required this.adjustments,
@@ -188,6 +189,9 @@ class _RestoredJournal {
     }
 
     return _RestoredJournal._(
+      extractionProfiles: data.containsKey('extractionProfiles')
+          ? _decode(data, 'extractionProfiles', ExtractionProfileRow.fromJson)
+          : [],
       recipients: recipients,
       adjustments: data.containsKey('stockAdjustments')
           ? _decode(data, 'stockAdjustments', StockAdjustment.fromJson)
@@ -236,6 +240,7 @@ class _RestoredJournal {
   final _PistonBackup pistonData;
   final bool restoreBrewJugs;
   final List<Recipient> recipients;
+  final List<ExtractionProfileRow> extractionProfiles;
   final List<StockAdjustment> adjustments;
   final List<CuppingSession> sessions;
   final List<CuppingSessionCup> sessionCups;
@@ -295,6 +300,19 @@ class _RestoredJournal {
   /// Throws a [FormatException] at the first row that breaks the journal's
   /// rules: repeated IDs, missing relations or impossible values.
   void validate() {
+    final ids = <String>{};
+    for (final row in extractionProfiles) {
+      final profile = ExtractionProfile.decode(row.dataJson);
+      if (profile.id != row.id || !ids.add(row.id)) {
+        throw const FormatException('Invalid profile identity');
+      }
+    }
+    for (final brew in brews) {
+      if (brew.extractionProfileJson case final source?) {
+        ExtractionProfile.decode(source);
+      }
+    }
+
     cafeData.validate(coffees);
     pistonData.validate(methods);
     _checkUniqueIds();
@@ -709,6 +727,7 @@ class _RestoredJournal {
   Future<void> replace(AppDatabase database) => database.transaction(() async {
     await _clear(database);
     await database.batch((batch) {
+      batch.insertAll(database.extractionProfiles, extractionProfiles);
       batch.insertAll(database.coffees, coffees);
       batch.insertAll(database.coffeeComponents, components);
       batch.insertAll(database.coffeeLots, lots);
@@ -768,6 +787,7 @@ class _RestoredJournal {
 
   /// Empties every table, children before the rows they reference.
   static Future<void> _clear(AppDatabase database) async {
+    await database.delete(database.extractionProfiles).go();
     await _PistonBackup.clear(database);
     await _CafeBackup.clear(database);
     await database.delete(database.stockAdjustments).go();
