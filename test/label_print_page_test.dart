@@ -267,6 +267,15 @@ void main() {
               model.defaultPaper.printableHeight,
         );
         expect(printer.jobs, 0);
+        final strings = lookupAppLocalizations(const Locale('en'));
+        expect(
+          find.text(
+            model == LabelPrinterModel.typonosPm240
+                ? strings.labelSent
+                : strings.labelPrinted,
+          ),
+          findsOneWidget,
+        );
       },
     );
   }
@@ -315,56 +324,96 @@ void main() {
   });
 
   for (final locale in ['en', 'es']) {
-    testWidgets(
-      'P12 selection, continuous tape and explicit printing in $locale',
-      (tester) async {
-        final p12 = FakeLabelPrinter(model: LabelPrinterModel.marklifeP12);
-        addTearDown(p12.dispose);
-        final preferences = _MemoryOutputPreferences();
-        await mount(
-          tester,
-          others: [p12],
-          locale: locale,
-          outputPreferences: preferences,
-        );
-        await tester.tap(find.byKey(const ValueKey(LabelPrinterModel.d110)));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Pristar / Marklife P12').last);
-        await tester.pumpAndSettle();
-        final strings = lookupAppLocalizations(Locale(locale));
-        expect(find.text(strings.labelContinuousPaperHint), findsOneWidget);
-        expect(find.text(strings.labelPaperHint), findsNothing);
-        expect(preferences.paperFor(p12.model), p12.model.defaultPaper);
-        expect(p12.jobs, 0);
-        await reveal(tester, 'label-body');
-        await tester.enterText(
-          find.byKey(const ValueKey('label-body')),
-          'P12 coffee',
-        );
-        await tester.pumpAndSettle();
-        await reveal(tester, 'label-preview');
-        final preview = tester.widget<LabelPreview>(find.byType(LabelPreview));
-        expect(preview.layout.paper.printableWidth, 320);
-        expect(preview.layout.paper.printableHeight, 96);
-        await p12.connect();
-        await tester.pumpAndSettle();
-        await reveal(tester, 'label-print');
-        expect(p12.jobs, 0);
-        await tester.tap(find.byKey(const ValueKey('label-print')));
-        for (var n = 0; n < 100 && p12.jobs == 0; n++) {
-          await tester.runAsync(
-            () => Future<void>.delayed(const Duration(milliseconds: 10)),
+    for (final model in [
+      LabelPrinterModel.marklifeP12,
+      LabelPrinterModel.pristarP15,
+      LabelPrinterModel.fichero5836,
+      LabelPrinterModel.typonosPm240,
+    ]) {
+      testWidgets(
+        '${model.label} selection, paper and explicit printing in $locale',
+        (tester) async {
+          final selected = FakeLabelPrinter(model: model);
+          addTearDown(selected.dispose);
+          final preferences = _MemoryOutputPreferences();
+          await mount(
+            tester,
+            others: [selected],
+            locale: locale,
+            outputPreferences: preferences,
           );
-          await tester.pump();
-        }
-        await tester.pumpAndSettle();
-        expect(p12.jobs, 1);
-        expect(p12.lastPaper, p12.model.defaultPaper);
-        expect(p12.lastPixels, hasLength(320 * 96));
-        expect(printer.jobs, 0);
-        expect(tester.takeException(), isNull);
-      },
-    );
+          await tester.tap(find.byKey(const ValueKey(LabelPrinterModel.d110)));
+          await tester.pumpAndSettle();
+          await tester.tap(find.text(model.displayName).last);
+          await tester.pumpAndSettle();
+          final strings = lookupAppLocalizations(Locale(locale));
+          expect(
+            find.text(
+              model.continuousTape
+                  ? strings.labelContinuousPaperHint
+                  : strings.labelPaperHint,
+            ),
+            findsOneWidget,
+          );
+          if (model == LabelPrinterModel.typonosPm240) {
+            expect(find.text(strings.labelPm240PaperHint), findsOneWidget);
+          }
+          expect(
+            preferences.paperFor(selected.model),
+            selected.model.defaultPaper,
+          );
+          expect(selected.jobs, 0);
+          await reveal(tester, 'label-body');
+          await tester.enterText(
+            find.byKey(const ValueKey('label-body')),
+            'Coffee',
+          );
+          await tester.pumpAndSettle();
+          await reveal(tester, 'label-preview');
+          final preview = tester.widget<LabelPreview>(
+            find.byType(LabelPreview),
+          );
+          expect(
+            preview.layout.paper.printableWidth,
+            model == LabelPrinterModel.typonosPm240 ? 384 : 320,
+          );
+          expect(
+            preview.layout.paper.printableHeight,
+            model == LabelPrinterModel.typonosPm240 ? 224 : 96,
+          );
+          await selected.connect();
+          await tester.pumpAndSettle();
+          await reveal(tester, 'label-print');
+          expect(selected.jobs, 0);
+          await tester.tap(find.byKey(const ValueKey('label-print')));
+          for (var n = 0; n < 100 && selected.jobs == 0; n++) {
+            await tester.runAsync(
+              () => Future<void>.delayed(const Duration(milliseconds: 10)),
+            );
+            await tester.pump();
+          }
+          await tester.pumpAndSettle();
+          expect(selected.jobs, 1);
+          expect(selected.lastPaper, selected.model.defaultPaper);
+          expect(
+            selected.lastPixels,
+            hasLength(
+              model == LabelPrinterModel.typonosPm240 ? 384 * 224 : 320 * 96,
+            ),
+          );
+          expect(printer.jobs, 0);
+          expect(
+            find.text(
+              model == LabelPrinterModel.typonosPm240
+                  ? strings.labelSent
+                  : strings.labelPrinted,
+            ),
+            findsOneWidget,
+          );
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
   }
 
   testWidgets('unavailable remembered model falls back to available printer', (

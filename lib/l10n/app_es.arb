@@ -3527,5 +3527,9 @@
   "profileSearch": "Buscar perfiles",
   "profileCombined": "Juntas",
   "profileSeparate": "Separadas",
-  "profileGuideLegend": "Discontinua y círculo: referencia. Continua y rombo: lectura real. Caudal en el eje izquierdo (g/s); presión en el derecho (bar). Los huecos indican ausencia de lecturas."
+  "profileGuideLegend": "Discontinua y círculo: referencia. Continua y rombo: lectura real. Caudal en el eje izquierdo (g/s); presión en el derecho (bar). Los huecos indican ausencia de lecturas.",
+  "labelPm240PrinterHint": "Enciende la PM240 y desconéctala de Labelnize antes de buscar.",
+  "labelOtherPrinterHint": "Enciende la impresora y desconéctala de otras apps de impresión antes de buscar.",
+  "labelPm240PaperHint": "Etiquetas de 50 × 30 mm; área imprimible de 48 × 28 mm.",
+  "labelSent": "Datos de la etiqueta enviados. Revisa el resultado impreso."
 }

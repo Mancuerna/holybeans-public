@@ -22,6 +22,13 @@ professional scoring system. Water presets retain their source links in the app.
 
 - [NiimBlueLib](https://github.com/MultiMote/niimbluelib): community Niimbot protocol;
   [MIT notice](../assets/licenses/niimbluelib.txt).
+- [Marklife L11 wire protocol](https://thermal-label.github.io/marklife/protocol/l11):
+  independent P12/P15 encoders.
+- [Fichero 5836 wire reference](https://github.com/0xMH/fichero-printer/blob/main/docs/PROTOCOL.md):
+  independent AiYin D11s encoder and acknowledgement/error handling.
+- Typonos PM240: independent TSPL encoder derived from the Labelnize 4.10.0
+  device profile and command path, then physically tested in Printer Lab.
+  No Labelnize binaries or proprietary source code are included.
 - [Meticulous integration](https://github.com/cjborchert/ha-meticulous) and
   [cards](https://github.com/cjborchert/ha-meticulous-cards):
   [MIT notices](../assets/licenses/meticulous-piston.txt).

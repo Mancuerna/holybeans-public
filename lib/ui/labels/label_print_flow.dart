@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/label_output_preferences.dart';
+import 'package:holybeans/data/services/gap_label_printer.dart';
 import 'package:holybeans/data/services/label_printer.dart';
 import 'package:holybeans/data/services/label_printer_cleanup.dart';
 import 'package:holybeans/data/services/marklife_printer.dart';
 import 'package:holybeans/data/services/paired_device_file.dart';
+import 'package:holybeans/data/services/pm240_printer.dart';
+import 'package:holybeans/domain/gap_printer_protocol.dart';
 import 'package:holybeans/domain/label_printer_profile.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/labels/label_print_page.dart';
@@ -35,6 +38,25 @@ Future<void> showCoffeeLabelPage(
         )
         .toList();
     for (final model in LabelPrinterModel.values) {
+      if (model.narrowGap) {
+        final printer = GapLabelPrinter(
+          model == LabelPrinterModel.pristarP15
+              ? GapPrinterModel.p15
+              : GapPrinterModel.fichero,
+          store: await PairedDeviceFile.open('${model.name}.json'),
+        );
+        printers.add(printer);
+        await printer.load();
+        continue;
+      }
+      if (model == LabelPrinterModel.typonosPm240) {
+        final printer = Pm240Printer(
+          store: await PairedDeviceFile.open('typonos_pm240.json'),
+        );
+        printers.add(printer);
+        await printer.load();
+        continue;
+      }
       if (model == LabelPrinterModel.marklifeP12) {
         final printer = MarklifePrinter(
           await PairedDeviceFile.open('marklife_p12.json'),

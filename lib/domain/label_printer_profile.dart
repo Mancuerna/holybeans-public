@@ -1,4 +1,6 @@
+import 'package:holybeans/domain/gap_printer_protocol.dart';
 import 'package:holybeans/domain/marklife_protocol.dart';
+import 'package:holybeans/domain/pm240_protocol.dart';
 
 enum LabelPrinterModel {
   d110('D110', 96, 203, 2),
@@ -10,7 +12,10 @@ enum LabelPrinterModel {
   b2Pro('B2 Pro', 576, 300, 3),
   d11('D11', 96, 203, 2),
   d11H('D11-H', 144, 300, 3),
-  marklifeP12('P12', 96, 203, 2);
+  marklifeP12('P12', 96, 203, 2),
+  pristarP15('P15', 96, 203, 2),
+  fichero5836('Fichero 5836', 96, 203, 2),
+  typonosPm240('PM240', 384, 203, 2);
 
   const LabelPrinterModel(
     this.label,
@@ -25,20 +30,32 @@ enum LabelPrinterModel {
 
   // Keep the already verified 203 dpi geometry exactly as delivered.
   double get pixelsPerMm => dpi == 203 ? 8 : dpi / 25.4;
-  bool get isNiimbot => this != marklifeP12;
-  String get displayName =>
-      isNiimbot ? 'Niimbot $label' : 'Pristar / Marklife P12';
+  bool get isNiimbot => !const [
+    marklifeP12,
+    pristarP15,
+    fichero5836,
+    typonosPm240,
+  ].contains(this);
+  bool get narrowGap => this == pristarP15 || this == fichero5836;
+  String get displayName => switch (this) {
+    marklifeP12 => 'Pristar / Marklife P12',
+    pristarP15 => 'Pristar / Marklife P15',
+    fichero5836 => 'Fichero 5836',
+    typonosPm240 => 'Typonos PM240',
+    _ => 'Niimbot $label',
+  };
   bool get continuousTape => this == marklifeP12;
   bool get rotateForFeed =>
       this == d110 ||
       this == d110M ||
       this == d11 ||
       this == d11H ||
-      this == marklifeP12;
+      this == marklifeP12 ||
+      narrowGap;
   bool get needsProtocolVersion =>
       this == b1Pro || this == b2 || this == b2Pro || this == d11H;
   bool acceptsId(int id) => switch (this) {
-    marklifeP12 => false,
+    marklifeP12 || pristarP15 || fichero5836 || typonosPm240 => false,
     d110 => id == 2304 || id == 2305,
     d110M => id == 2320,
     d11 => id == 512,
@@ -51,9 +68,15 @@ enum LabelPrinterModel {
   };
   bool matchesName(String? name) {
     if (this == marklifeP12) return MarklifeProtocol.matchesName(name);
+    if (this == pristarP15) return GapPrinterModel.p15.matchesName(name);
+    if (this == fichero5836) return GapPrinterModel.fichero.matchesName(name);
+    if (this == typonosPm240) return Pm240Protocol.matchesName(name);
     if (name == null) return false;
     final pattern = switch (this) {
-      marklifeP12 => throw StateError('Handled by Marklife protocol'),
+      marklifeP12 ||
+      pristarP15 ||
+      fichero5836 ||
+      typonosPm240 => throw StateError('Handled by its own protocol'),
       d110 => r'^D110(?:-|$)',
       d110M => r'^D110[ _]?M(?:-|$)',
       d11 => r'^D11(?:-|$)',
@@ -69,7 +92,13 @@ enum LabelPrinterModel {
     return RegExp(pattern, caseSensitive: false).hasMatch(name);
   }
 
-  List<LabelPaper> get papers => continuousTape
+  List<LabelPaper> get papers => this == typonosPm240
+      ? [LabelPaper(50, 30, this)]
+      : narrowGap
+      ? [
+          for (final length in [30, 40]) LabelPaper(14, length, this),
+        ]
+      : continuousTape
       ? [
           for (final length in MarklifeProtocol.lengthsMm)
             LabelPaper(15, length, this),
@@ -95,7 +124,9 @@ enum LabelPrinterModel {
           ])
             LabelPaper(width, length, this),
         ];
-  LabelPaper get defaultPaper => continuousTape
+  LabelPaper get defaultPaper => narrowGap
+      ? LabelPaper(14, 40, this)
+      : continuousTape
       ? LabelPaper(15, 40, this)
       : rotateForFeed
       ? LabelPaper(15, 30, this)
@@ -125,7 +156,11 @@ class LabelPaper {
   int get crossFeedPixels =>
       (widthMm * model.pixelsPerMm).round().clamp(0, model.headPixels);
   int get feedPixels => (lengthMm * model.pixelsPerMm).round();
-  int get printableHeight => model.rotateForFeed ? crossFeedPixels : feedPixels;
+  int get printableHeight => model == LabelPrinterModel.typonosPm240
+      ? Pm240Protocol.height
+      : model.rotateForFeed
+      ? crossFeedPixels
+      : feedPixels;
   int get printableWidth => model.rotateForFeed ? feedPixels : crossFeedPixels;
   int get displayWidthMm => model.rotateForFeed ? lengthMm : widthMm;
   int get displayHeightMm => model.rotateForFeed ? widthMm : lengthMm;
