@@ -3500,9 +3500,9 @@
   "profileError": "No se ha podido completar la operación. Comprueba los datos e inténtalo de nuevo.",
   "profileSaved": "Perfil guardado",
   "profileChannels": "Curvas objetivo",
-  "profileBoth": "Flujo y presión",
+  "profileBoth": "Caudal y presión",
   "profilePrimary": "Objetivo prioritario",
-  "profileClock": "El tiempo empieza al iniciar la extracción e incluye la preinfusión. El flujo es el peso que llega a la taza por segundo.",
+  "profileClock": "El tiempo empieza al iniciar la extracción e incluye la preinfusión. El caudal es el peso que llega a la taza por segundo.",
   "profileDrag": "Arrastra los puntos o toca una fila para editar sus valores.",
   "profilePredicted": "Peso previsto",
   "profileTargetWeight": "Peso objetivo (g)",
@@ -3524,5 +3524,8 @@
   "profileSavedShots": "Elegir un tiro guardado",
   "profileNotes": "Notas",
   "profileFavorite": "Favorito",
-  "profileSearch": "Buscar perfiles"
+  "profileSearch": "Buscar perfiles",
+  "profileCombined": "Juntas",
+  "profileSeparate": "Separadas",
+  "profileGuideLegend": "Discontinua y círculo: referencia. Continua y rombo: lectura real. Caudal en el eje izquierdo (g/s); presión en el derecho (bar). Los huecos indican ausencia de lecturas."
 }

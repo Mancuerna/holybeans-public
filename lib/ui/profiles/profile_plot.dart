@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:holybeans/domain/extraction_profile.dart';
 import 'package:holybeans/domain/flow_guide.dart';
 import 'package:holybeans/ui/profiles/profile_editor_model.dart';
+import 'package:holybeans/ui/profiles/profile_numbers.dart';
+import 'package:holybeans/ui/profiles/profile_point_drag.dart';
+import 'package:intl/intl.dart' show NumberFormat;
 
 class ProfilePlot extends StatelessWidget {
   const ProfilePlot({
@@ -24,11 +27,12 @@ class ProfilePlot extends StatelessWidget {
         editor?.active,
         editor?.selected,
         Theme.of(context).textTheme.bodySmall!,
+        profileNumber(context),
       );
       final size = Size(constraints.maxWidth, height);
-      bool select(Offset position) {
+      int? nearest(Offset position) {
         final model = editor;
-        if (model == null) return false;
+        if (model == null) return null;
         var best = double.infinity;
         var index = 0;
         for (var i = 0; i < model.points.length; i++) {
@@ -40,43 +44,51 @@ class ProfilePlot extends StatelessWidget {
             index = i;
           }
         }
-        if (best >= 32) return false;
-        model.select(model.active, index);
-        return true;
+        return best < 32 ? index : null;
       }
 
-      return GestureDetector(
-        onTapDown: editor == null ? null : (e) => select(e.localPosition),
-        onPanStart: editor == null
-            ? null
-            : (e) {
-                if (select(e.localPosition)) editor!.beginDrag();
-              },
-        onPanUpdate: editor == null
-            ? null
-            : (e) {
-                final model = editor!;
-                if (!model.dragging) return;
-                final i = model.selected;
-                final min = i == 0 ? 0 : model.points[i - 1].elapsedMs + 1;
-                final max = i == model.points.length - 1
-                    ? profile.durationMs
-                    : model.points[i + 1].elapsedMs - 1;
-                final ms =
-                    ((e.localPosition.dx - 34) /
-                            (size.width - 68) *
-                            profile.durationMs)
-                        .round()
-                        .clamp(min, max);
-                final value =
-                    ((height - 28 - e.localPosition.dy) /
-                            (height - 52) *
-                            painter.maximum(model.active))
-                        .clamp(0.0, 30.0);
-                model.move(i, ms, value, dragging: true);
-              },
-        onPanEnd: editor == null ? null : (_) => editor!.endDrag(),
-        onPanCancel: editor?.endDrag,
+      return RawGestureDetector(
+        gestures: {
+          if (editor != null)
+            ProfilePointDrag:
+                GestureRecognizerFactoryWithHandlers<ProfilePointDrag>(
+                  ProfilePointDrag.new,
+                  (gesture) {
+                    gesture.hitsPoint = (position) => nearest(position) != null;
+                    gesture.onStart = (e) {
+                      final index = nearest(e.localPosition);
+                      if (index == null) return;
+                      editor!.select(editor!.active, index);
+                      editor!.beginDrag();
+                    };
+                    gesture.onUpdate = (e) {
+                      final model = editor!;
+                      if (!model.dragging) return;
+                      final i = model.selected;
+                      final min = i == 0
+                          ? 0
+                          : model.points[i - 1].elapsedMs + 1;
+                      final max = i == model.points.length - 1
+                          ? profile.durationMs
+                          : model.points[i + 1].elapsedMs - 1;
+                      final ms =
+                          ((e.localPosition.dx - 34) /
+                                  (size.width - 68) *
+                                  profile.durationMs)
+                              .round()
+                              .clamp(min, max);
+                      final value =
+                          ((height - 28 - e.localPosition.dy) /
+                                  (height - 52) *
+                                  painter.maximum(model.active))
+                              .clamp(0.0, 30.0);
+                      model.move(i, ms, value, dragging: true);
+                    };
+                    gesture.onEnd = (_) => editor!.endDrag();
+                    gesture.onCancel = editor!.endDrag;
+                  },
+                ),
+        },
         child: CustomPaint(size: size, painter: painter),
       );
     },
@@ -90,8 +102,10 @@ class _ProfilePainter extends CustomPainter {
     this.active,
     this.selected,
     this.textStyle,
+    this.number,
   );
   final TextStyle textStyle;
+  final NumberFormat number;
   final ExtractionProfile profile;
   final ColorScheme colors;
   final String? active;
@@ -114,6 +128,7 @@ class _ProfilePainter extends CustomPainter {
       textDirection: TextDirection.ltr,
     )..layout();
     p.paint(canvas, offset);
+    p.dispose();
   }
 
   @override
@@ -125,7 +140,7 @@ class _ProfilePainter extends CustomPainter {
       if (profile.flow.isNotEmpty) {
         label(
           canvas,
-          (maximum('flow') * (1 - i / 4)).toStringAsFixed(1),
+          number.format(maximum('flow') * (1 - i / 4)),
           Offset(0, y - 5),
           colors.primary,
         );
@@ -133,7 +148,7 @@ class _ProfilePainter extends CustomPainter {
       if (profile.pressure.isNotEmpty) {
         label(
           canvas,
-          (maximum('pressure') * (1 - i / 4)).toStringAsFixed(0),
+          number.format(maximum('pressure') * (1 - i / 4)),
           Offset(size.width - 28, y - 5),
           colors.tertiary,
         );
@@ -148,7 +163,7 @@ class _ProfilePainter extends CustomPainter {
     for (var i = 0; i <= 4; i++) {
       label(
         canvas,
-        '${(profile.durationMs / 1000 * i / 4).toStringAsFixed(1)} s',
+        '${number.format(profile.durationMs / 1000 * i / 4)} s',
         Offset(24 + (size.width - 68) * i / 4, size.height - 19),
         colors.onSurfaceVariant,
       );
@@ -192,5 +207,7 @@ class _ProfilePainter extends CustomPainter {
       oldDelegate.profile != profile ||
       oldDelegate.active != active ||
       oldDelegate.selected != selected ||
-      oldDelegate.colors != colors;
+      oldDelegate.colors != colors ||
+      oldDelegate.number.locale != number.locale ||
+      oldDelegate.textStyle != textStyle;
 }

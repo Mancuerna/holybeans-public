@@ -3,6 +3,7 @@ import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/domain/extraction_profile.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/profiles/profile_editor_model.dart';
+import 'package:holybeans/ui/profiles/profile_numbers.dart';
 import 'package:holybeans/ui/profiles/profile_plot.dart';
 
 class ProfileEditorPage extends StatefulWidget {
@@ -31,6 +32,20 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
         '${widget.profile.targetGrams ?? widget.profile.predictedGrams ?? 36}',
   );
   late final notes = TextEditingController(text: widget.profile.notes);
+  bool initializedNumbers = false;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (initializedNumbers) return;
+    initializedNumbers = true;
+    dose.text = profileInput(context, widget.profile.doseGrams);
+    temperature.text = profileInput(context, widget.profile.temperatureC);
+    target.text = profileInput(
+      context,
+      widget.profile.targetGrams ?? widget.profile.predictedGrams ?? 36,
+    );
+  }
+
   bool saving = false;
   bool saved = false;
   bool metadataDirty = false;
@@ -77,8 +92,10 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
   Future<void> editPoint(int i) async {
     final s = AppLocalizations.of(context);
     final p = model.points[i];
-    final t = TextEditingController(text: '${p.elapsedMs / 1000}');
-    final v = TextEditingController(text: '${p.value}');
+    final t = TextEditingController(
+      text: profileInput(context, p.elapsedMs / 1000),
+    );
+    final v = TextEditingController(text: profileInput(context, p.value));
     final key = GlobalKey<FormState>();
     await showDialog<void>(
       context: context,
@@ -150,7 +167,9 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
 
   Future<void> scaleDuration() async {
     final s = AppLocalizations.of(context);
-    final c = TextEditingController(text: '${model.profile.durationMs / 1000}');
+    final c = TextEditingController(
+      text: profileInput(context, model.profile.durationMs / 1000),
+    );
     final key = GlobalKey<FormState>();
     await showDialog<void>(
       context: context,
@@ -251,6 +270,8 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
 
   @override
   Widget build(BuildContext context) {
+    final n = profileNumber(context);
+    final precise = profileNumber(context, decimals: 2);
     final s = AppLocalizations.of(context);
     return ListenableBuilder(
       listenable: model,
@@ -392,7 +413,7 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
                 const SizedBox(height: 12),
                 if (model.profile.predictedGrams case final grams?)
                   Text(
-                    '${s.profilePredicted}: ${grams.toStringAsFixed(1)} g · 1:${(grams / ((number(dose.text) ?? 0) > 0 ? number(dose.text)! : model.profile.doseGrams)).toStringAsFixed(2)}',
+                    '${s.profilePredicted}: ${n.format(grams)} g · 1:${precise.format(grams / ((number(dose.text) ?? 0) > 0 ? number(dose.text)! : model.profile.doseGrams))}',
                     style: Theme.of(context).textTheme.titleMedium,
                   )
                 else
@@ -404,7 +425,7 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
                   onPressed: scaleDuration,
                   icon: const Icon(Icons.schedule),
                   label: Text(
-                    '${s.profileScaleDuration} · ${model.profile.durationMs / 1000} s',
+                    '${s.profileScaleDuration} · ${n.format(model.profile.durationMs / 1000)} s',
                   ),
                 ),
                 Row(
@@ -434,7 +455,7 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
                     selected: model.selected == i,
                     leading: Text('${i + 1}'),
                     title: Text(
-                      '${(model.points[i].elapsedMs / 1000).toStringAsFixed(2)} s     ${model.points[i].value.toStringAsFixed(2)} ${model.active == 'flow' ? 'g/s' : 'bar'}',
+                      '${precise.format(model.points[i].elapsedMs / 1000)} s     ${precise.format(model.points[i].value)} ${model.active == 'flow' ? 'g/s' : 'bar'}',
                     ),
                     onTap: () {
                       model.select(model.active, i);

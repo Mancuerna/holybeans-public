@@ -2723,5 +2723,8 @@
   "profileSavedShots": "Choose a saved shot",
   "profileNotes": "Notes",
   "profileFavorite": "Favorite",
-  "profileSearch": "Search profiles"
+  "profileSearch": "Search profiles",
+  "profileCombined": "Combined",
+  "profileSeparate": "Separate",
+  "profileGuideLegend": "Dashed line and circle: reference. Solid line and diamond: live reading. Flow on the left axis (g/s); pressure on the right (bar). Gaps indicate missing readings."
 }

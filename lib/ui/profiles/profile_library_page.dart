@@ -8,6 +8,7 @@ import 'package:holybeans/data/repositories/extraction_profile_repository.dart';
 import 'package:holybeans/domain/extraction_profile.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/profiles/profile_editor_page.dart';
+import 'package:holybeans/ui/profiles/profile_numbers.dart';
 import 'package:holybeans/ui/profiles/profile_plot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';
@@ -103,6 +104,7 @@ class _ProfileLibraryPageState extends State<ProfileLibraryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final n = profileNumber(context);
     final s = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -252,13 +254,13 @@ class _ProfileLibraryPageState extends State<ProfileLibraryPage> {
                                   ? s.profileBoth
                                   : p.flow.isNotEmpty
                                   ? s.curveFlow
-                                  : s.curvePressure} · ${p.durationMs / 1000} s · ${p.doseGrams} g · ${p.temperatureC} °C',
+                                  : s.curvePressure} · ${n.format(p.durationMs / 1000)} s · ${n.format(p.doseGrams)} g · ${n.format(p.temperatureC)} °C',
                             ),
                             ProfilePlot(profile: p, height: 130),
                             if (p.predictedGrams ?? p.targetGrams
                                 case final grams?)
                               Text(
-                                '${s.profilePredicted}: ${grams.toStringAsFixed(1)} g',
+                                '${s.profilePredicted}: ${n.format(grams)} g',
                               ),
                             if (p.notes.isNotEmpty)
                               Text(
