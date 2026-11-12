@@ -44,6 +44,94 @@ class _CurveBuilder {
 }
 
 void main() {
+  group('completing saved phase rows', () {
+    final curve =
+        (_CurveBuilder()
+              ..wait(2)
+              ..pour(7, 50)
+              ..wait(52)
+              ..pour(3, 51)
+              ..wait(12)
+              ..pour(3, 53)
+              ..wait(20)
+              ..pour(4, 46)
+              ..wait(45))
+            .curve;
+    const bloom = BrewPourPhase(
+      kind: BrewPourKind.bloom,
+      number: 1,
+      waterGrams: 49,
+      durationSeconds: 8,
+      restSeconds: 51,
+    );
+
+    test('a minute bloom and three pours complete a bloom-only record', () {
+      final detected = brewPoursFromCurve(curve, doseGrams: 12.5)!;
+      expect((detected.bloomCount, detected.pourCount), (1, 3));
+      expect(detected.phases.map((phase) => phase.waterGrams), [
+        50,
+        51,
+        53,
+        46,
+      ]);
+      final recorded = BrewPours(
+        bloomCount: 1,
+        pourCount: 3,
+        phases: const [bloom],
+      );
+      final completed = completeBrewPoursFromCurve(
+        curve,
+        recorded: recorded,
+        doseGrams: 12.5,
+      )!;
+      expect(completed.hasAllPhases, isTrue);
+      expect(completed.phases.first, same(bloom));
+      expect(completed.phases.map((phase) => phase.waterGrams), [
+        49,
+        51,
+        53,
+        46,
+      ]);
+      expect(completed.phases.map((phase) => (phase.kind, phase.number)), [
+        (BrewPourKind.bloom, 1),
+        (BrewPourKind.pour, 1),
+        (BrewPourKind.pour, 2),
+        (BrewPourKind.pour, 3),
+      ]);
+      expect(completeBrewPoursFromCurve(curve, recorded: completed), isNull);
+    });
+
+    test('fills gaps around an existing pour without changing its fields', () {
+      const pour = BrewPourPhase(kind: BrewPourKind.pour, number: 2);
+      final recorded = BrewPours(
+        bloomCount: 1,
+        pourCount: 3,
+        phases: const [pour],
+      );
+      final completed = completeBrewPoursFromCurve(curve, recorded: recorded)!;
+      expect(completed.hasAllPhases, isTrue);
+      expect(completed.phases[2], same(pour));
+      expect(completed.phases.first.waterGrams, 50);
+    });
+
+    test('incompatible counts and incomplete detections are left alone', () {
+      final recorded = BrewPours(
+        bloomCount: 1,
+        pourCount: 2,
+        phases: const [bloom],
+      );
+      expect(completeBrewPoursFromCurve(curve, recorded: recorded), isNull);
+      final incomplete = BrewPours(
+        bloomCount: 1,
+        pourCount: 2,
+        phases: const [
+          BrewPourPhase(kind: BrewPourKind.pour, number: 1, waterGrams: 50),
+        ],
+      );
+      expect(recorded.fillMissingPhases(incomplete), isNull);
+    });
+  });
+
   group('five equal pours with long rests', () {
     final builder = _CurveBuilder()..wait(2);
     for (var i = 0; i < 5; i++) {

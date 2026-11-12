@@ -34,7 +34,6 @@ import 'package:holybeans/domain/cupping.dart';
 import 'package:holybeans/domain/flow_guide.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
 import 'package:holybeans/domain/gaggimate/shot.dart';
-import 'package:holybeans/domain/pour_detection.dart';
 import 'package:holybeans/domain/pour_plan.dart';
 import 'package:holybeans/domain/pressure_guide.dart';
 import 'package:holybeans/domain/profile_suggestions.dart';

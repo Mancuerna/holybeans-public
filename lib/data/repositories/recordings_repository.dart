@@ -227,30 +227,49 @@ class RecordingRepository {
     return result;
   }
 
-  /// Records the blooms, pours and total bloom time found on [brewId]'s curve.
+  /// Fills missing bloom and pour rows from [brewId]'s curve.
   ///
-  /// Like marking a favourite, it does not change the brew's edit timestamp.
-  Future<void> setBrewPours(String brewId, BrewPours pours) async {
-    pours.validate();
-    final bloomSeconds = pours.bloomSeconds;
-    final updated =
+  /// Keeps existing rows and preserves the total bloom time when no blooms
+  /// are added. Like marking a favourite, it leaves the edit timestamp alone.
+  Future<void> setBrewPours(String brewId, BrewPours pours) =>
+      database.transaction(() async {
+        pours.validate();
+        final brew = await (database.select(
+          database.brews,
+        )..where((row) => row.id.equals(brewId))).getSingleOrNull();
+        if (brew == null) throw StateError('Brew not found');
+        final recorded = BrewPours.fromStorage(
+          bloomCount: brew.bloomCount,
+          pourCount: brew.pourCount,
+          phasesJson: brew.pourPhasesJson,
+        );
+        final completed = recorded.fillMissingPhases(pours);
+        if (completed == null) return;
+        final addedBloom =
+            completed.phases
+                .where((phase) => phase.kind == BrewPourKind.bloom)
+                .length >
+            recorded.phases
+                .where((phase) => phase.kind == BrewPourKind.bloom)
+                .length;
+        final bloomSeconds = completed.bloomSeconds;
         await (database.update(
           database.brews,
         )..where((row) => row.id.equals(brewId))).write(
           BrewsCompanion(
-            bloomSeconds: Value(bloomSeconds > 0 ? bloomSeconds : null),
-            bloomCount: Value(pours.bloomCount),
-            pourCount: Value(pours.pourCount),
-            pourPhasesJson: Value(pours.phasesJson),
+            bloomSeconds: recorded.phases.isEmpty || addedBloom
+                ? Value(bloomSeconds > 0 ? bloomSeconds : null)
+                : const Value.absent(),
+            bloomCount: Value(completed.bloomCount),
+            pourCount: Value(completed.pourCount),
+            pourPhasesJson: Value(completed.phasesJson),
           ),
         );
-    if (updated == 0) throw StateError('Brew not found');
-  }
+      });
 
-  /// Filter brews with a curve and no bloom or pour details yet, with what
-  /// their curves show (see [brewPoursFromCurve]): counts already recorded, typed
-  /// or copied from a repeated brew, are kept, and one the curve disagrees
-  /// with is left alone.
+  /// Finds filter brews whose curves can fill missing bloom or pour rows.
+  ///
+  /// Keeps existing counts and details; incompatible curves are left alone.
   Future<List<({Brew brew, BrewPours pours})>> poursFromCurves() async {
     final methods = {
       for (final method in await database.select(database.brewMethods).get())
@@ -261,7 +280,7 @@ class RecordingRepository {
         database.brewCurves,
         database.brewCurves.brewId.equalsExp(database.brews.id),
       ),
-    ])..where(database.brews.pourPhasesJson.isNull());
+    ]);
     final found = <({Brew brew, BrewPours pours})>[];
     for (final row in await query.get()) {
       final brew = row.readTable(database.brews);
@@ -271,6 +290,12 @@ class RecordingRepository {
       )) {
         continue;
       }
+      final recorded = BrewPours.fromStorage(
+        bloomCount: brew.bloomCount,
+        pourCount: brew.pourCount,
+        phasesJson: brew.pourPhasesJson,
+      );
+      if (recorded.hasAllPhases) continue;
       final ShotCurve curve;
       try {
         curve = ShotCurve.fromJson(
@@ -279,11 +304,10 @@ class RecordingRepository {
       } on FormatException {
         continue;
       }
-      if (brewPoursFromCurve(
+      if (completeBrewPoursFromCurve(
             curve,
             doseGrams: brew.doseGrams,
-            bloomCount: brew.bloomCount,
-            pourCount: brew.pourCount,
+            recorded: recorded,
           )
           case final pours?) {
         found.add((brew: brew, pours: pours));

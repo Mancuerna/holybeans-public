@@ -315,9 +315,7 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                   ),
                 if (pours.phases.isNotEmpty && shows(BrewParameter.pourDetails))
                   BrewPourDetails(pours: pours, doseGrams: brew.doseGrams),
-                // Counts copied from a repeated brew come without details: the
-                // curve can still give them.
-                if (pours.phases.isEmpty &&
+                if (!pours.hasAllPhases &&
                     !isEspressoMethod(
                       category: method?.category,
                       methodName: brew.methodName,

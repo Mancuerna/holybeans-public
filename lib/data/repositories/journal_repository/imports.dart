@@ -48,16 +48,15 @@ extension ImportOperations on JournalRepository {
   Future<List<({Brew brew, FlowGuide guide})>> flowReferences() =>
       recordings.flowReferences();
 
-  /// Records the blooms, pours and total bloom time found on [brewId]'s curve.
+  /// Fills missing bloom and pour rows from [brewId]'s curve.
   ///
   /// Like marking a favourite, it does not change the brew's edit timestamp.
   Future<void> setBrewPours(String brewId, BrewPours pours) =>
       recordings.setBrewPours(brewId, pours);
 
-  /// Filter brews with a curve and no bloom or pour details yet, with what
-  /// their curves show (see [brewPoursFromCurve]): counts already recorded, typed
-  /// or copied from a repeated brew, are kept, and one the curve disagrees
-  /// with is left alone.
+  /// Finds filter brews whose curves can fill missing bloom or pour rows.
+  ///
+  /// Keeps existing counts and details; incompatible curves are left alone.
   Future<List<({Brew brew, BrewPours pours})>> poursFromCurves() =>
       recordings.poursFromCurves();
 

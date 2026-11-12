@@ -101,6 +101,25 @@ BrewPours? brewPoursFromCurve(
   pourCount: pourCount,
 );
 
+/// Completes missing phase rows in [recorded] from a filter brew's [curve].
+///
+/// Keeps existing counts and details. Returns `null` when detection disagrees
+/// with the counts or all phases already have details.
+BrewPours? completeBrewPoursFromCurve(
+  ShotCurve curve, {
+  required BrewPours recorded,
+  double? doseGrams,
+}) {
+  if (recorded.hasAllPhases) return null;
+  final detected = brewPoursFromCurve(
+    curve,
+    doseGrams: doseGrams,
+    bloomCount: recorded.bloomCount,
+    pourCount: recorded.pourCount,
+  );
+  return detected == null ? null : recorded.fillMissingPhases(detected);
+}
+
 /// [pours], in order, as blooms and pours for a brew of [doseGrams]. The
 /// first [bloomCount] pours are blooms when given. With only [pourCount],
 /// the remaining leading pours are blooms. Incompatible counts return null.
