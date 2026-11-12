@@ -110,7 +110,7 @@ class _ProfileGuidePageState extends State<ProfileGuidePage> {
                     '${n.format(elapsed / 1000)} s',
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
-                  if (p.flow.isNotEmpty)
+                  if (p.predictedGrams != null || p.targetGrams != null)
                     Text(
                       '${value(widget.scale?.guideWeightGrams)} / ${value(p.predictedGrams ?? p.targetGrams)} g',
                     ),

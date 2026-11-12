@@ -104,4 +104,34 @@ void main() {
     expect(timer.running, isFalse);
     expect(tester.takeException(), isNull);
   });
+  testWidgets('pressure-only guide shows the explicit cup target', (
+    tester,
+  ) async {
+    final minutes = TextEditingController();
+    final seconds = TextEditingController();
+    final timer = BrewTimer(minutes: minutes, seconds: seconds);
+    final profile = ExtractionProfile.example(
+      'p',
+      'Pressure',
+    ).copyWith(flow: [], primary: 'pressure', targetGrams: 36);
+    await tester.pumpWidget(
+      localizedApp(
+        locale: const Locale('en'),
+        home: ProfileGuidePage(profile: profile, timer: timer),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('— / 36.0 g'), findsOneWidget);
+    expect(
+      tester
+          .widgetList<ShotGuideChart>(find.byType(ShotGuideChart))
+          .single
+          .unit,
+      'bar',
+    );
+    await tester.pumpWidget(const SizedBox());
+    timer.dispose();
+    minutes.dispose();
+    seconds.dispose();
+  });
 }
