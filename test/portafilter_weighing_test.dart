@@ -44,20 +44,26 @@ void main() {
 
   tearDown(() async => db.close());
 
-  Future<BrewFormModel> model({FakeScale? scale, Brew? existing}) async =>
-      BrewFormModel(
-        services: AppServices.forJournal(
-          repo,
-          parameterSettings: BrewParameterSettings(db),
-          scale: scale,
-        ),
+  Future<BrewFormModel> model({
+    FakeScale? scale,
+    Brew? existing,
+    Brew? seed,
+    bool repeat = false,
+  }) async => BrewFormModel(
+    services: AppServices.forJournal(
+      repo,
+      parameterSettings: BrewParameterSettings(db),
+      scale: scale,
+    ),
 
-        coffees: await db.select(db.coffees).get(),
-        initialCoffeeId: coffee,
-        initialMethodId: method,
+    coffees: await db.select(db.coffees).get(),
+    initialCoffeeId: coffee,
+    initialMethodId: method,
 
-        existing: existing,
-      );
+    existing: existing,
+    seed: seed,
+    repeat: repeat,
+  );
 
   Future<void> mount(
     WidgetTester tester,
@@ -82,6 +88,141 @@ void main() {
     expect(form.recipient?.id, portafilter.id);
     expect(form.jugGrams, isNull);
     form.draft.dose.text = '18';
+  }
+
+  for (final repeat in [true, false]) {
+    testWidgets(
+      '${repeat ? 'repeat uses current' : 'edit retains historical'} tare through A → B → A and save',
+      (tester) async {
+        final seed = (await tester.runAsync(() async {
+          final original = await model();
+          await Future<void>.delayed(const Duration(milliseconds: 100));
+          original.draft.dose.text = '18';
+          expect(await original.save(), isNotNull);
+          original.dispose();
+          final brew = await db.select(db.brews).getSingle();
+          await repo.saveRecipient(
+            id: portafilter.id,
+            name: 'Updated basket A',
+            emptyGrams: 514.4,
+            isPortafilter: true,
+          );
+          final other = await repo.saveRecipient(
+            name: 'Basket B',
+            emptyGrams: 520,
+            isPortafilter: true,
+          );
+          // The repeated portafilter wins over the method's current default.
+          final another = await model();
+          await Future<void>.delayed(const Duration(milliseconds: 100));
+          another.selectRecipient(other);
+          another.draft.dose.text = '18';
+          expect(await another.save(), isNotNull);
+          another.dispose();
+          return brew;
+        }))!;
+        final form = (await tester.runAsync(
+          () => model(
+            existing: repeat ? null : seed,
+            seed: repeat ? seed : null,
+            repeat: repeat,
+          ),
+        ))!;
+        addTearDown(form.dispose);
+        await mount(tester, form, 'en');
+        final tare = repeat ? 514.4 : 515.0;
+        final name = repeat ? 'Updated basket A' : portafilter.name;
+        expect(form.recipient?.emptyGrams, tare);
+        expect(form.recipient?.name, name);
+        await tester.tap(find.byKey(const ValueKey('weigh-portafilter')));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const ValueKey('portafilter-total')),
+          '532.6',
+        );
+        await tester.pump();
+        final calculation = find.byKey(const ValueKey('portafilter-net-dose'));
+        final expected = repeat
+            ? '532.6 g − 514.4 g = 18.2 g'
+            : '532.6 g − 515 g = 17.6 g';
+        expect(tester.widget<Text>(calculation).data, expected);
+        for (final selection in ['Basket B', name]) {
+          await tester.tap(find.byType(DropdownButtonFormField<String>));
+          await tester.pumpAndSettle();
+          await tester.tap(find.textContaining(selection).last);
+          await tester.pumpAndSettle();
+          expect(
+            tester.widget<Text>(calculation).data,
+            selection == 'Basket B' ? '532.6 g − 520 g = 12.6 g' : expected,
+          );
+        }
+        await tester.tap(find.byKey(const ValueKey('use-portafilter-dose')));
+        await tester.pumpAndSettle();
+        expect(form.draft.dose.text, repeat ? '18.2' : '17.6');
+        await tester.runAsync(() async {
+          final id = await form.save();
+          expect(id, isNotNull);
+          final brews = await db.select(db.brews).get();
+          final saved = brews.singleWhere((b) => b.id == id!.id);
+          expect(saved.recipientId, portafilter.id);
+          expect(saved.recipientName, name);
+          expect(saved.recipientGrams, tare);
+          expect(saved.doseGrams, repeat ? 18.2 : 17.6);
+          if (repeat) {
+            expect(saved.id, isNot(seed.id));
+            expect(
+              brews.singleWhere((b) => b.id == seed.id).toJson(),
+              seed.toJson(),
+            );
+          }
+          final catalog = await db.select(db.recipients).get();
+          expect(
+            catalog.singleWhere((r) => r.id == portafilter.id).emptyGrams,
+            514.4,
+          );
+        });
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  }
+
+  for (final archived in [false, true]) {
+    test(
+      'repeat resolves ${archived ? 'archived' : 'updated'} portafilter before saving without weighing',
+      () async {
+        final original = await model();
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        original.draft.dose.text = '18';
+        expect(await original.save(), isNotNull);
+        original.dispose();
+        final seed = await db.select(db.brews).getSingle();
+        await repo.saveRecipient(
+          id: portafilter.id,
+          name: 'Updated basket',
+          emptyGrams: 514.4,
+          isPortafilter: true,
+        );
+        await repo.setRecipientArchived(portafilter.id, archived: archived);
+        final form = await model(seed: seed, repeat: true);
+        addTearDown(form.dispose);
+        // No historical tare is exposed while the current catalog is loading.
+        expect(form.recipient, isNull);
+        expect(form.loadingRecipients, isTrue);
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        expect(form.recipient?.emptyGrams, archived ? null : 514.4);
+        final result = await form.save();
+        expect(result, isNotNull);
+        final brews = await db.select(db.brews).get();
+        final saved = brews.singleWhere((b) => b.id == result!.id);
+        expect(saved.recipientId, archived ? null : portafilter.id);
+        expect(saved.recipientGrams, archived ? null : 514.4);
+        expect(saved.doseGrams, 18);
+        expect(
+          brews.singleWhere((b) => b.id == seed.id).toJson(),
+          seed.toJson(),
+        );
+      },
+    );
   }
 
   for (final language in ['es', 'en']) {

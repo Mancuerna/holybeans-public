@@ -23,7 +23,9 @@ class PortafilterWeighButton extends StatelessWidget {
         icon: const Icon(Icons.scale_outlined),
         label: Text(s.weighPortafilter),
         onPressed:
-            model.timer.running || (model.scaleSession?.resetting ?? false)
+            model.loadingRecipients ||
+                model.timer.running ||
+                (model.scaleSession?.resetting ?? false)
             ? null
             : () async {
                 final session = model.scaleSession;
@@ -105,7 +107,7 @@ class _PortafilterWeighingState extends State<_PortafilterWeighing> {
             RecipientPicker(
               repository: widget.model.repository,
               value: recipient?.id,
-              snapshot: recipient,
+              snapshot: widget.model.historicalRecipient,
               isPortafilter: true,
               onChanged: (value) => setState(() => recipient = value),
             ),
