@@ -2726,5 +2726,9 @@
   "profileSearch": "Search profiles",
   "profileCombined": "Combined",
   "profileSeparate": "Separate",
-  "profileGuideLegend": "Dashed line and circle: reference. Solid line and diamond: live reading. Flow on the left axis (g/s); pressure on the right (bar). Gaps indicate missing readings."
+  "profileGuideLegend": "Dashed line and circle: reference. Solid line and diamond: live reading. Flow on the left axis (g/s); pressure on the right (bar). Gaps indicate missing readings.",
+  "labelPm240PrinterHint": "Turn the PM240 on and disconnect it from Labelnize before searching.",
+  "labelOtherPrinterHint": "Turn the printer on and disconnect it from other printing apps before searching.",
+  "labelPm240PaperHint": "50 × 30 mm labels; printable area 48 × 28 mm.",
+  "labelSent": "Label data sent. Check the printed result."
 }

@@ -375,7 +375,9 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
         await printer.printLabel(bitmap.pixels, paper, copies: copies);
         if (mounted) {
           setState(() {
-            feedback = s.labelPrinted;
+            feedback = printer.model == LabelPrinterModel.typonosPm240
+                ? s.labelSent
+                : s.labelPrinted;
             error = false;
           });
         }

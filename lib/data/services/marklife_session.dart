@@ -7,6 +7,10 @@ import 'package:holybeans/domain/marklife_protocol.dart';
 class MarklifeSession {
   MarklifeSession({
     required this.write,
+    this.encodeJob = MarklifeProtocol.job,
+    this.requiresCredits = true,
+    this.responseFailure,
+    this.acknowledgement,
     this.trace,
     this.creditTimeout = const Duration(seconds: 5),
     this.resultTimeout = const Duration(seconds: 15),
@@ -15,6 +19,10 @@ class MarklifeSession {
 
   final Future<void> Function(Uint8List) write;
   final BleTrace? trace;
+  final Uint8List Function(Uint8List, int, MarklifePaper) encodeJob;
+  final bool requiresCredits;
+  final MarklifeFailure? Function(Uint8List)? responseFailure;
+  final bool Function(Uint8List)? acknowledgement;
   final Duration creditTimeout;
   final Duration resultTimeout;
   final Duration packetDelay;
@@ -51,7 +59,15 @@ class MarklifeSession {
 
   void receive(Uint8List bytes) {
     if (_closed) return;
-    if (bytes.length == 2 && bytes[0] == 0xff) {
+    if (responseFailure case final decode?) {
+      final failure = decode(bytes);
+      if (failure != null) {
+        _deviceFailure = failure;
+        if (_printing) _failure = failure;
+        _event('printerStatus', {'failure': failure.name});
+        return;
+      }
+    } else if (bytes.length == 2 && bytes[0] == 0xff) {
       final code = bytes[1];
       _deviceFailure = switch (code) {
         1 => MarklifeFailure.paper,
@@ -66,8 +82,9 @@ class MarklifeSession {
       return;
     }
     final accepted =
-        (bytes.length == 1 && const [0xaa, 0x4f, 0x4b].contains(bytes[0])) ||
-        (bytes.length == 2 && bytes[0] == 0x4f && bytes[1] == 0x4b);
+        acknowledgement?.call(bytes) ??
+        ((bytes.length == 1 && const [0xaa, 0x4f, 0x4b].contains(bytes[0])) ||
+            (bytes.length == 2 && bytes[0] == 0x4f && bytes[1] == 0x4b));
     if (accepted && _awaitingResult) _accepted = true;
     _event('response', {
       'length': bytes.length,
@@ -112,7 +129,7 @@ class MarklifeSession {
     if (_printing) throw const MarklifeException(MarklifeFailure.busy);
     _check();
     if (_deviceFailure case final failure?) throw MarklifeException(failure);
-    final bytes = MarklifeProtocol.job(pixels, lengthMm, paper);
+    final bytes = encodeJob(pixels, lengthMm, paper);
     _printing = true;
     _accepted = false;
     _awaitingResult = false;
@@ -128,16 +145,18 @@ class MarklifeSession {
         if (deadline.elapsed > const Duration(seconds: 60)) {
           throw const MarklifeException(MarklifeFailure.unconfirmed);
         }
-        await _until(
-          () => _credits > 0,
-          creditTimeout,
-          MarklifeFailure.credits,
-        );
+        if (requiresCredits) {
+          await _until(
+            () => _credits > 0,
+            creditTimeout,
+            MarklifeFailure.credits,
+          );
+        }
         final end = (offset + payloadBytes).clamp(0, bytes.length);
         // Subscribe before writes, including the last write's synchronous ACK.
         // Ignore unsolicited success bytes received before the final packet.
         _awaitingResult = end == bytes.length;
-        _credits--;
+        if (requiresCredits) _credits--;
         await write(Uint8List.sublistView(bytes, offset, end));
         _check();
         offset = end;

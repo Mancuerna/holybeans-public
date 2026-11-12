@@ -9,7 +9,10 @@ import 'package:holybeans/domain/niimbot_protocol.dart';
 class PrinterHarness {
   PrinterHarness({LabelPrinterModel profile = LabelPrinterModel.d110}) {
     model = switch (profile) {
-      LabelPrinterModel.marklifeP12 => throw ArgumentError('Not a Niimbot'),
+      LabelPrinterModel.marklifeP12 ||
+      LabelPrinterModel.pristarP15 ||
+      LabelPrinterModel.fichero5836 ||
+      LabelPrinterModel.typonosPm240 => throw ArgumentError('Not a Niimbot'),
       LabelPrinterModel.d110 => 2304,
       LabelPrinterModel.d110M => 2320,
       LabelPrinterModel.d11 => 512,

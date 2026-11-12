@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:holybeans/data/services/label_printer.dart';
 import 'package:holybeans/data/services/paired_device.dart';
+import 'package:holybeans/domain/label_printer_profile.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/settings/device_pairing_section.dart';
 
@@ -27,9 +28,13 @@ class LabelPrinterControls extends StatelessWidget {
           device: printer,
           keyPrefix: 'label-printer',
           texts: (
-            hint: printer.model.continuousTape
-                ? s.labelMarklifePrinterHint
-                : s.labelPrinterHint,
+            hint: switch (printer.model) {
+              LabelPrinterModel.marklifeP12 => s.labelMarklifePrinterHint,
+              LabelPrinterModel.typonosPm240 => s.labelPm240PrinterHint,
+              LabelPrinterModel.pristarP15 ||
+              LabelPrinterModel.fichero5836 => s.labelOtherPrinterHint,
+              _ => s.labelPrinterHint,
+            },
             find: s.labelFindPrinter(printer.model.label),
             searching: s.labelSearching,
             noneFound: s.labelNoneFound(printer.model.label),

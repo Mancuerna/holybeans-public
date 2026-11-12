@@ -51,9 +51,8 @@ without advertised names, addresses or label contents.
 Pristar / Marklife P12 support is experimental. A user confirmed a legible
 40 mm test design on continuous 15 mm tape. The printable height is 12 mm;
 30, 40 (default) and 50 mm design lengths are available, followed by about
-12.5 mm of feed for manual cutting. Other firmware, gap labels and other
-Marklife models have not been validated. Disconnect Marklife before searching
-for the P12 in the coffee label editor. Templates, images and saved printer/size
+12.5 mm of feed for manual cutting. Other P12 firmware and gap labels have not
+been validated. Disconnect Marklife before searching for the P12 in the coffee label editor. Templates, images and saved printer/size
 preferences use the same editor as Niimbot.
 
 The P12 uses the published [Marklife L11 protocol](https://thermal-label.github.io/marklife/protocol/l11),
@@ -61,6 +60,30 @@ checks the advertised name and required GATT characteristics, and respects
 printer credits and negotiated MTU. Each copy requires a device acknowledgement
 before another starts; acknowledgement alone does not verify physical output.
 Connection diagnostics omit device addresses, names and label contents.
+
+Pristar / Marklife P15, Fichero 5836 and Typonos PM240 are available in the
+coffee label editor. Physical printing on all three was confirmed by the user
+in Printer Lab before promotion on 12 November 2026. That confirmation covers
+the tested devices; other firmware and repeatability across units remain
+unverified. The editor remembers each model's paper choice and paired device,
+and uses the same coffee templates, images, preview and manual copy controls.
+
+- P15 and Fichero use gap labels of 30 × 14 or 40 × 14 mm (select 14 × 30 or
+  14 × 40 in the paper selector), with a 12 mm printable height. P15 uses L11;
+  Fichero uses the AiYin D11s sequence and waits up to 60 seconds for its
+  acknowledgement. The known GATT interface is selected before writing;
+  transport failures do not cause fallback printing on another interface.
+- PM240 uses 50 × 30 mm labels with a 48 × 28 mm printable area at 203 dpi.
+  Its TSPL encoder preserves the tested orientation, bitmap polarity and
+  vertical offset. Disconnect Labelnize before searching. Status is checked
+  on connection and before and after each requested copy. A ready status
+  does not acknowledge paper output, so the editor reports data sent and asks
+  the user to inspect the label. PM240C is a different, unsupported model.
+
+These integrations retain the lab's paced writes and stop on a failed or
+uncertain job without retrying or sending the remaining copies. No calibration,
+firmware, density or gap-setting commands are added. P12 continues to use its
+continuous-tape profile; select the exact model rather than a similar name.
 
 Printing always starts from a user action. Do not retry automatically after an
 uncertain result or issue calibration, firmware, power or unrelated settings

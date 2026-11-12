@@ -72,6 +72,8 @@ class LabelOutputSettings extends StatelessWidget {
               ? s.labelContinuousPaperHint
               : s.labelPaperHint,
         ),
+        if (printer.model == LabelPrinterModel.typonosPm240)
+          Text(s.labelPm240PaperHint),
         if (printer.model != LabelPrinterModel.d110)
           Text(s.labelModelTrial(printer.model.label)),
         if (printer.model == LabelPrinterModel.b21) Text(s.labelB21Variants),

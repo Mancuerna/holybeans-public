@@ -98,4 +98,29 @@ void main() {
     expect(reopened.paperFor(LabelPrinterModel.d11), d11Paper);
     expect(reopened.paperFor(LabelPrinterModel.d110), LabelPaper.mm15x50);
   });
+  test(
+    'lab printer paper choices persist independently of existing printers',
+    () async {
+      final settings = LabelOutputPreferences(file);
+      final papers = [
+        LabelPaper.mm15x50,
+        LabelPrinterModel.marklifeP12.defaultPaper,
+        for (final model in [
+          LabelPrinterModel.pristarP15,
+          LabelPrinterModel.fichero5836,
+          LabelPrinterModel.typonosPm240,
+        ])
+          model.papers.first,
+      ];
+      for (final paper in papers) {
+        await settings.remember(paper);
+      }
+      final reopened = LabelOutputPreferences(file);
+      await reopened.load();
+      expect(reopened.model, LabelPrinterModel.typonosPm240);
+      for (final paper in papers) {
+        expect(reopened.paperFor(paper.model), paper);
+      }
+    },
+  );
 }
