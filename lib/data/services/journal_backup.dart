@@ -27,6 +27,7 @@ part 'journal_backup/backup_rows.dart';
 part 'journal_backup/cafe_backup.dart';
 part 'journal_backup/piston_backup.dart';
 part 'journal_backup/restored_journal.dart';
+part 'journal_backup/restore_clear.dart';
 
 /// Versioned, portable JSON for HolyBeans data. The file picker and sharing UI
 /// can use this service without knowing how records are stored in SQLite.
