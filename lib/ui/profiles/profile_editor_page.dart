@@ -31,6 +31,47 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
     text:
         '${widget.profile.targetGrams ?? widget.profile.predictedGrams ?? 36}',
   );
+  late final duration = TextEditingController();
+  final durationFocus = FocusNode();
+  late int displayedDurationMs = widget.profile.durationMs;
+  String? durationError;
+
+  @override
+  void initState() {
+    super.initState();
+    model.addListener(syncDuration);
+    durationFocus.addListener(() {
+      if (!durationFocus.hasFocus && !saving && !saved) applyDuration();
+    });
+  }
+
+  void syncDuration() {
+    if (model.profile.durationMs == displayedDurationMs) return;
+    displayedDurationMs = model.profile.durationMs;
+    duration.text = profileInput(context, displayedDurationMs / 1000);
+    durationError = null;
+  }
+
+  bool applyDuration() {
+    final n = number(duration.text);
+    if (n == null || !n.isFinite || n < 1 || n > 600) {
+      setState(
+        () => durationError = AppLocalizations.of(context).profileInvalid,
+      );
+      return false;
+    }
+    try {
+      model.scaleDuration((n * 1000).round());
+      setState(() => durationError = null);
+      return true;
+    } on FormatException {
+      setState(
+        () => durationError = AppLocalizations.of(context).profileInvalid,
+      );
+      return false;
+    }
+  }
+
   late final notes = TextEditingController(text: widget.profile.notes);
   bool initializedNumbers = false;
   @override
@@ -38,6 +79,7 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
     super.didChangeDependencies();
     if (initializedNumbers) return;
     initializedNumbers = true;
+    duration.text = profileInput(context, displayedDurationMs / 1000);
     dose.text = profileInput(context, widget.profile.doseGrams);
     temperature.text = profileInput(context, widget.profile.temperatureC);
     target.text = profileInput(
@@ -53,15 +95,16 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
       double.tryParse((text ?? '').replaceAll(',', '.'));
   @override
   void dispose() {
+    durationFocus.dispose();
     model.dispose();
-    for (final c in [name, dose, temperature, target, notes]) {
+    for (final c in [name, dose, temperature, duration, target, notes]) {
       c.dispose();
     }
     super.dispose();
   }
 
   Future<void> save() async {
-    if (!form.currentState!.validate()) return;
+    if (!form.currentState!.validate() || !applyDuration()) return;
     setState(() => saving = true);
     try {
       final profile = model.profile.copyWith(
@@ -92,10 +135,14 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
   Future<void> editPoint(int i) async {
     final s = AppLocalizations.of(context);
     final p = model.points[i];
-    final t = TextEditingController(
-      text: profileInput(context, p.elapsedMs / 1000),
-    );
-    final v = TextEditingController(text: profileInput(context, p.value));
+    final compact = profileNumber(context, decimals: 2);
+    final initialTime = compact.format(p.elapsedMs / 1000);
+    final initialValue = compact.format(p.value);
+    final t = TextEditingController(text: initialTime);
+    final v = TextEditingController(text: initialValue);
+    int pointTime() =>
+        t.text == initialTime ? p.elapsedMs : (number(t.text)! * 1000).round();
+    double pointValue() => v.text == initialValue ? p.value : number(v.text)!;
     final key = GlobalKey<FormState>();
     await showDialog<void>(
       context: context,
@@ -115,7 +162,7 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
                 validator: (text) {
                   final n = number(text);
                   if (n == null || !n.isFinite) return s.profileInvalid;
-                  final ms = (n * 1000).round();
+                  final ms = pointTime();
                   return ms < 0 ||
                           ms > model.profile.durationMs ||
                           i > 0 && ms <= model.points[i - 1].elapsedMs ||
@@ -125,6 +172,7 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
                       : null;
                 },
               ),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: v,
                 decoration: InputDecoration(
@@ -151,7 +199,7 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
           FilledButton(
             onPressed: () {
               if (!key.currentState!.validate()) return;
-              model.move(i, (number(t.text)! * 1000).round(), number(v.text)!);
+              model.move(i, pointTime(), pointValue());
               Navigator.pop(context);
             },
             child: Text(s.save),
@@ -163,63 +211,6 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
     await Future<void>.delayed(const Duration(milliseconds: 300));
     t.dispose();
     v.dispose();
-  }
-
-  Future<void> scaleDuration() async {
-    final s = AppLocalizations.of(context);
-    final c = TextEditingController(
-      text: profileInput(context, model.profile.durationMs / 1000),
-    );
-    final key = GlobalKey<FormState>();
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(s.profileScaleDuration),
-        content: Form(
-          key: key,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(s.profileScaleHelp),
-              TextFormField(
-                controller: c,
-                decoration: InputDecoration(labelText: s.profileDuration),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                validator: (text) {
-                  final n = number(text);
-                  return n == null || !n.isFinite || n < 1 || n > 600
-                      ? s.profileInvalid
-                      : null;
-                },
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(s.cancel),
-          ),
-          FilledButton(
-            onPressed: () {
-              if (!key.currentState!.validate()) return;
-              try {
-                model.scaleDuration((number(c.text)! * 1000).round());
-                Navigator.pop(context);
-              } on FormatException {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: Text(s.profileInvalid)));
-              }
-            },
-            child: Text(s.save),
-          ),
-        ],
-      ),
-    );
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    c.dispose();
   }
 
   Future<void> leave() async {
@@ -307,19 +298,69 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
                   validator: (v) =>
                       v == null || v.trim().isEmpty ? s.profileInvalid : null,
                 ),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 12,
-                  children: [
-                    SizedBox(
-                      width: 140,
-                      child: numeric(dose, s.profileDose, .1, 100),
-                    ),
-                    SizedBox(
-                      width: 140,
-                      child: numeric(temperature, s.profileTemperature, 0, 110),
-                    ),
-                  ],
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final scale =
+                        MediaQuery.textScalerOf(context).scale(14) / 14;
+                    final columns = constraints.maxWidth >= 320 * scale
+                        ? 3
+                        : constraints.maxWidth >= 260 * scale
+                        ? 2
+                        : 1;
+                    final width =
+                        ((constraints.maxWidth - 12 * (columns - 1)) / columns)
+                            .clamp(0.0, 180.0 * scale);
+                    return Wrap(
+                      spacing: 12,
+                      runSpacing: 20,
+                      children: [
+                        SizedBox(
+                          width: width,
+                          child: numeric(dose, s.profileDose, .1, 100),
+                        ),
+                        SizedBox(
+                          width: width,
+                          child: numeric(
+                            temperature,
+                            s.profileTemperature,
+                            0,
+                            110,
+                          ),
+                        ),
+                        SizedBox(
+                          width: width,
+                          child: TextFormField(
+                            controller: duration,
+                            focusNode: durationFocus,
+                            decoration: InputDecoration(
+                              labelText: s.profileDuration,
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            textInputAction: TextInputAction.done,
+                            forceErrorText: durationError,
+                            onChanged: (_) {
+                              if (durationError != null) {
+                                setState(() => durationError = null);
+                              }
+                            },
+                            onFieldSubmitted: (_) => applyDuration(),
+                            onTapOutside: (_) => durationFocus.unfocus(),
+                            validator: (text) {
+                              final n = number(text);
+                              return n == null ||
+                                      !n.isFinite ||
+                                      n < 1 ||
+                                      n > 600
+                                  ? s.profileInvalid
+                                  : null;
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
                 ExpansionTile(
@@ -421,13 +462,6 @@ class _ProfileEditorPageState extends State<ProfileEditorPage> {
                 if (model.profile.flow.isEmpty ||
                     model.profile.predictedGrams == null)
                   numeric(target, s.profileTargetWeight, .1, 2000),
-                TextButton.icon(
-                  onPressed: scaleDuration,
-                  icon: const Icon(Icons.schedule),
-                  label: Text(
-                    '${s.profileScaleDuration} · ${n.format(model.profile.durationMs / 1000)} s',
-                  ),
-                ),
                 Row(
                   children: [
                     Expanded(
