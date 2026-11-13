@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.11.0](https://github.com/Mancuerna/holybeans-public/compare/v1.10.0...v1.11.0) (2026-11-13)
+
+
+### Features
+
+* **labels:** integrate P15, Fichero and PM240 printers ([545f510](https://github.com/Mancuerna/holybeans-public/commit/545f510f6b0b028448e2eb3d7bf3417536160e11))
+
+
+### Bug Fixes
+
+* **brews:** show equipment after general details ([64503c2](https://github.com/Mancuerna/holybeans-public/commit/64503c2b6113d9896529d9ac5ebcaaa7b66d203b))
+* **profiles:** improve point inputs and inline duration editing ([10da598](https://github.com/Mancuerna/holybeans-public/commit/10da598d2f4a956138773ab19b7f5540d5bc4f7c))
+
 ## [1.10.0](https://github.com/Mancuerna/holybeans-public/compare/v1.9.0...v1.10.0) (2026-11-12)
 
 
