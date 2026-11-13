@@ -9,6 +9,84 @@ import 'package:universal_ble/universal_ble.dart';
 import 'helpers/multi_scale_ble_platform.dart';
 
 void main() {
+  test('a silent native connection times out and can be retried', () async {
+    final platform = _SilentPlatform();
+    UniversalBle.setInstance(platform);
+    final link = _Link()..remembered = mini;
+    await link.load();
+    final pending = link.connect();
+    await Future<void>.delayed(Duration.zero);
+    expect(link.status, DeviceStatus.connecting);
+    await pending;
+    expect(link.status, DeviceStatus.failed);
+    expect(platform.events, contains('disconnect:mini'));
+    platform.silent = false;
+    await link.connect();
+    expect(link.currentId, mini.id);
+    await link.disconnect();
+    link.dispose();
+  });
+
+  for (final stage in ['discovery', 'subscription', 'handshake']) {
+    for (final fail in [false, true]) {
+      test(
+        'link loss during $stage releases reconnect, late fail=$fail',
+        () async {
+          final platform = _SetupPlatform(stage);
+          UniversalBle.setInstance(platform);
+          final link = _Link(
+            handshake: stage == 'handshake' ? platform.release : null,
+            entered: stage == 'handshake' ? platform.entered : null,
+          )..remembered = mini;
+          await link.load();
+          final pending = link.connect();
+          try {
+            await platform.entered.future;
+            platform.lose(mini.id);
+            await Future<void>.delayed(Duration.zero);
+            expect(link.status, DeviceStatus.idle);
+            expect(link.currentId, isNull);
+
+            void finishSetup() {
+              if (fail) {
+                platform.release.completeError(StateError('Old setup failed'));
+              } else {
+                platform.release.complete();
+              }
+            }
+
+            // Native GATT operations share a queue. Let them finish, but keep
+            // the application handshake pending while starting its replacement.
+            if (stage != 'handshake') {
+              finishSetup();
+              await pending;
+              expect(link.connected, isFalse);
+            }
+            await link.connect();
+            expect(link.connected, isTrue);
+            final disconnects = platform.events
+                .where((event) => event == 'disconnect:${mini.id}')
+                .length;
+            if (stage == 'handshake') finishSetup();
+            await pending;
+            expect(link.currentId, mini.id);
+            expect(
+              platform.events.where(
+                (event) => event == 'disconnect:${mini.id}',
+              ),
+              hasLength(disconnects),
+            );
+          } finally {
+            if (!platform.release.isCompleted) platform.release.complete();
+            await pending;
+            await link.disconnect();
+            link.dispose();
+          }
+        },
+      );
+    }
+  }
+
   for (final action in ['disconnect', 'search', 'pair', 'dispose']) {
     test(
       '$action interrupts a pending native connection immediately',
@@ -98,6 +176,60 @@ void main() {
         },
       );
     }
+  }
+}
+
+class _SilentPlatform extends MultiScalePlatform {
+  bool silent = true;
+
+  @override
+  Future<void> connect(
+    String deviceId, {
+    Duration? connectionTimeout,
+    bool autoConnect = false,
+    ConnectionPlatformConfig? platformConfig,
+  }) async {
+    if (silent) return;
+    await super.connect(deviceId, connectionTimeout: connectionTimeout);
+  }
+}
+
+class _SetupPlatform extends MultiScalePlatform {
+  _SetupPlatform(this.stage);
+
+  final String stage;
+  final entered = Completer<void>();
+  final release = Completer<void>();
+
+  Future<void> _hold(String current) async {
+    if (stage != current || entered.isCompleted) return;
+    entered.complete();
+    await release.future;
+  }
+
+  @override
+  Future<List<BleService>> discoverServices(
+    String deviceId,
+    bool withDescriptors,
+  ) async {
+    await _hold('discovery');
+    return super.discoverServices(deviceId, withDescriptors);
+  }
+
+  @override
+  Future<void> setNotifiable(
+    String deviceId,
+    String service,
+    String characteristic,
+    BleInputProperty bleInputProperty,
+  ) async {
+    await _hold('subscription');
+    await super.setNotifiable(
+      deviceId,
+      service,
+      characteristic,
+      bleInputProperty,
+    );
   }
 }
 
