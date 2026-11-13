@@ -171,13 +171,16 @@ void main() {
       of: find.byType(BrewDetailsSheet),
       matching: find.text('Visible grinder'),
     );
-    expect(grinder.hitTestable(), findsOneWidget);
-    for (final label in ['Grind setting', 'Blooms', 'Pours', 'Tasting']) {
+    for (final label in ['Grind setting', 'Blooms', 'Pours', 'Rating']) {
       expect(
-        tester.getBottomLeft(grinder).dy,
-        lessThan(tester.getTopLeft(find.text(label).first).dy),
+        tester.getTopLeft(grinder).dy,
+        greaterThan(tester.getBottomLeft(find.text(label).first).dy),
       );
     }
+    expect(
+      tester.getBottomLeft(grinder).dy,
+      lessThan(tester.getTopLeft(find.text('Tasting')).dy),
+    );
     expect(tileLabels(tester, labels), [
       'Dose',
       'Grind setting',

@@ -335,7 +335,6 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                     },
                   ),
                 if (favorite) _FavoriteNote(methodName: brew.methodName),
-                _EquipmentRows(brew: brew, shows: shows),
                 const SizedBox(height: 16),
                 StatGrid(
                   minimumTileWidth: 140,
@@ -389,6 +388,8 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                   const SizedBox(height: 8),
                   Align(alignment: Alignment.centerLeft, child: map),
                 ],
+                const SizedBox(height: 16),
+                _EquipmentRows(brew: brew, shows: shows),
                 _TastingSection(brew: brew),
                 if (brew.notes?.trim() case final notes?
                     when notes.isNotEmpty && shows(BrewParameter.notes))
@@ -700,7 +701,7 @@ class _TastingSection extends StatelessWidget {
 }
 
 /// Grinder, machine and water profiles, each shown only when
-/// recorded and not hidden. The grind setting follows in the figures.
+/// recorded and not hidden. The grind setting is shown in the figures above.
 class _EquipmentRows extends StatelessWidget {
   const _EquipmentRows({required this.brew, required this.shows});
 
@@ -724,7 +725,7 @@ class _EquipmentRows extends StatelessWidget {
         if (brew.isPreGround) ...[
           if (shows(BrewParameter.grinder)) DetailRow(s.grinder, s.preGround),
         ] else if (grinder.isNotEmpty)
-          // The grind setting follows in the recipe figures.
+          // The grind setting is shown in the recipe figures above.
           DetailRow(s.grinder, grinder.join(', ')),
         if (brew.profileName case final profile?
             when shows(BrewParameter.profile))
