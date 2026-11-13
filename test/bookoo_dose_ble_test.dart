@@ -17,6 +17,42 @@ import 'helpers/test_database.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  test('Ultra reconnects after losing its link while enabling weight notifications', () async {
+    final database = memoryDatabase();
+    final platform = _BookooPlatform(notify: true, fail: false);
+    UniversalBle.setInstance(platform);
+    final scale = BleScale(ScaleSettings(database));
+    addTearDown(() async {
+      await scale.disconnect();
+      scale.dispose();
+      await database.close();
+    });
+    await scale.pair(const FoundDevice(id: 'BOOKOO-TEST', name: 'BOOKOO_SC_U'));
+    platform.lose('BOOKOO-TEST');
+    await Future<void>.delayed(Duration.zero);
+
+    platform.loseOnWeightSubscription = true;
+    await scale.connect();
+    expect(scale.connected, isFalse);
+    expect(scale.status, DeviceStatus.idle);
+    expect(scale.activeScaleId, isNull);
+
+    platform.loseOnWeightSubscription = false;
+    await scale.connect(automatic: true);
+    expect(scale.activeScaleId, 'BOOKOO-TEST');
+    final doses = <double>[];
+    final subscription = scale.doses.listen(doses.add);
+    addTearDown(subscription.cancel);
+    platform.updateCharacteristicValue(
+      'BOOKOO-TEST',
+      BookooUuids.command,
+      Uint8List.fromList(bookooDosePacket(1800)),
+      null,
+    );
+    await Future<void>.delayed(Duration.zero);
+    expect(doses, [18]);
+  });
+
   for (final options in [
     (notify: true, fail: false),
     (notify: false, fail: false),
@@ -143,6 +179,7 @@ class _BookooPlatform extends FakeScaleBlePlatform {
 
   final bool notify;
   final bool fail;
+  bool loseOnWeightSubscription = false;
 
   @override
   Future<List<BleService>> discoverServices(
@@ -173,6 +210,9 @@ class _BookooPlatform extends FakeScaleBlePlatform {
       characteristic,
       bleInputProperty,
     );
+    if (characteristic == BookooUuids.weight && loseOnWeightSubscription) {
+      lose(deviceId);
+    }
     if (characteristic == BookooUuids.command && fail) {
       throw StateError('Dose notifications unavailable');
     }

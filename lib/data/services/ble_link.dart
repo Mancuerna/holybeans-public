@@ -320,6 +320,12 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
     _deviceId = id;
     _set(DeviceStatus.connecting);
     try {
+      // Observe the entire setup: a disconnect during discovery or CCCD
+      // subscription must not leave a phantom connection blocking retries.
+      _link = UniversalBle.connectionStream(id).listen((linked) {
+        traceEvent('connection.changed', {'id': id, 'linked': linked});
+        if (!linked && _deviceId == id && attempt == _attempt) _lost();
+      });
       traceEvent('connect.start', {'id': id, 'name': device.name});
       await UniversalBle.connect(id, timeout: _connectTime);
       if (!await _stillOpening(id, attempt)) return false;
@@ -346,10 +352,6 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
       await UniversalBle.subscribeNotifications(id, service, characteristic);
       if (!await _stillOpening(id, attempt)) return false;
       traceEvent('subscribe.ok', {'id': id});
-      _link = UniversalBle.connectionStream(id).listen((linked) {
-        traceEvent('connection.changed', {'id': id, 'linked': linked});
-        if (!linked && _deviceId == id) _lost();
-      });
       await onNotificationsSubscribed(id);
       if (!await _stillOpening(id, attempt)) return false;
     } on Object catch (error, stack) {
@@ -391,13 +393,16 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
 
   /// The device went away (switched off, out of range).
   void _lost() {
+    // Setup may still be awaiting a platform response. A new attempt must be
+    // allowed to proceed; its generation guards against the old setup result.
+    _opening = false;
     _close();
     _set(DeviceStatus.idle);
   }
 
   Future<void> _close({bool disconnect = false}) async {
     traceEvent('connection.close', {'id': _deviceId, 'disconnect': disconnect});
-    final hadLink = _link != null || connected;
+    final hadLink = _values != null || connected;
     connectionClosed();
     final cancelValues = _values?.cancel();
     final cancelLink = _link?.cancel();
