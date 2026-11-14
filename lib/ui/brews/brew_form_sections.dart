@@ -11,6 +11,7 @@ import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
 import 'package:holybeans/ui/brews/brew_ratio_slider.dart';
 import 'package:holybeans/ui/brews/brew_scale_reset_button.dart';
+import 'package:holybeans/ui/brews/brew_scale_wait_button.dart';
 import 'package:holybeans/ui/brews/brew_water_plan.dart';
 import 'package:holybeans/ui/brews/brew_weight_chart.dart';
 import 'package:holybeans/ui/brews/coffee_picker.dart';
@@ -543,30 +544,6 @@ class BrewTimingSection extends StatelessWidget {
           timer: model.timer,
           previousDuration: previousDuration,
           showToggle: !chartShown() && !model.timerAtWaterPlan,
-          actions: [
-            if (scale != null &&
-                espresso &&
-                !model.timer.running &&
-                model.timer.elapsedSeconds == 0)
-              scale.waitingForDrip
-                  ? TextButton.icon(
-                      key: const ValueKey('scale-wait-drip-cancel'),
-                      onPressed: scale.cancelWaitForDrip,
-                      icon: const Icon(Icons.close_rounded),
-                      label: Text(s.cancel),
-                    )
-                  : Tooltip(
-                      message: s.scaleWaitDripHint,
-                      child: TextButton.icon(
-                        key: const ValueKey('scale-wait-drip'),
-                        onPressed: scale.scale.connected
-                            ? scale.waitForDrip
-                            : null,
-                        icon: const Icon(Icons.water_drop_outlined),
-                        label: Text(s.scaleWaitDrip),
-                      ),
-                    ),
-          ],
           marks: [
             if (espresso && model.shows(BrewParameter.preinfusion))
               (field: draft.preinfusion, label: s.markPreinfusion),
@@ -592,6 +569,13 @@ class BrewTimingSection extends StatelessWidget {
           scale: scale.scale,
           busy: scale.resetting,
           resetAction: BrewScaleResetButton(session: scale, timer: model.timer),
+          extraAction:
+              espresso &&
+                  !model.timer.running &&
+                  model.timer.elapsedSeconds == 0
+              ? BrewScaleWaitButton(session: scale)
+              : null,
+          footerIcon: scale.waitingForDrip ? Icons.water_drop_outlined : null,
           footer: scale.waitingForDrip
               ? s.scaleWaitingDrip
               : scale.recording

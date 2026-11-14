@@ -185,13 +185,17 @@ class ScaleStatusRow extends StatelessWidget {
     super.key,
     required this.scale,
     this.footer,
+    this.footerIcon,
     this.resetAction,
+    this.extraAction,
     this.busy = false,
   });
 
   final Scale scale;
   final String? footer;
+  final IconData? footerIcon;
   final Widget? resetAction;
+  final Widget? extraAction;
   final bool busy;
 
   @override
@@ -199,51 +203,130 @@ class ScaleStatusRow extends StatelessWidget {
     listenable: scale,
     builder: (context, _) {
       final s = AppLocalizations.of(context);
+      final theme = Theme.of(context);
+      final colors = theme.colorScheme;
       final reading = scale.connected ? scale.reading : null;
       final grams = NumberFormat('0.0', regionalLocale.toString());
-      return DeviceStatusRow(
-        key: const ValueKey('scale-readout'),
-        icon: Icons.scale_outlined,
-        active: reading != null,
-        // Connected, the weight is what matters: the name (with its serial
-        // number) only shows while the scale is away.
-        text: reading == null
-            ? scale.name ?? ''
-            : '${grams.format(reading.grams)} g',
-        status: reading == null ? scaleStatusLabel(s, scale.status) : null,
-        detail: switch (reading?.batteryPercent) {
-          final battery? => s.scaleBattery(battery),
-          null => null,
-        },
-        footer: footer,
-        action: reading != null
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextButton(
-                    key: const ValueKey('scale-tare'),
-                    onPressed: busy
-                        ? null
-                        : () => scale.send(ScaleCommand.tare),
-                    child: Text(s.scaleTare),
-                  ),
-                  ?resetAction,
-                ],
-              )
-            : scale.status == DeviceStatus.connecting
-            ? _connecting(s.scaleConnect)
-            // With Bluetooth off, Connect cannot work: open the switch.
-            : scale.status == DeviceStatus.bluetoothOff
-            ? TextButton(
-                key: const ValueKey('scale-bluetooth-on'),
-                onPressed: const DeviceFeedback().openBluetoothSettings,
-                child: Text(s.scaleTurnOnBluetooth),
-              )
-            : TextButton(
-                key: const ValueKey('scale-connect'),
-                onPressed: scale.connect,
-                child: Text(s.scaleConnect),
+      final tare = reading == null
+          ? null
+          : OutlinedButton(
+              key: const ValueKey('scale-tare'),
+              style: OutlinedButton.styleFrom(
+                backgroundColor: colors.surfaceContainerLowest,
               ),
+              onPressed: busy ? null : () => scale.send(ScaleCommand.tare),
+              child: Text(s.scaleTare),
+            );
+      final content = Column(
+        key: const ValueKey('scale-readout'),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (reading != null)
+            Row(
+              children: [
+                Icon(Icons.scale_outlined, size: 22, color: colors.primary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Wrap(
+                    spacing: 12,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        '${grams.format(reading.grams)} g',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                      if (reading.batteryPercent case final battery?)
+                        Text(
+                          s.scaleBattery(battery),
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                ?resetAction,
+              ],
+            )
+          else
+            DeviceStatusRow(
+              icon: Icons.scale_outlined,
+              active: false,
+              text: scale.name ?? '',
+              status: scaleStatusLabel(s, scale.status),
+              action: scale.status == DeviceStatus.connecting
+                  ? _connecting(s.scaleConnect)
+                  : scale.status == DeviceStatus.bluetoothOff
+                  ? TextButton(
+                      key: const ValueKey('scale-bluetooth-on'),
+                      onPressed: const DeviceFeedback().openBluetoothSettings,
+                      child: Text(s.scaleTurnOnBluetooth),
+                    )
+                  : TextButton(
+                      key: const ValueKey('scale-connect'),
+                      onPressed: scale.connect,
+                      child: Text(s.scaleConnect),
+                    ),
+            ),
+          if (tare != null || extraAction != null) ...[
+            const SizedBox(height: 10),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final action = extraAction;
+                if (tare == null) return action!;
+                if (action == null) return tare;
+                if (constraints.maxWidth < 300 ||
+                    MediaQuery.textScalerOf(context).scale(14) > 18) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [tare, const SizedBox(height: 10), action],
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(child: tare),
+                    const SizedBox(width: 10),
+                    Expanded(flex: 2, child: action),
+                  ],
+                );
+              },
+            ),
+          ],
+          if (footer case final note?) ...[
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (footerIcon case final icon?) ...[
+                  Icon(icon, size: 16, color: colors.primary),
+                  const SizedBox(width: 8),
+                ],
+                Expanded(
+                  child: Text(
+                    note,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colors.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      );
+      if (reading == null) return content;
+      return Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: colors.surfaceContainerLow,
+          border: Border.all(color: colors.outlineVariant),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: content,
       );
     },
   );
