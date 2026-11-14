@@ -11,6 +11,7 @@ import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
 import 'package:holybeans/ui/brews/brew_ratio_slider.dart';
 import 'package:holybeans/ui/brews/brew_scale_reset_button.dart';
+import 'package:holybeans/ui/brews/brew_scale_wait_button.dart';
 import 'package:holybeans/ui/brews/brew_water_plan.dart';
 import 'package:holybeans/ui/brews/brew_weight_chart.dart';
 import 'package:holybeans/ui/brews/coffee_picker.dart';
@@ -572,33 +573,7 @@ class BrewTimingSection extends StatelessWidget {
               espresso &&
                   !model.timer.running &&
                   model.timer.elapsedSeconds == 0
-              ? scale.waitingForDrip
-                    ? OutlinedButton.icon(
-                        key: const ValueKey('scale-wait-drip-cancel'),
-                        onPressed: scale.cancelWaitForDrip,
-                        icon: const Icon(Icons.close_rounded, size: 18),
-                        label: Text(s.scaleCancelWaitDrip),
-                      )
-                    : Tooltip(
-                        message: s.scaleWaitDripHint,
-                        child: FilledButton.icon(
-                          key: const ValueKey('scale-wait-drip'),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                          ),
-                          onPressed: scale.scale.connected && !scale.resetting
-                              ? scale.waitForDrip
-                              : null,
-                          icon: const Icon(Icons.water_drop_outlined, size: 18),
-                          label: Text(s.scaleWaitDrip),
-                        ),
-                      )
+              ? BrewScaleWaitButton(session: scale)
               : null,
           footerIcon: scale.waitingForDrip ? Icons.water_drop_outlined : null,
           footer: scale.waitingForDrip
