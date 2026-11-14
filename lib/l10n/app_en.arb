@@ -958,6 +958,7 @@
   "scaleUseWeightOff": "Use the scale's weight (not connected)",
   "scaleWaitDrip": "Wait for drip",
   "scaleWaitDripHint": "Tares and starts with the first drop",
+  "scaleCancelWaitDrip": "Cancel waiting",
   "scaleWaitingDrip": "Waiting for the first drop…",
   "espressoMap": "Espresso map",
   "openEspressoMap": "View espresso map",

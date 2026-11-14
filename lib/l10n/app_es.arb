@@ -1638,6 +1638,7 @@
   "scaleUseWeightOff": "Usar el peso de la báscula (sin conectar)",
   "scaleWaitDrip": "Esperar gota",
   "scaleWaitDripHint": "Tara y empieza con la primera gota",
+  "scaleCancelWaitDrip": "Cancelar espera",
   "scaleWaitingDrip": "Esperando la primera gota…",
   "espressoMap": "Mapa de espresso",
   "openEspressoMap": "Ver mapa de espresso",
