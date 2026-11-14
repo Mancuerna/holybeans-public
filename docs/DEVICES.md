@@ -41,6 +41,19 @@ button tares the scale. Dose notifications require compatible firmware (release
 4.0.0 or later, or beta 3.2.4 or later, according to the maker's
 [protocol](https://github.com/BooKooCode/OpenSource/blob/main/bookoo_ultra_scale/protocols.md#receiving-powder-weight)).
 
+The label editor remembers a default template separately for coffee bags and
+frozen portions. Select a saved template and choose **Use by default**; save any
+pending edits first. To restore the built-in format, select **Basic template**
+and choose **Use by default**. Deleting the default also restores the basic
+format. These choices are included in journal backups.
+
+Opening the label editor attempts to connect to the paired device for the saved
+printer model. Selecting another paired model also attempts an automatic
+connection, unless it was disconnected during this visit. Manual **Connect**
+remains available if the printer is off, unavailable or Bluetooth is disabled.
+Disconnecting does not trigger an automatic retry, and leaving the editor closes
+the connection. Printing still requires pressing **Print**.
+
 Niimbot label printing is experimental. Initial prints have been confirmed on
 D110, B1, B1 Pro and D11-H. D11-H has been tried with 12 × 40 mm paper; margins
 and broader reliability still need validation. D11, B21 variants, B2 and other

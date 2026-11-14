@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
@@ -28,6 +30,7 @@ class LabelPrintPage extends StatefulWidget {
     required this.templates,
     required this.settings,
     required this.printer,
+    this.defaults = const {},
     this.otherPrinters = const [],
     this.outputPreferences,
   });
@@ -36,6 +39,7 @@ class LabelPrintPage extends StatefulWidget {
   final List<CoffeeLot> lots;
   final List<FrozenPortion> portions;
   final List<LabelTemplate> templates;
+  final Map<LabelKind, String> defaults;
   final ShareTemplateSettings settings;
   final LabelPrinter printer;
   final List<LabelPrinter> otherPrinters;
@@ -48,6 +52,7 @@ class LabelPrintPage extends StatefulWidget {
 class _LabelPrintPageState extends State<LabelPrintPage> {
   final body = TextEditingController();
   late List<LabelTemplate> templates = [...widget.templates];
+  late final defaults = {...widget.defaults};
   LabelKind kind = LabelKind.coffee;
   late LabelPrinter printer = widget.printer;
   late LabelPaper paper = printer.model.defaultPaper;
@@ -82,6 +87,9 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
       orElse: () => widget.printer,
     );
     paper = preferences?.paperFor(printer.model) ?? printer.model.defaultPaper;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_connectAutomatically(printer));
+    });
     final active = widget.lots.where((l) => l.archivedAtMs == null).toList();
     lot = active.length == 1
         ? active.single
@@ -93,11 +101,26 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (cleanBody == null) _resetBody();
+    if (cleanBody == null) _loadDefault();
   }
 
   void _graphicChanged() {
     if (mounted) setState(() {});
+  }
+
+  Future<void> _connectAutomatically(LabelPrinter target) async {
+    if (target.name == null || target.connected) return;
+    try {
+      await target.connect(automatic: true);
+    } catch (problem, stack) {
+      reportError(problem, stack);
+      if (mounted && identical(printer, target)) {
+        setState(() {
+          feedback = AppLocalizations.of(context).labelConnectionFailed;
+          error = true;
+        });
+      }
+    }
   }
 
   Future<void> _changePrinter(LabelPrinter next) async {
@@ -115,6 +138,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
         feedback = null;
       });
       await _rememberOutput();
+      if (mounted) unawaited(_connectAutomatically(next));
     } catch (problem, stack) {
       reportError(problem, stack);
       if (mounted) {
@@ -151,6 +175,50 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
     });
     await _rememberOutput();
     if (mounted) setState(() => busy = false);
+  }
+
+  void _loadDefault() {
+    final chosen = templates
+        .where((t) => t.kind == kind && t.id == defaults[kind])
+        .firstOrNull;
+    _loadTemplate(chosen);
+  }
+
+  void _loadTemplate(LabelTemplate? chosen) {
+    if (chosen == null) {
+      _resetBody();
+      return;
+    }
+    selectedTemplate = chosen.id;
+    body.text = chosen.body;
+    cleanBody = body.text;
+    cleanGraphic = chosen.imagePng;
+    imageOptions = cleanImageOptions = chosen.effectiveImageOptions;
+    graphic.load(chosen.imagePng);
+  }
+
+  Future<void> _setDefault() async {
+    if (busy || dirty) return;
+    setState(() => busy = true);
+    try {
+      await widget.settings.selectLabel(kind, selectedTemplate);
+      if (!mounted) return;
+      setState(() {
+        defaults.remove(kind);
+        if (selectedTemplate case final id?) defaults[kind] = id;
+        feedback = null;
+      });
+    } catch (problem, stack) {
+      reportError(problem, stack);
+      if (mounted) {
+        setState(() {
+          feedback = AppLocalizations.of(context).labelSaveFailed;
+          error = true;
+        });
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
   }
 
   void _resetBody() {
@@ -224,7 +292,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
   }
 
   Future<void> _changeKind(LabelKind? value) async {
-    if (value == null || value == kind) return;
+    if (busy || value == null || value == kind) return;
     final replace = await _allowReplace();
     if (!mounted) return;
     setState(() {
@@ -239,15 +307,15 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
             : widget.lots.length == 1
             ? widget.lots.single
             : null;
-        _resetBody();
-        templateField.currentState?.didChange('');
+        _loadDefault();
+        templateField.currentState?.didChange(selectedTemplate ?? '');
       }
       kindField.currentState?.didChange(kind);
     });
   }
 
   Future<void> _changeTemplate(String? id) async {
-    if (id == null || id == (selectedTemplate ?? '')) return;
+    if (busy || id == null || id == (selectedTemplate ?? '')) return;
     final replace = await _allowReplace();
     if (!mounted) return;
     setState(() {
@@ -255,13 +323,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
         if (id.isEmpty) {
           _resetBody();
         } else {
-          selectedTemplate = id;
-          final chosen = templates.firstWhere((t) => t.id == id);
-          body.text = chosen.body;
-          cleanGraphic = chosen.imagePng;
-          imageOptions = cleanImageOptions = chosen.effectiveImageOptions;
-          graphic.load(chosen.imagePng);
-          cleanBody = body.text;
+          _loadTemplate(templates.firstWhere((t) => t.id == id));
         }
       }
       templateField.currentState?.didChange(selectedTemplate ?? '');
@@ -342,8 +404,9 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
       if (mounted) {
         setState(() {
           templates.removeWhere((t) => t.id == id);
-          _resetBody();
-          templateField.currentState?.didChange('');
+          defaults.removeWhere((_, value) => value == id);
+          _loadDefault();
+          templateField.currentState?.didChange(selectedTemplate ?? '');
           feedback = null;
         });
       }
@@ -690,6 +753,22 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
                 : null,
             icon: const Icon(Icons.save_outlined),
             label: Text(s.labelTemplateSave),
+          ),
+          TextButton.icon(
+            key: const ValueKey('label-template-default'),
+            onPressed: busy || dirty || defaults[kind] == selectedTemplate
+                ? null
+                : _setDefault,
+            icon: Icon(
+              defaults[kind] == selectedTemplate
+                  ? Icons.star
+                  : Icons.star_border,
+            ),
+            label: Text(
+              defaults[kind] == selectedTemplate
+                  ? s.labelTemplateIsDefault
+                  : s.labelTemplateUseDefault,
+            ),
           ),
           if (selectedTemplate != null)
             TextButton.icon(

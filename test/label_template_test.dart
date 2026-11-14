@@ -78,14 +78,24 @@ void main() {
           .toJson();
       expect(previous.containsKey('labelTemplates'), isFalse);
       expect(
+        ShareConfiguration.decode(jsonEncode(previous)).labelDefaults,
+        isEmpty,
+      );
+      expect(
         ShareConfiguration.decode(jsonEncode(previous)).labelTemplates,
         isEmpty,
       );
       await settings.saveLabelTemplate(label);
+      await settings.selectLabel(LabelKind.coffee, label.id);
       await settings.saveTemplate(brew);
       await settings.select(ShareTemplateStyle.espresso, brew.id);
       await BrewParameterSettings(db).saveShared({BrewParameter.time});
       await settings.deleteTemplate(brew.id);
+      await settings.saveOverlayBackgroundOpacity(0.7);
+      expect(
+        (await settings.load()).selectedLabel(LabelKind.coffee)?.id,
+        label.id,
+      );
       expect((await settings.load()).labelTemplates.single.body, label.body);
       await settings.saveTemplate(brew);
       await settings.select(ShareTemplateStyle.espresso, brew.id);
@@ -127,12 +137,104 @@ void main() {
         ),
       ]);
       await settings.select(ShareTemplateStyle.espresso, brew.id);
+      await settings.selectLabel(LabelKind.coffee, label.id);
       final before = (await settings.load()).toJson();
       final backup = await JournalBackup(db).exportJson();
       await settings.deleteLabelTemplate(label.id);
       await settings.deleteTemplate(brew.id);
       await JournalBackup(db).restoreJson(backup);
       expect((await settings.load()).toJson(), before);
+    },
+  );
+
+  test(
+    'defaults are independent by label kind and validate their target',
+    () async {
+      final db = memoryDatabase();
+      addTearDown(db.close);
+      final settings = ShareTemplateSettings(db);
+      const frozen = LabelTemplate(
+        id: 'frozen',
+        name: 'Portion',
+        kind: LabelKind.frozen,
+        body: '<coffee> <portion_weight>',
+      );
+      await settings.saveLabelTemplate(label);
+      await settings.saveLabelTemplate(frozen);
+      await Future.wait([
+        settings.selectLabel(LabelKind.coffee, label.id),
+        settings.selectLabel(LabelKind.frozen, frozen.id),
+      ]);
+      var configuration = await settings.load();
+      expect(configuration.selectedLabel(LabelKind.coffee)?.id, label.id);
+      expect(configuration.selectedLabel(LabelKind.frozen)?.id, frozen.id);
+      await expectLater(
+        settings.selectLabel(LabelKind.coffee, frozen.id),
+        throwsArgumentError,
+      );
+      await expectLater(
+        settings.selectLabel(LabelKind.coffee, 'missing'),
+        throwsArgumentError,
+      );
+      await settings.selectLabel(LabelKind.coffee, null);
+      configuration = await settings.load();
+      expect(configuration.selectedLabel(LabelKind.coffee), isNull);
+      expect(configuration.selectedLabel(LabelKind.frozen)?.id, frozen.id);
+      await settings.deleteLabelTemplate(frozen.id);
+      expect((await settings.load()).labelDefaults, isEmpty);
+    },
+  );
+
+  test(
+    'editing a default preserves it and changing its kind clears it',
+    () async {
+      final db = memoryDatabase();
+      addTearDown(db.close);
+      final settings = ShareTemplateSettings(db);
+      await settings.saveLabelTemplate(label);
+      await settings.selectLabel(LabelKind.coffee, label.id);
+      await settings.saveLabelTemplate(
+        LabelTemplate(
+          id: label.id,
+          name: 'Renamed',
+          kind: LabelKind.coffee,
+          body: '<roaster>',
+        ),
+      );
+      expect(
+        (await settings.load()).selectedLabel(LabelKind.coffee)?.body,
+        '<roaster>',
+      );
+      await settings.saveLabelTemplate(
+        LabelTemplate(
+          id: label.id,
+          name: 'Frozen',
+          kind: LabelKind.frozen,
+          body: '<freeze_date>',
+        ),
+      );
+      expect((await settings.load()).labelDefaults, isEmpty);
+    },
+  );
+
+  test(
+    'missing or mismatched default IDs fall back without losing templates',
+    () {
+      final configuration = ShareConfiguration.decode(
+        jsonEncode(
+          ShareConfiguration(
+            fields: {BrewParameter.notes},
+            labelTemplates: [label],
+            labelDefaults: {
+              LabelKind.coffee: 'missing',
+              LabelKind.frozen: label.id,
+            },
+          ).toJson(),
+        ),
+      );
+      expect(configuration.selectedLabel(LabelKind.coffee), isNull);
+      expect(configuration.selectedLabel(LabelKind.frozen), isNull);
+      expect(configuration.labelTemplates.single.id, label.id);
     },
   );
 

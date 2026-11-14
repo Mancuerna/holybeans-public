@@ -2364,6 +2364,8 @@
   "labelBodyHint": "Tap a field to insert it. Use **text** for bold.",
   "labelTemplateSave": "Save template",
   "labelTemplateDelete": "Delete template",
+  "labelTemplateUseDefault": "Use by default",
+  "labelTemplateIsDefault": "Default for this label type",
   "labelTemplateSaved": "Template saved",
   "labelTemplateName": "Template name",
   "labelPreview": "Preview",
