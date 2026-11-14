@@ -10,6 +10,14 @@ refractometers and BOOKOO pressure sensors have separate integrations.
 Meticulous and Gaggimate history integrations read documented machine endpoints
 without changing machine state.
 
+Bluetooth GATT operations are serialized per device, so a slow operation on a
+scale or printer does not hold up the BOOKOO pressure sensor's connection or
+transmission controls. Reconnecting waits for the previous stop-transmission
+command and Bluetooth disconnect to finish; an old close must not tear down the
+replacement connection. These cases are covered by simulated transport tests.
+They do not establish the cause of every physical disconnect; reports during
+measurement still need a device log and confirmation on the affected hardware.
+
 Android permits cleartext HTTP (`usesCleartextTraffic="true"`) so Meticulous and
 Gaggimate can be reached at their configured addresses on the local network.
 That manifest setting applies to the app as a whole, not just those two hosts.

@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/services/paired_device_file.dart';
 import 'package:holybeans/data/services/pressure_sensor.dart';
+import 'package:holybeans/domain/bookoo_pressure_protocol.dart';
 import 'package:universal_ble/universal_ble.dart';
 
 import 'helpers/fake_pressure_ble_platform.dart';
@@ -16,6 +17,47 @@ class _SlowPressureSensor extends BlePressureSensor {
   Future<void> onNotificationsSubscribed(String id) async {
     await super.onNotificationsSubscribed(id);
     await startup?.future;
+  }
+}
+
+class _BusyPressurePlatform extends FakePressureBlePlatform {
+  final readEntered = Completer<void>();
+  final releaseRead = Completer<void>();
+  final stopEntered = Completer<void>();
+  final releaseStop = Completer<void>();
+  bool holdStop = false;
+
+  @override
+  Future<Uint8List> readValue(
+    String deviceId,
+    String service,
+    String characteristic, {
+    Duration? timeout,
+  }) async {
+    readEntered.complete();
+    await releaseRead.future;
+    return Uint8List(0);
+  }
+
+  @override
+  Future<void> writeValue(
+    String deviceId,
+    String service,
+    String characteristic,
+    Uint8List value,
+    BleOutputProperty bleOutputProperty,
+  ) async {
+    if (holdStop && value[2] == 0 && !stopEntered.isCompleted) {
+      stopEntered.complete();
+      await releaseStop.future;
+    }
+    await super.writeValue(
+      deviceId,
+      service,
+      characteristic,
+      value,
+      bleOutputProperty,
+    );
   }
 }
 
@@ -133,6 +175,91 @@ void main() {
     expect(sensor.connected, isFalse);
     expect(platform.events.last, 'disconnect:AA:BB');
   });
+
+  test('another device cannot block pressure connection or recovery', () async {
+    final busy = _BusyPressurePlatform();
+    UniversalBle.setInstance(busy);
+    final otherRead = UniversalBle.read('SCALE', 'FFF0', 'FFF1');
+    await busy.readEntered.future;
+    try {
+      await sensor.pair(monitor).timeout(const Duration(seconds: 1));
+      final reading = sensor.readings.first;
+      busy.updateCharacteristicValue(
+        monitor.id,
+        BookooPressureUuids.pressure,
+        Uint8List.fromList([2, 27, 0, 0, 3, 142, 85, 0, 0, 0]),
+        null,
+      );
+      expect(await reading, 9.1);
+      await sensor.disconnect().timeout(const Duration(seconds: 1));
+      await sensor.connect().timeout(const Duration(seconds: 1));
+      expect(sensor.connected, isTrue);
+      expect(busy.writes.map((write) => write.bytes), [start, stop, start]);
+      expect(busy.releaseRead.isCompleted, isFalse);
+    } finally {
+      busy.releaseRead.complete();
+      await otherRead;
+    }
+  });
+
+  test(
+    'pressure commands still serialize behind work on the same device',
+    () async {
+      final busy = _BusyPressurePlatform();
+      UniversalBle.setInstance(busy);
+      await sensor.pair(monitor);
+      final read = UniversalBle.read(monitor.id, '0FFF', 'FF03');
+      await busy.readEntered.future;
+      final closing = sensor.disconnect();
+      try {
+        await Future<void>.delayed(Duration.zero);
+        expect(busy.writes.map((write) => write.bytes), [start]);
+        expect(busy.events, isNot(contains('disconnect:${monitor.id}')));
+      } finally {
+        busy.releaseRead.complete();
+        await read;
+        await closing;
+      }
+      expect(busy.writes.map((write) => write.bytes), [start, stop]);
+    },
+  );
+
+  for (final replacement in [
+    monitor,
+    const FoundDevice(id: 'CC:DD', name: 'BOOKOO_EM-2'),
+  ]) {
+    test(
+      'pending stop cannot tear down replacement ${replacement.id}',
+      () async {
+        final busy = _BusyPressurePlatform()..holdStop = true;
+        UniversalBle.setInstance(busy);
+        await sensor.pair(monitor);
+        final closing = sensor.disconnect();
+        await busy.stopEntered.future;
+        final reconnecting = sensor.pair(replacement);
+        await Future<void>.delayed(Duration.zero);
+        final connectionsBeforeStop = busy.events
+            .where((event) => event.startsWith('connect:'))
+            .length;
+        busy.releaseStop.complete();
+        await closing;
+        await reconnecting;
+        expect(sensor.connected, isTrue, reason: busy.events.join('\n'));
+        expect(connectionsBeforeStop, 1);
+        expect(sensor.name, replacement.name);
+        expect(busy.events, [
+          'connect:AA:BB',
+          'subscribe:AA:BB',
+          'start:AA:BB',
+          'stop:AA:BB',
+          'disconnect:AA:BB',
+          'connect:${replacement.id}',
+          'subscribe:${replacement.id}',
+          'start:${replacement.id}',
+        ]);
+      },
+    );
+  }
 
   test(
     'loss during transmission startup is not reported as connected',

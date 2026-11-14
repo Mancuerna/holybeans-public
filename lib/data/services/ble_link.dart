@@ -12,7 +12,11 @@ import 'package:universal_ble/universal_ble.dart';
 /// Subclasses say which device they are; writing to it is up to them.
 abstract class BleLink<T extends Object> extends ChangeNotifier
     implements PairedDevice {
-  BleLink({this.trace});
+  BleLink({this.trace}) {
+    // GATT operations must stay ordered for each peripheral. A slow scale or
+    // printer must not hold up the pressure sensor's setup or disconnection.
+    UniversalBle.queueType = QueueType.perDevice;
+  }
 
   final BleTrace? trace;
 
@@ -79,6 +83,7 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
   }
 
   bool _opening = false;
+  Future<void>? _closing;
   int _attempt = 0;
   FoundDevice? _remembered;
   bool _loaded = false;
@@ -400,7 +405,20 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
     _set(DeviceStatus.idle);
   }
 
-  Future<void> _close({bool disconnect = false}) async {
+  Future<void> _close({bool disconnect = false}) {
+    if (_closing case final pending?) return pending;
+    // BOOKOO pressure sends a stop before releasing the link. A replacement
+    // must wait for that stop and native disconnect, even after _deviceId has
+    // been cleared, or the old cleanup can disconnect the new connection.
+    late final Future<void> closing;
+    closing = _closeCurrent(disconnect: disconnect).whenComplete(() {
+      if (identical(_closing, closing)) _closing = null;
+    });
+    _closing = closing;
+    return closing;
+  }
+
+  Future<void> _closeCurrent({required bool disconnect}) async {
     traceEvent('connection.close', {'id': _deviceId, 'disconnect': disconnect});
     final hadLink = _values != null || connected;
     connectionClosed();
