@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.12.0](https://github.com/Mancuerna/holybeans-public/compare/v1.11.0...v1.12.0) (2026-11-14)
+
+
+### Features
+
+* **labels:** remember default templates and connect saved printers ([24f3f12](https://github.com/Mancuerna/holybeans-public/commit/24f3f12e317d200a972e7b62cac1bff8caa2f36b))
+
+
+### Bug Fixes
+
+* **ble:** isolate devices and finish cleanup before reconnecting ([#146](https://github.com/Mancuerna/holybeans-public/issues/146)) ([47d728e](https://github.com/Mancuerna/holybeans-public/commit/47d728ebcfd8cfdc1a42c9069d09942a62c5190e))
+* **ble:** recover from link loss during connection setup ([545485e](https://github.com/Mancuerna/holybeans-public/commit/545485e5698fee4aa50e1a8e0dd3d92f584bafdc))
+* **scales:** await Dot reset completion and recover failed controls ([#145](https://github.com/Mancuerna/holybeans-public/issues/145)) ([a03d5dd](https://github.com/Mancuerna/holybeans-public/commit/a03d5dd682492e052483c31945ea932fda007136))
+
 ## [1.11.0](https://github.com/Mancuerna/holybeans-public/compare/v1.10.0...v1.11.0) (2026-11-13)
 
 
