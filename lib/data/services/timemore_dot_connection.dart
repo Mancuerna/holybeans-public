@@ -41,10 +41,13 @@ class TimemoreDotConnection {
   bool _closed = false;
   bool _identified = false;
   bool _uncertainCommand = false;
+  bool get requiresReconnect => _uncertainCommand;
   Future<bool> _commands = Future.value(true);
   Completer<bool>? _ack;
   int? _ackCommand;
   int? _ackTimerState;
+  Completer<bool>? _resetApplied;
+  bool _resetAcknowledged = false;
 
   void _log(String event, Map<String, Object?> data) =>
       emitBleTrace(trace, 'dot.$event', data);
@@ -134,11 +137,26 @@ class TimemoreDotConnection {
           // acknowledged request before parsing another coalesced weight frame.
           if (frame.payload[0] == 1 && _ackTimerState != null) {
             _state.running = _ackTimerState == 1;
+            _resetAcknowledged = _ackTimerState == 3;
           }
           ack.complete(frame.payload[0] == 1);
         }
       }
       final reading = _state.accept(frame);
+      // A reset ACK accepts the request; the captured v1.0.4 sequence then
+      // reports the applied zero separately. Do not send tare/start in between.
+      // Inspect time independently of weight units or an overload indication.
+      if (_resetAcknowledged &&
+          _state.running == false &&
+          frame.operation == 1 &&
+          frame.command == 1 &&
+          frame.payload.length == 9 &&
+          frame.payload[6] == 0 &&
+          frame.payload[7] == 0) {
+        if (_resetApplied case final reset? when !reset.isCompleted) {
+          reset.complete(true);
+        }
+      }
       if (reading != null) {
         yield reading;
       } else if (frame.operation == 1 && frame.command == 1) {
@@ -196,6 +214,10 @@ class TimemoreDotConnection {
             final ack = _ack = Completer<bool>();
             _ackCommand = bytes[3];
             _ackTimerState = bytes[3] == 2 ? bytes[6] : null;
+            final resetApplied = _resetApplied = _ackTimerState == 3
+                ? Completer<bool>()
+                : null;
+            _resetAcknowledged = false;
             await _write(bytes, command.name);
             final ok = await ack.future.timeout(
               const Duration(seconds: 3),
@@ -207,6 +229,18 @@ class TimemoreDotConnection {
             );
             _log('ack.result', {'command': command.name, 'ok': ok});
             if (!ok || _closed) return false;
+            if (resetApplied != null) {
+              final applied = await resetApplied.future.timeout(
+                const Duration(seconds: 3),
+                onTimeout: () {
+                  _uncertainCommand = true;
+                  _log('reset.timeout', {});
+                  return false;
+                },
+              );
+              _log('reset.result', {'ok': applied});
+              if (!applied || _closed) return false;
+            }
           }
           return true;
         } on Object catch (error) {
@@ -217,11 +251,16 @@ class TimemoreDotConnection {
           _ack = null;
           _ackCommand = null;
           _ackTimerState = null;
+          _resetApplied = null;
+          _resetAcknowledged = false;
         }
       });
 
   void close() {
     _closed = true;
     if (_ack case final ack? when !ack.isCompleted) ack.complete(false);
+    if (_resetApplied case final reset? when !reset.isCompleted) {
+      reset.complete(false);
+    }
   }
 }

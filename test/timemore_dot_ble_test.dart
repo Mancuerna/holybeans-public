@@ -303,7 +303,122 @@ void main() {
       (await export()).map((r) => r['event']),
       contains('dot.ack.timeout'),
     );
+    expect(scale.connected, isFalse);
+    expect(scale.reading, isNull);
+    expect(platform.events, contains('disconnect:${platform.id}'));
+    // The existing scale can reconnect without restarting the app or bonding.
+    await scale.connect();
+    expect(scale.connected, isTrue);
+    expect(platform.writes.where((p) => p[2] == 3), hasLength(1));
+    expect(await scale.send(ScaleCommand.tare), isTrue);
+    expect(platform.events.where((e) => e == 'bond'), hasLength(1));
   });
+
+  test('reset waits for a fresh zero after ACK before sending tare', () async {
+    await connect();
+    platform.applyReset = false;
+    platform.seconds = 45;
+    platform.emit(36.2);
+    await settle();
+    final reset = scale.send(ScaleCommand.resetTimer);
+    final tare = scale.send(ScaleCommand.tare);
+    await settle();
+    platform.emit(36.2);
+    await settle();
+    expect(platform.tareCount, 0);
+    expect(platform.writes.where((p) => p[2] == 3), hasLength(1));
+    platform.completeReset();
+    expect(await reset, isTrue);
+    expect(await tare, isTrue);
+    expect(platform.tareCount, 1);
+    expect(scale.connected, isTrue);
+  });
+
+  test('zero before reset ACK does not release the next command', () async {
+    await connect();
+    platform.acknowledge = false;
+    final reset = scale.send(ScaleCommand.resetTimer);
+    final tare = scale.send(ScaleCommand.tare);
+    await settle();
+    platform.completeReset();
+    platform.publish(dotReply(3, 2, [1]));
+    await settle();
+    expect(platform.writes.where((p) => p[2] == 3), hasLength(1));
+    platform.acknowledge = true;
+    platform.completeReset();
+    expect(await reset, isTrue);
+    expect(await tare, isTrue);
+  });
+
+  test(
+    'coalesced reset ACK and zero work without a usable gram reading',
+    () async {
+      platform.unit = 1;
+      await connect();
+      platform.acknowledge = false;
+      final reset = scale.send(ScaleCommand.resetTimer);
+      await settle();
+      platform.publish(
+        Uint8List.fromList([
+          ...dotReply(3, 2, [1]),
+          ...dotWeight(0, overload: 1),
+        ]),
+      );
+      expect(await reset, isTrue);
+      expect(scale.reading, isNull);
+      expect(scale.connected, isTrue);
+    },
+  );
+
+  test(
+    'link loss while awaiting reset zero cancels a compound start',
+    () async {
+      await connect();
+      platform.applyReset = false;
+      final start = scale.send(ScaleCommand.tareAndStartTimer);
+      await settle();
+      expect(platform.writes.where((p) => p[2] == 3), hasLength(2));
+      platform.lose(platform.id);
+      expect(await start, isFalse);
+      platform.applyReset = true;
+      await scale.connect();
+      expect(scale.connected, isTrue);
+      expect(platform.writes.where((p) => p[2] == 3), hasLength(2));
+      expect(await scale.send(ScaleCommand.tareAndStartTimer), isTrue);
+    },
+  );
+
+  test(
+    'reset without a zero reading disconnects and cancels queued tare',
+    () async {
+      await connect();
+      platform.applyReset = false;
+      final reset = scale.send(ScaleCommand.resetTimer);
+      final tare = scale.send(ScaleCommand.tare);
+      expect(await reset, isFalse);
+      expect(await tare, isFalse);
+      expect(scale.connected, isFalse);
+      expect(platform.tareCount, 0);
+      platform.applyReset = true;
+      await scale.connect();
+      expect(scale.connected, isTrue);
+      expect(await scale.send(ScaleCommand.resetTimer), isTrue);
+    },
+  );
+
+  test(
+    'GATT write failure closes the unusable link and permits reconnect',
+    () async {
+      await connect();
+      platform.failWrite = true;
+      expect(await scale.send(ScaleCommand.resetTimer), isFalse);
+      expect(scale.connected, isFalse);
+      platform.failWrite = false;
+      await scale.connect();
+      expect(scale.connected, isTrue);
+      expect(await scale.send(ScaleCommand.resetTimer), isTrue);
+    },
+  );
 
   test(
     'disconnect cancels a compound command and reconnect clears parser state',

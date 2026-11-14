@@ -9,6 +9,7 @@ import 'package:holybeans/ui/brews/brew_timer.dart';
 import 'package:universal_ble/universal_ble.dart';
 
 import 'helpers/fake_acaia_ble_platform.dart';
+import 'helpers/fake_dot_ble_platform.dart';
 import 'helpers/fake_scale_ble_platform.dart';
 import 'helpers/test_database.dart';
 
@@ -22,6 +23,7 @@ void main() {
     'microbalance-alternate',
     'acaia',
     'acaia-classic',
+    'dot',
   ]) {
     for (final running in [false, true]) {
       test(
@@ -31,6 +33,8 @@ void main() {
           final acaia = family.startsWith('acaia');
           final platform = acaia
               ? FakeAcaiaBlePlatform(classic: family == 'acaia-classic')
+              : family == 'dot'
+              ? FakeDotBlePlatform()
               : FakeScaleBlePlatform(
                   ti: family == 'microbalance-ti',
                   alternate: family == 'microbalance-alternate',
@@ -79,7 +83,21 @@ void main() {
               expect(platform.seconds, 0);
               expect(platform.grams, 0);
               expect(platform.tareCount, 1);
-              if (acaia) {
+              if (family == 'dot') {
+                expect(
+                  platform.writes.map(
+                    (frame) => [
+                      frame[3],
+                      ...frame.sublist(6, frame.length - 2),
+                    ],
+                  ),
+                  [
+                    [2, 3],
+                    [13],
+                  ],
+                );
+                expect(scale.connected, isTrue);
+              } else if (acaia) {
                 final controls = platform.writes.where(
                   (frame) => [4, 13].contains(frame[2]),
                 );
