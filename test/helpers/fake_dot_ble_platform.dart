@@ -47,6 +47,7 @@ class FakeDotBlePlatform extends FakeScaleBlePlatform {
   bool answerQueries = true;
   bool writeWithResponseOnly = false;
   bool failWrite = false;
+  bool applyReset = true;
 
   @override
   Future<void> startScan({
@@ -112,13 +113,22 @@ class FakeDotBlePlatform extends FakeScaleBlePlatform {
   }
 
   @override
-  void emit(double weight, {double flow = 0}) => publish(
-    dotWeight(
-      (weight * 10).round(),
-      flow: (flow * 10).round(),
-      seconds: seconds,
-    ),
-  );
+  void emit(double weight, {double flow = 0}) {
+    grams = weight;
+    publish(
+      dotWeight(
+        (weight * 10).round(),
+        flow: (flow * 10).round(),
+        seconds: seconds,
+      ),
+    );
+  }
+
+  void completeReset() {
+    seconds = 0;
+    state = 5;
+    emit(grams);
+  }
 
   @override
   Future<void> writeValue(
@@ -146,7 +156,7 @@ class FakeDotBlePlatform extends FakeScaleBlePlatform {
       if (!answerQueries) return;
       publish(
         dotReply(2, value[3], switch (value[3]) {
-          2 => [3],
+          2 => [state == 10 ? 1 : (state == 11 ? 2 : 3)],
           5 => [2, 76],
           _ => [unit],
         }),
@@ -158,6 +168,16 @@ class FakeDotBlePlatform extends FakeScaleBlePlatform {
             value[3] == 2 && value[5] == 1 && [1, 2, 3].contains(value[6]))) {
       throw StateError('Forbidden Dot command');
     }
-    if (acknowledge) publish(dotReply(3, value[3], [acceptCommand ? 1 : 0]));
+    if (!acknowledge) return;
+    publish(dotReply(3, value[3], [acceptCommand ? 1 : 0]));
+    if (!acceptCommand) return;
+    if (value[3] == 13) {
+      tareCount++;
+      emit(0);
+    } else if (value[6] == 3) {
+      if (applyReset) completeReset();
+    } else {
+      state = value[6] == 1 ? 10 : 11;
+    }
   }
 }

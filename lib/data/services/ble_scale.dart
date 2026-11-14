@@ -335,7 +335,18 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
     if (id == null) return Future.value(false);
     return _commands = _commands.then((_) async {
       if (connectedId != id || generation != _generation) return false;
-      if (dot != null) return dot.send(command);
+      if (dot != null) {
+        final success = await dot.send(command);
+        if (dot.requiresReconnect &&
+            generation == _generation &&
+            identical(dot, _dot)) {
+          // An uncertain command blocks this adapter permanently. Release the
+          // BLE link so Connect can create a fresh adapter without restarting
+          // the app. Queued controls belong to the old generation; never replay.
+          await disconnect();
+        }
+        return success;
+      }
       if (acaia != null) return acaia.send(command);
       if (difluid != null) return difluid.send(command);
       try {

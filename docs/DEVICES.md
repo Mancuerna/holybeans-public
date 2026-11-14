@@ -101,8 +101,13 @@ protocol commands. It accepts the reserved zero CRC trailer only for verified
 TES017 / TIMEMORE firmware v1.0.4; other firmware retains CRC validation.
 Startup reads units, battery and timer state without changing settings. Timer
 state follows notifications and acknowledged controls; an ACK's success byte
-is never interpreted as the requested timer action. Commands are serialized,
-and an uncertain command requires reconnection before another control is sent.
+is never interpreted as the requested timer action. Commands are serialized.
+After a reset ACK, the adapter waits for a new zero-time report before sending
+the next tare or start. If the ACK or reset completion is missing, or a write
+fails, the unusable connection is closed so **Connect** can recover it without
+restarting the app. Pending controls are discarded, never replayed on reconnect.
+These recovery paths are covered by simulated BLE and UI tests; recovery from
+the reported physical Dot lockup still needs confirmation on the affected scale.
 The implementation uses the manufacturer's
 [BLE protocol](https://github.com/TIMEMORE-COFFEE/open-scale-protocol/blob/main/Timemore%20Black%20Mirror%20SCALE%20BLE%20Protocol.md).
 
