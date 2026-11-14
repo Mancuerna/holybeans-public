@@ -3161,6 +3161,8 @@
   "labelBodyHint": "Toca un campo para insertarlo. Usa **texto** para negrita.",
   "labelTemplateSave": "Guardar plantilla",
   "labelTemplateDelete": "Eliminar plantilla",
+  "labelTemplateUseDefault": "Usar por defecto",
+  "labelTemplateIsDefault": "Predeterminada para este tipo de etiqueta",
   "labelTemplateSaved": "Plantilla guardada",
   "labelTemplateName": "Nombre de la plantilla",
   "labelPreview": "Vista previa",

@@ -14,6 +14,7 @@ class ShareConfiguration {
     this.templates = const [],
     this.defaults = const {},
     this.labelTemplates = const [],
+    this.labelDefaults = const {},
     this.overlayBackgroundOpacity = defaultOverlayBackgroundOpacity,
   });
 
@@ -24,6 +25,11 @@ class ShareConfiguration {
   final List<ShareTemplate> templates;
   final Map<ShareTemplateStyle, String> defaults;
   final List<LabelTemplate> labelTemplates;
+  final Map<LabelKind, String> labelDefaults;
+
+  LabelTemplate? selectedLabel(LabelKind kind) => labelTemplates
+      .where((t) => t.kind == kind && t.id == labelDefaults[kind])
+      .firstOrNull;
 
   ShareTemplate? selected(ShareTemplateStyle style) => templates
       .where((t) => t.style == style && t.id == defaults[style])
@@ -35,6 +41,10 @@ class ShareConfiguration {
     'fields': encodeSharedParameters(fields),
     'templates': [for (final template in templates) template.toJson()],
     'defaults': {for (final e in defaults.entries) e.key.name: e.value},
+    if (labelDefaults.isNotEmpty)
+      'labelDefaults': {
+        for (final e in labelDefaults.entries) e.key.name: e.value,
+      },
     if (labelTemplates.isNotEmpty)
       'labelTemplates': [for (final t in labelTemplates) t.toJson()],
   };
@@ -83,6 +93,12 @@ class ShareConfiguration {
         for (final item in (decoded['labelTemplates'] as List? ?? const []))
           LabelTemplate.fromJson(item as Map<String, dynamic>),
       ],
+      labelDefaults: {
+        for (final e
+            in (decoded['labelDefaults'] as Map<String, dynamic>? ?? const {})
+                .entries)
+          LabelKind.values.byName(e.key): e.value as String,
+      },
       defaults: {
         for (final e in (decoded['defaults'] as Map<String, dynamic>).entries)
           ShareTemplateStyle.values.byName(e.key): e.value as String,
@@ -129,6 +145,7 @@ class ShareTemplateSettings {
         templates: old.templates,
         defaults: old.defaults,
         labelTemplates: old.labelTemplates,
+        labelDefaults: old.labelDefaults,
         overlayBackgroundOpacity: opacity,
       ),
     );
@@ -142,6 +159,11 @@ class ShareTemplateSettings {
         fields: old.fields,
         templates: old.templates,
         defaults: old.defaults,
+        labelDefaults: {
+          for (final e in old.labelDefaults.entries)
+            if (e.value != template.id || e.key == template.kind)
+              e.key: e.value,
+        },
         labelTemplates: [
           for (final previous in old.labelTemplates)
             if (previous.id != template.id) previous,
@@ -158,8 +180,29 @@ class ShareTemplateSettings {
       templates: old.templates,
       defaults: old.defaults,
       labelTemplates: old.labelTemplates.where((t) => t.id != id).toList(),
+      labelDefaults: {
+        for (final e in old.labelDefaults.entries)
+          if (e.value != id) e.key: e.value,
+      },
     ),
   );
+
+  Future<void> selectLabel(LabelKind kind, String? id) => _update((old) {
+    if (id != null &&
+        !old.labelTemplates.any((t) => t.id == id && t.kind == kind)) {
+      throw ArgumentError.value(id);
+    }
+    return ShareConfiguration(
+      overlayBackgroundOpacity: old.overlayBackgroundOpacity,
+      fields: old.fields,
+      templates: old.templates,
+      defaults: old.defaults,
+      labelTemplates: old.labelTemplates,
+      labelDefaults: {...old.labelDefaults}
+        ..remove(kind)
+        ..addAll({kind: ?id}),
+    );
+  });
 
   Future<void> saveFields(Set<BrewParameter> fields) {
     if (!fields.any((field) => field.canShare)) {
@@ -170,6 +213,7 @@ class ShareTemplateSettings {
         overlayBackgroundOpacity: old.overlayBackgroundOpacity,
         fields: fields,
         labelTemplates: old.labelTemplates,
+        labelDefaults: old.labelDefaults,
         templates: old.templates,
         defaults: old.defaults,
       ),
@@ -183,6 +227,7 @@ class ShareTemplateSettings {
         overlayBackgroundOpacity: old.overlayBackgroundOpacity,
         fields: old.fields,
         labelTemplates: old.labelTemplates,
+        labelDefaults: old.labelDefaults,
         templates: [
           for (final previous in old.templates)
             if (previous.id != template.id) previous,
@@ -202,6 +247,7 @@ class ShareTemplateSettings {
       overlayBackgroundOpacity: old.overlayBackgroundOpacity,
       fields: old.fields,
       labelTemplates: old.labelTemplates,
+      labelDefaults: old.labelDefaults,
       templates: old.templates.where((t) => t.id != id).toList(),
       defaults: {
         for (final e in old.defaults.entries)
@@ -219,6 +265,7 @@ class ShareTemplateSettings {
       overlayBackgroundOpacity: old.overlayBackgroundOpacity,
       fields: old.fields,
       labelTemplates: old.labelTemplates,
+      labelDefaults: old.labelDefaults,
       templates: old.templates,
       defaults: {...old.defaults}
         ..remove(style)

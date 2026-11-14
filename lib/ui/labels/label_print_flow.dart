@@ -81,6 +81,7 @@ Future<void> showCoffeeLabelPage(
           lots: lots,
           portions: portions,
           templates: configuration.labelTemplates,
+          defaults: configuration.labelDefaults,
           settings: settings,
           outputPreferences: outputPreferences,
           printer: printers.first,
