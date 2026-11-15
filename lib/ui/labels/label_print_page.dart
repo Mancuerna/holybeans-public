@@ -72,6 +72,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
   String? feedback;
   bool error = false;
   bool busy = false;
+  bool stoppingPrint = false;
   bool upsideDown = false;
   int copies = 1;
   final kindField = GlobalKey<FormFieldState<LabelKind>>();
@@ -438,7 +439,9 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
         await printer.printLabel(bitmap.pixels, paper, copies: copies);
         if (mounted) {
           setState(() {
-            feedback = printer.model == LabelPrinterModel.typonosPm240
+            feedback = stoppingPrint
+                ? s.labelPrintCancelled
+                : printer.model == LabelPrinterModel.typonosPm240
                 ? s.labelSent
                 : s.labelPrinted;
             error = false;
@@ -456,12 +459,21 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
       reportError(problem, stack);
       if (mounted) {
         setState(() {
-          feedback = print ? s.labelPrintFailed : s.labelExportFailed;
-          error = true;
+          feedback = stoppingPrint
+              ? s.labelPrintCancelled
+              : print
+              ? s.labelPrintFailed
+              : s.labelExportFailed;
+          error = !stoppingPrint;
         });
       }
     } finally {
-      if (mounted) setState(() => busy = false);
+      if (mounted) {
+        setState(() {
+          busy = false;
+          stoppingPrint = false;
+        });
+      }
     }
   }
 
@@ -509,6 +521,42 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
       busy: () => busy || graphic.loading,
       child: Scaffold(
         appBar: AppBar(title: Text(s.labelTitle)),
+        bottomNavigationBar: ListenableBuilder(
+          listenable: printer,
+          builder: (context, _) {
+            final progress = switch (printer) {
+              LabelTransferProgress(:final transferProgress) =>
+                transferProgress,
+              _ => null,
+            };
+            if (!busy || !printer.printing || progress == null) {
+              return const SizedBox.shrink();
+            }
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(s.labelSendingProgress((progress * 100).floor())),
+                    LinearProgressIndicator(value: progress),
+                    TextButton.icon(
+                      key: const ValueKey('label-print-disconnect'),
+                      onPressed: stoppingPrint
+                          ? null
+                          : () async {
+                              setState(() => stoppingPrint = true);
+                              await printer.disconnect();
+                            },
+                      icon: const Icon(Icons.stop_outlined),
+                      label: Text(s.labelDisconnect),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
         body: SafeArea(
           child: AbsorbPointer(
             absorbing: busy || graphic.loading,

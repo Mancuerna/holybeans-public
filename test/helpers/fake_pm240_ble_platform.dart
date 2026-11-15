@@ -61,7 +61,10 @@ class PmPrintPlatform extends FakeMarklifeBlePlatform {
     expect(service, Pm240Protocol.service);
     expect(characteristic, Pm240Protocol.tx);
     expect(bleOutputProperty, BleOutputProperty.withoutResponse);
-    expect(value.length, lessThanOrEqualTo(20));
+    expect(
+      value.length,
+      lessThanOrEqualTo(failMtu ? 20 : (negotiatedMtu - 3).clamp(20, 244)),
+    );
     chunks.add(Uint8List.fromList(value));
     if (chunks.length == failAtChunk) throw StateError('private-address');
     if (value.join(',') == Pm240Protocol.statusQuery.join(',')) {

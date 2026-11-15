@@ -10,17 +10,26 @@ import 'package:holybeans/domain/label_printer_profile.dart';
 import 'package:holybeans/domain/pm240_protocol.dart';
 import 'package:universal_ble/universal_ble.dart';
 
-class Pm240Printer extends BleLink<int> implements LabelPrinter {
+class Pm240Printer extends BleLink<int>
+    implements LabelPrinter, LabelTransferProgress {
   Pm240Printer({
     this.store,
     this.responseTimeout = const Duration(seconds: 5),
     this.chunkDelay = const Duration(milliseconds: 30),
     this.observationTime = const Duration(seconds: 3),
+    this.copyTimeout = const Duration(seconds: 45),
   });
   final PairedDeviceFile? store;
   final Duration responseTimeout;
   final Duration chunkDelay;
   final Duration observationTime;
+  final Duration copyTimeout;
+  int _payloadBytes = 20;
+  int _sentBytes = 0;
+  int _totalBytes = 0;
+  @override
+  double get transferProgress =>
+      _totalBytes == 0 ? 0 : _sentBytes / _totalBytes;
   StreamSubscription<Uint8List>? _control;
   Completer<int?>? _pending;
   int _generation = 0;
@@ -51,7 +60,11 @@ class Pm240Printer extends BleLink<int> implements LabelPrinter {
     final safe = switch (event) {
       'status' => {'previous': data['previous'], 'next': data['next']},
       'scan.stop' => {'supportedDevices': data['supportedDevices']},
-      'pm240.rx' || 'pm240.job' || 'pm240.failure' => data,
+      'pm240.rx' ||
+      'pm240.job' ||
+      'pm240.failure' ||
+      'pm240.transport' ||
+      'pm240.progress' => data,
       'permissions.request' ||
       'permissions.granted' ||
       'scan.start' ||
@@ -107,6 +120,22 @@ class Pm240Printer extends BleLink<int> implements LabelPrinter {
     );
     await UniversalBle.subscribeNotifications(deviceId, service, control);
     _check(generation);
+    // Use the negotiated ATT payload, retaining paced writes and the minimum
+    // packet size when the platform cannot negotiate. Never assume the request
+    // was granted (Android may return a different MTU).
+    _payloadBytes = 20;
+    try {
+      final mtu = await UniversalBle.requestMtu(
+        deviceId,
+        247,
+        timeout: const Duration(seconds: 3),
+      );
+      _check(generation);
+      _payloadBytes = (mtu - 3).clamp(20, 244);
+    } on Object {
+      _check(generation);
+    }
+    traceEvent('pm240.transport', {'payloadBytes': _payloadBytes});
     await _queryStatus(deviceId, generation);
   }
 
@@ -144,6 +173,7 @@ class Pm240Printer extends BleLink<int> implements LabelPrinter {
   }
 
   Future<void> _queryStatus(String id, int generation) async {
+    _check(generation);
     final pending = _pending = Completer<int?>();
     try {
       traceEvent('pm240.statusQuery', {});
@@ -174,31 +204,29 @@ class Pm240Printer extends BleLink<int> implements LabelPrinter {
     final id = connectedId;
     if (id == null) throw const Pm240Exception(Pm240Failure.disconnected);
     final generation = _generation;
+    _sentBytes = 0;
+    _totalBytes = job.length * copies;
     printing = true;
     notifyListeners();
     try {
       for (var copy = 0; copy < copies; copy++) {
-        await _queryStatus(id, generation);
-        traceEvent('pm240.job', {
-          'bytes': job.length,
-          'copy': copy + 1,
-          'copies': copies,
-        });
-        for (var offset = 0; offset < job.length; offset += 20) {
-          final end = (offset + 20).clamp(0, job.length);
-          await _write(id, Uint8List.sublistView(job, offset, end), generation);
-          await Future<void>.delayed(chunkDelay);
-        }
-        traceEvent('pm240.sentUnconfirmed', {});
-        await Future<void>.delayed(observationTime);
-        _check(generation);
-        // Status is readiness, not a paper-output acknowledgement. Check again
-        // before completing or sending the next explicitly requested copy.
-        await _queryStatus(id, generation);
+        await _sendCopy(
+          id,
+          generation,
+          job,
+          copy + 1,
+          copies,
+        ).timeout(copyTimeout);
       }
     } on Object catch (error) {
       traceEvent('pm240.failure', {
-        'reason': error is Pm240Exception ? error.failure.name : 'transport',
+        'reason': error is Pm240Exception
+            ? error.failure.name
+            : error is TimeoutException
+            ? 'timeout'
+            : 'transport',
+        'sentBytes': _sentBytes,
+        'totalBytes': _totalBytes,
       });
       await disconnect();
       rethrow;
@@ -206,6 +234,45 @@ class Pm240Printer extends BleLink<int> implements LabelPrinter {
       printing = false;
       if (!_disposed) notifyListeners();
     }
+  }
+
+  Future<void> _sendCopy(
+    String id,
+    int generation,
+    Uint8List job,
+    int copy,
+    int copies,
+  ) async {
+    await _queryStatus(id, generation);
+    traceEvent('pm240.job', {
+      'bytes': job.length,
+      'copy': copy,
+      'copies': copies,
+    });
+    var lastProgress = -1;
+    for (var offset = 0; offset < job.length; offset += _payloadBytes) {
+      final end = (offset + _payloadBytes).clamp(0, job.length);
+      await _write(id, Uint8List.sublistView(job, offset, end), generation);
+      _sentBytes += end - offset;
+      final progress = (transferProgress * 100).floor();
+      if (progress != lastProgress) {
+        lastProgress = progress;
+        if (progress % 10 == 0 || _sentBytes == _totalBytes) {
+          traceEvent('pm240.progress', {
+            'sentBytes': _sentBytes,
+            'totalBytes': _totalBytes,
+          });
+        }
+        notifyListeners();
+      }
+      if (end < job.length) await Future<void>.delayed(chunkDelay);
+    }
+    _check(generation);
+    traceEvent('pm240.sentUnconfirmed', {});
+    await Future<void>.delayed(observationTime);
+    _check(generation);
+    // Readiness does not acknowledge paper output.
+    await _queryStatus(id, generation);
   }
 
   @override

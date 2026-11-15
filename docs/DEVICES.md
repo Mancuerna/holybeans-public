@@ -100,6 +100,13 @@ and uses the same coffee templates, images, preview and manual copy controls.
   on connection and before and after each requested copy. A ready status
   does not acknowledge paper output, so the editor reports data sent and asks
   the user to inspect the label. PM240C is a different, unsupported model.
+  Transfers use the negotiated BLE payload (up to 244 bytes), with 20-byte
+  fallback and paced writes. The editor shows transfer progress and keeps
+  Disconnect available during sending. Each copy has a 45-second limit;
+  cancellation or timeout closes the connection without replaying the job.
+  If ready status is returned but no label appears, retain the diagnostic
+  report and compare with a manual Labelnize print: status alone cannot locate
+  a paper-output failure.
 
 These integrations retain the lab's paced writes and stop on a failed or
 uncertain job without retrying or sending the remaining copies. No calibration,

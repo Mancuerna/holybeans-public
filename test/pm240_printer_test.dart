@@ -98,6 +98,96 @@ void main() {
     expect(platform.chunks, isEmpty);
   });
 
+  for (final mtu in [23, 100, 247, 517]) {
+    test('uses negotiated MTU $mtu without changing label bytes', () async {
+      platform.negotiatedMtu = mtu;
+      await printer.pair(device);
+      final progress = <double>[];
+      printer.addListener(() => progress.add(printer.transferProgress));
+      await printer.printLabel(pixels, paper, copies: 2);
+      final chunks = platform.chunks
+          .where((c) => !listEquals(c, Pm240Protocol.statusQuery))
+          .toList();
+      final payload = (mtu - 3).clamp(20, 244);
+      expect(chunks.first.length, payload);
+      expect(
+        chunks.length,
+        2 * (Pm240Protocol.job(pixels).length / payload).ceil(),
+      );
+      expect(chunks.expand((c) => c), [
+        ...Pm240Protocol.job(pixels),
+        ...Pm240Protocol.job(pixels),
+      ]);
+      expect(progress.first, 0);
+      expect(progress.last, 1);
+      expect(progress, orderedEquals([...progress]..sort()));
+      expect(progress.any((value) => value > 0 && value < 1), isTrue);
+      expect(printer.diagnosticReport, contains('"payloadBytes":$payload'));
+    });
+  }
+
+  test('failed MTU negotiation resets a previous larger payload', () async {
+    platform.negotiatedMtu = 247;
+    await printer.pair(device);
+    await printer.disconnect();
+    platform.failMtu = true;
+    await printer.connect();
+    await printer.printLabel(pixels, paper);
+    expect(platform.chunks.every((chunk) => chunk.length <= 20), isTrue);
+    expect(printer.connected, isTrue);
+  });
+
+  test('copy deadline stops a slow job without sending another copy', () async {
+    printer.dispose();
+    printer = Pm240Printer(
+      chunkDelay: Duration.zero,
+      observationTime: Duration.zero,
+      copyTimeout: const Duration(milliseconds: 30),
+    );
+    await printer.pair(device);
+    platform.writeGate = Completer<void>();
+    final job = printer.printLabel(pixels, paper, copies: 2);
+    final failed = expectLater(job, throwsA(isA<TimeoutException>()));
+    while (platform.chunks.length < 3) {
+      await Future<void>.delayed(const Duration(milliseconds: 1));
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 60));
+    platform.writeGate!.complete();
+    await failed;
+    expect(platform.chunks, hasLength(3));
+    expect(printer.connected, isFalse);
+    expect(printer.printing, isFalse);
+    expect(printer.transferProgress, 0);
+    expect(printer.diagnosticReport, contains('"reason":"timeout"'));
+  });
+
+  test('manual disconnect stops the raster and all remaining copies', () async {
+    await printer.pair(device);
+    platform.writeGate = Completer<void>();
+    final job = printer.printLabel(pixels, paper, copies: 2);
+    final failed = expectLater(
+      job,
+      throwsA(
+        isA<Pm240Exception>().having(
+          (error) => error.failure,
+          'reason',
+          Pm240Failure.disconnected,
+        ),
+      ),
+    );
+    while (platform.chunks.length < 3) {
+      await Future<void>.delayed(const Duration(milliseconds: 1));
+    }
+    final closing = printer.disconnect();
+    platform.writeGate!.complete();
+    await closing;
+    await failed;
+    expect(platform.chunks, hasLength(3));
+    expect(printer.connected, isFalse);
+    expect(printer.printing, isFalse);
+    expect(printer.transferProgress, lessThan(1));
+  });
+
   for (final reply in <List<int>?>[
     null,
     [4],

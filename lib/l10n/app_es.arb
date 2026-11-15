@@ -3534,5 +3534,10 @@
   "labelPm240PrinterHint": "Enciende la PM240 y desconéctala de Labelnize antes de buscar.",
   "labelOtherPrinterHint": "Enciende la impresora y desconéctala de otras apps de impresión antes de buscar.",
   "labelPm240PaperHint": "Etiquetas de 50 × 30 mm; área imprimible de 48 × 28 mm.",
-  "labelSent": "Datos de la etiqueta enviados. Revisa el resultado impreso."
+  "labelSent": "Datos de la etiqueta enviados. Revisa el resultado impreso.",
+  "labelSendingProgress": "Enviando datos de la etiqueta: {percent}%",
+  "@labelSendingProgress": {
+    "placeholders": {"percent": {"type": "int"}}
+  },
+  "labelPrintCancelled": "Envío detenido. Revisa la impresora antes de volver a intentarlo."
 }
