@@ -21,6 +21,11 @@ abstract interface class LabelPrinter implements PairedDevice {
   void dispose();
 }
 
+abstract interface class LabelTransferProgress {
+  // Bytes sent to Bluetooth, not confirmation of paper output.
+  double get transferProgress;
+}
+
 class NiimbotLabelPrinter extends BleLink<NiimbotPacket>
     implements LabelPrinter {
   NiimbotLabelPrinter(this.store, {required this.model, super.trace})

@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/label_output_preferences.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
+import 'package:holybeans/data/services/label_printer.dart';
 import 'package:holybeans/domain/label_template.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/labels/label_editor.dart';
@@ -93,6 +94,46 @@ void main() {
     );
     await tester.pumpAndSettle();
   }
+
+  testWidgets('PM240 transfer can be stopped while the editor is busy', (
+    tester,
+  ) async {
+    printer.dispose();
+    final transfer = _TransferPrinter();
+    printer = transfer;
+    await printer.connect();
+    await mount(tester);
+    await reveal(tester, 'label-print');
+    await tester.tap(find.byKey(const ValueKey('label-print')));
+    for (var i = 0; i < 100 && !printer.printing; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump();
+    }
+    expect(printer.printing, isTrue);
+    final strings = AppLocalizations.of(
+      tester.element(find.byType(LabelPrintPage)),
+    );
+    expect(find.text(strings.labelSendingProgress(25)), findsOneWidget);
+    final stop = find.byKey(const ValueKey('label-print-disconnect'));
+    expect(stop.hitTestable(), findsOneWidget);
+    await tester.tap(stop);
+    await tester.pumpAndSettle();
+    expect(printer.connected, isFalse);
+    expect(printer.printing, isFalse);
+    expect(printer.jobs, 1);
+    expect(find.text(strings.labelPrintCancelled), findsOneWidget);
+    expect(find.text(strings.labelSent), findsNothing);
+    expect(stop, findsNothing);
+    expect(
+      tester
+          .widget<OutlinedButton>(find.byKey(const ValueKey('label-export')))
+          .onPressed,
+      isNotNull,
+    );
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('mobile preview sits immediately above the taller editor', (
     tester,
@@ -588,6 +629,20 @@ void main() {
     await reveal(tester, 'label-export');
     expect(tester.takeException(), isNull);
   });
+}
+
+class _TransferPrinter extends FakeLabelPrinter
+    implements LabelTransferProgress {
+  _TransferPrinter() : super(model: LabelPrinterModel.typonosPm240) {
+    this.completion = Completer<void>();
+  }
+  @override
+  double get transferProgress => 0.25;
+  @override
+  Future<void> disconnect() async {
+    await super.disconnect();
+    this.completion!.completeError(StateError('Transfer stopped'));
+  }
 }
 
 class _MemoryOutputPreferences extends LabelOutputPreferences {

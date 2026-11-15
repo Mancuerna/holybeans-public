@@ -72,6 +72,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
   String? feedback;
   bool error = false;
   bool busy = false;
+  bool stoppingPrint = false;
   bool upsideDown = false;
   int copies = 1;
   final kindField = GlobalKey<FormFieldState<LabelKind>>();
@@ -428,6 +429,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
     final s = AppLocalizations.of(context);
     setState(() {
       busy = true;
+      stoppingPrint = false;
       feedback = null;
     });
     FocusScope.of(context).unfocus();
@@ -438,7 +440,9 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
         await printer.printLabel(bitmap.pixels, paper, copies: copies);
         if (mounted) {
           setState(() {
-            feedback = printer.model == LabelPrinterModel.typonosPm240
+            feedback = stoppingPrint
+                ? s.labelPrintCancelled
+                : printer.model == LabelPrinterModel.typonosPm240
                 ? s.labelSent
                 : s.labelPrinted;
             error = false;
@@ -456,8 +460,12 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
       reportError(problem, stack);
       if (mounted) {
         setState(() {
-          feedback = print ? s.labelPrintFailed : s.labelExportFailed;
-          error = true;
+          feedback = stoppingPrint
+              ? s.labelPrintCancelled
+              : print
+              ? s.labelPrintFailed
+              : s.labelExportFailed;
+          error = !stoppingPrint;
         });
       }
     } finally {
@@ -509,6 +517,15 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
       busy: () => busy || graphic.loading,
       child: Scaffold(
         appBar: AppBar(title: Text(s.labelTitle)),
+        bottomNavigationBar: LabelTransferControls(
+          printer: printer,
+          busy: busy,
+          stopping: stoppingPrint,
+          onDisconnect: () {
+            setState(() => stoppingPrint = true);
+            unawaited(printer.disconnect());
+          },
+        ),
         body: SafeArea(
           child: AbsorbPointer(
             absorbing: busy || graphic.loading,

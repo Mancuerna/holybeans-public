@@ -2733,5 +2733,10 @@
   "labelPm240PrinterHint": "Turn the PM240 on and disconnect it from Labelnize before searching.",
   "labelOtherPrinterHint": "Turn the printer on and disconnect it from other printing apps before searching.",
   "labelPm240PaperHint": "50 × 30 mm labels; printable area 48 × 28 mm.",
-  "labelSent": "Label data sent. Check the printed result."
+  "labelSent": "Label data sent. Check the printed result.",
+  "labelSendingProgress": "Sending label data: {percent}%",
+  "@labelSendingProgress": {
+    "placeholders": {"percent": {"type": "int"}}
+  },
+  "labelPrintCancelled": "Sending stopped. Check the printer before trying again."
 }
