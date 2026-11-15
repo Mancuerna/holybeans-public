@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.1](https://github.com/Mancuerna/holybeans-public/compare/v1.12.0...v1.12.1) (2026-11-15)
+
+
+### Bug Fixes
+
+* **labels:** keep PM240 transfers responsive and cancellable ([#149](https://github.com/Mancuerna/holybeans-public/issues/149)) ([20d2d05](https://github.com/Mancuerna/holybeans-public/commit/20d2d059579cc3e91a5bf9cac4b2f91761c99077))
+
 ## [1.12.0](https://github.com/Mancuerna/holybeans-public/compare/v1.11.0...v1.12.0) (2026-11-14)
 
 
