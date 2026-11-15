@@ -88,6 +88,55 @@ class LabelPrinterControls extends StatelessWidget {
   }
 }
 
+class LabelTransferControls extends StatelessWidget {
+  const LabelTransferControls({
+    super.key,
+    required this.printer,
+    required this.busy,
+    required this.stopping,
+    required this.onDisconnect,
+  });
+  final LabelPrinter printer;
+  final bool busy;
+  final bool stopping;
+  final VoidCallback onDisconnect;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context);
+    return ListenableBuilder(
+      listenable: printer,
+      builder: (context, _) {
+        final progress = switch (printer) {
+          LabelTransferProgress(:final transferProgress) => transferProgress,
+          _ => null,
+        };
+        if (!busy || !printer.printing || progress == null) {
+          return const SizedBox.shrink();
+        }
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(s.labelSendingProgress((progress * 100).floor())),
+                LinearProgressIndicator(value: progress),
+                TextButton.icon(
+                  key: const ValueKey('label-print-disconnect'),
+                  onPressed: stopping ? null : onDisconnect,
+                  icon: const Icon(Icons.stop_outlined),
+                  label: Text(s.labelDisconnect),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class LabelTemplateNameDialog extends StatefulWidget {
   const LabelTemplateNameDialog({super.key, required this.initial});
   final String initial;

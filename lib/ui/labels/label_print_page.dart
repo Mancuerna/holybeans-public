@@ -429,6 +429,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
     final s = AppLocalizations.of(context);
     setState(() {
       busy = true;
+      stoppingPrint = false;
       feedback = null;
     });
     FocusScope.of(context).unfocus();
@@ -468,12 +469,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
         });
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          busy = false;
-          stoppingPrint = false;
-        });
-      }
+      if (mounted) setState(() => busy = false);
     }
   }
 
@@ -521,40 +517,13 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
       busy: () => busy || graphic.loading,
       child: Scaffold(
         appBar: AppBar(title: Text(s.labelTitle)),
-        bottomNavigationBar: ListenableBuilder(
-          listenable: printer,
-          builder: (context, _) {
-            final progress = switch (printer) {
-              LabelTransferProgress(:final transferProgress) =>
-                transferProgress,
-              _ => null,
-            };
-            if (!busy || !printer.printing || progress == null) {
-              return const SizedBox.shrink();
-            }
-            return SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(s.labelSendingProgress((progress * 100).floor())),
-                    LinearProgressIndicator(value: progress),
-                    TextButton.icon(
-                      key: const ValueKey('label-print-disconnect'),
-                      onPressed: stoppingPrint
-                          ? null
-                          : () async {
-                              setState(() => stoppingPrint = true);
-                              await printer.disconnect();
-                            },
-                      icon: const Icon(Icons.stop_outlined),
-                      label: Text(s.labelDisconnect),
-                    ),
-                  ],
-                ),
-              ),
-            );
+        bottomNavigationBar: LabelTransferControls(
+          printer: printer,
+          busy: busy,
+          stopping: stoppingPrint,
+          onDisconnect: () {
+            setState(() => stoppingPrint = true);
+            unawaited(printer.disconnect());
           },
         ),
         body: SafeArea(
