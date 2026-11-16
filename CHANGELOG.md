@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0](https://github.com/Mancuerna/holybeans-public/compare/v1.12.1...v1.13.0) (2026-11-16)
+
+
+### Features
+
+* **history:** filter brews by recorded accessories ([f1ed435](https://github.com/Mancuerna/holybeans-public/commit/f1ed435f7098ae6046cf215cdf18f238b1998288))
+
 ## [1.12.1](https://github.com/Mancuerna/holybeans-public/compare/v1.12.0...v1.12.1) (2026-11-15)
 
 
