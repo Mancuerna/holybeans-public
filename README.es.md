@@ -29,6 +29,8 @@ en Google Drive y las conexiones con dispositivos son opcionales.
 - **Tus cafés:** tostadores, orígenes, fechas de tueste, existencias y porciones congeladas.
 - **Tus recetas:** espresso y filtro con dosis, bebida, molienda, temperatura, tiempo,
   valoraciones y notas. Repite una preparación o compara tus experimentos.
+  Filtra el historial por método o accesorios registrados por separado, o
+  combínalos para encontrar preparaciones con todos los accesorios elegidos.
   Guarda el peso del portafiltro con su cesta y resta la tara para rellenar la
   dosis de espresso, a mano o desde una báscula conectada.
 - **Durante la preparación:** temporizadores, planes de vertido, curvas y conexión

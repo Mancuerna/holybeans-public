@@ -83,6 +83,7 @@ Future<void> runJournalAudit(
         methodName: null,
         startMs: null,
         endMs: null,
+        toolIds: <String>[],
         minimumRating: null,
       );
       late HistoryPage page;
@@ -109,6 +110,7 @@ Future<void> runJournalAudit(
       methodName: null,
       startMs: null,
       endMs: null,
+      toolIds: <String>[],
       minimumRating: null,
     );
     final first = await pages.page(query, live.data.coffees);

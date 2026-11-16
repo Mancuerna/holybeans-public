@@ -3,6 +3,7 @@ import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/coffee_selection_sheet.dart';
+import 'package:holybeans/ui/brews/history_tool_filter.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 
 /// Filters of the brew history. Owned by the shell, so other screens (e.g.
@@ -14,6 +15,7 @@ class HistoryFilters extends ChangeNotifier {
   String? coffeeId;
   String? methodId;
   String? methodName;
+  List<String> toolIds = const [];
   DateTimeRange? dateRange;
   double? minimumRating;
   int navigationRevision = 0;
@@ -23,12 +25,14 @@ class HistoryFilters extends ChangeNotifier {
     navigationRevision++;
   }
 
-  int get activeCount => [
-    coffeeId != null,
-    methodName != null,
-    dateRange != null,
-    minimumRating != null,
-  ].where((active) => active).length;
+  int get activeCount =>
+      [
+        coffeeId != null,
+        methodName != null,
+        dateRange != null,
+        minimumRating != null,
+      ].where((active) => active).length +
+      toolIds.length;
 
   /// Applies [change] to the fields and notifies listeners.
   void update(VoidCallback change) {
@@ -40,6 +44,7 @@ class HistoryFilters extends ChangeNotifier {
     coffeeId = null;
     methodId = null;
     methodName = null;
+    toolIds = const [];
     dateRange = null;
     minimumRating = null;
   }
@@ -52,6 +57,7 @@ Future<void> showHistoryFilters(
   HistoryFilters filters, {
   required List<Coffee> coffees,
   required List<String> methods,
+  List<MethodTool> tools = const [],
 }) async {
   final s = AppLocalizations.of(context);
   await showModalBottomSheet<void>(
@@ -121,6 +127,13 @@ Future<void> showHistoryFilters(
                         ? null
                         : value;
                   }),
+                ),
+                const SizedBox(height: 12),
+                HistoryToolFilter(
+                  tools: tools,
+                  selected: filters.toolIds,
+                  onChanged: (ids) =>
+                      filters.update(() => filters.toolIds = ids),
                 ),
                 const SizedBox(height: 4),
                 ListTile(

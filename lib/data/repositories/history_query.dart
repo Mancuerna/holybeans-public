@@ -8,6 +8,7 @@ typedef HistoryQuery = ({
   String? coffeeId,
   String? methodId,
   String? methodName,
+  List<String> toolIds,
   int? startMs,
   int? endMs,
   double? minimumRating,
@@ -17,17 +18,19 @@ typedef HistoryRequest = ({
   List<Brew> brews,
   List<Coffee> coffees,
   HistoryQuery query,
+  Set<String>? toolMatches,
 });
 
 /// Indices keep the original immutable rows in the UI. Worker results need not
 /// copy notes or deserialize a second journal to display matching cards.
 List<int> selectHistory(HistoryRequest request) {
-  final (:brews, :coffees, :query) = request;
+  final (:brews, :coffees, :query, :toolMatches) = request;
   final coffeeById = {for (final coffee in coffees) coffee.id: coffee};
   final visible = <int>[];
   final matcher = FoldedTextMatcher(query.text);
   for (var i = 0; i < brews.length; i++) {
     final brew = brews[i];
+    if (toolMatches != null && !toolMatches.contains(brew.id)) continue;
     if (!query.archived && brew.archivedAtMs != null) continue;
     if (query.coffeeId != null && brew.coffeeId != query.coffeeId) continue;
     if (query.methodId != null) {

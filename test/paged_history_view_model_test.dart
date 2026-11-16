@@ -17,6 +17,7 @@ const HistoryQuery selection = (
   methodName: null,
   startMs: null,
   endMs: null,
+  toolIds: <String>[],
   minimumRating: null,
 );
 Future<void> until(bool Function() ready) async {
@@ -119,6 +120,7 @@ void main() {
       methodName: null,
       startMs: null,
       endMs: null,
+      toolIds: const <String>[],
       minimumRating: null,
     ));
     await Future<void>.delayed(const Duration(milliseconds: 2));

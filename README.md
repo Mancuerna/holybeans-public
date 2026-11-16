@@ -30,6 +30,8 @@ backups and device connections are optional.
   frozen portions and the coffees you have finished.
 - **Find your recipe.** Record espresso and filter brews with dose, yield, grind,
   temperature, time, ratings and notes. Repeat a favourite or compare experiments.
+  Filter history by method or recorded accessories independently, or combine
+  them to find brews that used every selected accessory.
   Save portafilter weights with their baskets and subtract the tare to fill your
   espresso dose, manually or from a connected scale.
 - **Follow the brew.** Use timers, pour plans and optional connected scales or

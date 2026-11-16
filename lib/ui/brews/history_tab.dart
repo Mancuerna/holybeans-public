@@ -101,6 +101,7 @@ class _HistoryTabState extends State<HistoryTab> {
       coffeeId: filters.coffeeId,
       methodId: filters.methodId,
       methodName: filters.methodName,
+      toolIds: filters.toolIds,
       startMs: range == null
           ? null
           : DateTime(
@@ -144,6 +145,7 @@ class _HistoryTabState extends State<HistoryTab> {
                   context,
                   filters,
                   coffees: model.coffeeOptions,
+                  tools: model.toolOptions,
                   methods: {...model.methods, ?filters.methodName}.toList()
                     ..sort(
                       (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
@@ -197,7 +199,11 @@ class _HistoryTabState extends State<HistoryTab> {
           ),
           if (activeFilterCount > 0) ...[
             const SizedBox(height: 8),
-            HistoryFilterChips(filters: filters, coffees: coffees),
+            HistoryFilterChips(
+              filters: filters,
+              coffees: coffees,
+              tools: model.toolOptions,
+            ),
           ],
           const SizedBox(height: 12),
           if (model.error != null && model is PagedHistoryViewModel)

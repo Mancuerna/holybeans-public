@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/history_query.dart';
+import 'package:holybeans/data/repositories/history_tools.dart';
 import 'package:holybeans/data/repositories/journal_data.dart';
 
 /// Search work is independent of rendering. Only one worker runs at a time;
@@ -22,6 +23,9 @@ class HistoryViewModel extends ChangeNotifier {
   List<Brew> visible = const [];
   List<Coffee> coffeeOptions = const [];
   List<String> methods = const [];
+  List<MethodTool> toolOptions = const [];
+  List<MethodTool>? _tools;
+  List<BrewToolSelection>? _toolSelections;
   bool _large = false;
 
   int get length => visible.length;
@@ -36,7 +40,16 @@ class HistoryViewModel extends ChangeNotifier {
     final previous = _request;
     final sameBrews = identical(previous?.brews, data.brews);
     final sameCoffees = identical(previous?.coffees, data.coffees);
-    if (sameBrews && sameCoffees && previous?.query == query) return;
+    final sameTools =
+        identical(_tools, data.tools) &&
+        identical(_toolSelections, data.toolSelections);
+    if (sameBrews && sameCoffees && sameTools && previous?.query == query) {
+      return;
+    }
+    _tools = data.tools;
+    _toolSelections = data.toolSelections;
+    final tools = HistoryTools(data.tools);
+    toolOptions = data.tools;
     if (!sameCoffees) {
       coffeeOptions = data.coffees.toList()
         ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
@@ -52,7 +65,12 @@ class HistoryViewModel extends ChangeNotifier {
               ) >
               65536;
     }
-    final request = (brews: data.brews, coffees: data.coffees, query: query);
+    final request = (
+      brews: data.brews,
+      coffees: data.coffees,
+      query: query,
+      toolMatches: tools.matchingBrews(query.toolIds, data.toolSelections),
+    );
     _request = request;
     error = null;
     if (query.text.isEmpty || !_large) {

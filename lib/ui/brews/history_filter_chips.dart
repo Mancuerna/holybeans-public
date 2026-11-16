@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/history_tools.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/history_filters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -11,14 +12,17 @@ class HistoryFilterChips extends StatelessWidget {
     super.key,
     required this.filters,
     required this.coffees,
+    this.tools = const [],
   });
 
   final HistoryFilters filters;
   final List<Coffee> coffees;
+  final List<MethodTool> tools;
 
   @override
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context);
+    final catalog = HistoryTools(tools).catalog;
     final coffee = coffees
         .where((coffee) => coffee.id == filters.coffeeId)
         .firstOrNull;
@@ -50,6 +54,21 @@ class HistoryFilterChips extends StatelessWidget {
                   onDeleted: () => clear(() {
                     filters.methodId = null;
                     filters.methodName = null;
+                  }),
+                ),
+              for (final id in filters.toolIds)
+                _ActiveFilter(
+                  maxLabelWidth: (constraints.maxWidth - 88).clamp(48, 220),
+                  id: 'tool-$id',
+                  label: catalog.byId.containsKey(id)
+                      ? catalog.byId[catalog.canonicalId(id)]!.name
+                      : s.methodTools,
+                  clearLabel: s.historyClearFilter,
+                  onDeleted: () => clear(() {
+                    filters.toolIds = [
+                      for (final selected in filters.toolIds)
+                        if (selected != id) selected,
+                    ];
                   }),
                 ),
               if (range != null)

@@ -177,7 +177,7 @@ void main() {
       expect(find.text('Any rating'), findsOneWidget);
       expect(find.text('Any bean'), findsOneWidget);
       expect(
-        find.text('Filter by bean, method, date, or rating'),
+        find.text('Filter by bean, method, accessories, date, or rating'),
         findsOneWidget,
       );
       expect(tester.widget<IconButton>(filterButton).tooltip, 'Filters');
@@ -217,7 +217,7 @@ void main() {
       expect(find.text('Any method'), findsOneWidget);
       expect(find.text('Any rating'), findsOneWidget);
       expect(
-        find.text('Filter by bean, method, date, or rating'),
+        find.text('Filter by bean, method, accessories, date, or rating'),
         findsOneWidget,
       );
 
@@ -272,7 +272,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(
-        find.text('Filter by bean, method, date, or rating'),
+        find.text('Filter by bean, method, accessories, date, or rating'),
         findsOneWidget,
       );
       expect(find.text('Any bean'), findsOneWidget);

@@ -157,7 +157,7 @@
   "noMatchingBeans": "No matching beans.",
   "noMatchingBrews": "No matching brews.",
   "historyFilters": "Filters",
-  "historyFilterHint": "Filter by bean, method, date, or rating",
+  "historyFilterHint": "Filter by bean, method, accessories, date, or rating",
   "historyActiveFilters": "{count, plural, one {{count} active filter} other {{count} active filters}}",
   "@historyActiveFilters": {
     "placeholders": {
@@ -2738,5 +2738,16 @@
   "@labelSendingProgress": {
     "placeholders": {"percent": {"type": "int"}}
   },
-  "labelPrintCancelled": "Sending stopped. Check the printer before trying again."
+  "labelPrintCancelled": "Sending stopped. Check the printer before trying again.",
+  "historyAnyAccessory": "Any accessory",
+  "historySelectedAccessories": "{count, plural, =1{1 accessory selected} other{{count} accessories selected}}",
+  "@historySelectedAccessories": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "historyAccessoriesHint": "Choose accessories on their own or combine them with a method. Brews must include every selected accessory.",
+  "historyNoMatchingAccessories": "No matching accessories."
 }
