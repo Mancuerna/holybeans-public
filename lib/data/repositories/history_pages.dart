@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/history_matcher.dart';
 import 'package:holybeans/data/repositories/history_query.dart';
+import 'package:holybeans/data/repositories/history_tools.dart';
 import 'package:holybeans/data/repositories/journal_read_queries.dart';
 
 typedef HistoryCursor = ({int brewed, int created, String id});
@@ -18,6 +19,17 @@ class HistoryPages {
   HistoryPages(this.reads);
   final JournalReadQueries reads;
   static const pageSize = 50;
+
+  Stream<List<MethodTool>> watchTools() => reads.database
+      .customSelect(
+        'SELECT 1',
+        readsFrom: {
+          reads.database.methodTools,
+          reads.database.brewToolSelections,
+        },
+      )
+      .watch()
+      .asyncMap((_) => reads.database.select(reads.database.methodTools).get());
 
   Future<List<String>> methods() async => [
     for (final row
@@ -44,6 +56,10 @@ class HistoryPages {
         throw StaleHistoryPage();
       }
       final result = <Brew>[];
+      final toolGroups = query.toolIds.isEmpty
+          ? const <Set<String>>[]
+          : HistoryTools(await database.select(database.methodTools).get())
+                .groups(query.toolIds);
       var cursor = after;
       while (true) {
         if (cancelled?.call() ?? false) throw StaleHistoryPage();
@@ -60,6 +76,14 @@ class HistoryPages {
         }
 
         if (!query.archived) conditions.add('b.archived_at_ms IS NULL');
+        for (final ids in toolGroups) {
+          conditions.add(
+            'EXISTS (SELECT 1 FROM brew_tool_selections selected '
+            'WHERE selected.brew_id = b.id AND selected.tool_id IN '
+            '(${List.filled(ids.length, '?').join(',')}))',
+          );
+          variables.addAll(ids.map(Variable.new));
+        }
         if (query.coffeeId != null) where('b.coffee_id = ?', query.coffeeId!);
         if (query.methodId != null) {
           conditions.add(
@@ -102,7 +126,13 @@ class HistoryPages {
         final rows = batch
             .map((row) => database.brews.map(row.data))
             .toList(growable: false);
-        final request = (brews: rows, coffees: coffees, query: query);
+        // Accessory matches have already been restricted in SQLite.
+        final request = (
+          brews: rows,
+          coffees: coffees,
+          query: query,
+          toolMatches: null,
+        );
         // Small bounded batches finish faster than starting an isolate. Long
         // notes and metadata stay off the UI thread even in a small journal.
         final textSize =

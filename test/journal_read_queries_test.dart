@@ -17,6 +17,7 @@ const HistoryQuery query = (
   methodName: null,
   startMs: null,
   endMs: null,
+  toolIds: <String>[],
   minimumRating: null,
 );
 
@@ -86,6 +87,7 @@ void main() {
         methodName: null as String?,
         startMs: null as int?,
         endMs: null as int?,
+        toolIds: <String>[],
         minimumRating: null as double?,
       );
       final ids = <String>[];
@@ -121,6 +123,7 @@ void main() {
         methodName: null,
         startMs: null,
         endMs: null,
+        toolIds: <String>[],
         minimumRating: null,
       );
       final page = await HistoryPages(repo.reads)

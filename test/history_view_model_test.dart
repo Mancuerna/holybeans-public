@@ -19,6 +19,7 @@ const HistoryQuery empty = (
   methodName: null,
   startMs: null,
   endMs: null,
+  toolIds: <String>[],
   minimumRating: null,
 );
 HistoryQuery query(String text) => (
@@ -30,6 +31,7 @@ HistoryQuery query(String text) => (
   methodName: null,
   startMs: null,
   endMs: null,
+  toolIds: const <String>[],
   minimumRating: null,
 );
 
@@ -69,6 +71,7 @@ void main() {
       brews: data.brews,
       coffees: data.coffees,
       query: query(text),
+      toolMatches: null,
     ));
     expect(search('citrico jazmin'), [0]);
     expect(search('mill citrico'), [0]);
@@ -108,12 +111,18 @@ void main() {
       methodName: 'V60',
       startMs: 100,
       endMs: 101,
+      toolIds: const <String>[],
       minimumRating: 4.0,
     );
-    expect(selectHistory((brews: rows, coffees: data.coffees, query: filter)), [
-      2,
-      0,
-    ]);
+    expect(
+      selectHistory((
+        brews: rows,
+        coffees: data.coffees,
+        query: filter,
+        toolMatches: null,
+      )),
+      [2, 0],
+    );
   });
 
   test('a method ID without a legacy name excludes rows without that ID', () {
@@ -126,10 +135,16 @@ void main() {
       methodName: null,
       startMs: null,
       endMs: null,
+      toolIds: <String>[],
       minimumRating: null,
     );
     expect(
-      selectHistory((brews: data.brews, coffees: data.coffees, query: filter)),
+      selectHistory((
+        brews: data.brews,
+        coffees: data.coffees,
+        query: filter,
+        toolMatches: null,
+      )),
       isEmpty,
     );
   });

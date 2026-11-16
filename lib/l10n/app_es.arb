@@ -157,7 +157,7 @@
   "noMatchingBeans": "No hay granos que coincidan.",
   "noMatchingBrews": "No hay preparaciones que coincidan.",
   "historyFilters": "Filtros",
-  "historyFilterHint": "Filtra por grano, método, fecha o valoración",
+  "historyFilterHint": "Filtrar por café, método, accesorios, fecha o valoración",
   "historyActiveFilters": "{count, plural, one {{count} filtro activo} other {{count} filtros activos}}",
   "@historyActiveFilters": {
     "placeholders": {
@@ -3539,5 +3539,16 @@
   "@labelSendingProgress": {
     "placeholders": {"percent": {"type": "int"}}
   },
-  "labelPrintCancelled": "Envío detenido. Revisa la impresora antes de volver a intentarlo."
+  "labelPrintCancelled": "Envío detenido. Revisa la impresora antes de volver a intentarlo.",
+  "historyAnyAccessory": "Cualquier accesorio",
+  "historySelectedAccessories": "{count, plural, =1{1 accesorio seleccionado} other{{count} accesorios seleccionados}}",
+  "@historySelectedAccessories": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "historyAccessoriesHint": "Elige accesorios por separado o combínalos con un método. Las preparaciones deben incluir todos los accesorios seleccionados.",
+  "historyNoMatchingAccessories": "No hay accesorios que coincidan."
 }

@@ -13,12 +13,19 @@ class JournalData {
     required List<CoffeeComponent> components,
     Map<String, String> covers = const {},
     List<StockAdjustment> adjustments = const [],
+    List<MethodTool> tools = const [],
+    List<BrewToolSelection> toolSelections = const [],
   }) : coffees = List.unmodifiable(coffees),
        brews = List.unmodifiable(brews),
        lots = List.unmodifiable(lots),
        components = List.unmodifiable(components),
        covers = Map.unmodifiable(covers),
-       adjustments = List.unmodifiable(adjustments);
+       adjustments = List.unmodifiable(adjustments),
+       tools = List.unmodifiable(tools),
+       toolSelections = List.unmodifiable(toolSelections);
+
+  final List<MethodTool> tools;
+  final List<BrewToolSelection> toolSelections;
 
   final BrewOverview? overview;
   final JournalReadQueries? reads;

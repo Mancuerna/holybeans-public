@@ -22,9 +22,22 @@ class PagedHistoryViewModel extends HistoryViewModel {
         notifyListeners();
       },
     );
+    _toolsSubscription = pages.watchTools().listen(
+      (tools) {
+        toolOptions = tools;
+        _reset();
+      },
+      onError: (Object failure, StackTrace stack) {
+        reportError(failure, stack);
+        error = failure;
+        busy = false;
+        notifyListeners();
+      },
+    );
   }
   final HistoryPages pages;
   late final StreamSubscription<int> _subscription;
+  late final StreamSubscription<List<MethodTool>> _toolsSubscription;
   final _cache = <int, List<Brew>>{};
   final _cursors = <HistoryCursor?>[null];
   final _queue = <int>{};
@@ -167,6 +180,7 @@ class PagedHistoryViewModel extends HistoryViewModel {
     _queue.clear();
     _cache.clear();
     unawaited(_subscription.cancel());
+    unawaited(_toolsSubscription.cancel());
     super.dispose();
   }
 }
