@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.14.0](https://github.com/Mancuerna/holybeans-public/compare/v1.13.0...v1.14.0) (2026-11-17)
+
+
+### Features
+
+* **equipment:** allow deleting unused portafilters ([a681f35](https://github.com/Mancuerna/holybeans-public/commit/a681f3597e4d1ba47a8d1303fa3accef66a7dbb2))
+
+
+### Bug Fixes
+
+* **acaia:** keep connections alive during notification gaps ([#154](https://github.com/Mancuerna/holybeans-public/issues/154)) ([35949ee](https://github.com/Mancuerna/holybeans-public/commit/35949ee5d7a26e2c77f72c2f4877075cfe6a5856))
+
 ## [1.13.0](https://github.com/Mancuerna/holybeans-public/compare/v1.12.1...v1.13.0) (2026-11-16)
 
 
