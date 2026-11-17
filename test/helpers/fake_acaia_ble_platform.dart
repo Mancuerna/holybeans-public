@@ -18,6 +18,8 @@ class FakeAcaiaBlePlatform extends FakeScaleBlePlatform {
   bool notificationsRequested = false;
   final notificationRequest = Completer<void>();
   bool ignoreAcknowledgedHandshake = false;
+  Completer<void>? acknowledgedProtocolWrite;
+  void Function()? onHeartbeat;
   bool requiresAndroidWakeUp = false;
   bool failWakeUp = false;
   bool failMtu = false;
@@ -162,6 +164,10 @@ class FakeAcaiaBlePlatform extends FakeScaleBlePlatform {
     if (failControl && (command == 4 || command == 13)) {
       throw StateError('Control failed');
     }
+    if (property == BleOutputProperty.withResponse) {
+      await acknowledgedProtocolWrite?.future;
+    }
+    if (command == 0) onHeartbeat?.call();
     if (!respond) return;
     // Some firmware may acknowledge a GATT request without accepting the
     // Acaia handshake. Reproduce the captured silence, not a radio failure.

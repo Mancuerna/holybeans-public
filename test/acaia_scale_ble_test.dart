@@ -1,6 +1,8 @@
 @Tags(['slow'])
 library;
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/scale_settings.dart';
@@ -14,6 +16,23 @@ import 'helpers/fake_acaia_ble_platform.dart';
 import 'helpers/test_database.dart';
 
 void main() {
+  // Model a peripheral that closes the link without application heartbeats.
+  // Identification, subscription and weight traffic do not renew its deadline.
+  void requireHeartbeats(FakeAcaiaBlePlatform platform) {
+    Timer? deadline;
+    void renew() {
+      deadline?.cancel();
+      deadline = Timer(const Duration(seconds: 3), platform.loseConnection);
+    }
+
+    platform.onHeartbeat = renew;
+    renew();
+    addTearDown(() {
+      platform.onHeartbeat = null;
+      deadline?.cancel();
+    });
+  }
+
   group('captured Pearl startup', () {
     late FakeAcaiaBlePlatform platform;
     late AppDatabase db;
@@ -34,6 +53,29 @@ void main() {
       await scale.disconnect();
       scale.dispose();
       await db.close();
+    });
+    test('Pearl brew survives a stalled acknowledged protocol write', () async {
+      await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+      expect(await scale.send(ScaleCommand.tareAndStartTimer), isTrue);
+      final pending = platform.acknowledgedProtocolWrite = Completer<void>();
+      addTearDown(pending.complete);
+      requireHeartbeats(platform);
+      final notifications = Timer.periodic(
+        const Duration(milliseconds: 100),
+        (_) => platform.emit(22),
+      );
+      addTearDown(notifications.cancel);
+      await Future<void>.delayed(const Duration(milliseconds: 8500));
+      expect(scale.connected, isTrue);
+      expect(scale.reading!.grams, 22);
+      expect(
+        platform.writes.where((frame) => frame[2] == 0).length,
+        greaterThanOrEqualTo(7),
+      );
+      expect(
+        platform.writeProperties,
+        everyElement(BleOutputProperty.withoutResponse),
+      );
     });
     test('Android wake-up precedes the Pearl S handshake', () async {
       platform.requiresAndroidWakeUp = true;
@@ -199,34 +241,37 @@ void main() {
       },
     );
     test(
-      'silent recovery repeats identification and subscription only',
+      'silent recovery keeps sending heartbeats and renews the subscription',
       () async {
         await scale.pair(FoundDevice(id: platform.id, name: platform.name));
         platform.respond = false;
         final initialWrites = platform.writes.length;
-        await Future<void>.delayed(const Duration(milliseconds: 2100));
+        await Future<void>.delayed(const Duration(milliseconds: 3300));
         final recovery = platform.writes.skip(initialWrites).toList();
         expect(recovery.map((frame) => frame[2]), containsAllInOrder([11, 12]));
-        expect(recovery.where((frame) => frame[2] == 0), isEmpty);
+        expect(recovery.where((frame) => frame[2] == 0), hasLength(3));
       },
     );
-    test('a received notification drives the due heartbeat', () async {
-      await scale.pair(FoundDevice(id: platform.id, name: platform.name));
-      final initialHeartbeats = platform.writes
-          .where((frame) => frame[2] == 0)
-          .length;
-      await Future<void>.delayed(const Duration(milliseconds: 1100));
-      platform.emit(22);
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-      expect(
-        platform.writes.where((frame) => frame[2] == 0).length,
-        initialHeartbeats + 1,
-      );
-      expect(platform.writeProperties.skip(2), [
-        BleOutputProperty.withResponse,
-        BleOutputProperty.withResponse,
-      ]);
-    });
+    test(
+      'notifications do not add heartbeats between periodic ticks',
+      () async {
+        await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+        final initialHeartbeats = platform.writes
+            .where((frame) => frame[2] == 0)
+            .length;
+        await Future<void>.delayed(const Duration(milliseconds: 1100));
+        platform.emit(22);
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        expect(
+          platform.writes.where((frame) => frame[2] == 0).length,
+          initialHeartbeats + 1,
+        );
+        expect(platform.writeProperties.skip(2), [
+          BleOutputProperty.withoutResponse,
+          BleOutputProperty.withoutResponse,
+        ]);
+      },
+    );
     test('modern timer controls use unacknowledged writes', () async {
       await scale.pair(FoundDevice(id: platform.id, name: platform.name));
       final initialWrites = platform.writeProperties.length;
@@ -289,6 +334,24 @@ void main() {
         await scale.pair(FoundDevice(id: platform.id, name: platform.name));
         await Future<void>.delayed(Duration.zero);
       }
+
+      test('Acaia classic=$classic keeps a silent brew connected', () async {
+        await pair();
+        expect(await scale.send(ScaleCommand.tareAndStartTimer), isTrue);
+        platform.respond = false;
+        requireHeartbeats(platform);
+        await Future<void>.delayed(const Duration(milliseconds: 8500));
+        expect(scale.connected, isTrue);
+        expect(
+          platform.writes.where((frame) => frame[2] == 0).length,
+          greaterThanOrEqualTo(7),
+        );
+        platform.respond = true;
+        platform.emit(120);
+        await Future<void>.delayed(Duration.zero);
+        expect(scale.reading!.grams, 120);
+        expect(await scale.send(ScaleCommand.stopTimer), isTrue);
+      });
 
       test(
         'Acaia classic=$classic discovers, validates readings and only controls on request',
