@@ -50,9 +50,18 @@ void main() {
     await tester.pump(const Duration(milliseconds: 10));
   }
 
-  for (final section in [EquipmentSection.methods, EquipmentSection.water]) {
+  for (final section in [
+    EquipmentSection.methods,
+    EquipmentSection.water,
+    EquipmentSection.portafilters,
+  ]) {
     final method = section == EquipmentSection.methods;
-    final label = method ? 'Delete method' : 'Delete water profile';
+    final portafilter = section == EquipmentSection.portafilters;
+    final label = portafilter
+        ? 'Delete portafilter'
+        : method
+        ? 'Delete method'
+        : 'Delete water profile';
     for (final archived in [false, true]) {
       testWidgets(
         '$section deletion cancels then confirms (archived: $archived)',
@@ -60,6 +69,13 @@ void main() {
           if (method) {
             final id = await repository.createMethod(name: 'Trial');
             await repository.setMethodArchived(id, archived: archived);
+          } else if (portafilter) {
+            final row = await repository.saveRecipient(
+              name: 'Trial',
+              emptyGrams: 500,
+              isPortafilter: true,
+            );
+            await repository.setRecipientArchived(row.id, archived: archived);
           } else {
             final id = await repository.createWaterProfile(name: 'Trial');
             await repository.setWaterProfileArchived(id, archived: archived);
@@ -81,6 +97,7 @@ void main() {
           expect(find.text('“Trial” deleted.'), findsOneWidget);
           expect(await database.select(database.brewMethods).get(), isEmpty);
           expect(await database.select(database.waterProfiles).get(), isEmpty);
+          expect(await database.select(database.recipients).get(), isEmpty);
           expect(tester.takeException(), isNull);
           await disposeApp(tester);
         },
@@ -173,6 +190,83 @@ void main() {
       findsOneWidget,
     );
     expect(await database.select(database.waterProfiles).get(), hasLength(1));
+    expect(tester.takeException(), isNull);
+    await disposeApp(tester);
+  });
+  testWidgets(
+    'portafilter method block is readable in Spanish and still archives',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final row = await repository.saveRecipient(
+        name: 'Prueba',
+        emptyGrams: 500,
+        isPortafilter: true,
+      );
+      final method = await repository.createMethod(
+        name: 'Espresso',
+        category: 'espresso',
+        defaultRecipientId: row.id,
+        useRecipientCatalog: true,
+      );
+      await repository.setMethodArchived(method, archived: true);
+      await tester.pumpWidget(app(EquipmentSection.portafilters, locale: 'es'));
+      await tester.pumpAndSettle();
+      await openDelete(tester, 'Eliminar portafiltro', actions: 'Acciones');
+      expect(find.text('No se puede eliminar «Prueba»'), findsOneWidget);
+      expect(
+        find.textContaining(
+          'Está asignado a un método, incluidos los archivados.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('delete-equipment-confirm')),
+        findsNothing,
+      );
+      await tester.tap(find.text('Cancelar'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Acciones').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Archivar portafiltro'));
+      await tester.pumpAndSettle();
+      expect(find.text('Prueba'), findsNothing);
+      expect(
+        (await database.select(database.recipients).getSingle()).archivedAtMs,
+        isNotNull,
+      );
+      expect(tester.takeException(), isNull);
+      await disposeApp(tester);
+    },
+  );
+
+  testWidgets('portafilter assigned while confirming cannot be deleted', (
+    tester,
+  ) async {
+    final row = await repository.saveRecipient(
+      name: 'Trial',
+      emptyGrams: 500,
+      isPortafilter: true,
+    );
+    await tester.pumpWidget(app(EquipmentSection.portafilters));
+    await tester.pumpAndSettle();
+    await openDelete(tester, 'Delete portafilter');
+    await repository.createMethod(
+      name: 'Espresso',
+      category: 'espresso',
+      defaultRecipientId: row.id,
+      useRecipientCatalog: true,
+    );
+    await tester.tap(find.byKey(const ValueKey('delete-equipment-confirm')));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('equipment-in-use-dialog')),
+      findsOneWidget,
+    );
+    expect(find.textContaining('It is assigned to a method'), findsOneWidget);
+    expect((await database.select(database.recipients).getSingle()).id, row.id);
     expect(tester.takeException(), isNull);
     await disposeApp(tester);
   });
