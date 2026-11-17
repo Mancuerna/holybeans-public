@@ -76,6 +76,7 @@ Future<void> _showBlockers(
               EquipmentDeletionBlocker.machine => s.equipmentUsedByMachine,
               EquipmentDeletionBlocker.recipient => s.equipmentUsedByRecipient,
               EquipmentDeletionBlocker.cupping => s.equipmentUsedByCupping,
+              EquipmentDeletionBlocker.methods => s.equipmentUsedByMethods,
             },
           s.equipmentArchiveInstead,
         ].join('\n\n'),

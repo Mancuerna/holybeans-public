@@ -3425,6 +3425,8 @@
   "addPortafilter": "Añadir portafiltro",
   "editPortafilter": "Editar portafiltro",
   "archivePortafilter": "Archivar portafiltro",
+  "deletePortafilter": "Eliminar portafiltro",
+  "equipmentUsedByMethods": "Está asignado a un método, incluidos los archivados. Puedes quitar esa asociación al editar el método.",
   "portafilterName": "Nombre del portafiltro",
   "portafilterEmptyWeight": "Peso vacío con cesta (g)",
   "portafilterBasketHint": "Incluye la cesta al pesarlo. Puedes guardar cada combinación por separado.",

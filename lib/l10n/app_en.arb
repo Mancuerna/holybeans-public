@@ -2624,6 +2624,8 @@
   "addPortafilter": "Add portafilter",
   "editPortafilter": "Edit portafilter",
   "archivePortafilter": "Archive portafilter",
+  "deletePortafilter": "Delete portafilter",
+  "equipmentUsedByMethods": "It is assigned to a method, including archived ones. You can remove that link by editing the method.",
   "portafilterName": "Portafilter name",
   "portafilterEmptyWeight": "Empty weight with basket (g)",
   "portafilterBasketHint": "Include the basket when weighing. You can save each combination separately.",

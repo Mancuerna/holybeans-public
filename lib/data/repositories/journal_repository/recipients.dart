@@ -16,4 +16,9 @@ extension RecipientOperations on JournalRepository {
   );
   Future<void> setRecipientArchived(String id, {required bool archived}) =>
       recipients.setRecipientArchived(id, archived: archived);
+  Future<List<EquipmentDeletionBlocker>> portafilterDeletionBlockers(
+    String id,
+  ) => recipients.portafilterDeletionBlockers(id);
+  Future<void> deleteUnusedPortafilter(String id) =>
+      recipients.deleteUnusedPortafilter(id);
 }

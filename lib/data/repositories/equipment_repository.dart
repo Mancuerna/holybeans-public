@@ -1,20 +1,14 @@
 import 'package:drift/drift.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/catalog_validation.dart';
+import 'package:holybeans/data/repositories/equipment_deletion.dart';
 import 'package:holybeans/data/repositories/recipients_repository.dart';
 import 'package:holybeans/domain/cupping.dart';
 import 'package:holybeans/domain/pour_plan.dart';
 import 'package:holybeans/domain/water_chemistry.dart';
 import 'package:uuid/uuid.dart';
 
-enum EquipmentDeletionBlocker { brews, tools, machine, recipient, cupping }
-
-class EquipmentInUseException implements Exception {
-  EquipmentInUseException(Iterable<EquipmentDeletionBlocker> blockers)
-    : blockers = List.unmodifiable(blockers);
-
-  final List<EquipmentDeletionBlocker> blockers;
-}
+export 'package:holybeans/data/repositories/equipment_deletion.dart';
 
 /// Dissolved minerals of a water profile, in ppm (mg/l) of each ion.
 class WaterMinerals {

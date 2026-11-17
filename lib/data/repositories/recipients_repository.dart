@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/catalog_validation.dart';
+import 'package:holybeans/data/repositories/equipment_deletion.dart';
 import 'package:uuid/uuid.dart';
 
 /// Recipient catalog and the methods that retain each recipient.
@@ -71,6 +72,43 @@ class RecipientRepository {
         );
     if (count == 0) throw StateError('Recipient not found');
   }
+
+  Future<List<EquipmentDeletionBlocker>> portafilterDeletionBlockers(
+    String id,
+  ) => database.transaction(() => _portafilterDeletionBlockers(id));
+
+  Future<List<EquipmentDeletionBlocker>> _portafilterDeletionBlockers(
+    String id,
+  ) async {
+    final recipient = await requireRecipient(id);
+    if (!recipient!.isPortafilter) {
+      throw ArgumentError('Recipient is not a portafilter');
+    }
+    // Archived records still retain their references.
+    final brew =
+        await (database.select(database.brews)
+              ..where((row) => row.recipientId.equals(id))
+              ..limit(1))
+            .getSingleOrNull();
+    final method =
+        await (database.select(database.brewMethods)
+              ..where((row) => row.defaultRecipientId.equals(id))
+              ..limit(1))
+            .getSingleOrNull();
+    return [
+      if (brew != null) EquipmentDeletionBlocker.brews,
+      if (method != null) EquipmentDeletionBlocker.methods,
+    ];
+  }
+
+  Future<void> deleteUnusedPortafilter(String id) =>
+      database.transaction(() async {
+        final blockers = await _portafilterDeletionBlockers(id);
+        if (blockers.isNotEmpty) throw EquipmentInUseException(blockers);
+        await (database.delete(
+          database.recipients,
+        )..where((row) => row.id.equals(id))).go();
+      });
 
   Future<Recipient?> requireRecipient(String? id) async {
     if (id == null) return null;
