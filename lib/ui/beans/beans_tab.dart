@@ -244,7 +244,33 @@ class _BeansTabState extends State<BeansTab> {
                   }),
           );
         }
-        return _coffeeCard(row as Coffee);
+        final card = _coffeeCard(row as Coffee);
+        if (!options.beansByRoaster) return card;
+
+        final first = rows[index - 1] is BeanRoasterGroup;
+        final last =
+            index == rows.length - 1 || rows[index + 1] is BeanRoasterGroup;
+        const corner = Radius.circular(12);
+        return Padding(
+          padding: EdgeInsetsDirectional.only(
+            start: 12,
+            top: first ? 0 : 1,
+            bottom: last ? 4 : 0,
+          ),
+          child: CardTheme(
+            data: CardTheme.of(context).copyWith(
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
+              margin: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(
+                  top: first ? corner : Radius.zero,
+                  bottom: last ? corner : Radius.zero,
+                ),
+              ),
+            ),
+            child: card,
+          ),
+        );
       },
     );
   }

@@ -86,6 +86,19 @@ void main() {
               .map((c) => c.coffee.name),
           ['Alpha', 'Beta'],
         );
+        final groupLeft = tester
+            .getTopLeft(find.byType(RoasterGroupHeader).first)
+            .dx;
+        for (final card in find.byType(BeanCard).evaluate()) {
+          expect(
+            tester.getTopLeft(find.byWidget(card.widget)).dx,
+            greaterThan(groupLeft),
+          );
+        }
+        expect(
+          tester.getTopLeft(find.byType(RoasterGroupHeader).last).dx,
+          groupLeft,
+        );
         await tester.tap(find.byKey(const ValueKey('roaster-group-big sur')));
         await tester.pumpAndSettle();
         await tester.enterText(find.byType(TextField).first, 'Beta');
