@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.15.0](https://github.com/Mancuerna/holybeans-public/compare/v1.14.0...v1.15.0) (2026-11-18)
+
+
+### Features
+
+* add reusable equipment presets for new brews ([#162](https://github.com/Mancuerna/holybeans-public/issues/162)) ([6edb0d4](https://github.com/Mancuerna/holybeans-public/commit/6edb0d4ff7b886d0bedbd78e93fdfc532698e0e5))
+* **beans:** surface favourite recipes in coffee details ([#159](https://github.com/Mancuerna/holybeans-public/issues/159)) ([4ac3a6a](https://github.com/Mancuerna/holybeans-public/commit/4ac3a6acbf7f7c641a0dee461534e4ddf39d334e))
+* **journal:** refine bean cards and streamline brew entry ([#157](https://github.com/Mancuerna/holybeans-public/issues/157)) ([b581c79](https://github.com/Mancuerna/holybeans-public/commit/b581c794270c1c2e65f7f694305c62741ac15b36))
+* **settings:** organize preferences into a compact index ([#161](https://github.com/Mancuerna/holybeans-public/issues/161)) ([cd36082](https://github.com/Mancuerna/holybeans-public/commit/cd3608244d320b0f12f3f72a34558f6780d2bd09))
+
+
+### Bug Fixes
+
+* **acaia:** use the handshake write mode for wake-up ([#163](https://github.com/Mancuerna/holybeans-public/issues/163)) ([9166b32](https://github.com/Mancuerna/holybeans-public/commit/9166b32c89f2e00dc41d75870cdce58cebdf00c9))
+* **beans:** use the outlined roast icon on compact cards ([#160](https://github.com/Mancuerna/holybeans-public/issues/160)) ([9f378db](https://github.com/Mancuerna/holybeans-public/commit/9f378db3ec161513c3903892338d2625e600e00c))
+
 ## [1.14.0](https://github.com/Mancuerna/holybeans-public/compare/v1.13.0...v1.14.0) (2026-11-17)
 
 
