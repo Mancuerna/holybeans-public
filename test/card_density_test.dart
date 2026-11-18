@@ -4,12 +4,63 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
+import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/core/app_services.dart';
 
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 void main() {
+  testWidgets('both repeat shortcuts open the selected brew as a draft', (
+    tester,
+  ) async {
+    final db = memoryDatabase();
+    addTearDown(db.close);
+    final repository = JournalRepository(db);
+    final coffee = await repository.createCoffee(
+      name: 'Sample',
+      roaster: 'Roaster',
+      initialGrams: 250,
+    );
+    final lot = (await repository.coffeeLots(coffee)).single.id;
+    final brew = await repository.createBrew(
+      coffeeId: coffee,
+      lotId: lot,
+      methodName: 'V60',
+      doseGrams: 15,
+      waterGrams: 225,
+    );
+    await tester.pumpWidget(
+      HolyBeansApp(
+        services: AppServices(database: db),
+        initialLocale: const Locale('en'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tapBottomDestination(tester, 2);
+    final card = find.byKey(ValueKey('brew-card-$brew'));
+    final repeat = find.descendant(
+      of: card,
+      matching: find.byTooltip('Repeat'),
+    );
+    for (final swipe in [true, false]) {
+      if (swipe) {
+        await tester.drag(card, Offset(tester.getSize(card).width * .6, 0));
+      } else {
+        await tester.tap(repeat);
+      }
+      await tester.pumpAndSettle();
+      final form = tester.widget<BrewForm>(find.byType(BrewForm));
+      expect(form.repeat, isTrue);
+      expect(form.seed?.id, brew);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(card, findsOneWidget);
+      expect(await db.select(db.brews).get(), hasLength(1));
+    }
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 10));
+  });
   testWidgets('bean density and unified brew cards remain usable at 2x text', (
     tester,
   ) async {
@@ -119,7 +170,23 @@ void main() {
     await tester.tap(beanToggle);
     await tester.pumpAndSettle();
     expect(find.byKey(ValueKey('bean-stock-$coffeeId')), findsNothing);
-    expect(find.textContaining('North Star Roasters, 232 g'), findsOneWidget);
+    expect(
+      find.descendant(of: beanCard, matching: find.text('232 g')),
+      findsOneWidget,
+    );
+    final subtitle = tester
+        .widget<Text>(
+          find.descendant(
+            of: beanCard,
+            matching: find.textContaining('North Star Roasters'),
+          ),
+        )
+        .textSpan!;
+    expect(
+      subtitle.toPlainText(includeSemanticsLabels: false),
+      contains('🇪🇹 North Star Roasters, 🔥'),
+    );
+    expect(subtitle.toPlainText(), contains('Roasted'));
     await tester.ensureVisible(find.text('Ethiopia Guji Natural'));
     await tester.tap(find.text('Ethiopia Guji Natural').last);
     await tester.pumpAndSettle();

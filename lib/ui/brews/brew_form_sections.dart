@@ -32,8 +32,8 @@ import 'package:holybeans/ui/core/suggested_text_field.dart';
 import 'package:holybeans/ui/equipment/recipients_page.dart';
 import 'package:holybeans/ui/scale/scale_compact.dart';
 
-/// The brew form in the order of brewing: what is brewed, the equipment,
-/// the recipe, the timing with its devices, and the result. Each section
+/// The brew form in the order of brewing: what is brewed, the recipe,
+/// the equipment, the timing with its devices, and the result. Each section
 /// lays its fields out like the form's list (20 between them) and leaves
 /// hidden parameters out.
 const _fieldGap = 20.0;
@@ -86,7 +86,7 @@ class _Section extends StatelessWidget {
   );
 }
 
-/// Date, coffee and lot, method with the last brew and the machine's shot,
+/// Coffee and lot, method with the last brew and the machine's shot,
 /// profile, tools and the method memory hint.
 class BrewChoiceSection extends StatelessWidget {
   const BrewChoiceSection({
@@ -113,7 +113,6 @@ class BrewChoiceSection extends StatelessWidget {
         if (row.archivedAtMs == null || row.id == model.methodId) row,
     ];
     return _Section([
-      BrewDateTimeChips(value: model.brewedAt, onChanged: model.setBrewedAt),
       CoffeePicker(
         repository: model.repository,
         coffees: coffees,
