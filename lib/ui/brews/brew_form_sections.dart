@@ -9,6 +9,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form_fields.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
+import 'package:holybeans/ui/brews/brew_preset_picker.dart';
 import 'package:holybeans/ui/brews/brew_ratio_slider.dart';
 import 'package:holybeans/ui/brews/brew_scale_reset_button.dart';
 import 'package:holybeans/ui/brews/brew_scale_wait_button.dart';
@@ -108,6 +109,7 @@ class BrewChoiceSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context);
     final draft = model.draft;
+    final selected = model.selectedPreset;
     final activeMethods = [
       for (final row in model.methods)
         if (row.archivedAtMs == null || row.id == model.methodId) row,
@@ -144,6 +146,9 @@ class BrewChoiceSection extends StatelessWidget {
           ],
           onChanged: model.selectLot,
         ),
+      if (isNew && model.presetsFailed) Text(s.dataError),
+      if (isNew && (model.presetChoices.isNotEmpty || selected != null))
+        BrewPresetPicker(model: model),
       if (model.loadingMethods)
         const LinearProgressIndicator()
       else if (activeMethods.isEmpty)

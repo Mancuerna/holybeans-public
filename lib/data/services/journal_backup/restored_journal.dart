@@ -8,6 +8,8 @@ part of '../journal_backup.dart';
 class _RestoredJournal {
   _RestoredJournal._({
     required this.recipients,
+    required this.equipmentPresets,
+    required this.presetTools,
     required this.extractionProfiles,
     required this.cafeData,
     required this.pistonData,
@@ -189,6 +191,12 @@ class _RestoredJournal {
     }
 
     return _RestoredJournal._(
+      equipmentPresets: data.containsKey('equipmentPresets')
+          ? _decode(data, 'equipmentPresets', EquipmentPreset.fromJson)
+          : [],
+      presetTools: data.containsKey('equipmentPresetTools')
+          ? _decode(data, 'equipmentPresetTools', EquipmentPresetTool.fromJson)
+          : [],
       extractionProfiles: data.containsKey('extractionProfiles')
           ? _decode(data, 'extractionProfiles', ExtractionProfileRow.fromJson)
           : [],
@@ -240,6 +248,8 @@ class _RestoredJournal {
   final _PistonBackup pistonData;
   final bool restoreBrewJugs;
   final List<Recipient> recipients;
+  final List<EquipmentPreset> equipmentPresets;
+  final List<EquipmentPresetTool> presetTools;
   final List<ExtractionProfileRow> extractionProfiles;
   final List<StockAdjustment> adjustments;
   final List<CuppingSession> sessions;
@@ -322,6 +332,7 @@ class _RestoredJournal {
     _checkAdjustments();
     _checkTools();
     _checkEquipment();
+    _checkPresets();
     _checkPhotos();
     _checkBrews();
     _checkImports();
@@ -742,6 +753,8 @@ class _RestoredJournal {
           tool.copyWith(mergedIntoId: const Value(null)),
       ]);
       batch.insertAll(database.toolMethodLinks, toolMethodLinks);
+      batch.insertAll(database.equipmentPresets, equipmentPresets);
+      batch.insertAll(database.equipmentPresetTools, presetTools);
       batch.insertAll(database.brews, brews);
       batch.insertAll(database.cuppingSessions, sessions);
       batch.insertAll(database.cuppingSessionCups, sessionCups);

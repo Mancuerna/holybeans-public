@@ -14,6 +14,7 @@ class BrewInput {
     required this.methodName,
     this.lotId,
     this.methodId,
+    this.equipmentPresetId,
     this.grinderName,
     this.grinderId,
     this.waterProfileId,
@@ -52,6 +53,7 @@ class BrewInput {
   final String methodName;
   final String? lotId;
   final String? methodId;
+  final String? equipmentPresetId;
   final String? grinderName;
   final String? grinderId;
   final String? waterProfileId;

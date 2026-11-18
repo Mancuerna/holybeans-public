@@ -2,6 +2,72 @@ part of 'brew_form_model.dart';
 
 /// Reconciles the form choices after its independent catalog changes.
 extension BrewFormCatalogs on BrewFormModel {
+  Future<void> selectMethod(String? id) async {
+    if (id == null || id == methodId) return;
+    selectedPreset = null;
+    importedGaggimateShot = null;
+    importedShot = null;
+    importedFreePour = null;
+    methodId = id;
+    _repeatedRecipientId = null;
+    _recipientChosen = false;
+    _defaultRecipient();
+    draft.jugTotal.clear();
+    toolSelection.resetForMethod();
+    draft.applyTare(jugGrams);
+    toolSelection.publish();
+    if (isNew) unawaited(_loadDialIn());
+    if (_fresh) {
+      await _applyMethodMemory(id);
+    } else {
+      await _loadTools(id);
+    }
+  }
+
+  void _applyPresetEquipment(PresetDetails details) {
+    selectedPreset = details;
+    isPreGround = false;
+    grinderTouched = true;
+    grinderId = details.preset.grinderId;
+    _waterTouched = true;
+    waterProfileId = details.preset.waterProfileId;
+    toolSelection.replace(details.toolIds);
+  }
+
+  void selectPreset(PresetDetails? details) {
+    if (details == null) {
+      selectedPreset = null;
+      _notify();
+      return;
+    }
+    // selectMethod synchronously resets the old method before loading memory.
+    unawaited(selectMethod(details.preset.methodId));
+    _applyPresetEquipment(details);
+    unawaited(
+      _loadTools(details.preset.methodId, preferredIds: details.toolIds),
+    );
+    _notify();
+  }
+
+  void _watchPresets() {
+    if (_fresh) {
+      _subscriptions.add(
+        repository.presets.watch().listen(
+          (rows) {
+            presetChoices = rows.where((p) => p.available).toList();
+            presetsFailed = false;
+            _notify();
+          },
+          onError: (Object error, StackTrace stack) {
+            reportError(error, stack);
+            presetsFailed = true;
+            _notify();
+          },
+        ),
+      );
+    }
+  }
+
   void _watchCatalogs() => catalogs.watch();
 
   void _recipientsChanged(List<Recipient> rows) {
@@ -64,6 +130,7 @@ extension BrewFormCatalogs on BrewFormModel {
 
   void grinderCreated(Grinder grinder) {
     catalogs.insertGrinder(grinder);
+    selectedPreset = null;
     grinderId = grinder.id;
     isPreGround = false;
     grinderTouched = true;
@@ -72,6 +139,7 @@ extension BrewFormCatalogs on BrewFormModel {
 
   void waterProfileCreated(WaterProfile profile) {
     catalogs.insertWaterProfile(profile);
+    selectedPreset = null;
     waterProfileId = profile.id;
     catalogs.publish();
   }

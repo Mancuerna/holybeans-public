@@ -51,6 +51,14 @@ class BrewToolsModel extends ChangeNotifier {
     _selectedIds.clear();
   }
 
+  void replace(Set<String> ids) {
+    ++_edit;
+    _touched = true;
+    _selectedIds
+      ..clear()
+      ..addAll(ids);
+  }
+
   void toggle(String id, bool selected) {
     ++_edit;
     _touched = true;

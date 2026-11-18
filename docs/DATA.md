@@ -1,8 +1,8 @@
 # Data and compatibility
 
 HolyBeans stores its journal in SQLite through Drift. Photos are stored as files
-and included in exported ZIP backups. The current database schema is **39** and
-the current backup format is **37**. Historical database migrations from schema
+and included in exported ZIP backups. The current database schema is **40** and
+the current backup format is **38**. Historical database migrations from schema
 19 and backup readers from version 5 must remain compatible.
 
 `lib/data/database/` defines tables and migrations. `drift_schemas/` contains
