@@ -77,6 +77,53 @@ void main() {
         everyElement(BleOutputProperty.withoutResponse),
       );
     });
+    test(
+      'Pearl connects and reconnects without an acknowledged wake-up',
+      () async {
+        platform
+          ..requiresAndroidWakeUp = true
+          ..failAcknowledgedWakeUp = true;
+        await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+        expect(scale.connected, isTrue);
+        expect(scale.reading!.grams, 18);
+        for (final grams in [42.0, 120.0]) {
+          await scale.disconnect();
+          expect(scale.connected, isFalse);
+          platform.grams = grams;
+          await scale.connect();
+          expect(scale.connected, isTrue);
+          expect(scale.reading!.grams, grams);
+          expect(await scale.send(ScaleCommand.startTimer), isTrue);
+          expect(await scale.send(ScaleCommand.stopTimer), isTrue);
+          expect(await scale.send(ScaleCommand.resetTimer), isTrue);
+        }
+        expect(platform.wakeUpProperties, [
+          BleOutputProperty.withoutResponse,
+          BleOutputProperty.withoutResponse,
+          BleOutputProperty.withoutResponse,
+        ]);
+        expect(
+          trace.where((event) => event.$1 == 'acaia.write.error'),
+          isEmpty,
+        );
+      },
+    );
+    test(
+      'write-only Pearl retains acknowledged wake-up and handshake',
+      () async {
+        platform
+          ..requiresAndroidWakeUp = true
+          ..supportsWriteWithoutResponse = false;
+        await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+        expect(scale.connected, isTrue);
+        expect(scale.reading!.grams, 18);
+        expect(platform.wakeUpProperties, [BleOutputProperty.withResponse]);
+        expect(
+          platform.writeProperties,
+          everyElement(BleOutputProperty.withResponse),
+        );
+      },
+    );
     test('Android wake-up precedes the Pearl S handshake', () async {
       platform.requiresAndroidWakeUp = true;
       await scale.pair(FoundDevice(id: platform.id, name: 'PEARLS-TEST'));
@@ -84,7 +131,7 @@ void main() {
       expect(platform.wakeUps, [
         [0, 1],
       ]);
-      expect(platform.wakeUpProperties, [BleOutputProperty.withResponse]);
+      expect(platform.wakeUpProperties, [BleOutputProperty.withoutResponse]);
       expect(platform.writes.take(3).map((frame) => frame[2]), [11, 12]);
       await Future<void>.delayed(const Duration(milliseconds: 2100));
       expect(
@@ -185,7 +232,7 @@ void main() {
         trace
             .where((event) => event.$1 == 'acaia.write.ok')
             .map((event) => event.$2['withResponse']),
-        [true, false, false],
+        [false, false, false],
       );
     });
     test(

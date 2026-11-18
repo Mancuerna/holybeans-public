@@ -117,7 +117,13 @@ class AcaiaScaleConnection {
     await Future<void>.delayed(const Duration(milliseconds: 150));
     if (!classic) {
       try {
-        await _write(acaiaAndroidWakeUp);
+        // Keep the wake-up in the handshake's supported write mode too.
+        // A failed acknowledged wake-up can leave the Pearl's GATT writes
+        // unusable before identification even starts.
+        await _write(
+          acaiaAndroidWakeUp,
+          withoutResponse: supportsWriteWithoutResponse,
+        );
       } on Object {
         // The traced wake-up is best effort; readings still decide readiness.
       }
