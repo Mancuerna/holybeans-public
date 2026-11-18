@@ -354,10 +354,9 @@ void main() {
 
     await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.byKey(const ValueKey('language-es')),
-      300,
-    );
+    await tester.ensureVisible(find.byKey(const ValueKey('settings-language')));
+    await tester.tap(find.byKey(const ValueKey('settings-language')));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Español'));
     await tester.pumpAndSettle();
     await tester.tap(find.byType(BackButton));

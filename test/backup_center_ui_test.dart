@@ -132,6 +132,8 @@ void main() {
   Future<void> openSettings(WidgetTester tester) async {
     await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('settings-backup')));
+    await tester.pumpAndSettle();
   }
 
   testWidgets('leaving the app keeps a copy that can be restored', (

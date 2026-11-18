@@ -95,6 +95,13 @@ void main() {
             .join('\n');
         expect(notice, contains('Copyright (c) 2026 hessius'));
         expect(notice, contains('Copyright (c) 2026 Chris Borchert'));
+        const device = MethodChannel('holybeans/device');
+        final messenger = tester.binding.defaultBinaryMessenger;
+        messenger.setMockMethodCallHandler(
+          device,
+          (call) async => call.method == 'appVersion' ? '1.0 (1)' : null,
+        );
+        addTearDown(() => messenger.setMockMethodCallHandler(device, null));
         final db = memoryDatabase();
         addTearDown(db.close);
         final s = lookupAppLocalizations(Locale(language));
@@ -115,8 +122,9 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        await tester.scrollUntilVisible(find.text(s.settingsAbout), 400);
-        expect(find.text(s.settingsAbout), findsOneWidget);
+        final version = find.byKey(const ValueKey('app-version'));
+        await tester.scrollUntilVisible(version, 400);
+        expect(find.text('${s.appVersionLabel} 1.0 (1)'), findsOneWidget);
         expect(
           find.byKey(const ValueKey('app-licenses'), skipOffstage: false),
           findsNothing,

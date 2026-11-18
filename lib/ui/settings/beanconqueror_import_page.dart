@@ -171,7 +171,7 @@ class _SourceSheet extends StatelessWidget {
             key: const ValueKey('bq-source-folder'),
             leading: const Icon(Icons.folder_open_rounded),
             title: Text(s.bqSourceFolder),
-            subtitle: Text(s.bqSourceFolderHint),
+            subtitle: Text(s.bqHowTo),
             onTap: () => Navigator.pop(context, _BqSource.folder),
           ),
           ListTile(

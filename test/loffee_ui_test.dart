@@ -312,6 +312,8 @@ void main() {
       await launch(tester);
       await tester.tap(find.byKey(const ValueKey('settings-button')));
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('settings-advanced')));
+      await tester.pumpAndSettle();
       final setting = find.byKey(const ValueKey('loffee-key-settings'));
       await tester.scrollUntilVisible(setting, 250);
       await tester.tap(setting);

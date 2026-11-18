@@ -28,6 +28,7 @@ Future<void> checkBeanconquerorFolder(
     ),
   );
   await $.tap(find.byTooltip('Settings'));
+  await $.tap(find.byKey(const ValueKey('settings-transfers')));
   await $.scrollUntilVisible(
     finder: find.byKey(const ValueKey('import-beanconqueror')),
   );
