@@ -22,6 +22,9 @@ class FakeAcaiaBlePlatform extends FakeScaleBlePlatform {
   void Function()? onHeartbeat;
   bool requiresAndroidWakeUp = false;
   bool failWakeUp = false;
+  bool failAcknowledgedWakeUp = false;
+  bool supportsWriteWithoutResponse = true;
+  bool _writeChannelFailed = false;
   bool failMtu = false;
   final mtuRequests = <(String, int)>[];
   bool awake = false;
@@ -69,7 +72,8 @@ class FakeAcaiaBlePlatform extends FakeScaleBlePlatform {
       ], []),
       if (!classic)
         BleCharacteristic(commandCharacteristic, [
-          CharacteristicProperty.writeWithoutResponse,
+          if (supportsWriteWithoutResponse)
+            CharacteristicProperty.writeWithoutResponse,
           if (pearl) CharacteristicProperty.write,
         ], []),
     ]),
@@ -86,6 +90,7 @@ class FakeAcaiaBlePlatform extends FakeScaleBlePlatform {
     notificationsRequested = false;
     settingsSent = false;
     awake = false;
+    _writeChannelFailed = false;
     await super.setNotifiable(deviceId, service, characteristic, property);
   }
 
@@ -146,12 +151,20 @@ class FakeAcaiaBlePlatform extends FakeScaleBlePlatform {
       if (classic) throw StateError('Unexpected classic wake-up');
       wakeUps.add(value.toList());
       wakeUpProperties.add(property);
+      if (failAcknowledgedWakeUp &&
+          property == BleOutputProperty.withResponse) {
+        // Model the captured GATT 133 on wake-up followed by a failed write
+        // channel. Merely catching the first error cannot complete startup.
+        _writeChannelFailed = true;
+        throw StateError('Wake-up failed (GATT 133)');
+      }
       if (failWakeUp) throw StateError('Wake-up failed');
       awake = true;
       return;
     }
     writes.add(value.toList());
     writeProperties.add(property);
+    if (_writeChannelFailed) throw StateError('Write channel failed');
     if (value.length > 20) {
       throw StateError('Peripheral rejects long writes');
     }
