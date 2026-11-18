@@ -227,6 +227,7 @@ class BrewCard extends StatelessWidget {
     void onLongPress() => _onAction(context, 'edit', coffee);
     return Card(
       key: ValueKey('brew-card-${brew.id}'),
+      color: brew.isFavorite ? theme.colorScheme.primaryContainer : null,
       child: Semantics(
         onLongPressHint: s.editBrew,
         child: InkWell(

@@ -71,6 +71,8 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
       .queries
       .watchFrozenPortions();
 
+  late final brewHighlights = widget.actions.read.queries
+      .watchCoffeeBrewHighlights(widget.coffee.id);
   late final adjustmentStream = widget.actions.read.queries
       .watchStockAdjustments(coffeeId: widget.coffee.id);
 
@@ -103,9 +105,6 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
             adjustments: adjustments,
             portions: portionSnapshot.data ?? const [],
           );
-          final brews =
-              data.brews.where((brew) => brew.coffeeId == coffee.id).toList()
-                ..sort((a, b) => b.brewedAtMs.compareTo(a.brewedAtMs));
           final components = data.componentsOf(coffee.id);
           final notes = coffee.notes?.trim() ?? '';
           return DetailSheetContent(
@@ -165,12 +164,15 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
                     notes,
                     stacked: true,
                   ),
-                _RecentBrews(
-                  actions: actions.navigation,
-                  journal: actions.read,
-                  coffee: coffee,
-                  data: data,
-                  brews: brews,
+                StreamBuilder<List<Brew>>(
+                  stream: brewHighlights,
+                  builder: (context, snapshot) => _CoffeeBrewHighlights(
+                    actions: actions.navigation,
+                    journal: actions.read,
+                    coffee: coffee,
+                    data: data,
+                    brews: snapshot.data ?? const [],
+                  ),
                 ),
               ],
             ),
@@ -623,9 +625,9 @@ class _OriginRows extends StatelessWidget {
   }
 }
 
-/// The three latest brews of the coffee, opening their details.
-class _RecentBrews extends StatelessWidget {
-  const _RecentBrews({
+/// Pin each active favourite above the recent brews, showing each brew once.
+class _CoffeeBrewHighlights extends StatelessWidget {
+  const _CoffeeBrewHighlights({
     required this.actions,
     required this.journal,
     required this.coffee,
@@ -646,50 +648,70 @@ class _RecentBrews extends StatelessWidget {
     if (brews.isEmpty) return const SizedBox.shrink();
     final s = AppLocalizations.of(context);
     final deviceLocale = regionalLocale;
+    final favorites = <Brew>[];
+    final recent = <Brew>[];
+    for (final brew in brews) {
+      if (brew.isFavorite && brew.archivedAtMs == null) {
+        favorites.add(brew);
+      } else {
+        recent.add(brew);
+      }
+    }
+    Widget tile(Brew brew, {required bool favorite}) => Card(
+      key: ValueKey('bean-${favorite ? 'favorite' : 'recent'}-brew-${brew.id}'),
+      color: favorite ? Theme.of(context).colorScheme.primaryContainer : null,
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        dense: true,
+        leading: favorite
+            ? Icon(
+                Icons.favorite_rounded,
+                color: Theme.of(context).colorScheme.primary,
+                semanticLabel: s.favoriteRecipe,
+              )
+            : null,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+        // The recipe whole on its own line; method and date below.
+        title: Text(
+          brewRecipeLine(
+                brew,
+                journal.methods,
+                regionalLocale.toString(),
+                hidden: journal.hiddenParameters,
+              ) ??
+              brew.methodName,
+        ),
+        subtitle: Text(
+          [
+            brew.methodName,
+            formatBrewTimestamp(brew, deviceLocale),
+            if (brew.archivedAtMs != null) s.archivedStatus,
+          ].join(', '),
+        ),
+        trailing: switch (brew.rating) {
+          final rating? => RatingBadge(
+            rating: rating,
+            localeName: regionalLocale.toString(),
+            semanticLabel:
+                '${s.rating}: ${formatDecimal(rating, pattern: '0.#', locale: regionalLocale.toString())} / 10',
+          ),
+          null => const Icon(Icons.chevron_right_rounded),
+        },
+        onTap: () => actions.showBrewDetails(brew, coffee, data),
+      ),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 8),
-        SectionTitle(s.recentBrews),
-        for (final brew in brews.take(3))
-          Card(
-            key: ValueKey('bean-recent-brew-${brew.id}'),
-            margin: const EdgeInsets.only(bottom: 8),
-            child: ListTile(
-              dense: true,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 2,
-              ),
-              // The recipe whole on its own line; method and date below.
-              title: Text(
-                brewRecipeLine(
-                      brew,
-                      journal.methods,
-                      regionalLocale.toString(),
-                      hidden: journal.hiddenParameters,
-                    ) ??
-                    brew.methodName,
-              ),
-              subtitle: Text(
-                [
-                  brew.methodName,
-                  formatBrewTimestamp(brew, deviceLocale),
-                  if (brew.archivedAtMs != null) s.archivedStatus,
-                ].join(', '),
-              ),
-              trailing: switch (brew.rating) {
-                final rating? => RatingBadge(
-                  rating: rating,
-                  localeName: regionalLocale.toString(),
-                  semanticLabel:
-                      '${s.rating}: ${formatDecimal(rating, pattern: '0.#', locale: regionalLocale.toString())} / 10',
-                ),
-                null => const Icon(Icons.chevron_right_rounded),
-              },
-              onTap: () => actions.showBrewDetails(brew, coffee, data),
-            ),
-          ),
+        if (favorites.isNotEmpty) ...[
+          SectionTitle(s.favoriteRecipes),
+          for (final brew in favorites) tile(brew, favorite: true),
+        ],
+        if (recent.isNotEmpty) ...[
+          SectionTitle(s.recentBrews),
+          for (final brew in recent) tile(brew, favorite: false),
+        ],
         if (data.brewCount(coffee.id) > 3)
           Align(
             alignment: AlignmentDirectional.centerStart,
