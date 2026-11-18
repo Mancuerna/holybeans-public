@@ -2305,7 +2305,19 @@
   "shareTemplateSampleBasket": "Cesta de 18 g",
   "shareTemplateSamplePaper": "Papel de filtro",
   "shareTemplateManage": "Gestionar plantillas",
-  "settingsPreparation": "Preparación y compartir",
+  "settingsPreparation": "Preparación y diario",
+  "settingsNoBackups": "Sin copias locales",
+  "settingsBackups": "Copias de seguridad",
+  "settingsAdvanced": "Avanzado",
+  "settingsBluetoothOff": "Bluetooth apagado",
+  "settingsPaired": "{count, plural, =0{Sin dispositivos vinculados} one{1 vinculado} other{{count} vinculados}}",
+  "@settingsPaired": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "settingsDevices": "Dispositivos",
   "settingsTransfers": "Importar y exportar",
   "settingsMaintenance": "Mantenimiento del diario",

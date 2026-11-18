@@ -69,6 +69,8 @@ void main() {
     reminders.permission = false;
     await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('settings-preparation')));
+    await tester.pumpAndSettle();
     final toggle = find.byKey(const ValueKey('rate-reminder-toggle'));
     await tester.scrollUntilVisible(
       toggle,
@@ -89,6 +91,8 @@ void main() {
     await tester.tap(find.text('5 min'));
     await tester.pumpAndSettle();
     expect(await RateReminderSettings(database).loadMinutes(), 5);
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
 

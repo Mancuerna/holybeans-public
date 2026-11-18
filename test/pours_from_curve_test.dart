@@ -558,6 +558,8 @@ void main() {
 
         await tester.tap(find.byTooltip('Settings'));
         await settleWithWorkers(tester);
+        await tester.tap(find.byKey(const ValueKey('settings-advanced')));
+        await tester.pumpAndSettle();
         final tile = find.byKey(const ValueKey('pours-from-curves'));
         await tester.scrollUntilVisible(tile, 300);
         await tester.ensureVisible(tile);

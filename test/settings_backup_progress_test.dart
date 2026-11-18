@@ -37,6 +37,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('settings-backup')));
+    await tester.pumpAndSettle();
   }
 
   Finder tile(String label) => find.ancestor(
@@ -131,7 +133,7 @@ void main() {
     );
     navigator.currentState!.pop();
     await tester.pumpAndSettle();
-    expect(find.byType(SettingsPage), findsOneWidget);
+    expect(find.text('Share backup'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

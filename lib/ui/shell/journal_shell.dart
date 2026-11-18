@@ -397,6 +397,25 @@ class _JournalShellState extends State<JournalShell>
           onExportBackup: exportBackup,
           onExportCsv: () => backups.exportBrewsCsv(context),
           onImportBackup: () => backups.importBackup(context),
+          backupSummary: backupCenter.hasAutoBackups
+              ? ListenableBuilder(
+                  listenable: backupCenter,
+                  builder: (context, _) {
+                    final s = AppLocalizations.of(context);
+                    final dates = [
+                      ?backupCenter.autoEntries.firstOrNull?.savedAt,
+                      ?backupCenter.state.folderSavedAt,
+                    ]..sort();
+                    return Text(
+                      dates.isEmpty
+                          ? s.settingsNoBackups
+                          : s.autoBackupsLast(
+                              formatBackupTime(context, dates.last),
+                            ),
+                    );
+                  },
+                )
+              : null,
           backupTiles: Column(
             children: [
               BackupSection(

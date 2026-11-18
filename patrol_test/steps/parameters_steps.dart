@@ -42,6 +42,7 @@ Future<void> checkBrewParameters(
   );
 
   await $.tap(find.byTooltip('Settings'));
+  await $.tap(find.byKey(const ValueKey('settings-preparation')));
   await $.tap(find.byKey(const ValueKey('brew-parameters')));
   await $.waitUntilVisible(find.text('Brew parameters'));
   await $.takeNativeScreenshot('brew-parameters');
@@ -68,6 +69,8 @@ Future<void> checkBrewParameters(
   expect(await BrewParameterSettings(database).loadHidden(), {
     BrewParameter.notes,
   });
+  await $.tester.pageBack();
+  await $.pumpAndSettle();
   await $.tester.pageBack();
   await $.pumpAndSettle();
   await $.tester.pageBack();

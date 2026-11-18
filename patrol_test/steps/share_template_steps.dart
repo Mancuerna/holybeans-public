@@ -113,6 +113,7 @@ Future<void> checkShareTemplates(
     if (discard.evaluate().isNotEmpty) await $.tap(discard);
     await $.tap(find.byTooltip('Settings'));
     await $.takeNativeScreenshot('accents-settings');
+    await $.tap(find.byKey(const ValueKey('settings-devices')));
     await $.scrollUntilVisible(
       finder: find.byKey(const ValueKey('settings-scale')),
     );
@@ -120,6 +121,8 @@ Future<void> checkShareTemplates(
     await $.waitUntilVisible(find.byKey(const ValueKey('scale-find')));
     expect(scale.commands, isEmpty);
     await $.tap(find.byType(BackButton));
+    await $.tap(find.byType(BackButton));
+    await $.tap(find.byKey(const ValueKey('settings-preparation')));
     await $.scrollUntilVisible(
       finder: find.byKey(const ValueKey('share-templates')),
       scrollDirection: AxisDirection.up,
@@ -140,6 +143,7 @@ Future<void> checkShareTemplates(
       'Filter-story',
     );
     await $.takeNativeScreenshot('template-filter-saved');
+    await $.tap(find.byType(BackButton));
     await $.tap(find.byType(BackButton));
     await $.tap(find.byType(BackButton));
     await openShare();

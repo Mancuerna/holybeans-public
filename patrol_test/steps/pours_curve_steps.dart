@@ -98,6 +98,7 @@ Future<void> checkPoursFromCurves(
   await $.pumpAndSettle();
 
   await $.tap(find.byTooltip('Settings'));
+  await $.tap(find.byKey(const ValueKey('settings-advanced')));
   await $.scrollUntilVisible(
     finder: find.byKey(const ValueKey('pours-from-curves')),
   );

@@ -1525,7 +1525,19 @@
   "shareTemplateSampleBasket": "18 g basket",
   "shareTemplateSamplePaper": "Paper filter",
   "shareTemplateManage": "Manage templates",
-  "settingsPreparation": "Brewing and sharing",
+  "settingsPreparation": "Brewing and journal",
+  "settingsNoBackups": "No local backups yet",
+  "settingsBackups": "Backups",
+  "settingsAdvanced": "Advanced",
+  "settingsBluetoothOff": "Bluetooth off",
+  "settingsPaired": "{count, plural, =0{No paired devices} one{1 paired} other{{count} paired}}",
+  "@settingsPaired": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "settingsDevices": "Devices",
   "settingsTransfers": "Import and export",
   "settingsMaintenance": "Journal maintenance",
