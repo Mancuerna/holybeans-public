@@ -20,6 +20,27 @@ class JournalReadQueries {
   JournalReadQueries(this.database);
   final AppDatabase database;
 
+  /// The three newest brews (including archived ones) and every active
+  /// favourite for this coffee. Only the previews needed by its sheet are read.
+  Stream<List<Brew>> watchCoffeeBrewHighlights(String coffeeId) => database
+      .customSelect(
+        '''
+        SELECT ${brewPreviewColumns(database)} FROM brews b WHERE b.id IN (
+          SELECT id FROM (
+            SELECT id FROM brews WHERE coffee_id = ?1
+            ORDER BY brewed_at_ms DESC, created_at_ms DESC, id ASC LIMIT 3
+          )
+          UNION
+          SELECT id FROM brews
+          WHERE coffee_id = ?1 AND archived_at_ms IS NULL AND is_favorite = 1
+        ) ORDER BY brewed_at_ms DESC, created_at_ms DESC, id ASC
+        ''',
+        variables: [Variable(coffeeId)],
+        readsFrom: {database.brews},
+      )
+      .watch()
+      .map((rows) => [for (final row in rows) database.brews.map(row.data)]);
+
   Stream<int> watchRevision() => database
       .customSelect(
         'SELECT coalesce(max(revision), 0) AS revision FROM temp.brew_changes',

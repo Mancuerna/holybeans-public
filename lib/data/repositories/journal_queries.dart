@@ -41,5 +41,7 @@ class JournalQueries {
       _repository.brewStockReturn(brew);
   Stream<List<FrozenPortion>> watchFrozenPortions() =>
       _repository.watchFrozenPortions();
+  Stream<List<Brew>> watchCoffeeBrewHighlights(String coffeeId) =>
+      _repository.reads.watchCoffeeBrewHighlights(coffeeId);
   Stream<List<Brew>> watchAnalytics() => _repository.reads.watchAnalytics();
 }

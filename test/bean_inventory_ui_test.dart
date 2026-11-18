@@ -175,6 +175,71 @@ void main() {
   });
 
   testWidgets(
+    'bean details pin favourites by method beyond the recent three and update in place',
+    (tester) async {
+      final database = memoryDatabase();
+      addTearDown(database.close);
+      final repo = JournalRepository(database);
+      final coffee = await repo.createCoffee(
+        name: 'Favourite test bean',
+        roaster: 'R',
+      );
+      final other = await repo.createCoffee(name: 'Other bean', roaster: 'R');
+      final filter = await repo.createMethod(name: 'Filter');
+      final espresso = await repo.createMethod(name: 'Espresso');
+      Future<String> brew(String bean, String method, int day) =>
+          repo.createBrew(
+            coffeeId: bean,
+            methodId: method,
+            methodName: method == filter ? 'Filter' : 'Espresso',
+            brewedAt: DateTime(2026, 1, day),
+          );
+      final old = await brew(coffee, filter, 1);
+      await brew(coffee, espresso, 2);
+      final replacement = await brew(coffee, filter, 3);
+      final latest = await brew(coffee, espresso, 4);
+      final unrelated = await brew(other, filter, 5);
+      for (final id in [old, latest, unrelated]) {
+        await repo.setBrewFavorite(id, favorite: true);
+      }
+      await tester.pumpWidget(
+        HolyBeansApp(
+          services: AppServices(database: database),
+          initialLocale: const Locale('es'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tapBottomDestination(tester, 1);
+      await tester.tap(find.text('Favourite test bean').last);
+      await tester.pumpAndSettle();
+      Finder pinned(String id) =>
+          find.byKey(ValueKey('bean-favorite-brew-$id'));
+      Finder recent(String id) => find.byKey(ValueKey('bean-recent-brew-$id'));
+      expect(find.text('Recetas favoritas'), findsOneWidget);
+      expect(pinned(old), findsOneWidget);
+      expect(pinned(latest), findsOneWidget);
+      expect(recent(latest), findsNothing);
+      expect(pinned(unrelated), findsNothing);
+      await tester.ensureVisible(pinned(old));
+      await tester.tap(pinned(old));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('brew-detail-edit')), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      await repo.setBrewFavorite(replacement, favorite: true);
+      await repo.setBrewArchived(latest, archived: true);
+      await tester.pumpAndSettle();
+      expect(pinned(old), findsNothing);
+      expect(pinned(replacement), findsOneWidget);
+      expect(recent(replacement), findsNothing);
+      expect(pinned(latest), findsNothing);
+      expect(recent(latest), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(milliseconds: 10));
+    },
+  );
+
+  testWidgets(
     'bean details start a brew with that bean and show related brew history',
     (tester) async {
       final database = memoryDatabase();
