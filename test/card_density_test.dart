@@ -184,7 +184,21 @@ void main() {
         .textSpan!;
     expect(
       subtitle.toPlainText(includeSemanticsLabels: false),
-      contains('🇪🇹 North Star Roasters, 🔥'),
+      contains('🇪🇹 North Star Roasters, '),
+    );
+    final roastIcon = tester.widget<Icon>(
+      find.descendant(
+        of: beanCard,
+        matching: find.byIcon(Icons.local_fire_department_outlined),
+      ),
+    );
+    expect(
+      roastIcon.color,
+      Theme.of(tester.element(beanCard)).colorScheme.onSurfaceVariant,
+    );
+    expect(
+      subtitle.toPlainText(includeSemanticsLabels: false),
+      matches(RegExp(r'\d+ d')),
     );
     expect(subtitle.toPlainText(), contains('Roasted'));
     await tester.ensureVisible(find.text('Ethiopia Guji Natural'));
