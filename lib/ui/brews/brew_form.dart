@@ -11,6 +11,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_adjust_section.dart';
 import 'package:holybeans/ui/brews/brew_draft.dart';
 import 'package:holybeans/ui/brews/brew_form_changes.dart';
+import 'package:holybeans/ui/brews/brew_form_fields.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_form_sections.dart';
 import 'package:holybeans/ui/brews/brew_frozen_picker.dart';
@@ -460,6 +461,12 @@ class _BrewFormState extends State<BrewForm> {
                         isNew: widget.existing == null && !widget.repeat,
                         actions: actions,
                       ),
+                      if (!model.loadingMethods)
+                        ListenableBuilder(
+                          listenable: recipeInputs,
+                          builder: (_, _) =>
+                              BrewRecipeSection(model: model, actions: actions),
+                        ),
                       BrewEquipmentSection(
                         model: model,
                         actions: actions,
@@ -471,11 +478,6 @@ class _BrewFormState extends State<BrewForm> {
                                   repeatedWaterProfile!.name,
                       ),
                       if (!model.loadingMethods) ...[
-                        ListenableBuilder(
-                          listenable: recipeInputs,
-                          builder: (_, _) =>
-                              BrewRecipeSection(model: model, actions: actions),
-                        ),
                         BrewTimingSection(
                           model: model,
                           liveChartKey: _liveChartKey,
@@ -483,6 +485,10 @@ class _BrewFormState extends State<BrewForm> {
                         ),
                         result(),
                       ],
+                      BrewDateTimeChips(
+                        value: model.brewedAt,
+                        onChanged: model.setBrewedAt,
+                      ),
                     ],
                   ],
                 ),

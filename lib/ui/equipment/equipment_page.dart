@@ -317,7 +317,7 @@ class _EquipmentSectionList extends StatelessWidget {
       return ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 112),
         itemCount: visible.length + 1,
-        separatorBuilder: (context, index) => const SizedBox(height: 8),
+        separatorBuilder: (context, index) => const SizedBox(height: 2),
         itemBuilder: (context, index) {
           if (index == 0) return CuppingEntry(repository: repository);
           final method = visible[index - 1];
@@ -471,6 +471,8 @@ class _MethodCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
+            minVerticalPadding: 0,
+            visualDensity: const VisualDensity(vertical: -2),
             title: Text(
               method.name,
               style: const TextStyle(fontWeight: FontWeight.w700),
@@ -539,7 +541,7 @@ class _MethodCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 2),
             child: Wrap(
               spacing: 4,
               children: [
