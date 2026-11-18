@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/equipment_overview.dart';
+import 'package:holybeans/data/repositories/equipment_presets.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/journal_codes.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -9,6 +10,7 @@ import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/cupping/cupping_sessions_page.dart';
 import 'package:holybeans/ui/equipment/equipment_delete.dart';
 import 'package:holybeans/ui/equipment/equipment_forms.dart';
+import 'package:holybeans/ui/equipment/equipment_presets_page.dart';
 import 'package:holybeans/ui/equipment/method_tools_sheet.dart';
 import 'package:holybeans/ui/equipment/piston/piston_page.dart';
 import 'package:holybeans/ui/equipment/recipients_page.dart';
@@ -19,6 +21,7 @@ import 'package:intl/intl.dart';
 
 enum EquipmentSection {
   methods,
+  presets,
   grinders,
   tools,
   water,
@@ -36,6 +39,7 @@ class EquipmentPage extends StatefulWidget {
     required this.showArchived,
     this.onShowMethodBrews,
     this.onBrewWithMethod,
+    this.onBrewWithPreset,
   });
 
   final JournalRepository repository;
@@ -48,6 +52,7 @@ class EquipmentPage extends StatefulWidget {
 
   /// Starts a new brew with a method preselected.
   final ValueChanged<BrewMethod>? onBrewWithMethod;
+  final ValueChanged<PresetDetails>? onBrewWithPreset;
 
   @override
   State<EquipmentPage> createState() => _EquipmentPageState();
@@ -148,6 +153,7 @@ class _EquipmentPageState extends State<EquipmentPage>
     final s = AppLocalizations.of(context);
     final labels = [
       s.methods,
+      s.equipmentPresets,
       s.grinders,
       s.methodTools,
       s.waterTab,
@@ -188,6 +194,10 @@ class _EquipmentPageState extends State<EquipmentPage>
         const SizedBox(height: 12),
         Expanded(
           child: switch (widget.section) {
+            EquipmentSection.presets => EquipmentPresetList(
+              repository: widget.repository,
+              onBrew: widget.onBrewWithPreset,
+            ),
             EquipmentSection.portafilters => RecipientsList(
               key: const ValueKey('portafilters-list'),
               repository: widget.repository,

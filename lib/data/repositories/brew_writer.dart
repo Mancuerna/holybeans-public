@@ -202,6 +202,7 @@ class BrewWriter {
     final coffeeId = input.coffeeId;
     final waterProfileId = input.waterProfileId;
     return Brew(
+      equipmentPresetId: previous?.equipmentPresetId ?? input.equipmentPresetId,
       id: id,
       coffeeId: coffeeId,
       lotId: input.lotId,

@@ -50,6 +50,7 @@ import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/core/smooth_floating_button.dart';
 import 'package:holybeans/ui/equipment/equipment_forms.dart';
 import 'package:holybeans/ui/equipment/equipment_page.dart';
+import 'package:holybeans/ui/equipment/equipment_presets_page.dart';
 import 'package:holybeans/ui/equipment/recipients_page.dart';
 import 'package:holybeans/ui/equipment/tool_form.dart';
 import 'package:holybeans/ui/equipment/water_profile_form.dart';
@@ -598,15 +599,15 @@ class _JournalShellState extends State<JournalShell>
     3 => switch (equipmentSection) {
       EquipmentSection.portafilters => (
         s.addPortafilter,
-        () async {
-          await showRecipientForm(context, repository, null, true);
-        },
+        () => showRecipientForm(context, repository, null, true),
       ),
       EquipmentSection.recipients => (
         s.addRecipient,
-        () async {
-          await showRecipientForm(context, repository);
-        },
+        () => showRecipientForm(context, repository),
+      ),
+      EquipmentSection.presets => (
+        s.createEquipmentPreset,
+        () => showEquipmentPresetForm(context, repository),
       ),
       EquipmentSection.methods => (s.addMethod, addMethod),
       EquipmentSection.grinders => (s.addGrinder, addGrinder),
@@ -671,6 +672,8 @@ class _JournalShellState extends State<JournalShell>
           });
           setState(() => tab = 2);
         },
+        onBrewWithPreset: (preset) =>
+            brewActions.openBrewForm(journal.coffees, initialPreset: preset),
         onBrewWithMethod: (method) =>
             openBrewForm(journal.coffees, initialMethodId: method.id),
       ),

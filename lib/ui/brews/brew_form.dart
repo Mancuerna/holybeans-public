@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/equipment_presets.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/device_feedback.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
@@ -59,6 +60,7 @@ class BrewForm extends StatefulWidget {
     this.initialDoseGrams,
     this.initialFrozenSource,
     this.initialMethodId,
+    this.initialPreset,
     this.repeat = false,
     this.adjust = false,
     this.savedPhotos = const [],
@@ -77,6 +79,7 @@ class BrewForm extends StatefulWidget {
 
   /// Method to preselect, e.g. from a method card.
   final String? initialMethodId;
+  final PresetDetails? initialPreset;
   final bool repeat;
 
   /// Opens on what usually changes when tuning [seed] (grind, dose, water,
@@ -118,6 +121,7 @@ class _BrewFormState extends State<BrewForm> {
       initialDoseGrams: widget.initialDoseGrams,
       initialFrozenSource: widget.initialFrozenSource,
       initialMethodId: widget.initialMethodId,
+      initialPreset: widget.initialPreset,
       savedPhotos: widget.savedPhotos,
     );
     changes = BrewFormChanges(model);

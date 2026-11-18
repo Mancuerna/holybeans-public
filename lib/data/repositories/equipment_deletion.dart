@@ -5,6 +5,7 @@ enum EquipmentDeletionBlocker {
   recipient,
   cupping,
   methods,
+  presets,
 }
 
 class EquipmentInUseException implements Exception {

@@ -23,6 +23,7 @@ class BrewFormPersistence {
 
   Future<BrewSaveOutcome> save({
     String? id,
+    String? equipmentPresetId,
     required String coffeeId,
     String? lotId,
     FrozenBrewSource? frozenSource,
@@ -65,6 +66,7 @@ class BrewFormPersistence {
         lotId: lotId,
         frozenSource: frozenSource,
         methodId: method.id,
+        equipmentPresetId: equipmentPresetId,
         methodName: method.name,
         grinderId: grinder?.id,
         grinderName: grinderName,

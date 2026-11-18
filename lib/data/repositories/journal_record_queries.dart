@@ -37,33 +37,54 @@ class JournalRecordQueries {
     database.coffeeComponents,
   )..orderBy([(row) => OrderingTerm.asc(row.position)])).watch();
 
-  Stream<List<BrewMethod>> watchMethods({bool includeArchived = false}) {
+  Stream<List<BrewMethod>> watchMethods({bool includeArchived = false}) =>
+      _brewMethods(includeArchived).watch();
+
+  Future<List<BrewMethod>> activeMethods() => _brewMethods(false).get();
+
+  SimpleSelectStatement<$BrewMethodsTable, BrewMethod> _brewMethods(
+    bool includeArchived,
+  ) {
     final query = database.select(database.brewMethods);
     if (!includeArchived) {
       query.where((method) => method.archivedAtMs.isNull());
     }
     query.orderBy([(method) => OrderingTerm.asc(method.name)]);
-    return query.watch();
+    return query;
   }
 
-  Stream<List<Grinder>> watchGrinders({bool includeArchived = false}) {
+  Stream<List<Grinder>> watchGrinders({bool includeArchived = false}) =>
+      _grinders(includeArchived).watch();
+
+  Future<List<Grinder>> activeGrinders() => _grinders(false).get();
+
+  SimpleSelectStatement<$GrindersTable, Grinder> _grinders(
+    bool includeArchived,
+  ) {
     final query = database.select(database.grinders);
     if (!includeArchived) {
       query.where((grinder) => grinder.archivedAtMs.isNull());
     }
     query.orderBy([(grinder) => OrderingTerm.asc(grinder.name)]);
-    return query.watch();
+    return query;
   }
 
   Stream<List<WaterProfile>> watchWaterProfiles({
     bool includeArchived = false,
-  }) {
+  }) => _waterProfiles(includeArchived).watch();
+
+  Future<List<WaterProfile>> activeWaterProfiles() =>
+      _waterProfiles(false).get();
+
+  SimpleSelectStatement<$WaterProfilesTable, WaterProfile> _waterProfiles(
+    bool includeArchived,
+  ) {
     final query = database.select(database.waterProfiles);
     if (!includeArchived) {
       query.where((profile) => profile.archivedAtMs.isNull());
     }
     query.orderBy([(profile) => OrderingTerm.asc(profile.name)]);
-    return query.watch();
+    return query;
   }
 
   Future<Coffee?> coffee(String id) => (database.select(

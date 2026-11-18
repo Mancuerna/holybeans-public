@@ -8,6 +8,8 @@ import 'package:holybeans/domain/shot_curve.dart';
 class JournalQueries {
   JournalQueries(this._repository);
   final JournalRepository _repository;
+  Future<String> presetName(String id) async =>
+      (await _repository.presets.get(id)).preset.name;
   Future<Brew?> brew(String id) => _repository.brew(id);
   Future<({ShotCurve curve, String source})?> brewCurve(String brewId) =>
       _repository.brewCurve(brewId);

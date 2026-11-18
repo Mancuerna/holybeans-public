@@ -44,6 +44,7 @@ class BrewFormChanges {
     model.coffeeId,
     model.lotId,
     model.methodId,
+    model.selectedPreset?.preset.id,
     model.grinderId,
     model.isPreGround,
     model.waterProfileId,

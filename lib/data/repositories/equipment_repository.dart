@@ -450,6 +450,12 @@ class EquipmentRepository {
     )..where((row) => row.methodId.equals(id))).getSingleOrNull();
     return [
       if (brew != null) EquipmentDeletionBlocker.brews,
+      if (await (database.select(database.equipmentPresets)
+                ..where((p) => p.methodId.equals(id))
+                ..limit(1))
+              .getSingleOrNull() !=
+          null)
+        EquipmentDeletionBlocker.presets,
       if (toolLink != null || legacyTool != null)
         EquipmentDeletionBlocker.tools,
       if (machineLink != null) EquipmentDeletionBlocker.machine,
@@ -487,6 +493,12 @@ class EquipmentRepository {
     }
     return [
       if (brew != null) EquipmentDeletionBlocker.brews,
+      if (await (database.select(database.equipmentPresets)
+                ..where((p) => p.waterProfileId.equals(id))
+                ..limit(1))
+              .getSingleOrNull() !=
+          null)
+        EquipmentDeletionBlocker.presets,
       if (usedInCupping) EquipmentDeletionBlocker.cupping,
     ];
   }
