@@ -148,7 +148,19 @@ class _CompactBeanCard extends StatelessWidget {
               '${s.frozen} ${formatGrams(stock.frozenGrams, regionalLocale.toString())}',
         ),
       if (age != null)
-        TextSpan(text: '🔥 $age d', semanticsLabel: s.roastedDaysAgo(age)),
+        TextSpan(
+          children: [
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Icon(
+                Icons.local_fire_department_outlined,
+                size: 17,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            TextSpan(text: ' $age d', semanticsLabel: s.roastedDaysAgo(age)),
+          ],
+        ),
       if (coffee.archivedAtMs case final ms?)
         TextSpan(
           text: s.archivedOn(
