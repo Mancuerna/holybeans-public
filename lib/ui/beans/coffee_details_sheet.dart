@@ -11,6 +11,7 @@ import 'package:holybeans/domain/coffee_countries.dart';
 import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
+import 'package:holybeans/ui/beans/blend_composition.dart';
 import 'package:holybeans/ui/beans/coffee_details_header.dart';
 import 'package:holybeans/ui/beans/freezer_widgets.dart';
 import 'package:holybeans/ui/beans/live_freshness_section.dart';
@@ -134,6 +135,12 @@ class _CoffeeDetailsSheetState extends State<CoffeeDetailsSheet> {
                     brewCount: data.brewCount(coffee.id),
                   ),
                 ),
+                if (coffee.mixedAtMs != null)
+                  BlendComposition(
+                    coffee: coffee,
+                    actions: actions,
+                    data: data,
+                  ),
                 StockAdjustmentSection(
                   repository: actions.commands.stockEdits,
                   coffee: coffee,

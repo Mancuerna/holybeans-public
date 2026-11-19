@@ -1,4 +1,13 @@
 {
+  "createBlend": "Create blend",
+  "bagEnds": "Bag ends",
+  "blendUseAll": "Use all remaining",
+  "blendSelectSources": "Select at least two coffees with available stock.",
+  "blendMixedOn": "Mixed on",
+  "blendTransfer": "Blend transfer",
+  "blendArchivePrompt": "The blend is saved. Archive the finished coffees and their brews?",
+  "blendArchiveSelected": "Archive selected",
+  "blendUnknownRoast": "Unknown roast date",
   "historyLastSevenDays": "Last 7 days",
   "historyThisMonth": "This month",
   "@@locale": "en",

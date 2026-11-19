@@ -1,4 +1,13 @@
 {
+  "createBlend": "Crear mezcla",
+  "bagEnds": "Fin de bolsas",
+  "blendUseAll": "Usar todo lo que queda",
+  "blendSelectSources": "Selecciona al menos dos cafés con existencias disponibles.",
+  "blendMixedOn": "Mezclado el",
+  "blendTransfer": "Traslado a mezcla",
+  "blendArchivePrompt": "La mezcla está guardada. ¿Archivar los cafés agotados y sus preparaciones?",
+  "blendArchiveSelected": "Archivar seleccionados",
+  "blendUnknownRoast": "Tueste desconocido",
   "historyLastSevenDays": "Últimos 7 días",
   "historyThisMonth": "Este mes",
   "@@locale": "es",

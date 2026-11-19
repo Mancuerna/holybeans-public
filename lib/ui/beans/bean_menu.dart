@@ -13,12 +13,12 @@ class BeanMenu extends StatelessWidget {
   const BeanMenu({
     super.key,
     required this.coffee,
-    required this.hasBrews,
+    required this.canDelete,
     required this.actions,
   });
 
   final Coffee coffee;
-  final bool hasBrews;
+  final bool canDelete;
   final JournalActions actions;
 
   @override
@@ -45,7 +45,7 @@ class BeanMenu extends StatelessWidget {
             coffee.archivedAtMs == null ? s.archiveBean : s.unarchiveBean,
           ),
         ),
-        if (!hasBrews)
+        if (canDelete)
           PopupMenuItem(value: 'delete', child: Text(s.deleteBean)),
       ],
       onSelected: (value) async {

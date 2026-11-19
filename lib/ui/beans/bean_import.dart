@@ -10,6 +10,7 @@ import 'package:holybeans/data/repositories/bean_exchange.dart';
 import 'package:holybeans/data/services/incoming_shares.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/beans/bean_add_button.dart';
+import 'package:holybeans/ui/beans/blend_form.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
 import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
@@ -195,6 +196,12 @@ List<BeanAddAction> beanImportActions(
   }
 
   return [
+    BeanAddAction(
+      id: 'create-blend',
+      icon: Icons.blender_outlined,
+      label: s.createBlend,
+      run: () => openBlendForm(context, actions, coffees),
+    ),
     if (searchLoffee != null)
       BeanAddAction(
         id: 'import-loffee',

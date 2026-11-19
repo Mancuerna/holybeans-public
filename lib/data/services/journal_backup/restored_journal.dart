@@ -453,50 +453,6 @@ class _RestoredJournal {
     }
   }
 
-  void _checkAdjustments() {
-    _ensureUnique(adjustments.map((r) => r.id), 'stock adjustments');
-    final groups = <String, StockAdjustment>{};
-    for (final row in adjustments) {
-      final lot = _lotsById[row.lotId];
-      final portion = frozenPortions
-          .where((p) => p.id == row.frozenPortionId)
-          .firstOrNull;
-      final previous = row.previousGrams;
-      if (row.id.isEmpty ||
-          row.operationId.isEmpty ||
-          lot == null ||
-          lot.coffeeId != row.coffeeId ||
-          (row.frozenPortionId != null &&
-              (portion == null || portion.lotId != row.lotId)) ||
-          !{'gift', 'waste', 'correction'}.contains(row.reason) ||
-          !row.resultingGrams.isFinite ||
-          (previous != null && !previous.isFinite) ||
-          (row.reason != 'correction' &&
-              (previous == null || row.resultingGrams >= previous)) ||
-          (row.frozenPortionId != null &&
-              (previous == null || previous < 0 || row.resultingGrams < 0)) ||
-          (row.notes?.length ?? 0) > 500 ||
-          row.createdAtMs < 0 ||
-          (row.reversedAtMs != null && row.reversedAtMs! < row.createdAtMs)) {
-        throw const FormatException('Invalid stock adjustment');
-      }
-      final first = groups.putIfAbsent(row.operationId, () => row);
-      if (first.coffeeId != row.coffeeId ||
-          first.reason != row.reason ||
-          first.notes != row.notes ||
-          first.createdAtMs != row.createdAtMs ||
-          first.reversedAtMs != row.reversedAtMs) {
-        throw const FormatException('Inconsistent stock adjustment operation');
-      }
-    }
-    _ensureUnique(
-      adjustments.map(
-        (r) => '${r.operationId}:${r.lotId}:${r.frozenPortionId}',
-      ),
-      'stock adjustment allocations',
-    );
-  }
-
   void _checkTools() {
     for (final tool in methodTools) {
       if (tool.methodId != null && !_methodsById.containsKey(tool.methodId)) {

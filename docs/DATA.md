@@ -1,8 +1,8 @@
 # Data and compatibility
 
 HolyBeans stores its journal in SQLite through Drift. Photos are stored as files
-and included in exported ZIP backups. The current database schema is **40** and
-the current backup format is **38**. Historical database migrations from schema
+and included in exported ZIP backups. The current database schema is **41** and
+the current backup format is **39**. Historical database migrations from schema
 19 and backup readers from version 5 must remain compatible.
 
 `lib/data/database/` defines tables and migrations. `drift_schemas/` contains
@@ -14,6 +14,11 @@ relationships between coffees, brews, inventory and related records.
 collections, validation and restoration. Restoring a backup replaces the local
 journal after confirmation; importing BeanConqueror is a separate flow that adds
 records and avoids duplicate imports.
+
+Bag-end blends have their own coffee and lot. Each source stock adjustment
+records the destination lot and a snapshot of the source roast date. The
+adjustment delta is the contribution in grams. Transferring stock and creating
+the blend happen in one transaction. The optional source archive follows it.
 
 Drive holds independent backups with manual restoration. It does not merge
 journals or provide live synchronization between devices.

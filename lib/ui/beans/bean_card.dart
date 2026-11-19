@@ -75,6 +75,12 @@ class _BeanFacts {
   final CoffeeStock stock;
   final int brewCount;
 
+  bool get canDelete =>
+      brewCount == 0 &&
+      coffee.mixedAtMs == null &&
+      !stock.adjustments.any(
+        (row) => row.coffeeId == coffee.id && row.blendLotId != null,
+      );
   String get flags => components
       .map((component) => coffeeCountryFor(component.country)?.flag)
       .whereType<String>()
@@ -239,7 +245,7 @@ class _CompactBeanCard extends StatelessWidget {
           ),
           trailing: BeanMenu(
             coffee: coffee,
-            hasBrews: facts.brewCount > 0,
+            canDelete: facts.canDelete,
             actions: actions,
           ),
           onTap: () => actions.navigation.showCoffeeDetails(coffee, data),
@@ -429,11 +435,7 @@ class _Heading extends StatelessWidget {
           const SizedBox(width: 8),
           _CoffeeRating(rating),
         ],
-        BeanMenu(
-          coffee: coffee,
-          hasBrews: facts.brewCount > 0,
-          actions: actions,
-        ),
+        BeanMenu(coffee: coffee, canDelete: facts.canDelete, actions: actions),
       ],
     );
   }
