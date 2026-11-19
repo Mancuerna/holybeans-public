@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.15.1](https://github.com/Mancuerna/holybeans-public/compare/v1.15.0...v1.15.1) (2026-11-19)
+
+
+### Bug Fixes
+
+* align frozen stock with coffee weights and selector details ([#166](https://github.com/Mancuerna/holybeans-public/issues/166)) ([9d8cae3](https://github.com/Mancuerna/holybeans-public/commit/9d8cae36b7895ea689b896da747df107a9bdf631))
+* distinguish expanded coffees in roaster groups ([#164](https://github.com/Mancuerna/holybeans-public/issues/164)) ([f2a8487](https://github.com/Mancuerna/holybeans-public/commit/f2a848716d7906f2dad30502d4cd81b861b95f63))
+* require stable espresso weight before stopping the timer ([#167](https://github.com/Mancuerna/holybeans-public/issues/167)) ([f307d2b](https://github.com/Mancuerna/holybeans-public/commit/f307d2b07f208985b461bdc6adf818c58e227754))
+* restart espresso settling after rejected scale readings ([#168](https://github.com/Mancuerna/holybeans-public/issues/168)) ([71c79e5](https://github.com/Mancuerna/holybeans-public/commit/71c79e5310608f6c302b9750b87169731c56581c))
+
 ## [1.15.0](https://github.com/Mancuerna/holybeans-public/compare/v1.14.0...v1.15.0) (2026-11-18)
 
 
