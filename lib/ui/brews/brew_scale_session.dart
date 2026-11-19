@@ -280,7 +280,12 @@ class BrewScaleSession extends ChangeNotifier {
       }
     }
     if (wasRecording) _followScaleTimer(reading);
-    if (!recording || !isEspresso() || measured == null) return;
+    if (!recording || !isEspresso()) return;
+    if (measured == null) {
+      // A rejected load interrupts the evidence for a stable final weight.
+      _shotEnd?.reset();
+      return;
+    }
     final elapsedMs = _watch.elapsedMilliseconds;
     if (_espressoDrip?.add(elapsedMs, measured.grams) case final dripMs?) {
       _espressoDrip = null;

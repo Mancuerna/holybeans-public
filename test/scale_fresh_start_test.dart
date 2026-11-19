@@ -62,6 +62,55 @@ void main() {
     expect(session.recording, isTrue);
   }
 
+  test('rejected Pearl readings interrupt espresso end detection', () async {
+    session.doseGrams = () => 18;
+    await start(false);
+    // The Pearl kept transmitting while the espresso guard rejected load spikes.
+    for (final (ms, grams) in [
+      (31972, 0.0),
+      (32062, 0.0),
+      (32177, 0.3),
+      (32287, 5.4),
+      (32401, 173.5),
+      (32492, 187.1),
+      (32588, 189.9),
+      (32703, 209.0),
+      (32815, 240.0),
+      (32927, 266.8),
+      (33061, 281.1),
+      (33171, 287.8),
+      (33265, 289.3),
+      (33377, 286.6),
+      (33470, 288.2),
+      (33584, 283.7),
+      (33696, 194.5),
+      (33824, 34.1),
+      (33921, 0.9),
+      (34034, 0.0),
+      (34146, 22.7),
+      (34259, 126.5),
+      (34372, 212.7),
+      (34485, 234.0),
+      (34577, 226.4),
+      (34689, 220.8),
+      (34802, 227.4),
+      (34916, 240.5),
+      (35007, 231.4),
+      (35121, 135.8),
+      (35233, 18.6),
+    ]) {
+      emit(ms, grams);
+      expect(session.recording, isTrue, reason: 'stopped at $ms ms');
+    }
+    expect(session.curve!.weight.last, 18.6);
+    for (var ms = 35333; ms < 36233; ms += 100) {
+      emit(ms, 18.6);
+      expect(session.recording, isTrue);
+    }
+    emit(36233, 18.6);
+    expect(session.recording, isFalse);
+  });
+
   for (final physical in [false, true]) {
     for (final espresso in [false, true]) {
       test(
