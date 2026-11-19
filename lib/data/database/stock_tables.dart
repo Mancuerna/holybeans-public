@@ -1,6 +1,9 @@
 part of 'app_database.dart';
 
 class StockAdjustments extends Table {
+  @ReferenceName('incomingBlendContributions')
+  TextColumn get blendLotId => text().nullable().references(CoffeeLots, #id)();
+  TextColumn get sourceRoastDate => text().nullable()();
   TextColumn get id => text()();
   TextColumn get operationId => text()();
   TextColumn get coffeeId =>

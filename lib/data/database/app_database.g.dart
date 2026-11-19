@@ -2772,6 +2772,17 @@ class $CoffeesTable extends Coffees with TableInfo<$CoffeesTable, Coffee> {
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $CoffeesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _mixedAtMsMeta = const VerificationMeta(
+    'mixedAtMs',
+  );
+  @override
+  late final GeneratedColumn<int> mixedAtMs = GeneratedColumn<int>(
+    'mixed_at_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -2944,6 +2955,7 @@ class $CoffeesTable extends Coffees with TableInfo<$CoffeesTable, Coffee> {
   );
   @override
   List<GeneratedColumn> get $columns => [
+    mixedAtMs,
     id,
     name,
     roaster,
@@ -2972,6 +2984,12 @@ class $CoffeesTable extends Coffees with TableInfo<$CoffeesTable, Coffee> {
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('mixed_at_ms')) {
+      context.handle(
+        _mixedAtMsMeta,
+        mixedAtMs.isAcceptableOrUnknown(data['mixed_at_ms']!, _mixedAtMsMeta),
+      );
+    }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
@@ -3093,6 +3111,10 @@ class $CoffeesTable extends Coffees with TableInfo<$CoffeesTable, Coffee> {
   Coffee map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Coffee(
+      mixedAtMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}mixed_at_ms'],
+      ),
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -3163,6 +3185,7 @@ class $CoffeesTable extends Coffees with TableInfo<$CoffeesTable, Coffee> {
 }
 
 class Coffee extends DataClass implements Insertable<Coffee> {
+  final int? mixedAtMs;
   final String id;
   final String name;
   final String roaster;
@@ -3185,6 +3208,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   final int updatedAtMs;
   final int? archivedAtMs;
   const Coffee({
+    this.mixedAtMs,
     required this.id,
     required this.name,
     required this.roaster,
@@ -3204,6 +3228,9 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || mixedAtMs != null) {
+      map['mixed_at_ms'] = Variable<int>(mixedAtMs);
+    }
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
     map['roaster'] = Variable<String>(roaster);
@@ -3240,6 +3267,9 @@ class Coffee extends DataClass implements Insertable<Coffee> {
 
   CoffeesCompanion toCompanion(bool nullToAbsent) {
     return CoffeesCompanion(
+      mixedAtMs: mixedAtMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mixedAtMs),
       id: Value(id),
       name: Value(name),
       roaster: Value(roaster),
@@ -3280,6 +3310,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Coffee(
+      mixedAtMs: serializer.fromJson<int?>(json['mixedAtMs']),
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       roaster: serializer.fromJson<String>(json['roaster']),
@@ -3301,6 +3332,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'mixedAtMs': serializer.toJson<int?>(mixedAtMs),
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
       'roaster': serializer.toJson<String>(roaster),
@@ -3320,6 +3352,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   }
 
   Coffee copyWith({
+    Value<int?> mixedAtMs = const Value.absent(),
     String? id,
     String? name,
     String? roaster,
@@ -3336,6 +3369,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
     int? updatedAtMs,
     Value<int?> archivedAtMs = const Value.absent(),
   }) => Coffee(
+    mixedAtMs: mixedAtMs.present ? mixedAtMs.value : this.mixedAtMs,
     id: id ?? this.id,
     name: name ?? this.name,
     roaster: roaster ?? this.roaster,
@@ -3358,6 +3392,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   );
   Coffee copyWithCompanion(CoffeesCompanion data) {
     return Coffee(
+      mixedAtMs: data.mixedAtMs.present ? data.mixedAtMs.value : this.mixedAtMs,
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       roaster: data.roaster.present ? data.roaster.value : this.roaster,
@@ -3393,6 +3428,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   @override
   String toString() {
     return (StringBuffer('Coffee(')
+          ..write('mixedAtMs: $mixedAtMs, ')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('roaster: $roaster, ')
@@ -3414,6 +3450,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
 
   @override
   int get hashCode => Object.hash(
+    mixedAtMs,
     id,
     name,
     roaster,
@@ -3434,6 +3471,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Coffee &&
+          other.mixedAtMs == this.mixedAtMs &&
           other.id == this.id &&
           other.name == this.name &&
           other.roaster == this.roaster &&
@@ -3452,6 +3490,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
 }
 
 class CoffeesCompanion extends UpdateCompanion<Coffee> {
+  final Value<int?> mixedAtMs;
   final Value<String> id;
   final Value<String> name;
   final Value<String> roaster;
@@ -3469,6 +3508,7 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
   final Value<int?> archivedAtMs;
   final Value<int> rowid;
   const CoffeesCompanion({
+    this.mixedAtMs = const Value.absent(),
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.roaster = const Value.absent(),
@@ -3487,6 +3527,7 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
     this.rowid = const Value.absent(),
   });
   CoffeesCompanion.insert({
+    this.mixedAtMs = const Value.absent(),
     required String id,
     required String name,
     required String roaster,
@@ -3509,6 +3550,7 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
        createdAtMs = Value(createdAtMs),
        updatedAtMs = Value(updatedAtMs);
   static Insertable<Coffee> custom({
+    Expression<int>? mixedAtMs,
     Expression<String>? id,
     Expression<String>? name,
     Expression<String>? roaster,
@@ -3527,6 +3569,7 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (mixedAtMs != null) 'mixed_at_ms': mixedAtMs,
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (roaster != null) 'roaster': roaster,
@@ -3547,6 +3590,7 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
   }
 
   CoffeesCompanion copyWith({
+    Value<int?>? mixedAtMs,
     Value<String>? id,
     Value<String>? name,
     Value<String>? roaster,
@@ -3565,6 +3609,7 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
     Value<int>? rowid,
   }) {
     return CoffeesCompanion(
+      mixedAtMs: mixedAtMs ?? this.mixedAtMs,
       id: id ?? this.id,
       name: name ?? this.name,
       roaster: roaster ?? this.roaster,
@@ -3587,6 +3632,9 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (mixedAtMs.present) {
+      map['mixed_at_ms'] = Variable<int>(mixedAtMs.value);
+    }
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
@@ -3641,6 +3689,7 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
   @override
   String toString() {
     return (StringBuffer('CoffeesCompanion(')
+          ..write('mixedAtMs: $mixedAtMs, ')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('roaster: $roaster, ')
@@ -16324,6 +16373,31 @@ class $StockAdjustmentsTable extends StockAdjustments
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $StockAdjustmentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _blendLotIdMeta = const VerificationMeta(
+    'blendLotId',
+  );
+  @override
+  late final GeneratedColumn<String> blendLotId = GeneratedColumn<String>(
+    'blend_lot_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES coffee_lots (id)',
+    ),
+  );
+  static const VerificationMeta _sourceRoastDateMeta = const VerificationMeta(
+    'sourceRoastDate',
+  );
+  @override
+  late final GeneratedColumn<String> sourceRoastDate = GeneratedColumn<String>(
+    'source_roast_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -16448,6 +16522,8 @@ class $StockAdjustmentsTable extends StockAdjustments
   );
   @override
   List<GeneratedColumn> get $columns => [
+    blendLotId,
+    sourceRoastDate,
     id,
     operationId,
     coffeeId,
@@ -16472,6 +16548,24 @@ class $StockAdjustmentsTable extends StockAdjustments
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('blend_lot_id')) {
+      context.handle(
+        _blendLotIdMeta,
+        blendLotId.isAcceptableOrUnknown(
+          data['blend_lot_id']!,
+          _blendLotIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('source_roast_date')) {
+      context.handle(
+        _sourceRoastDateMeta,
+        sourceRoastDate.isAcceptableOrUnknown(
+          data['source_roast_date']!,
+          _sourceRoastDateMeta,
+        ),
+      );
+    }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
@@ -16576,6 +16670,14 @@ class $StockAdjustmentsTable extends StockAdjustments
   StockAdjustment map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return StockAdjustment(
+      blendLotId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}blend_lot_id'],
+      ),
+      sourceRoastDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_roast_date'],
+      ),
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -16630,6 +16732,8 @@ class $StockAdjustmentsTable extends StockAdjustments
 }
 
 class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
+  final String? blendLotId;
+  final String? sourceRoastDate;
   final String id;
   final String operationId;
   final String coffeeId;
@@ -16642,6 +16746,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   final int createdAtMs;
   final int? reversedAtMs;
   const StockAdjustment({
+    this.blendLotId,
+    this.sourceRoastDate,
     required this.id,
     required this.operationId,
     required this.coffeeId,
@@ -16657,6 +16763,12 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || blendLotId != null) {
+      map['blend_lot_id'] = Variable<String>(blendLotId);
+    }
+    if (!nullToAbsent || sourceRoastDate != null) {
+      map['source_roast_date'] = Variable<String>(sourceRoastDate);
+    }
     map['id'] = Variable<String>(id);
     map['operation_id'] = Variable<String>(operationId);
     map['coffee_id'] = Variable<String>(coffeeId);
@@ -16681,6 +16793,12 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
 
   StockAdjustmentsCompanion toCompanion(bool nullToAbsent) {
     return StockAdjustmentsCompanion(
+      blendLotId: blendLotId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(blendLotId),
+      sourceRoastDate: sourceRoastDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceRoastDate),
       id: Value(id),
       operationId: Value(operationId),
       coffeeId: Value(coffeeId),
@@ -16709,6 +16827,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return StockAdjustment(
+      blendLotId: serializer.fromJson<String?>(json['blendLotId']),
+      sourceRoastDate: serializer.fromJson<String?>(json['sourceRoastDate']),
       id: serializer.fromJson<String>(json['id']),
       operationId: serializer.fromJson<String>(json['operationId']),
       coffeeId: serializer.fromJson<String>(json['coffeeId']),
@@ -16726,6 +16846,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'blendLotId': serializer.toJson<String?>(blendLotId),
+      'sourceRoastDate': serializer.toJson<String?>(sourceRoastDate),
       'id': serializer.toJson<String>(id),
       'operationId': serializer.toJson<String>(operationId),
       'coffeeId': serializer.toJson<String>(coffeeId),
@@ -16741,6 +16863,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   }
 
   StockAdjustment copyWith({
+    Value<String?> blendLotId = const Value.absent(),
+    Value<String?> sourceRoastDate = const Value.absent(),
     String? id,
     String? operationId,
     String? coffeeId,
@@ -16753,6 +16877,10 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
     int? createdAtMs,
     Value<int?> reversedAtMs = const Value.absent(),
   }) => StockAdjustment(
+    blendLotId: blendLotId.present ? blendLotId.value : this.blendLotId,
+    sourceRoastDate: sourceRoastDate.present
+        ? sourceRoastDate.value
+        : this.sourceRoastDate,
     id: id ?? this.id,
     operationId: operationId ?? this.operationId,
     coffeeId: coffeeId ?? this.coffeeId,
@@ -16771,6 +16899,12 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   );
   StockAdjustment copyWithCompanion(StockAdjustmentsCompanion data) {
     return StockAdjustment(
+      blendLotId: data.blendLotId.present
+          ? data.blendLotId.value
+          : this.blendLotId,
+      sourceRoastDate: data.sourceRoastDate.present
+          ? data.sourceRoastDate.value
+          : this.sourceRoastDate,
       id: data.id.present ? data.id.value : this.id,
       operationId: data.operationId.present
           ? data.operationId.value
@@ -16800,6 +16934,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   @override
   String toString() {
     return (StringBuffer('StockAdjustment(')
+          ..write('blendLotId: $blendLotId, ')
+          ..write('sourceRoastDate: $sourceRoastDate, ')
           ..write('id: $id, ')
           ..write('operationId: $operationId, ')
           ..write('coffeeId: $coffeeId, ')
@@ -16817,6 +16953,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
 
   @override
   int get hashCode => Object.hash(
+    blendLotId,
+    sourceRoastDate,
     id,
     operationId,
     coffeeId,
@@ -16833,6 +16971,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is StockAdjustment &&
+          other.blendLotId == this.blendLotId &&
+          other.sourceRoastDate == this.sourceRoastDate &&
           other.id == this.id &&
           other.operationId == this.operationId &&
           other.coffeeId == this.coffeeId &&
@@ -16847,6 +16987,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
 }
 
 class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
+  final Value<String?> blendLotId;
+  final Value<String?> sourceRoastDate;
   final Value<String> id;
   final Value<String> operationId;
   final Value<String> coffeeId;
@@ -16860,6 +17002,8 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
   final Value<int?> reversedAtMs;
   final Value<int> rowid;
   const StockAdjustmentsCompanion({
+    this.blendLotId = const Value.absent(),
+    this.sourceRoastDate = const Value.absent(),
     this.id = const Value.absent(),
     this.operationId = const Value.absent(),
     this.coffeeId = const Value.absent(),
@@ -16874,6 +17018,8 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
     this.rowid = const Value.absent(),
   });
   StockAdjustmentsCompanion.insert({
+    this.blendLotId = const Value.absent(),
+    this.sourceRoastDate = const Value.absent(),
     required String id,
     required String operationId,
     required String coffeeId,
@@ -16894,6 +17040,8 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
        resultingGrams = Value(resultingGrams),
        createdAtMs = Value(createdAtMs);
   static Insertable<StockAdjustment> custom({
+    Expression<String>? blendLotId,
+    Expression<String>? sourceRoastDate,
     Expression<String>? id,
     Expression<String>? operationId,
     Expression<String>? coffeeId,
@@ -16908,6 +17056,8 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (blendLotId != null) 'blend_lot_id': blendLotId,
+      if (sourceRoastDate != null) 'source_roast_date': sourceRoastDate,
       if (id != null) 'id': id,
       if (operationId != null) 'operation_id': operationId,
       if (coffeeId != null) 'coffee_id': coffeeId,
@@ -16924,6 +17074,8 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
   }
 
   StockAdjustmentsCompanion copyWith({
+    Value<String?>? blendLotId,
+    Value<String?>? sourceRoastDate,
     Value<String>? id,
     Value<String>? operationId,
     Value<String>? coffeeId,
@@ -16938,6 +17090,8 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
     Value<int>? rowid,
   }) {
     return StockAdjustmentsCompanion(
+      blendLotId: blendLotId ?? this.blendLotId,
+      sourceRoastDate: sourceRoastDate ?? this.sourceRoastDate,
       id: id ?? this.id,
       operationId: operationId ?? this.operationId,
       coffeeId: coffeeId ?? this.coffeeId,
@@ -16956,6 +17110,12 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (blendLotId.present) {
+      map['blend_lot_id'] = Variable<String>(blendLotId.value);
+    }
+    if (sourceRoastDate.present) {
+      map['source_roast_date'] = Variable<String>(sourceRoastDate.value);
+    }
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
@@ -16998,6 +17158,8 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
   @override
   String toString() {
     return (StringBuffer('StockAdjustmentsCompanion(')
+          ..write('blendLotId: $blendLotId, ')
+          ..write('sourceRoastDate: $sourceRoastDate, ')
           ..write('id: $id, ')
           ..write('operationId: $operationId, ')
           ..write('coffeeId: $coffeeId, ')
@@ -21307,6 +21469,7 @@ typedef $$RoastersTableProcessedTableManager =
       PrefetchHooks Function({bool coffeeRoasterLinksRefs, bool cafeDrinksRefs})
     >;
 typedef $$CoffeesTableCreateCompanionBuilder = CoffeesCompanion Function({
+  Value<int?> mixedAtMs,
   required String id,
   required String name,
   required String roaster,
@@ -21325,6 +21488,7 @@ typedef $$CoffeesTableCreateCompanionBuilder = CoffeesCompanion Function({
   Value<int> rowid,
 });
 typedef $$CoffeesTableUpdateCompanionBuilder = CoffeesCompanion Function({
+  Value<int?> mixedAtMs,
   Value<String> id,
   Value<String> name,
   Value<String> roaster,
@@ -21473,6 +21637,11 @@ class $$CoffeesTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<int> get mixedAtMs => $composableBuilder(
+    column: $table.mixedAtMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnFilters(column),
@@ -21708,6 +21877,11 @@ class $$CoffeesTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<int> get mixedAtMs => $composableBuilder(
+    column: $table.mixedAtMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnOrderings(column),
@@ -21793,6 +21967,9 @@ class $$CoffeesTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<int> get mixedAtMs =>
+      $composableBuilder(column: $table.mixedAtMs, builder: (column) => column);
+
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
@@ -22039,6 +22216,7 @@ class $$CoffeesTableTableManager
               $$CoffeesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
+                Value<int?> mixedAtMs = const Value.absent(),
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String> roaster = const Value.absent(),
@@ -22056,6 +22234,7 @@ class $$CoffeesTableTableManager
                 Value<int?> archivedAtMs = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CoffeesCompanion(
+                mixedAtMs: mixedAtMs,
                 id: id,
                 name: name,
                 roaster: roaster,
@@ -22075,6 +22254,7 @@ class $$CoffeesTableTableManager
               ),
           createCompanionCallback:
               ({
+                Value<int?> mixedAtMs = const Value.absent(),
                 required String id,
                 required String name,
                 required String roaster,
@@ -22092,6 +22272,7 @@ class $$CoffeesTableTableManager
                 Value<int?> archivedAtMs = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CoffeesCompanion.insert(
+                mixedAtMs: mixedAtMs,
                 id: id,
                 name: name,
                 roaster: roaster,
@@ -24589,6 +24770,27 @@ final class $$CoffeeLotsTableReferences
   }
 
   static MultiTypedResultKey<$StockAdjustmentsTable, List<StockAdjustment>>
+  _incomingBlendContributionsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.stockAdjustments,
+        aliasName: 'coffee_lots__id__stock_adjustments__blend_lot_id',
+      );
+
+  $$StockAdjustmentsTableProcessedTableManager get incomingBlendContributions {
+    final manager = $$StockAdjustmentsTableTableManager(
+      $_db,
+      $_db.stockAdjustments,
+    ).filter((f) => f.blendLotId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _incomingBlendContributionsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$StockAdjustmentsTable, List<StockAdjustment>>
   _stockAdjustmentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.stockAdjustments,
     aliasName: 'coffee_lots__id__stock_adjustments__lot_id',
@@ -24737,6 +24939,31 @@ class $$CoffeeLotsTableFilterComposer
           }) => $$BrewsTableFilterComposer(
             $db: $db,
             $table: $db.brews,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> incomingBlendContributions(
+    Expression<bool> Function($$StockAdjustmentsTableFilterComposer f) f,
+  ) {
+    final $$StockAdjustmentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.stockAdjustments,
+      getReferencedColumn: (t) => t.blendLotId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StockAdjustmentsTableFilterComposer(
+            $db: $db,
+            $table: $db.stockAdjustments,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -24993,6 +25220,31 @@ class $$CoffeeLotsTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> incomingBlendContributions<T extends Object>(
+    Expression<T> Function($$StockAdjustmentsTableAnnotationComposer a) f,
+  ) {
+    final $$StockAdjustmentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.stockAdjustments,
+      getReferencedColumn: (t) => t.blendLotId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StockAdjustmentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.stockAdjustments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> stockAdjustmentsRefs<T extends Object>(
     Expression<T> Function($$StockAdjustmentsTableAnnotationComposer a) f,
   ) {
@@ -25036,6 +25288,7 @@ class $$CoffeeLotsTableTableManager
             bool coffeeId,
             bool frozenPortionsRefs,
             bool brewsRefs,
+            bool incomingBlendContributions,
             bool stockAdjustmentsRefs,
           })
         > {
@@ -25123,6 +25376,7 @@ class $$CoffeeLotsTableTableManager
                 coffeeId = false,
                 frozenPortionsRefs = false,
                 brewsRefs = false,
+                incomingBlendContributions = false,
                 stockAdjustmentsRefs = false,
               }) {
                 return PrefetchHooks(
@@ -25130,6 +25384,7 @@ class $$CoffeeLotsTableTableManager
                   explicitlyWatchedTables: [
                     if (frozenPortionsRefs) db.frozenPortions,
                     if (brewsRefs) db.brews,
+                    if (incomingBlendContributions) db.stockAdjustments,
                     if (stockAdjustmentsRefs) db.stockAdjustments,
                   ],
                   addJoins:
@@ -25206,6 +25461,27 @@ class $$CoffeeLotsTableTableManager
                           ) => referencedItems.where((e) => e.lotId == item.id),
                           typedResults: items,
                         ),
+                      if (incomingBlendContributions)
+                        await $_getPrefetchedData<
+                          CoffeeLot,
+                          $CoffeeLotsTable,
+                          StockAdjustment
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CoffeeLotsTableReferences
+                              ._incomingBlendContributionsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CoffeeLotsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).incomingBlendContributions,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.blendLotId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (stockAdjustmentsRefs)
                         await $_getPrefetchedData<
                           CoffeeLot,
@@ -25251,6 +25527,7 @@ typedef $$CoffeeLotsTableProcessedTableManager =
         bool coffeeId,
         bool frozenPortionsRefs,
         bool brewsRefs,
+        bool incomingBlendContributions,
         bool stockAdjustmentsRefs,
       })
     >;
@@ -33730,6 +34007,8 @@ typedef $$ExtractionProfilesTableProcessedTableManager =
     >;
 typedef $$StockAdjustmentsTableCreateCompanionBuilder =
     StockAdjustmentsCompanion Function({
+      Value<String?> blendLotId,
+      Value<String?> sourceRoastDate,
       required String id,
       required String operationId,
       required String coffeeId,
@@ -33745,6 +34024,8 @@ typedef $$StockAdjustmentsTableCreateCompanionBuilder =
     });
 typedef $$StockAdjustmentsTableUpdateCompanionBuilder =
     StockAdjustmentsCompanion Function({
+      Value<String?> blendLotId,
+      Value<String?> sourceRoastDate,
       Value<String> id,
       Value<String> operationId,
       Value<String> coffeeId,
@@ -33767,6 +34048,23 @@ final class $$StockAdjustmentsTableReferences
     super.$_table,
     super.$_typedResult,
   );
+
+  static $CoffeeLotsTable _blendLotIdTable(_$AppDatabase db) => db.coffeeLots
+      .createAlias('stock_adjustments__blend_lot_id__coffee_lots__id');
+
+  $$CoffeeLotsTableProcessedTableManager? get blendLotId {
+    final $_column = $_itemColumn<String>('blend_lot_id');
+    if ($_column == null) return null;
+    final manager = $$CoffeeLotsTableTableManager(
+      $_db,
+      $_db.coffeeLots,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_blendLotIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 
   static $CoffeesTable _coffeeIdTable(_$AppDatabase db) =>
       db.coffees.createAlias('stock_adjustments__coffee_id__coffees__id');
@@ -33830,6 +34128,11 @@ class $$StockAdjustmentsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<String> get sourceRoastDate => $composableBuilder(
+    column: $table.sourceRoastDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnFilters(column),
@@ -33869,6 +34172,29 @@ class $$StockAdjustmentsTableFilterComposer
     column: $table.reversedAtMs,
     builder: (column) => ColumnFilters(column),
   );
+
+  $$CoffeeLotsTableFilterComposer get blendLotId {
+    final $$CoffeeLotsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.blendLotId,
+      referencedTable: $db.coffeeLots,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CoffeeLotsTableFilterComposer(
+            $db: $db,
+            $table: $db.coffeeLots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   $$CoffeesTableFilterComposer get coffeeId {
     final $$CoffeesTableFilterComposer composer = $composerBuilder(
@@ -33949,6 +34275,11 @@ class $$StockAdjustmentsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<String> get sourceRoastDate => $composableBuilder(
+    column: $table.sourceRoastDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnOrderings(column),
@@ -33988,6 +34319,29 @@ class $$StockAdjustmentsTableOrderingComposer
     column: $table.reversedAtMs,
     builder: (column) => ColumnOrderings(column),
   );
+
+  $$CoffeeLotsTableOrderingComposer get blendLotId {
+    final $$CoffeeLotsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.blendLotId,
+      referencedTable: $db.coffeeLots,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CoffeeLotsTableOrderingComposer(
+            $db: $db,
+            $table: $db.coffeeLots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   $$CoffeesTableOrderingComposer get coffeeId {
     final $$CoffeesTableOrderingComposer composer = $composerBuilder(
@@ -34068,6 +34422,11 @@ class $$StockAdjustmentsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<String> get sourceRoastDate => $composableBuilder(
+    column: $table.sourceRoastDate,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
@@ -34101,6 +34460,29 @@ class $$StockAdjustmentsTableAnnotationComposer
     column: $table.reversedAtMs,
     builder: (column) => column,
   );
+
+  $$CoffeeLotsTableAnnotationComposer get blendLotId {
+    final $$CoffeeLotsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.blendLotId,
+      referencedTable: $db.coffeeLots,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CoffeeLotsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.coffeeLots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   $$CoffeesTableAnnotationComposer get coffeeId {
     final $$CoffeesTableAnnotationComposer composer = $composerBuilder(
@@ -34186,6 +34568,7 @@ class $$StockAdjustmentsTableTableManager
           (StockAdjustment, $$StockAdjustmentsTableReferences),
           StockAdjustment,
           PrefetchHooks Function({
+            bool blendLotId,
             bool coffeeId,
             bool lotId,
             bool frozenPortionId,
@@ -34206,6 +34589,8 @@ class $$StockAdjustmentsTableTableManager
               $$StockAdjustmentsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
+                Value<String?> blendLotId = const Value.absent(),
+                Value<String?> sourceRoastDate = const Value.absent(),
                 Value<String> id = const Value.absent(),
                 Value<String> operationId = const Value.absent(),
                 Value<String> coffeeId = const Value.absent(),
@@ -34219,6 +34604,8 @@ class $$StockAdjustmentsTableTableManager
                 Value<int?> reversedAtMs = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StockAdjustmentsCompanion(
+                blendLotId: blendLotId,
+                sourceRoastDate: sourceRoastDate,
                 id: id,
                 operationId: operationId,
                 coffeeId: coffeeId,
@@ -34234,6 +34621,8 @@ class $$StockAdjustmentsTableTableManager
               ),
           createCompanionCallback:
               ({
+                Value<String?> blendLotId = const Value.absent(),
+                Value<String?> sourceRoastDate = const Value.absent(),
                 required String id,
                 required String operationId,
                 required String coffeeId,
@@ -34247,6 +34636,8 @@ class $$StockAdjustmentsTableTableManager
                 Value<int?> reversedAtMs = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StockAdjustmentsCompanion.insert(
+                blendLotId: blendLotId,
+                sourceRoastDate: sourceRoastDate,
                 id: id,
                 operationId: operationId,
                 coffeeId: coffeeId,
@@ -34269,7 +34660,12 @@ class $$StockAdjustmentsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({coffeeId = false, lotId = false, frozenPortionId = false}) {
+              ({
+                blendLotId = false,
+                coffeeId = false,
+                lotId = false,
+                frozenPortionId = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [],
@@ -34289,6 +34685,17 @@ class $$StockAdjustmentsTableTableManager
                           dynamic
                         >
                       >(state) {
+                        if (blendLotId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.blendLotId,
+                            referencedTable: $$StockAdjustmentsTableReferences
+                                ._blendLotIdTable(db),
+                            referencedColumn: $$StockAdjustmentsTableReferences
+                                ._blendLotIdTable(db)
+                                .id,
+                          ) as T;
+                        }
                         if (coffeeId) {
                           state = state.withJoin(
                             currentTable: table,
@@ -34346,7 +34753,12 @@ typedef $$StockAdjustmentsTableProcessedTableManager =
       $$StockAdjustmentsTableUpdateCompanionBuilder,
       (StockAdjustment, $$StockAdjustmentsTableReferences),
       StockAdjustment,
-      PrefetchHooks Function({bool coffeeId, bool lotId, bool frozenPortionId})
+      PrefetchHooks Function({
+        bool blendLotId,
+        bool coffeeId,
+        bool lotId,
+        bool frozenPortionId,
+      })
     >;
 typedef $$CuppingSessionsTableCreateCompanionBuilder =
     CuppingSessionsCompanion Function({

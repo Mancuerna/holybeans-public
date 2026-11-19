@@ -7,6 +7,12 @@ import 'package:holybeans/domain/brew_pours.dart';
 class JournalMutations {
   JournalMutations(this._repository);
   final JournalRepository _repository;
+  Future<({String id, List<Coffee> empty})> createBlend(
+    String name,
+    Map<String, double> amounts,
+  ) => _repository.blends.create(name, amounts);
+  Future<void> archiveEmptySources(Map<String, double?> ratings) =>
+      _repository.blends.archiveEmpty(ratings);
   Future<void> setCoffeeFavorite(String id, {required bool favorite}) =>
       _repository.setCoffeeFavorite(id, favorite: favorite);
   Future<void> setCoffeeArchived(

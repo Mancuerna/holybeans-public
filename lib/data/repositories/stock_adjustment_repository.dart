@@ -226,6 +226,9 @@ class StockAdjustmentRepository {
         final rows = await (database.select(
           database.stockAdjustments,
         )..where((r) => r.operationId.equals(operationId))).get();
+        if (rows.any((r) => r.blendLotId != null)) {
+          throw const StockAdjustmentException('changed');
+        }
         if (rows.isEmpty || rows.every((r) => r.reversedAtMs != null)) return;
         final now = DateTime.now().toUtc().millisecondsSinceEpoch;
         for (final row in rows) {

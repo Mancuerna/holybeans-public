@@ -29,6 +29,7 @@ part 'journal_backup/piston_backup.dart';
 part 'journal_backup/preset_backup.dart';
 part 'journal_backup/restored_journal.dart';
 part 'journal_backup/restore_clear.dart';
+part 'journal_backup/stock_backup.dart';
 
 /// Versioned, portable JSON for HolyBeans data. The file picker and sharing UI
 /// can use this service without knowing how records are stored in SQLite.
@@ -40,7 +41,7 @@ class JournalBackup {
   /// Fires after any write to the journal, so automatic copies know when
   /// there is something new to save.
   Stream<void> watchChanges() => database.tableUpdates().map((_) {});
-  static const version = 38;
+  static const version = 39;
 
   /// Name of the journal inside a ZIP backup; photos go under `photos/`.
   static const archiveJournal = 'holybeans-backup.json';
@@ -87,6 +88,7 @@ class JournalBackup {
     36,
     37,
     38,
+    39,
   };
   static const _collections = {
     'equipmentPresets',

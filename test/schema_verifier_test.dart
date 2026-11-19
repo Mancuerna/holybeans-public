@@ -49,6 +49,7 @@ void main() {
     37,
     38,
     39,
+    40,
   ]) {
     test(
       'dumped schema $from migrates to exactly the current schema',

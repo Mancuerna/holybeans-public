@@ -58,43 +58,10 @@ class _CoffeeArchiveDialogState extends State<CoffeeArchiveDialog> {
                       ? s.archiveBeanForOverdraw
                       : s.archiveBeanDescription),
             ),
-            if (widget.brewRatings.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Builder(
-                builder: (context) {
-                  final average = meanRating(widget.brewRatings)!;
-                  // Ratings move in half points.
-                  final rounded = (average * 2).round() / 2;
-                  return Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 8,
-                    children: [
-                      Text(
-                        s.averageBrewRating(
-                          formatDecimal(
-                            average,
-                            pattern: '0.#',
-                            locale: regionalLocale.toString(),
-                          ),
-                          widget.brewRatings.length,
-                        ),
-                        key: const ValueKey('archive-average-rating'),
-                      ),
-                      TextButton.icon(
-                        key: const ValueKey('archive-use-average'),
-                        onPressed: () => setState(() => rating = rounded),
-                        icon: const Icon(Icons.download_rounded),
-                        label: Text(s.useAverageRating),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ],
-            const SizedBox(height: 12),
-            OptionalRatingSlider(
-              value: rating,
-              onChanged: (value) => setState(() => rating = value),
+            CoffeeArchiveRating(
+              rating: rating,
+              brewRatings: widget.brewRatings,
+              onChanged: (v) => setState(() => rating = v),
             ),
           ],
         ),
@@ -109,6 +76,62 @@ class _CoffeeArchiveDialogState extends State<CoffeeArchiveDialog> {
               Navigator.pop(context, CoffeeArchiveDecision(rating)),
           child: Text(s.archiveBean),
         ),
+      ],
+    );
+  }
+}
+
+class CoffeeArchiveRating extends StatelessWidget {
+  const CoffeeArchiveRating({
+    super.key,
+    required this.rating,
+    required this.brewRatings,
+    required this.onChanged,
+  });
+  final double? rating;
+  final List<double> brewRatings;
+  final ValueChanged<double?> onChanged;
+  @override
+  Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (brewRatings.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Builder(
+            builder: (context) {
+              final average = meanRating(brewRatings)!;
+              // Ratings move in half points.
+              final rounded = (average * 2).round() / 2;
+              return Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                children: [
+                  Text(
+                    s.averageBrewRating(
+                      formatDecimal(
+                        average,
+                        pattern: '0.#',
+                        locale: regionalLocale.toString(),
+                      ),
+                      brewRatings.length,
+                    ),
+                    key: const ValueKey('archive-average-rating'),
+                  ),
+                  TextButton.icon(
+                    key: const ValueKey('archive-use-average'),
+                    onPressed: () => onChanged(rounded),
+                    icon: const Icon(Icons.download_rounded),
+                    label: Text(s.useAverageRating),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+        const SizedBox(height: 12),
+        OptionalRatingSlider(value: rating, onChanged: onChanged),
       ],
     );
   }

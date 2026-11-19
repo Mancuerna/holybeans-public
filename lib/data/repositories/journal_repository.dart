@@ -1,4 +1,5 @@
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/bag_end_blends.dart';
 import 'package:holybeans/data/repositories/beanconqueror_repository.dart';
 import 'package:holybeans/data/repositories/brew_recipe_context.dart';
 import 'package:holybeans/data/repositories/brew_recipe_queries.dart';
@@ -73,6 +74,7 @@ part 'journal_repository/tools.dart';
 class JournalRepository {
   JournalRepository(this.database);
 
+  late final blends = BagEndBlends(database, records, coffees);
   late final JournalRecordQueries records = JournalRecordQueries(database);
   late final StockAdjustmentRepository stockEdits = StockAdjustmentRepository(
     database,

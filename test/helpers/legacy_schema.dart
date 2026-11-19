@@ -25,6 +25,15 @@ Future<void> reconstructLegacySchema(AppDatabase db, int version) async {
     ]) {
       await db.customStatement('DROP INDEX IF EXISTS $name');
     }
+    if (version < 41) {
+      await db.customStatement(
+        'ALTER TABLE stock_adjustments DROP COLUMN blend_lot_id',
+      );
+      await db.customStatement(
+        'ALTER TABLE stock_adjustments DROP COLUMN source_roast_date',
+      );
+      await db.customStatement('ALTER TABLE coffees DROP COLUMN mixed_at_ms');
+    }
     if (version < 40) {
       await db.customStatement(
         'ALTER TABLE brews DROP COLUMN equipment_preset_id',
