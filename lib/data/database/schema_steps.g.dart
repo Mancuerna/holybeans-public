@@ -12661,12 +12661,13 @@ final class Schema41 extends i0.VersionedSchema {
     waterProfiles,
     methodTools,
     toolMethodLinks,
-    brews,
     equipmentPresets,
+    brews,
     brewCurves,
     coffeePhotos,
     brewPhotos,
     brewToolSelections,
+    equipmentPresetTools,
     importRecords,
     legacyPayloads,
     appPreferences,
@@ -12674,21 +12675,6 @@ final class Schema41 extends i0.VersionedSchema {
     stockAdjustments,
     cuppingSessions,
     cuppingSessionCups,
-    brewHistory,
-    brewActiveHistory,
-    brewCoffeeHistory,
-    brewCoffeeRecipe,
-    brewLotLookup,
-    brewMethodLookup,
-    brewWaterLookup,
-    brewFrozenPortionLookup,
-    importRecordEntityLookup,
-    coffeeLotCoffeeLookup,
-    frozenPortionLotLookup,
-    toolMethodLookup,
-    coffeePhotoFileLookup,
-    brewPhotoFileLookup,
-    equipmentPresetTools,
   ];
   late final Shape39 pistonMachines = Shape39(
     source: i0.VersionedTable(
@@ -13027,6 +13013,17 @@ final class Schema41 extends i0.VersionedSchema {
     ),
     alias: null,
   );
+  late final Shape48 equipmentPresets = Shape48(
+    source: i0.VersionedTable(
+      entityName: 'equipment_presets',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [_column_0, _column_1, _column_178, _column_179, _column_180],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
   late final Shape47 brews = Shape47(
     source: i0.VersionedTable(
       entityName: 'brews',
@@ -13034,6 +13031,7 @@ final class Schema41 extends i0.VersionedSchema {
       isStrict: false,
       tableConstraints: ['PRIMARY KEY(id)'],
       columns: [
+        _column_177,
         _column_174,
         _column_0,
         _column_15,
@@ -13086,19 +13084,7 @@ final class Schema41 extends i0.VersionedSchema {
         _column_14,
         _column_87,
         _column_124,
-        _column_177,
       ],
-      attachedDatabase: database,
-    ),
-    alias: null,
-  );
-  late final Shape48 equipmentPresets = Shape48(
-    source: i0.VersionedTable(
-      entityName: 'equipment_presets',
-      withoutRowId: false,
-      isStrict: false,
-      tableConstraints: ['PRIMARY KEY(id)'],
-      columns: [_column_0, _column_1, _column_178, _column_179, _column_180],
       attachedDatabase: database,
     ),
     alias: null,
@@ -13143,6 +13129,17 @@ final class Schema41 extends i0.VersionedSchema {
       isStrict: false,
       tableConstraints: ['PRIMARY KEY(brew_id, tool_id)'],
       columns: [_column_88, _column_93],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape49 equipmentPresetTools = Shape49(
+    source: i0.VersionedTable(
+      entityName: 'equipment_preset_tools',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(preset_id, tool_id)'],
+      columns: [_column_181, _column_182],
       attachedDatabase: database,
     ),
     alias: null,
@@ -13269,73 +13266,6 @@ final class Schema41 extends i0.VersionedSchema {
         'UNIQUE(brew_id)',
       ],
       columns: [_column_0, _column_123, _column_88, _column_16],
-      attachedDatabase: database,
-    ),
-    alias: null,
-  );
-  final i1.Index brewHistory = i1.Index(
-    'brew_history',
-    'CREATE INDEX brew_history ON brews (brewed_at_ms DESC, created_at_ms DESC, id ASC)',
-  );
-  final i1.Index brewActiveHistory = i1.Index(
-    'brew_active_history',
-    'CREATE INDEX brew_active_history ON brews (archived_at_ms, brewed_at_ms DESC, created_at_ms DESC, id ASC)',
-  );
-  final i1.Index brewCoffeeHistory = i1.Index(
-    'brew_coffee_history',
-    'CREATE INDEX brew_coffee_history ON brews (coffee_id, brewed_at_ms DESC, created_at_ms DESC, id ASC)',
-  );
-  final i1.Index brewCoffeeRecipe = i1.Index(
-    'brew_coffee_recipe',
-    'CREATE INDEX brew_coffee_recipe ON brews (coffee_id, archived_at_ms, is_favorite DESC, brewed_at_ms DESC, created_at_ms DESC, id ASC)',
-  );
-  final i1.Index brewLotLookup = i1.Index(
-    'brew_lot_lookup',
-    'CREATE INDEX brew_lot_lookup ON brews (lot_id)',
-  );
-  final i1.Index brewMethodLookup = i1.Index(
-    'brew_method_lookup',
-    'CREATE INDEX brew_method_lookup ON brews (method_id)',
-  );
-  final i1.Index brewWaterLookup = i1.Index(
-    'brew_water_lookup',
-    'CREATE INDEX brew_water_lookup ON brews (water_profile_id)',
-  );
-  final i1.Index brewFrozenPortionLookup = i1.Index(
-    'brew_frozen_portion_lookup',
-    'CREATE INDEX brew_frozen_portion_lookup ON brews (frozen_portion_id)',
-  );
-  final i1.Index importRecordEntityLookup = i1.Index(
-    'import_record_entity_lookup',
-    'CREATE INDEX import_record_entity_lookup ON import_records (local_entity, local_id)',
-  );
-  final i1.Index coffeeLotCoffeeLookup = i1.Index(
-    'coffee_lot_coffee_lookup',
-    'CREATE INDEX coffee_lot_coffee_lookup ON coffee_lots (coffee_id)',
-  );
-  final i1.Index frozenPortionLotLookup = i1.Index(
-    'frozen_portion_lot_lookup',
-    'CREATE INDEX frozen_portion_lot_lookup ON frozen_portions (lot_id)',
-  );
-  final i1.Index toolMethodLookup = i1.Index(
-    'tool_method_lookup',
-    'CREATE INDEX tool_method_lookup ON tool_method_links (method_id, tool_id)',
-  );
-  final i1.Index coffeePhotoFileLookup = i1.Index(
-    'coffee_photo_file_lookup',
-    'CREATE INDEX coffee_photo_file_lookup ON coffee_photos (file_name)',
-  );
-  final i1.Index brewPhotoFileLookup = i1.Index(
-    'brew_photo_file_lookup',
-    'CREATE INDEX brew_photo_file_lookup ON brew_photos (file_name)',
-  );
-  late final Shape49 equipmentPresetTools = Shape49(
-    source: i0.VersionedTable(
-      entityName: 'equipment_preset_tools',
-      withoutRowId: false,
-      isStrict: false,
-      tableConstraints: ['PRIMARY KEY(preset_id, tool_id)'],
-      columns: [_column_181, _column_182],
       attachedDatabase: database,
     ),
     alias: null,

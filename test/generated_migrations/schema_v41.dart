@@ -1944,11 +1944,96 @@ class ToolMethodLinks extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
+class EquipmentPresets extends Table with TableInfo {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  EquipmentPresets(this.attachedDatabase, [this._alias]);
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> methodId = GeneratedColumn<String>(
+    'method_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL REFERENCES brew_methods(id)',
+  );
+  late final GeneratedColumn<String> grinderId = GeneratedColumn<String>(
+    'grinder_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL REFERENCES grinders(id)',
+  );
+  late final GeneratedColumn<String> waterProfileId = GeneratedColumn<String>(
+    'water_profile_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL REFERENCES water_profiles(id)',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    methodId,
+    grinderId,
+    waterProfileId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'equipment_presets';
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
+    throw UnsupportedError('TableInfo.map in schema verification code');
+  }
+
+  @override
+  EquipmentPresets createAlias(String alias) {
+    return EquipmentPresets(attachedDatabase, alias);
+  }
+
+  @override
+  List<String> get customConstraints => const ['PRIMARY KEY(id)'];
+  @override
+  bool get dontWriteConstraints => true;
+}
+
 class Brews extends Table with TableInfo {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   Brews(this.attachedDatabase, [this._alias]);
+  late final GeneratedColumn<String> equipmentPresetId =
+      GeneratedColumn<String>(
+        'equipment_preset_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        $customConstraints: 'NULL REFERENCES equipment_presets(id)',
+      );
   late final GeneratedColumn<String> extractionProfileJson =
       GeneratedColumn<String>(
         'extraction_profile_json',
@@ -2370,17 +2455,9 @@ class Brews extends Table with TableInfo {
     requiredDuringInsert: false,
     $customConstraints: 'NULL CHECK (stock_review_pending IN (0, 1))',
   );
-  late final GeneratedColumn<String> equipmentPresetId =
-      GeneratedColumn<String>(
-        'equipment_preset_id',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-        $customConstraints: 'NULL REFERENCES equipment_presets(id)',
-      );
   @override
   List<GeneratedColumn> get $columns => [
+    equipmentPresetId,
     extractionProfileJson,
     id,
     coffeeId,
@@ -2433,7 +2510,6 @@ class Brews extends Table with TableInfo {
     archivedAtMs,
     archivedByCoffee,
     stockReviewPending,
-    equipmentPresetId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2450,82 +2526,6 @@ class Brews extends Table with TableInfo {
   @override
   Brews createAlias(String alias) {
     return Brews(attachedDatabase, alias);
-  }
-
-  @override
-  List<String> get customConstraints => const ['PRIMARY KEY(id)'];
-  @override
-  bool get dontWriteConstraints => true;
-}
-
-class EquipmentPresets extends Table with TableInfo {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  EquipmentPresets(this.attachedDatabase, [this._alias]);
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL',
-  );
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL',
-  );
-  late final GeneratedColumn<String> methodId = GeneratedColumn<String>(
-    'method_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL REFERENCES brew_methods(id)',
-  );
-  late final GeneratedColumn<String> grinderId = GeneratedColumn<String>(
-    'grinder_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: 'NULL REFERENCES grinders(id)',
-  );
-  late final GeneratedColumn<String> waterProfileId = GeneratedColumn<String>(
-    'water_profile_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: 'NULL REFERENCES water_profiles(id)',
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    name,
-    methodId,
-    grinderId,
-    waterProfileId,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'equipment_presets';
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
-  }
-
-  @override
-  EquipmentPresets createAlias(String alias) {
-    return EquipmentPresets(attachedDatabase, alias);
   }
 
   @override
@@ -2743,6 +2743,55 @@ class BrewToolSelections extends Table with TableInfo {
 
   @override
   List<String> get customConstraints => const ['PRIMARY KEY(brew_id, tool_id)'];
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class EquipmentPresetTools extends Table with TableInfo {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  EquipmentPresetTools(this.attachedDatabase, [this._alias]);
+  late final GeneratedColumn<String> presetId = GeneratedColumn<String>(
+    'preset_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'NOT NULL REFERENCES equipment_presets(id)ON DELETE CASCADE',
+  );
+  late final GeneratedColumn<String> toolId = GeneratedColumn<String>(
+    'tool_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL REFERENCES method_tools(id)',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [presetId, toolId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'equipment_preset_tools';
+  @override
+  Set<GeneratedColumn> get $primaryKey => {presetId, toolId};
+  @override
+  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
+    throw UnsupportedError('TableInfo.map in schema verification code');
+  }
+
+  @override
+  EquipmentPresetTools createAlias(String alias) {
+    return EquipmentPresetTools(attachedDatabase, alias);
+  }
+
+  @override
+  List<String> get customConstraints => const [
+    'PRIMARY KEY(preset_id, tool_id)',
+  ];
   @override
   bool get dontWriteConstraints => true;
 }
@@ -3417,55 +3466,6 @@ class CuppingSessionCups extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class EquipmentPresetTools extends Table with TableInfo {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  EquipmentPresetTools(this.attachedDatabase, [this._alias]);
-  late final GeneratedColumn<String> presetId = GeneratedColumn<String>(
-    'preset_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    $customConstraints:
-        'NOT NULL REFERENCES equipment_presets(id)ON DELETE CASCADE',
-  );
-  late final GeneratedColumn<String> toolId = GeneratedColumn<String>(
-    'tool_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL REFERENCES method_tools(id)',
-  );
-  @override
-  List<GeneratedColumn> get $columns => [presetId, toolId];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'equipment_preset_tools';
-  @override
-  Set<GeneratedColumn> get $primaryKey => {presetId, toolId};
-  @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
-  }
-
-  @override
-  EquipmentPresetTools createAlias(String alias) {
-    return EquipmentPresetTools(attachedDatabase, alias);
-  }
-
-  @override
-  List<String> get customConstraints => const [
-    'PRIMARY KEY(preset_id, tool_id)',
-  ];
-  @override
-  bool get dontWriteConstraints => true;
-}
-
 class DatabaseAtV41 extends GeneratedDatabase {
   DatabaseAtV41(QueryExecutor e) : super(e);
   late final PistonMachines pistonMachines = PistonMachines(this);
@@ -3487,12 +3487,15 @@ class DatabaseAtV41 extends GeneratedDatabase {
   late final WaterProfiles waterProfiles = WaterProfiles(this);
   late final MethodTools methodTools = MethodTools(this);
   late final ToolMethodLinks toolMethodLinks = ToolMethodLinks(this);
-  late final Brews brews = Brews(this);
   late final EquipmentPresets equipmentPresets = EquipmentPresets(this);
+  late final Brews brews = Brews(this);
   late final BrewCurves brewCurves = BrewCurves(this);
   late final CoffeePhotos coffeePhotos = CoffeePhotos(this);
   late final BrewPhotos brewPhotos = BrewPhotos(this);
   late final BrewToolSelections brewToolSelections = BrewToolSelections(this);
+  late final EquipmentPresetTools equipmentPresetTools = EquipmentPresetTools(
+    this,
+  );
   late final ImportRecords importRecords = ImportRecords(this);
   late final LegacyPayloads legacyPayloads = LegacyPayloads(this);
   late final AppPreferences appPreferences = AppPreferences(this);
@@ -3500,65 +3503,6 @@ class DatabaseAtV41 extends GeneratedDatabase {
   late final StockAdjustments stockAdjustments = StockAdjustments(this);
   late final CuppingSessions cuppingSessions = CuppingSessions(this);
   late final CuppingSessionCups cuppingSessionCups = CuppingSessionCups(this);
-  late final Index brewHistory = Index(
-    'brew_history',
-    'CREATE INDEX brew_history ON brews (brewed_at_ms DESC, created_at_ms DESC, id ASC)',
-  );
-  late final Index brewActiveHistory = Index(
-    'brew_active_history',
-    'CREATE INDEX brew_active_history ON brews (archived_at_ms, brewed_at_ms DESC, created_at_ms DESC, id ASC)',
-  );
-  late final Index brewCoffeeHistory = Index(
-    'brew_coffee_history',
-    'CREATE INDEX brew_coffee_history ON brews (coffee_id, brewed_at_ms DESC, created_at_ms DESC, id ASC)',
-  );
-  late final Index brewCoffeeRecipe = Index(
-    'brew_coffee_recipe',
-    'CREATE INDEX brew_coffee_recipe ON brews (coffee_id, archived_at_ms, is_favorite DESC, brewed_at_ms DESC, created_at_ms DESC, id ASC)',
-  );
-  late final Index brewLotLookup = Index(
-    'brew_lot_lookup',
-    'CREATE INDEX brew_lot_lookup ON brews (lot_id)',
-  );
-  late final Index brewMethodLookup = Index(
-    'brew_method_lookup',
-    'CREATE INDEX brew_method_lookup ON brews (method_id)',
-  );
-  late final Index brewWaterLookup = Index(
-    'brew_water_lookup',
-    'CREATE INDEX brew_water_lookup ON brews (water_profile_id)',
-  );
-  late final Index brewFrozenPortionLookup = Index(
-    'brew_frozen_portion_lookup',
-    'CREATE INDEX brew_frozen_portion_lookup ON brews (frozen_portion_id)',
-  );
-  late final Index importRecordEntityLookup = Index(
-    'import_record_entity_lookup',
-    'CREATE INDEX import_record_entity_lookup ON import_records (local_entity, local_id)',
-  );
-  late final Index coffeeLotCoffeeLookup = Index(
-    'coffee_lot_coffee_lookup',
-    'CREATE INDEX coffee_lot_coffee_lookup ON coffee_lots (coffee_id)',
-  );
-  late final Index frozenPortionLotLookup = Index(
-    'frozen_portion_lot_lookup',
-    'CREATE INDEX frozen_portion_lot_lookup ON frozen_portions (lot_id)',
-  );
-  late final Index toolMethodLookup = Index(
-    'tool_method_lookup',
-    'CREATE INDEX tool_method_lookup ON tool_method_links (method_id, tool_id)',
-  );
-  late final Index coffeePhotoFileLookup = Index(
-    'coffee_photo_file_lookup',
-    'CREATE INDEX coffee_photo_file_lookup ON coffee_photos (file_name)',
-  );
-  late final Index brewPhotoFileLookup = Index(
-    'brew_photo_file_lookup',
-    'CREATE INDEX brew_photo_file_lookup ON brew_photos (file_name)',
-  );
-  late final EquipmentPresetTools equipmentPresetTools = EquipmentPresetTools(
-    this,
-  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3583,12 +3527,13 @@ class DatabaseAtV41 extends GeneratedDatabase {
     waterProfiles,
     methodTools,
     toolMethodLinks,
-    brews,
     equipmentPresets,
+    brews,
     brewCurves,
     coffeePhotos,
     brewPhotos,
     brewToolSelections,
+    equipmentPresetTools,
     importRecords,
     legacyPayloads,
     appPreferences,
@@ -3596,21 +3541,6 @@ class DatabaseAtV41 extends GeneratedDatabase {
     stockAdjustments,
     cuppingSessions,
     cuppingSessionCups,
-    brewHistory,
-    brewActiveHistory,
-    brewCoffeeHistory,
-    brewCoffeeRecipe,
-    brewLotLookup,
-    brewMethodLookup,
-    brewWaterLookup,
-    brewFrozenPortionLookup,
-    importRecordEntityLookup,
-    coffeeLotCoffeeLookup,
-    frozenPortionLotLookup,
-    toolMethodLookup,
-    coffeePhotoFileLookup,
-    brewPhotoFileLookup,
-    equipmentPresetTools,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -3686,6 +3616,13 @@ class DatabaseAtV41 extends GeneratedDatabase {
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
+        'equipment_presets',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('equipment_preset_tools', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
         'import_records',
         limitUpdateKind: UpdateKind.delete,
       ),
@@ -3725,13 +3662,6 @@ class DatabaseAtV41 extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('cupping_session_cups', kind: UpdateKind.delete)],
-    ),
-    WritePropagation(
-      on: TableUpdateQuery.onTableName(
-        'equipment_presets',
-        limitUpdateKind: UpdateKind.delete,
-      ),
-      result: [TableUpdate('equipment_preset_tools', kind: UpdateKind.delete)],
     ),
   ]);
   @override
