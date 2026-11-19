@@ -91,7 +91,7 @@ class FirstDripWatch {
 
 /// Tells when an espresso stops dripping: after [minElapsedMs], once the
 /// cup holds at least the dose (a 1:1 ratio, or [fallbackGrams] without
-/// one), when the weight rose less than [minRiseGrams] in the last
+/// one), when the weight varied by less than [minRiseGrams] throughout the last
 /// [quietMs]. The weight is the median of three readings, so a knock does
 /// not count. The scale's own flow is not used: it trails the weight by
 /// over a second and rarely reads zero.
@@ -125,9 +125,15 @@ class ShotEndWatch {
         ? doseGrams
         : fallbackGrams;
     if (elapsedMs <= minElapsedMs || weight < enough) return null;
-    final (sinceMs, before) = _smoothed.first;
+    final sinceMs = _smoothed.first.$1;
     if (elapsedMs - sinceMs < quietMs) return null;
-    return weight - before < minRiseGrams ? sinceMs : null;
+    var low = weight;
+    var high = weight;
+    for (final (_, grams) in _smoothed) {
+      if (grams < low) low = grams;
+      if (grams > high) high = grams;
+    }
+    return high - low < minRiseGrams ? sinceMs : null;
   }
 
   void reset() {

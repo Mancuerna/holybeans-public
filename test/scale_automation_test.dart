@@ -79,6 +79,42 @@ void main() {
     }
   });
 
+  test('oscillating Pearl weights must settle before espresso ends', () {
+    final watch = ShotEndWatch();
+    // Final samples from a Pearl extraction that stopped prematurely at 5229 ms.
+    for (final (ms, grams) in [
+      (3072, 25.6),
+      (3183, 21.9),
+      (3276, 22.5),
+      (3391, 26.7),
+      (3485, 26.7),
+      (3597, 23.9),
+      (3690, 21.0),
+      (3805, 22.7),
+      (3896, 22.5),
+      (3990, 25.3),
+      (4105, 31.9),
+      (4196, 33.8),
+      (4291, 27.5),
+      (4403, 17.4),
+      (4496, 16.2),
+      (4591, 22.9),
+      (4724, 28.8),
+      (4814, 29.0),
+      (4909, 27.2),
+      (5024, 28.0),
+      (5115, 30.1),
+      (5229, 32.0),
+    ]) {
+      expect(watch.add(elapsedMs: ms, grams: grams, doseGrams: 18), isNull);
+    }
+    int? end;
+    for (var ms = 5329; ms <= 6729 && end == null; ms += 100) {
+      end = watch.add(elapsedMs: ms, grams: 32, doseGrams: 18);
+    }
+    expect(end, 5329);
+  });
+
   group('brew scale session', () {
     late FakeScale scale;
     late DateTime now;
