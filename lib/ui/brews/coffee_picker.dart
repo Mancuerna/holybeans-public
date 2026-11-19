@@ -48,10 +48,15 @@ class _CoffeePickerState extends State<CoffeePicker> {
         final chosen = widget.coffees
             .where((c) => c.id == widget.value)
             .firstOrNull;
-        Widget badge(Coffee coffee) => FrozenStockBadge(
-          key: ValueKey('coffee-frozen-${coffee.id}'),
-          state: frozenStockState(fresh[coffee.id], frozen[coffee.id] ?? 0),
-        );
+        Widget? badge(Coffee coffee) {
+          final grams = frozen[coffee.id] ?? 0;
+          if (grams <= 0) return null;
+          return FrozenStockBadge(
+            key: ValueKey('coffee-frozen-${coffee.id}'),
+            state: frozenStockState(fresh[coffee.id], grams),
+          );
+        }
+
         return FormField<String>(
           key: ValueKey('coffee-value-${widget.value}'),
           initialValue: widget.value,
@@ -75,7 +80,7 @@ class _CoffeePickerState extends State<CoffeePicker> {
                           coffee,
                     ],
                     selected: widget.value,
-                    trailing: badge,
+                    subtitleDetail: badge,
                   ),
                 );
                 if (!mounted || picked == null) return;
@@ -90,15 +95,15 @@ class _CoffeePickerState extends State<CoffeePicker> {
                   errorText: field.errorText,
                   suffixIcon: const Icon(Icons.arrow_drop_down),
                 ),
-                child: Row(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        chosen?.name ??
-                            (widget.value == null ? '' : s.archivedStatus),
-                      ),
+                    Text(
+                      chosen?.name ??
+                          (widget.value == null ? '' : s.archivedStatus),
                     ),
-                    if (chosen != null) badge(chosen),
+                    if (chosen != null) ?badge(chosen),
                   ],
                 ),
               ),

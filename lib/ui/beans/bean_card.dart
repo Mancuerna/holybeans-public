@@ -142,11 +142,6 @@ class _CompactBeanCard extends StatelessWidget {
     ].where((value) => value.isNotEmpty).join(' ');
     final details = <TextSpan>[
       if (origin.isNotEmpty) TextSpan(text: origin),
-      if (stock.frozen.isNotEmpty)
-        TextSpan(
-          text:
-              '${s.frozen} ${formatGrams(stock.frozenGrams, regionalLocale.toString())}',
-        ),
       if (age != null)
         TextSpan(
           children: [
@@ -184,12 +179,6 @@ class _CompactBeanCard extends StatelessWidget {
                     Row(
                       children: [
                         if (coffee.isFavorite) const _FavoriteIcon(),
-                        FrozenStockBadge(
-                          state: frozenStockState(
-                            stock.remainingGrams,
-                            stock.frozenGrams,
-                          ),
-                        ),
                         Flexible(
                           child: Text(
                             coffee.name,
@@ -215,7 +204,9 @@ class _CompactBeanCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (stock.remainingGrams != null || coffee.rating != null)
+              if (stock.remainingGrams != null ||
+                  stock.frozenGrams > 0 ||
+                  coffee.rating != null)
                 Padding(
                   padding: const EdgeInsetsDirectional.only(start: 8),
                   child: Column(
@@ -226,6 +217,17 @@ class _CompactBeanCard extends StatelessWidget {
                           formatGrams(grams, regionalLocale.toString()),
                           style: AppTheme.figures(
                             Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                      if (stock.frozenGrams > 0)
+                        FrozenStockBadge(
+                          state: frozenStockState(
+                            stock.remainingGrams,
+                            stock.frozenGrams,
+                          ),
+                          weight: formatGrams(
+                            stock.frozenGrams,
+                            regionalLocale.toString(),
                           ),
                         ),
                       if (coffee.rating case final rating?)
@@ -415,12 +417,6 @@ class _Heading extends StatelessWidget {
             padding: EdgeInsets.only(top: 3),
             child: _FavoriteIcon(),
           ),
-        FrozenStockBadge(
-          state: frozenStockState(
-            facts.stock.remainingGrams,
-            facts.stock.frozenGrams,
-          ),
-        ),
         Expanded(
           child: Text(
             coffee.name,
