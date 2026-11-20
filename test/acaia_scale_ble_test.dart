@@ -54,6 +54,77 @@ void main() {
       scale.dispose();
       await db.close();
     });
+    test(
+      'filter after discarding a running brew recovers the same Pearl',
+      () async {
+        await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+        var now = DateTime(2026);
+        final practice = BrewScaleSession(scale);
+        practice.timerStarted(0);
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        expect(practice.recording, isTrue);
+        practice.dispose();
+
+        final brew = BrewScaleSession(scale, clock: () => now);
+        addTearDown(brew.dispose);
+        brew.requestStop = (_) => brew.timerStopped();
+        brew.timerStarted(0);
+        await Future<void>.delayed(const Duration(milliseconds: 150));
+        now = now.add(const Duration(seconds: 3));
+        platform.emit(10);
+        await Future<void>.delayed(Duration.zero);
+        expect(brew.pouredGrams, 10);
+        expect(platform.events.where((event) => event.startsWith('connect:')), [
+          'connect:${platform.id}',
+        ]);
+        final tares = platform.tareCount;
+        platform.loseConnection();
+        await Future<void>.delayed(Duration.zero);
+        expect(scale.recoveringConnection, isTrue);
+        expect(brew.recording, isTrue);
+        platform.grams = 24;
+        final recovered = Completer<void>();
+        void observe() {
+          if (scale.connected && !recovered.isCompleted) recovered.complete();
+        }
+
+        scale.addListener(observe);
+        try {
+          await recovered.future.timeout(const Duration(seconds: 4));
+        } finally {
+          scale.removeListener(observe);
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 120));
+        platform.emit(35);
+        await Future<void>.delayed(Duration.zero);
+        expect(brew.recording, isTrue);
+        expect(brew.pouredGrams, 35);
+        expect(brew.curve!.weight, containsAllInOrder([10, 24, 35]));
+        expect(platform.tareCount, tares);
+        platform.button(10);
+        await Future<void>.delayed(Duration.zero);
+        expect(brew.recording, isFalse);
+      },
+    );
+    test('filter stops when the Pearl cannot be recovered', () async {
+      await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+      final brew = BrewScaleSession(scale);
+      addTearDown(brew.dispose);
+      final stopped = Completer<void>();
+      brew.requestStop = (_) {
+        brew.timerStopped();
+        stopped.complete();
+      };
+      brew.timerStarted(0);
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+      platform.respond = false;
+      platform.loseConnection();
+      await Future<void>.delayed(Duration.zero);
+      expect(brew.recording, isTrue);
+      await stopped.future.timeout(const Duration(seconds: 10));
+      expect(scale.status, DeviceStatus.failed);
+      expect(brew.recording, isFalse);
+    });
     test('Pearl brew survives a stalled acknowledged protocol write', () async {
       await scale.pair(FoundDevice(id: platform.id, name: platform.name));
       expect(await scale.send(ScaleCommand.tareAndStartTimer), isTrue);
@@ -288,11 +359,16 @@ void main() {
       },
     );
     test(
-      'silent recovery keeps sending heartbeats and renews the subscription',
+      'settings replies alone do not suppress subscription recovery',
       () async {
         await scale.pair(FoundDevice(id: platform.id, name: platform.name));
         platform.respond = false;
         final initialWrites = platform.writes.length;
+        final settings = Timer.periodic(
+          const Duration(milliseconds: 150),
+          (_) => platform.reply(8, [9, 73, 2, 2, 1, 0, 1, 1, 0]),
+        );
+        addTearDown(settings.cancel);
         await Future<void>.delayed(const Duration(milliseconds: 3300));
         final recovery = platform.writes.skip(initialWrites).toList();
         expect(recovery.map((frame) => frame[2]), containsAllInOrder([11, 12]));
@@ -517,7 +593,7 @@ void main() {
         },
       );
       test(
-        'Acaia classic=$classic closes heartbeat and resets decoder on reconnect',
+        'Acaia classic=$classic manual disconnect cancels pending recovery',
         () async {
           await pair();
           await Future<void>.delayed(const Duration(milliseconds: 1100));
@@ -528,6 +604,7 @@ void main() {
           await Future<void>.delayed(Duration.zero);
           expect(scale.connected, isFalse);
           expect(scale.reading, isNull);
+          await scale.disconnect();
           final count = platform.writes.length;
           await Future<void>.delayed(const Duration(milliseconds: 2100));
           expect(platform.writes.length, count);

@@ -10,6 +10,9 @@ class FakeScale extends ChangeNotifier implements Scale {
   FakeScale({this.name, bool connected = false, this.nearby = const []})
     : status = connected ? DeviceStatus.connected : DeviceStatus.idle;
 
+  @override
+  bool get recoveringConnection => false;
+
   final List<FoundDevice> nearby;
 
   /// Disconnected by the user: automatic attempts leave it alone, as the
