@@ -133,40 +133,41 @@ void main() {
       false,
     );
   });
-  test(
-    'smoothing resets at maintenance and trend does not depend on view range',
-    () {
-      final start = DateTime(2026).millisecondsSinceEpoch;
-      final readings = [
-        for (var i = 0; i < 20; i++)
-          PistonReading(
-            shotId: '$i',
-            timeMs: start + i * Duration.millisecondsPerDay,
-            samples: 5,
-            current: i < 10 ? 2 : 1 + (i - 10) * .01,
-            speed: 10,
-          ),
-      ];
-      final services = [
-        PistonService(id: 's', timeMs: readings[10].timeMs, kind: 'grease'),
-      ];
-      final series = pistonSeries(readings, services);
-      expect(series[9].value, 2);
-      expect(series[10].value, 1);
-      final trend = pistonTrend(readings, services);
-      expect(trend.monthly, closeTo(30 / 1.035, .001));
-      expect(trend.change, greaterThan(0));
-      expect(
-        pistonTrend(readings, [
-          PistonService(
-            id: 'after',
-            timeMs: readings.last.timeMs + 1,
-            kind: 'clean',
-          ),
-        ]).monthly,
-        isNull,
-      );
-      expect(pistonTrend(readings.take(2).toList(), []).change, isNull);
-    },
-  );
+  test('smoothing resets at maintenance and trend uses the visible part of the latest cycle', () {
+    final start = DateTime(2026).millisecondsSinceEpoch;
+    final readings = [
+      for (var i = 0; i < 20; i++)
+        PistonReading(
+          shotId: '$i',
+          timeMs: start + i * Duration.millisecondsPerDay,
+          samples: 5,
+          current: i < 10 ? 2 : 1 + (i - 10) * .01,
+          speed: 10,
+        ),
+    ];
+    final services = [
+      PistonService(id: 's', timeMs: readings[10].timeMs, kind: 'grease'),
+    ];
+    final series = pistonSeries(readings, services);
+    expect(series[9].value, 2);
+    expect(series[10].value, 1);
+    final trend = pistonTrend(series, services);
+    expect(trend.monthly, closeTo(30 / 1.035, .001));
+    expect(trend.change, greaterThan(0));
+    expect(
+      pistonTrend(series.sublist(15), services).monthly,
+      closeTo(30 / 1.07, .001),
+    );
+    expect(
+      pistonTrend(series, [
+        PistonService(
+          id: 'after',
+          timeMs: readings.last.timeMs + 1,
+          kind: 'clean',
+        ),
+      ]).monthly,
+      isNull,
+    );
+    expect(pistonTrend(series.take(2).toList(), []).change, isNull);
+  });
 }

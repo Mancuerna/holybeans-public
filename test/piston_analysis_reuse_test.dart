@@ -56,8 +56,24 @@ void main() {
   testWidgets(
     'piston progress reuses analysis and publishes the new snapshot',
     (tester) async {
+      await tester.binding.setSurfaceSize(const Size(800, 1400));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
       final db = memoryDatabase();
-      final rows = _Readings(pistonFixture(count: 40));
+      final today = DateTime.now();
+      final rows = _Readings([
+        for (var i = 0; i < 40; i++)
+          PistonReading(
+            shotId: 'r-$i',
+            timeMs: DateTime(
+              today.year,
+              today.month,
+              today.day - 39 + i,
+            ).millisecondsSinceEpoch,
+            samples: 5,
+            current: i < 10 ? 1 : 2,
+            speed: 10,
+          ),
+      ]);
       final repository = _Repository(db, PistonSnapshot(readings: rows));
       final source = FakePistonSource(const []);
       final connect = connectPistonHistory;
@@ -79,10 +95,15 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ChoiceChip, '30 days'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('30 / 30'), findsOneWidget);
+      expect(find.text('+0.0 %'), findsWidgets);
       await tester.tap(find.widgetWithText(ChoiceChip, 'All'));
       await tester.pumpAndSettle();
       PistonChart chart() => tester.widget(find.byType(PistonChart));
       expect(chart().points, hasLength(40));
+      expect(find.text('+100.0 %'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('piston-refresh')));
       await tester.pump();
       rows.reads = 0;

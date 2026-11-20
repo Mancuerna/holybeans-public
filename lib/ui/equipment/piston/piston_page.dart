@@ -70,15 +70,18 @@ class _PistonPageState extends State<PistonPage> {
         _analysis = PistonViewData(data);
         _analysisSource = data;
       }
-      final all = _analysis.series(speed);
+      final today = DateTime.now();
       final since = days == 0
           ? 0
-          : DateTime.now()
-                .subtract(Duration(days: days))
-                .millisecondsSinceEpoch;
-      final points = all.where((p) => p.timeMs >= since).toList();
-      final stats = _analysis.trend;
-      final last = _analysis.usable.lastOrNull;
+          : DateTime(
+              today.year,
+              today.month,
+              today.day - days + 1,
+            ).millisecondsSinceEpoch;
+      final range = _analysis.range(since, speed);
+      final points = range.points;
+      final stats = range.trend;
+      final last = points.lastOrNull;
       return Scaffold(
         appBar: AppBar(title: Text(s.pistonTitle)),
         body: SafeArea(
@@ -212,7 +215,7 @@ class _PistonPageState extends State<PistonPage> {
                             s.pistonRecent,
                             stats.level == null
                                 ? '—'
-                                : '${number.format(stats.level)} A',
+                                : '${number.format(stats.level)} ${speed ? 'mm/s' : 'A'}',
                           ),
                           _Stat(
                             s.pistonChange,
@@ -230,9 +233,7 @@ class _PistonPageState extends State<PistonPage> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        data.services.isEmpty
-                            ? s.pistonReference60
-                            : s.pistonReferenceService,
+                        s.pistonRangeReference,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       if (last != null)
@@ -242,7 +243,7 @@ class _PistonPageState extends State<PistonPage> {
                         ),
                       const SizedBox(height: 12),
                       Text(
-                        '${s.pistonUsable}: ${_analysis.usable.length} / ${data.readings.length}',
+                        '${s.pistonUsable}: ${points.length} / ${range.total}',
                       ),
                     ],
                     const SizedBox(height: 16),
