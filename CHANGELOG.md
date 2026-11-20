@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.16.0](https://github.com/Mancuerna/holybeans-public/compare/v1.15.1...v1.16.0) (2026-11-20)
+
+
+### Features
+
+* **beans:** create traceable blends from bag ends ([#169](https://github.com/Mancuerna/holybeans-public/issues/169)) ([bd4ad88](https://github.com/Mancuerna/holybeans-public/commit/bd4ad884bccdde6974e08ee385b675db9dbe6ea4))
+
+
+### Bug Fixes
+
+* align piston summary with selected chart range and measure ([#171](https://github.com/Mancuerna/holybeans-public/issues/171)) ([393c8e2](https://github.com/Mancuerna/holybeans-public/commit/393c8e2ed75559338dab586b09fe220f25c655c3))
+* **brews:** restore date placement and prefill recipe water reliably ([#173](https://github.com/Mancuerna/holybeans-public/issues/173)) ([5ab7531](https://github.com/Mancuerna/holybeans-public/commit/5ab75312af7235f89dbba2c87b860e25b6d76f7c))
+* **scales:** recover interrupted Acaia filter connections ([#172](https://github.com/Mancuerna/holybeans-public/issues/172)) ([bd5b4e3](https://github.com/Mancuerna/holybeans-public/commit/bd5b4e332cc4f4d3788a137d465d73f108a37bb1))
+
 ## [1.15.1](https://github.com/Mancuerna/holybeans-public/compare/v1.15.0...v1.15.1) (2026-11-19)
 
 
