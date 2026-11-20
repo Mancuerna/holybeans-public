@@ -25,6 +25,9 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
   List<FoundDevice> get rememberedScales => List.unmodifiable(_scales);
 
   @override
+  bool get reconnectAfterLoss => _acaia != null;
+
+  @override
   String? get activeScaleId => connectedId;
 
   @override
@@ -62,6 +65,7 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
 
   DifluidScaleConnection? _difluid;
   AcaiaScaleConnection? _acaia;
+  bool _acaiaTimerRunning = false;
   TimemoreDotConnection? _dot;
   Future<bool> _commands = Future.value(true);
   int _generation = 0;
@@ -138,6 +142,7 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
             notify: notifyId,
             write: writeId,
             classic: classic,
+            timerRunning: recoveringConnection && _acaiaTimerRunning,
             withResponse: write.properties.contains(
               CharacteristicProperty.write,
             ),
@@ -257,7 +262,10 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
     _bookooDoseNotify = false;
     _dot?.close();
     _dot = null;
-    _acaia?.close();
+    if (_acaia case final acaia?) {
+      _acaiaTimerRunning = acaia.timerRunning;
+      acaia.close();
+    }
     _acaia = null;
     _difluid?.close();
     _difluid = null;

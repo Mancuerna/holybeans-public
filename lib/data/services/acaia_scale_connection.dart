@@ -15,8 +15,9 @@ class AcaiaScaleConnection {
     required this.classic,
     required this.withResponse,
     required this.supportsWriteWithoutResponse,
+    bool timerRunning = false,
     this.trace,
-  });
+  }) : _decoder = AcaiaDecoder(timerRunning: timerRunning);
 
   final String id;
   final String service;
@@ -26,7 +27,8 @@ class AcaiaScaleConnection {
   final bool withResponse;
   final bool supportsWriteWithoutResponse;
   final BleTrace? trace;
-  final _decoder = AcaiaDecoder();
+  final AcaiaDecoder _decoder;
+  bool get timerRunning => _decoder.timerRunning;
   final _clock = Stopwatch()..start();
   final _ready = Completer<bool>();
   final _settingsReady = Completer<bool>();
@@ -34,7 +36,7 @@ class AcaiaScaleConnection {
   Timer? _maintenance;
   bool _active = true;
   bool _busy = false;
-  int _lastPacketMs = 0;
+  int _lastReadingMs = 0;
   Future<void> _queue = Future.value();
 
   List<ScaleReading> parse(Uint8List bytes) {
@@ -44,8 +46,10 @@ class AcaiaScaleConnection {
     if (_decoder.hasSettings && !_settingsReady.isCompleted) {
       _settingsReady.complete(true);
     }
-    if (readings.isNotEmpty && !_ready.isCompleted) _ready.complete(true);
-    _lastPacketMs = now;
+    if (readings.isNotEmpty) {
+      _lastReadingMs = now;
+      if (!_ready.isCompleted) _ready.complete(true);
+    }
     return readings;
   }
 
@@ -135,7 +139,7 @@ class AcaiaScaleConnection {
     await Future<void>.delayed(const Duration(milliseconds: 100));
     await _write(acaiaSubscribe, withoutResponse: supportsWriteWithoutResponse);
     if (!_active) throw StateError('Acaia disconnected');
-    _lastPacketMs = _clock.elapsedMilliseconds;
+    _lastReadingMs = _clock.elapsedMilliseconds;
     _maintenance = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!_busy && _active) unawaited(_maintainConnection());
     });
@@ -155,7 +159,7 @@ class AcaiaScaleConnection {
   }
 
   Future<void> _recoverIfSilent() async {
-    if (_clock.elapsedMilliseconds - _lastPacketMs < 2000) return;
+    if (_clock.elapsedMilliseconds - _lastReadingMs < 2000) return;
     await _write(
       acaiaIdentify(classic: classic),
       withoutResponse: supportsWriteWithoutResponse,

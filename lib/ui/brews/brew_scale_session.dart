@@ -38,6 +38,7 @@ class BrewScaleSession extends ChangeNotifier {
   }
 
   bool _dialReset = false;
+  bool _recoveringFilter = false;
   bool _wasConnected = false;
   bool _disposed = false;
   bool startFailed = false;
@@ -70,6 +71,10 @@ class BrewScaleSession extends ChangeNotifier {
 
   void _onScaleChanged() {
     final connected = scale.connected;
+    if (_recoveringFilter && !scale.recoveringConnection) {
+      _recoveringFilter = false;
+      if (!connected && recording) _requestStop(_Source.scaleButton);
+    }
     if (connected != _wasConnected) {
       _wasConnected = connected;
       if (!connected) {
@@ -78,7 +83,9 @@ class BrewScaleSession extends ChangeNotifier {
         _pendingTimerChange = false;
         _pendingReset = false;
         _dripWatch = null;
-        if (recording) _requestStop(_Source.scaleButton);
+        _recoveringFilter =
+            recording && !isEspresso() && scale.recoveringConnection;
+        if (recording && !_recoveringFilter) _requestStop(_Source.scaleButton);
       }
       notifyListeners();
     }
