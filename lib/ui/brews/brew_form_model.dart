@@ -389,13 +389,7 @@ class BrewFormModel extends ChangeNotifier {
           methodName: brew.methodName,
         ),
       );
-      if (!_waterTouched &&
-          waterProfileId == null &&
-          waterProfiles.any(
-            (row) => row.id == brew.waterProfileId && row.archivedAtMs == null,
-          )) {
-        waterProfileId = brew.waterProfileId;
-      }
+      if (!loadingWaterProfiles) _waterProfilesChanged(waterProfiles);
       _notify();
       await _loadTools(
         selectedMethodId,

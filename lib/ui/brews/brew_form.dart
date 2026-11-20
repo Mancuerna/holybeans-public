@@ -459,6 +459,10 @@ class _BrewFormState extends State<BrewForm> {
                       ),
                       result(),
                     ] else ...[
+                      BrewDateTimeChips(
+                        value: model.brewedAt,
+                        onChanged: model.setBrewedAt,
+                      ),
                       BrewChoiceSection(
                         model: model,
                         coffees: widget.coffees,
@@ -489,10 +493,6 @@ class _BrewFormState extends State<BrewForm> {
                         ),
                         result(),
                       ],
-                      BrewDateTimeChips(
-                        value: model.brewedAt,
-                        onChanged: model.setBrewedAt,
-                      ),
                     ],
                   ],
                 ),

@@ -145,8 +145,8 @@ void main() {
         ),
       );
       expect(
-        tester.getBottomLeft(find.byType(BrewResultSection)).dy,
-        lessThanOrEqualTo(tester.getTopLeft(find.byType(BrewDateTimeChips)).dy),
+        tester.getBottomLeft(find.byType(BrewDateTimeChips)).dy,
+        lessThanOrEqualTo(tester.getTopLeft(find.byType(BrewChoiceSection)).dy),
       );
       expect(find.byKey(const ValueKey('brew-pressure')), findsOneWidget);
       expect(find.widgetWithText(TextFormField, 'Water (g)'), findsNothing);
