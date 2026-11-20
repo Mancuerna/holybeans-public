@@ -169,21 +169,16 @@ List<PistonPoint> pistonSeries(
   return List.unmodifiable(result);
 }
 
-({double? level, double? change, double? monthly}) pistonTrend(
-  List<PistonReading> readings,
+typedef PistonTrend = ({double? level, double? change, double? monthly});
+
+PistonTrend pistonTrend(
+  List<PistonPoint> points,
   List<PistonService> services,
 ) {
   final latestService = services.map((s) => s.timeMs).fold<int>(0, math.max);
-  final series = pistonSeries(
-    readings,
-    services,
-  ).where((p) => p.timeMs >= latestService).toList();
-  if (series.isEmpty) return (level: null, change: null, monthly: null);
-  final last = series.last;
-  final start = last.cycle > 0
-      ? last.cycle
-      : last.timeMs - const Duration(days: 60).inMilliseconds;
-  final rows = series.where((p) => p.timeMs >= start).toList();
+  final rows = points.where((p) => p.timeMs >= latestService).toList();
+  if (rows.isEmpty) return (level: null, change: null, monthly: null);
+  final last = rows.last;
   if (rows.length < 3) return (level: last.value, change: null, monthly: null);
   final baseline = pistonMedian(
     rows

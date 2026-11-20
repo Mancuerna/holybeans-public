@@ -17,6 +17,8 @@ void main() {
       (tester) async {
         tester.platformDispatcher.localeTestValue = const Locale('en', 'GB');
         addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+        await tester.binding.setSurfaceSize(const Size(800, 1400));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
         final db = memoryDatabase();
         final repo = JournalRepository(db);
         final method = await repo.createMethod(name: 'Meticulous');
@@ -44,10 +46,10 @@ void main() {
         await tester.tap(find.byKey(const ValueKey('piston-refresh')));
         await tester.pumpAndSettle();
         expect(find.byType(PistonChart), findsOneWidget);
-        expect(find.textContaining('07/10/2026'), findsWidgets);
-        expect(find.textContaining('1.348 A'), findsOneWidget);
         await tester.tap(find.text(s.pistonAll));
         await tester.pumpAndSettle();
+        expect(find.textContaining('07/10/2026'), findsWidgets);
+        expect(find.textContaining('1.348 A'), findsOneWidget);
         expect(
           tester.widget<PistonChart>(find.byType(PistonChart)).points,
           hasLength(280),
@@ -58,6 +60,7 @@ void main() {
           tester.widget<PistonChart>(find.byType(PistonChart)).speed,
           true,
         );
+        expect(find.textContaining('9.87 mm/s'), findsOneWidget);
         await tester.scrollUntilVisible(
           find.byKey(const ValueKey('piston-add-service')),
           300,
