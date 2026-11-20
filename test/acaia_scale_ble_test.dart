@@ -55,14 +55,14 @@ void main() {
       await db.close();
     });
     test(
-      'second filter survives a Pearl link loss without another tare',
+      'filter after discarding a running brew recovers the same Pearl',
       () async {
         await scale.pair(FoundDevice(id: platform.id, name: platform.name));
         var now = DateTime(2026);
         final practice = BrewScaleSession(scale);
         practice.timerStarted(0);
         await Future<void>.delayed(const Duration(milliseconds: 100));
-        practice.timerStopped();
+        expect(practice.recording, isTrue);
         practice.dispose();
 
         final brew = BrewScaleSession(scale, clock: () => now);
@@ -74,6 +74,9 @@ void main() {
         platform.emit(10);
         await Future<void>.delayed(Duration.zero);
         expect(brew.pouredGrams, 10);
+        expect(platform.events.where((event) => event.startsWith('connect:')), [
+          'connect:${platform.id}',
+        ]);
         final tares = platform.tareCount;
         platform.loseConnection();
         await Future<void>.delayed(Duration.zero);
