@@ -111,13 +111,14 @@ extension BrewFormCatalogs on BrewFormModel {
   }
 
   void _waterProfilesChanged(List<WaterProfile> rows) {
-    final repeatedId = repeat ? seed?.waterProfileId : null;
-    // A repeated brew does not bring back an archived water, and a deleted
-    // one is dropped.
+    if (_fresh && !_waterTouched) {
+      waterProfileId = _recipes.memory?.brew.waterProfileId;
+    }
     final current = rows.where((row) => row.id == waterProfileId).firstOrNull;
     if (waterProfileId != null &&
         (current == null ||
-            (waterProfileId == repeatedId && current.archivedAtMs != null))) {
+            (waterProfileId != existing?.waterProfileId &&
+                current.archivedAtMs != null))) {
       waterProfileId = null;
     }
   }
@@ -140,6 +141,7 @@ extension BrewFormCatalogs on BrewFormModel {
   void waterProfileCreated(WaterProfile profile) {
     catalogs.insertWaterProfile(profile);
     selectedPreset = null;
+    _waterTouched = true;
     waterProfileId = profile.id;
     catalogs.publish();
   }
