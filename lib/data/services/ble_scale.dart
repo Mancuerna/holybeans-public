@@ -136,7 +136,12 @@ class BleScale extends BleLink<ScaleReading> implements Scale {
               )) {
             continue;
           }
+          final name = device.name.toUpperCase();
           _acaia = AcaiaScaleConnection(
+            requestHighPriority:
+                !kIsWeb &&
+                defaultTargetPlatform == TargetPlatform.android &&
+                (name.contains('PEARL') || name == 'PROCHBT001'),
             id: device.id,
             service: found.uuid,
             notify: notifyId,

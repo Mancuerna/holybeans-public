@@ -13,6 +13,7 @@ class AcaiaScaleConnection {
     required this.notify,
     required this.write,
     required this.classic,
+    required this.requestHighPriority,
     required this.withResponse,
     required this.supportsWriteWithoutResponse,
     bool timerRunning = false,
@@ -24,6 +25,7 @@ class AcaiaScaleConnection {
   final String notify;
   final String write;
   final bool classic;
+  final bool requestHighPriority;
   final bool withResponse;
   final bool supportsWriteWithoutResponse;
   final BleTrace? trace;
@@ -118,6 +120,18 @@ class AcaiaScaleConnection {
     // Identification and subscription are not gated on a settings reply.
     // Readiness still requires known units and an actual decoded reading.
     await _negotiateMtu();
+    if (_active && requestHighPriority) {
+      try {
+        await UniversalBle.requestConnectionPriority(
+          id,
+          BleConnectionPriority.highPerformance,
+          timeout: const Duration(seconds: 1),
+        );
+        emitBleTrace(trace, 'acaia.priority.ok', {});
+      } on Object catch (error) {
+        emitBleTrace(trace, 'acaia.priority.error', {'error': '$error'});
+      }
+    }
     await Future<void>.delayed(const Duration(milliseconds: 150));
     if (!classic) {
       try {
