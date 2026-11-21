@@ -25,6 +25,17 @@ class FakeAcaiaBlePlatform extends FakeScaleBlePlatform {
   bool failAcknowledgedWakeUp = false;
   bool supportsWriteWithoutResponse = true;
   bool _writeChannelFailed = false;
+  bool failPriority = false;
+  final priorityRequests = <(String, BleConnectionPriority)>[];
+  @override
+  Future<void> requestConnectionPriority(
+    String deviceId,
+    BleConnectionPriority priority,
+  ) async {
+    priorityRequests.add((deviceId, priority));
+    if (failPriority) throw StateError('Priority rejected');
+  }
+
   bool failMtu = false;
   final mtuRequests = <(String, int)>[];
   bool awake = false;

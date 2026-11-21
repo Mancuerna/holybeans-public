@@ -3,6 +3,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/scale_settings.dart';
@@ -100,12 +101,32 @@ void main() {
         expect(brew.recording, isTrue);
         expect(brew.pouredGrams, 35);
         expect(brew.curve!.weight, containsAllInOrder([10, 24, 35]));
+        expect(platform.priorityRequests, [
+          (platform.id, BleConnectionPriority.highPerformance),
+          (platform.id, BleConnectionPriority.highPerformance),
+        ]);
         expect(platform.tareCount, tares);
         platform.button(10);
         await Future<void>.delayed(Duration.zero);
         expect(brew.recording, isFalse);
       },
     );
+    test('Pearl keeps streaming if Android rejects high priority', () async {
+      platform.failPriority = true;
+      await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+      expect(scale.connected, isTrue);
+      expect(scale.reading!.grams, 18);
+      expect(trace.map((entry) => entry.$1), contains('acaia.priority.error'));
+    });
+
+    test('Pearl skips the priority request on iOS', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+      expect(scale.connected, isTrue);
+      expect(platform.priorityRequests, isEmpty);
+    });
+
     test('filter stops when the Pearl cannot be recovered', () async {
       await scale.pair(FoundDevice(id: platform.id, name: platform.name));
       final brew = BrewScaleSession(scale);
