@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:holybeans/domain/water_adjustment.dart';
 import 'package:holybeans/domain/water_chemistry.dart';
 import 'package:holybeans/domain/water_presets.dart';
 import 'package:holybeans/ui/equipment/water_calculator_model.dart';
@@ -52,6 +53,62 @@ void main() {
     expect(model.recipe!.result.kh, closeTo(5.957, .001));
     expect(model.recipe!.result[WaterIon.chloride], 0);
   });
+
+  test('Asami recipes calculate hardness and buffer from the salt doses', () {
+    for (final (preset, gh, kh) in [
+      (WaterPreset.apaxKonflux, 35.74, 29.36),
+      (WaterPreset.aviaryFilter, 62.02, 26.21),
+      (WaterPreset.stillCoffee, 38.0, 20.0),
+      (WaterPreset.substance, 89.59, 39.32),
+      (WaterPreset.xliii, 64.97, 0.0),
+    ]) {
+      expect(preset.composition.gh, closeTo(gh, .09), reason: preset.name);
+      expect(preset.composition.kh, closeTo(kh, .09), reason: preset.name);
+    }
+  });
+
+  test('published doses survive salt selection, saving and scaling', () {
+    for (final preset in WaterPreset.values) {
+      final model = WaterCalculatorModel()
+        ..choosePreset(preset)
+        ..usePresetSalts();
+      addTearDown(model.dispose);
+      final restored = WaterCalculatorModel(
+        seed: WaterRecipe.fromJson(model.recipe!.toJson()),
+      );
+      addTearDown(restored.dispose);
+      restored.litres.text = '3';
+      final published = preset.gramsPerLitre(restored.calcium);
+      for (final salt in WaterSalt.values) {
+        expect(
+          restored.recipe!.grams[salt],
+          closeTo(3 * (published[salt] ?? 0), 1e-9),
+          reason: '${preset.name} ${salt.name}',
+        );
+      }
+    }
+  });
+
+  test(
+    'neutral salt adjustments work with zero hardness and buffer deficits',
+    () {
+      final salts = {
+        WaterSalt.sodiumChloride: .010,
+        WaterSalt.potassiumChloride: .020,
+      };
+      final target = waterFromSalts(salts, 1, CalciumForm.anhydrous);
+      final adjusted = adjustWater(
+        base: WaterComposition.distilled(),
+        target: target,
+        litres: 2,
+        calcium: CalciumForm.anhydrous,
+        allowed: salts.keys.toSet(),
+      );
+      for (final entry in salts.entries) {
+        expect(adjusted[entry.key], closeTo(entry.value * 2, 1e-7));
+      }
+    },
+  );
 
   test('BH adaptations reproduce their documented targets', () {
     for (final (preset, gh, kh) in [

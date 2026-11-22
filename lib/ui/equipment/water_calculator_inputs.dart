@@ -428,8 +428,8 @@ class WaterCalculatorInputs extends StatelessWidget {
             (s) => hardness
                 ? (model.mixHardness
                       ? s.group == WaterSaltGroup.magnesium
-                      : s.contributesGh)
-                : !s.contributesGh,
+                      : s.isHardnessSource)
+                : s.group == WaterSaltGroup.alkalinity,
           ))
             DropdownMenuItem(
               value: salt,

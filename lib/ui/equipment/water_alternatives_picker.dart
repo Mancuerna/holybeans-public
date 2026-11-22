@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:holybeans/domain/water_chemistry.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
-import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/equipment/water_calculator_model.dart';
 import 'package:holybeans/ui/equipment/water_profile_values.dart';
-import 'package:intl/intl.dart';
 
 class WaterAlternativesPicker extends StatelessWidget {
   const WaterAlternativesPicker({super.key, required this.model});
@@ -14,7 +12,6 @@ class WaterAlternativesPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     if (model.alternatives.length < 2) return const SizedBox.shrink();
     final s = AppLocalizations.of(context);
-    final grams = NumberFormat('0.000', regionalLocale.toString());
     return ExpansionTile(
       key: const ValueKey('water-alternatives'),
       tilePadding: EdgeInsets.zero,
@@ -37,7 +34,7 @@ class WaterAlternativesPicker extends StatelessWidget {
               [
                 for (final salt in WaterSalt.values)
                   if (model.alternatives[i].grams[salt]! > 1e-8)
-                    '${saltLabel(s, salt)}: ${grams.format(model.alternatives[i].grams[salt])} g',
+                    '${saltLabel(s, salt)}: ${formatDoseGrams(model.alternatives[i].grams[salt]!)} g',
               ].join('\n'),
             ),
             onTap: () => model.selectAlternative(i),

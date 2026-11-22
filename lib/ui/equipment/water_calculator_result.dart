@@ -22,7 +22,6 @@ class WaterCalculatorResult extends StatelessWidget {
     final result = recipe.result;
     final target = recipe.target;
     final number = NumberFormat('0.##', regionalLocale.toString());
-    final grams = NumberFormat('0.000', regionalLocale.toString());
     final addedPotassium =
         recipe.base[WaterIon.potassium] == null &&
             result[WaterIon.potassium] == null
@@ -54,7 +53,7 @@ class WaterCalculatorResult extends StatelessWidget {
             title: Text(saltLabel(s, salt)),
             subtitle: Text(_formula(salt, recipe.calcium)),
             trailing: Text(
-              '${grams.format(recipe.grams[salt])} g',
+              '${formatDoseGrams(recipe.grams[salt]!)} g',
               key: ValueKey('water-dose-${salt.name}'),
               style: Theme.of(context).textTheme.titleMedium,
             ),
@@ -139,6 +138,10 @@ class WaterCalculatorResult extends StatelessWidget {
 }
 
 String _formula(WaterSalt salt, CalciumForm calcium) => switch (salt) {
+  WaterSalt.calciumCarbonate => 'CaCO₃ + CO₂',
+  WaterSalt.gypsum => 'CaSO₄·2H₂O',
+  WaterSalt.sodiumChloride => 'NaCl',
+  WaterSalt.potassiumChloride => 'KCl',
   WaterSalt.epsom => 'MgSO₄·7H₂O',
   WaterSalt.magnesiumChloride => 'MgCl₂·6H₂O',
   WaterSalt.calciumChloride =>
