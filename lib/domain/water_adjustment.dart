@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:holybeans/domain/water_chemistry.dart';
 
-// Five nonnegative variables expressed in GH or alkalinity contribution.
+// Nonnegative salt doses constrained by hardness and alkalinity.
 // Enumerate active salts and solve each equality-constrained least-squares
 // problem. GH/KH deficits are exact; known ions decide among those solutions.
 Map<WaterSalt, double> adjustWater({
@@ -25,19 +25,26 @@ Map<WaterSalt, double> adjustWater({
     math.max(0.0, target.gh! - base.gh!),
     math.max(0.0, target.kh! - base.kh!),
   ];
+  int group(WaterSalt salt) => switch (salt.group) {
+    WaterSaltGroup.neutral || WaterSaltGroup.carbonated => -1,
+    WaterSaltGroup.alkalinity => 1,
+    _ => 0,
+  };
   if (allowPartial) {
-    for (var group = 0; group < 2; group++) {
-      if (!allowed.any((salt) => (salt.contributesGh ? 0 : 1) == group)) {
-        deficits[group] = 0;
-      }
+    for (var g = 0; g < deficits.length; g++) {
+      if (!allowed.any((salt) => group(salt) == g)) deficits[g] = 0;
     }
   }
-  const salts = WaterSalt.values;
+  final salts = WaterSalt.values
+      .where((s) => allowed.contains(s) && s != WaterSalt.calciumCarbonate)
+      .toList();
   final factors = [
     for (final salt in salts)
-      salt.contributesGh
-          ? saltContribution(salt, calcium, 1).gh!
-          : saltContribution(salt, calcium, 1).kh!,
+      switch (group(salt)) {
+        0 => saltContribution(salt, calcium, 1).gh!,
+        1 => saltContribution(salt, calcium, 1).kh!,
+        _ => 1000.0, // Neutral salts are solved in mg/L.
+      },
   ];
   final columns = [
     for (var i = 0; i < salts.length; i++)
@@ -53,12 +60,12 @@ Map<WaterSalt, double> adjustWater({
     rows.add([for (final column in columns) column[ion]! / scale]);
     desired.add((goal - initial) / scale);
   }
-  final q = List.generate(5, (_) => List.filled(5, 0.0));
-  final b = List.filled(5, 0.0);
-  for (var i = 0; i < 5; i++) {
+  final q = List.generate(salts.length, (_) => List.filled(salts.length, 0.0));
+  final b = List.filled(salts.length, 0.0);
+  for (var i = 0; i < salts.length; i++) {
     for (var r = 0; r < rows.length; r++) {
       b[i] += rows[r][i] * desired[r];
-      for (var j = 0; j < 5; j++) {
+      for (var j = 0; j < salts.length; j++) {
         q[i][j] += rows[r][i] * rows[r][j];
       }
     }
@@ -67,15 +74,13 @@ Map<WaterSalt, double> adjustWater({
   }
   List<double>? best;
   var bestScore = double.infinity;
-  for (var mask = 0; mask < 32; mask++) {
+  for (var mask = 0; mask < (1 << salts.length); mask++) {
     final active = [
-      for (var i = 0; i < 5; i++)
+      for (var i = 0; i < salts.length; i++)
         if ((mask & (1 << i)) != 0) i,
     ];
     if (active.any(
-      (i) =>
-          !allowed.contains(salts[i]) ||
-          deficits[salts[i].contributesGh ? 0 : 1] < 1e-10,
+      (i) => group(salts[i]) >= 0 && deficits[group(salts[i])] < 1e-10,
     )) {
       continue;
     }
@@ -83,14 +88,8 @@ Map<WaterSalt, double> adjustWater({
       for (var g = 0; g < 2; g++)
         if (deficits[g] >= 1e-10) g,
     ];
-    if (groups.any(
-      (g) => !active.any((i) => (salts[i].contributesGh ? 0 : 1) == g),
-    )) {
+    if (groups.any((g) => !active.any((i) => group(salts[i]) == g))) {
       continue;
-    }
-    if (active.isEmpty) {
-      best = List.filled(5, 0);
-      break;
     }
     final n = active.length;
     final size = n + groups.length;
@@ -102,9 +101,7 @@ Map<WaterSalt, double> adjustWater({
         matrix[a][c] = q[active[a]][active[c]];
       }
       for (var g = 0; g < groups.length; g++) {
-        final value = (salts[active[a]].contributesGh ? 0 : 1) == groups[g]
-            ? 1.0
-            : 0.0;
+        final value = group(salts[active[a]]) == groups[g] ? 1.0 : 0.0;
         matrix[a][n + g] = value;
         matrix[n + g][a] = value;
       }
@@ -116,14 +113,15 @@ Map<WaterSalt, double> adjustWater({
     if (solved == null || solved.take(n).any((v) => !v.isFinite || v < -1e-7)) {
       continue;
     }
-    final amounts = List.filled(5, 0.0);
+    final amounts = List.filled(salts.length, 0.0);
     for (var a = 0; a < n; a++) {
       amounts[active[a]] = math.max(0, solved[a]);
     }
+    _correctGroupTotals(amounts, salts, group, deficits);
     var score = 0.0;
     for (var r = 0; r < rows.length; r++) {
       var value = -desired[r];
-      for (var i = 0; i < 5; i++) {
+      for (var i = 0; i < salts.length; i++) {
         value += rows[r][i] * amounts[i];
       }
       score += value * value;
@@ -137,7 +135,11 @@ Map<WaterSalt, double> adjustWater({
   if (best == null) {
     throw ArgumentError('Selected salts cannot reach GH/KH deficits');
   }
-  return {for (var i = 0; i < 5; i++) salts[i]: best[i] / factors[i] * litres};
+  return {
+    for (final salt in WaterSalt.values) salt: 0,
+    for (var i = 0; i < salts.length; i++)
+      salts[i]: best[i] / factors[i] * litres,
+  };
 }
 
 // Preserve the requested Ca/Mg split whenever both deficits are reachable.
@@ -152,7 +154,7 @@ Map<WaterSalt, double> adjustWaterMixture({
   Set<WaterSalt> allowed = const {...WaterSalt.values},
 }) {
   if (magnesiumSource.group != WaterSaltGroup.magnesium ||
-      khSource.contributesGh ||
+      khSource.group != WaterSaltGroup.alkalinity ||
       !litres.isFinite ||
       litres <= 0 ||
       base.kh == null ||
@@ -226,6 +228,7 @@ Map<WaterSalt, double> adjustWaterToIons({
     WaterSaltGroup.magnesium => 0,
     WaterSaltGroup.calcium => 1,
     WaterSaltGroup.alkalinity => 2,
+    WaterSaltGroup.neutral || WaterSaltGroup.carbonated => -1,
   };
   final deficits = [
     for (var g = 0; g < 3; g++)
@@ -233,13 +236,16 @@ Map<WaterSalt, double> adjustWaterToIons({
           ? math.max(0.0, goals[g]! - initial[g]!)
           : 0.0,
   ];
-  const salts = WaterSalt.values;
+  final salts = WaterSalt.values
+      .where((s) => allowed.contains(s) && s != WaterSalt.calciumCarbonate)
+      .toList();
   final factors = [
     for (final salt in salts)
       switch (group(salt)) {
         0 => saltContribution(salt, calcium, 1)[WaterIon.magnesium]!,
         1 => saltContribution(salt, calcium, 1)[WaterIon.calcium]!,
-        _ => saltContribution(salt, calcium, 1).kh!,
+        2 => saltContribution(salt, calcium, 1).kh!,
+        _ => 1000.0,
       },
   ];
   final rows = <List<double>>[];
@@ -260,13 +266,13 @@ Map<WaterSalt, double> adjustWaterToIons({
   }
   List<double>? best;
   var bestScore = double.infinity;
-  for (var mask = 0; mask < 32; mask++) {
+  for (var mask = 0; mask < (1 << salts.length); mask++) {
     final active = [
-      for (var i = 0; i < 5; i++)
+      for (var i = 0; i < salts.length; i++)
         if (mask & (1 << i) != 0) i,
     ];
     if (active.any(
-      (i) => !allowed.contains(salts[i]) || deficits[group(salts[i])] < 1e-10,
+      (i) => group(salts[i]) >= 0 && deficits[group(salts[i])] < 1e-10,
     )) {
       continue;
     }
@@ -275,10 +281,6 @@ Map<WaterSalt, double> adjustWaterToIons({
         if (deficits[g] >= 1e-10) g,
     ];
     if (groups.any((g) => !active.any((i) => group(salts[i]) == g))) continue;
-    if (active.isEmpty) {
-      best = List.filled(5, 0);
-      break;
-    }
     final n = active.length;
     final matrix = List.generate(
       n + groups.length,
@@ -306,14 +308,15 @@ Map<WaterSalt, double> adjustWaterToIons({
     if (solved == null || solved.take(n).any((v) => !v.isFinite || v < -1e-7)) {
       continue;
     }
-    final values = List.filled(5, 0.0);
+    final values = List.filled(salts.length, 0.0);
     for (var a = 0; a < n; a++) {
       values[active[a]] = math.max(0.0, solved[a]);
     }
+    _correctGroupTotals(values, salts, group, deficits);
     var score = values.fold<double>(0, (sum, v) => sum + 1e-9 * v * v);
     for (var r = 0; r < rows.length; r++) {
       var error = -desired[r];
-      for (var i = 0; i < 5; i++) {
+      for (var i = 0; i < salts.length; i++) {
         error += rows[r][i] * values[i];
       }
       score += error * error;
@@ -324,7 +327,31 @@ Map<WaterSalt, double> adjustWaterToIons({
     }
   }
   if (best == null) throw ArgumentError('Unable to solve water targets');
-  return {for (var i = 0; i < 5; i++) salts[i]: best[i] / factors[i] * litres};
+  return {
+    for (final salt in WaterSalt.values) salt: 0,
+    for (var i = 0; i < salts.length; i++)
+      salts[i]: best[i] / factors[i] * litres,
+  };
+}
+
+// When two mixtures are chemically equivalent the fit can be ill-conditioned.
+// Restore the equality constraints after rounding tiny negative doses to zero.
+void _correctGroupTotals(
+  List<double> doses,
+  List<WaterSalt> salts,
+  int Function(WaterSalt) group,
+  List<double> deficits,
+) {
+  for (var g = 0; g < deficits.length; g++) {
+    var total = 0.0;
+    var largest = -1;
+    for (var i = 0; i < salts.length; i++) {
+      if (group(salts[i]) != g || doses[i] == 0) continue;
+      total += doses[i];
+      if (largest < 0 || doses[i] > doses[largest]) largest = i;
+    }
+    if (largest >= 0) doses[largest] += deficits[g] - total;
+  }
 }
 
 List<double>? _solve(List<List<double>> matrix, List<double> rhs) {

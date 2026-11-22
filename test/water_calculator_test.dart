@@ -56,7 +56,13 @@ void main() {
               2 * w[WaterIon.sulfate]! / 96.063 +
               w[WaterIon.bicarbonate]! / bicarbonateMass;
           expect(positive, closeTo(negative, 1e-9));
-          expect(w.mineralSum, lessThanOrEqualTo(1000.02));
+          if (salt == WaterSalt.calciumCarbonate) {
+            // Dissolved CO₂ supplies the extra bicarbonate mass.
+            expect(w.kh, closeTo(1000, 1e-8));
+            expect(w.gh, closeTo(1000, 1e-8));
+          } else {
+            expect(w.mineralSum, lessThanOrEqualTo(1000.02));
+          }
         }
       }
     },
@@ -147,7 +153,9 @@ void main() {
       final base = WaterComposition(
         ions: target.ions.map((ion, v) => MapEntry(ion, v! * .25)),
       );
+      final ref = WaterPreset.raoPerger.gramsPerLitre(CalciumForm.dihydrate);
       final grams = adjustWater(
+        allowed: ref.keys.toSet(),
         base: base,
         target: target,
         litres: 5,
@@ -157,8 +165,7 @@ void main() {
       for (final ion in WaterIon.values) {
         expect(result[ion], closeTo(target[ion]!, .0001));
       }
-      final ref = WaterPreset.raoPerger.gramsPerLitre(CalciumForm.dihydrate);
-      for (final salt in WaterSalt.values) {
+      for (final salt in ref.keys) {
         expect(grams[salt], closeTo(ref[salt]! * 3.75, .00001));
       }
     },

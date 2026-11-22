@@ -42,7 +42,13 @@ void main() {
       target: target,
       litres: 1,
       calcium: CalciumForm.dihydrate,
-      allowed: WaterSalt.values.toSet(),
+      allowed: {
+        WaterSalt.calciumChloride,
+        WaterSalt.epsom,
+        WaterSalt.magnesiumChloride,
+        WaterSalt.sodiumBicarbonate,
+        WaterSalt.potassiumBicarbonate,
+      },
     );
     for (final (salt, expected) in [
       (WaterSalt.calciumChloride, .14702),
@@ -144,18 +150,27 @@ void main() {
         expect(
           result[WaterIon.calcium],
           closeTo(
-            allowed.contains(WaterSalt.calciumChloride) ? max(ca, 40.078) : ca,
+            allowed.any((s) => s.group == WaterSaltGroup.calcium)
+                ? max(ca, 40.078)
+                : ca,
             1e-7,
           ),
         );
         expect(
           result[WaterIon.magnesium],
-          closeTo(allowed.any((s) => s.index < 2) ? max(mg, 24.305) : mg, 1e-7),
+          closeTo(
+            allowed.any((s) => s.group == WaterSaltGroup.magnesium)
+                ? max(mg, 24.305)
+                : mg,
+            1e-7,
+          ),
         );
         expect(
           result.kh,
           closeTo(
-            allowed.any((s) => s.index >= 3) ? max(kh, 100.0869) : kh,
+            allowed.any((s) => s.group == WaterSaltGroup.alkalinity)
+                ? max(kh, 100.0869)
+                : kh,
             1e-7,
           ),
         );
@@ -211,6 +226,14 @@ void main() {
     final old = jsonDecode(model.recipe!.toJson()) as Map<String, dynamic>;
     old.remove('availableSalts');
     old.remove('ionTargets');
+    for (final salt in [
+      WaterSalt.gypsum,
+      WaterSalt.sodiumChloride,
+      WaterSalt.potassiumChloride,
+      WaterSalt.calciumCarbonate,
+    ]) {
+      (old['grams'] as Map).remove(salt.name);
+    }
     final reopened = WaterCalculatorModel(
       seed: WaterRecipe.fromJson(jsonEncode(old)),
     );

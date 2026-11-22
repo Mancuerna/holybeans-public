@@ -138,6 +138,18 @@ class WaterCalculatorModel extends ChangeNotifier {
         seed.base.gh != 0 ||
         seed.base.kh != 0;
     _savedTarget = seed.target;
+    // Reopen a current catalog formula with its original salts, even when
+    // several combinations can reproduce the same ionic composition.
+    if (mode == WaterCalculationMode.preset && seed.presetId == preset.name) {
+      final current = preset.composition;
+      final stored = seed.target;
+      if (stored != null &&
+          stored.gh == current.gh &&
+          stored.kh == current.kh &&
+          WaterIon.values.every((ion) => stored[ion] == current[ion])) {
+        _savedTarget = null;
+      }
+    }
     isSavedTarget =
         seed.mode == WaterCalculationMode.preset && seed.presetId == null;
   }
@@ -201,11 +213,13 @@ class WaterCalculatorModel extends ChangeNotifier {
             .toSet();
 
   void usePresetSalts() {
+    recipe = null;
     availableSalts.addAll(missingPresetSalts);
     recalculate();
   }
 
   void choosePreset(WaterPreset value) {
+    recipe = null;
     preset = value;
     isSavedTarget = false;
     savedTargetId = null;
@@ -320,7 +334,7 @@ class WaterCalculatorModel extends ChangeNotifier {
 
   void recalculate() {
     if (_settingFields) return;
-    final previous = recipe;
+    final previous = selectedAlternative > 0 ? recipe : null;
     recipe = null;
     alternatives = [];
     selectedAlternative = 0;
