@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.17.0](https://github.com/Mancuerna/holybeans-public/compare/v1.16.0...v1.17.0) (2026-11-22)
+
+
+### Features
+
+* **water:** add reproducible Watering Hole recipes ([#176](https://github.com/Mancuerna/holybeans-public/issues/176)) ([a3a19fb](https://github.com/Mancuerna/holybeans-public/commit/a3a19fbe8163fa4a08016f8433ac2467d6700d11))
+
+
+### Bug Fixes
+
+* **scales:** request high connection priority for Pearl on Android ([#174](https://github.com/Mancuerna/holybeans-public/issues/174)) ([57098ea](https://github.com/Mancuerna/holybeans-public/commit/57098ea8832e4a5d7e72dbc2ad76cf9edb7971ac))
+
 ## [1.16.0](https://github.com/Mancuerna/holybeans-public/compare/v1.15.1...v1.16.0) (2026-11-20)
 
 
