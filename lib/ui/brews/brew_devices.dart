@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:holybeans/data/services/portal_sensor.dart';
 import 'package:holybeans/data/services/pressure_sensor.dart';
 import 'package:holybeans/data/services/refractometer.dart';
 import 'package:holybeans/data/services/scale.dart';
 import 'package:holybeans/domain/filter_brew_progress.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/ui/brews/brew_draft.dart';
+import 'package:holybeans/ui/brews/brew_portal_session.dart';
 import 'package:holybeans/ui/brews/brew_pressure_session.dart';
 import 'package:holybeans/ui/brews/brew_scale_session.dart';
 import 'package:holybeans/ui/brews/brew_timer.dart';
@@ -23,6 +25,7 @@ class BrewDevices {
     required this.timer,
     required bool Function() isEspresso,
     Scale? scale,
+    BlePortalSensor? portalSensor,
     PressureSensor? pressureSensor,
     Refractometer? refractometer,
     VoidCallback? onMeasurement,
@@ -33,6 +36,9 @@ class BrewDevices {
        scale = scale?.name == null
            ? null
            : BrewScaleSession(scale!, clock: clock, stopwatch: stopwatch),
+       portal = portalSensor?.name == null
+           ? null
+           : BrewPortalSession(portalSensor!),
        pressure = pressureSensor?.name == null
            ? null
            : BrewPressureSession(pressureSensor!) {
@@ -82,6 +88,7 @@ class BrewDevices {
     });
   }
 
+  final BrewPortalSession? portal;
   final BrewDraft draft;
   final BrewTimer timer;
   final bool Function() _isEspresso;
@@ -112,7 +119,11 @@ class BrewDevices {
       : parseNumber(draft.water.text);
 
   void timerStarted(int fromSeconds) {
-    if (scale?.restartsOnNextStart ?? false) pressure?.timerReset();
+    if (scale?.restartsOnNextStart ?? false) {
+      pressure?.timerReset();
+      portal?.reset();
+    }
+    if (_isEspresso()) portal?.start(fromSeconds);
     if (!_isEspresso() && !_filterTargetCaptured && scale != null) {
       _filterWaterTarget = parseNumber(draft.water.text);
       _filterTargetCaptured = true;
@@ -126,6 +137,7 @@ class BrewDevices {
   void timerStopped() {
     scale?.timerStopped();
     pressure?.timerStopped();
+    portal?.stop();
     // A discarded attempt must not fill the result of the next one.
     if (scale?.restartsOnNextStart ?? false) return;
     if (!_isEspresso()) {
@@ -150,6 +162,7 @@ class BrewDevices {
     _filterWaterTarget = null;
     scale?.timerReset();
     pressure?.timerReset();
+    portal?.reset();
   }
 
   void _fillFirstDrip(int seconds) {
@@ -158,12 +171,17 @@ class BrewDevices {
     }
   }
 
-  /// The curve to save: the scale's, with the sensor's pressure for an
-  /// espresso (the sensor sits on the espresso machine).
-  ShotCurve? get curve => switch (scale?.curve) {
-    final curve? when _isEspresso() => pressure?.withPressure(curve) ?? curve,
-    final curve => curve,
-  };
+  /// The Portal can record an espresso with or without a scale.
+  ShotCurve? get curve {
+    final weight = scale?.curve;
+    if (!_isEspresso()) return weight;
+    final primary = weight == null
+        ? null
+        : pressure?.withPressure(weight) ?? weight;
+    final recording = portal?.recording;
+    if (recording == null) return primary;
+    return primary?.withPortal(recording) ?? ShotCurve.portalOnly(recording);
+  }
 
   void dispose() {
     unawaited(_doses?.cancel());
@@ -171,5 +189,6 @@ class BrewDevices {
     measureProblem.dispose();
     scale?.dispose();
     pressure?.dispose();
+    portal?.dispose();
   }
 }

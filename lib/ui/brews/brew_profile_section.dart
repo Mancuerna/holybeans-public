@@ -4,6 +4,7 @@ import 'package:holybeans/domain/extraction_profile.dart';
 import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/extraction_chart.dart';
+import 'package:holybeans/ui/brews/portal_chart.dart';
 import 'package:holybeans/ui/profiles/profile_plot.dart';
 
 /// The saved extraction curve, if the brew has one.
@@ -40,7 +41,7 @@ class BrewCurveSection extends StatelessWidget {
                         ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
-                if (onSaveProfile != null)
+                if (onSaveProfile != null && !curve.isEmpty)
                   Align(
                     alignment: Alignment.centerLeft,
                     child: TextButton.icon(
@@ -50,15 +51,18 @@ class BrewCurveSection extends StatelessWidget {
                     ),
                   ),
                 const SizedBox(height: 6),
-                ExtractionChart(
-                  curve: curve,
-                  firstDripMs: firstDripMs,
-                  showFlowStatistics: espresso,
-                  // Scales, and BeanConqueror, weigh the flow.
-                  flowUnit: source == ImportOperations.meticulousSource
-                      ? 'ml/s'
-                      : 'g/s',
-                ),
+                if (!curve.isEmpty)
+                  ExtractionChart(
+                    curve: curve,
+                    firstDripMs: firstDripMs,
+                    showFlowStatistics: espresso,
+                    // Scales, and BeanConqueror, weigh the flow.
+                    flowUnit: source == ImportOperations.meticulousSource
+                        ? 'ml/s'
+                        : 'g/s',
+                  ),
+                if (curve.portal case final portal?)
+                  PortalChart(portal: portal, primary: curve),
               ],
             ),
           ),

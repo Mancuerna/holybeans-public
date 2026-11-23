@@ -34,6 +34,7 @@ class BrewFormChanges {
   bool get changed =>
       model.timer.running ||
       model.devices.curve != null ||
+      model.alignedPortal != null ||
       model.importedShot != null ||
       model.importedGaggimateShot != null ||
       model.importedFreePour != null ||

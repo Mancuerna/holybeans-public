@@ -337,6 +337,9 @@ class BrewWriter {
     } else if (curve != null) {
       await _recordings.saveScaleCurve(row.id, curve);
     }
+    if (curve?.portal case final portal?) {
+      await _recordings.savePortal(row.id, portal);
+    }
     if (photos != null) await _photos.setBrewPhotos(row.id, photos);
   }
 

@@ -11,6 +11,7 @@ import 'package:holybeans/ui/coffee_maze/coffee_maze_page.dart';
 import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/scale/scale_readout.dart';
 import 'package:holybeans/ui/settings/brew_parameters_page.dart';
+import 'package:holybeans/ui/settings/portal_section.dart';
 import 'package:holybeans/ui/settings/pressure_sensor_section.dart';
 import 'package:holybeans/ui/settings/refractometer_section.dart';
 import 'package:holybeans/ui/settings/scale_section.dart';
@@ -115,6 +116,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final s = AppLocalizations.of(context);
     final devices = <PairedDevice>[
       ?services.scale,
+      ?services.portalSensor,
       ?services.pressureSensor,
       ?services.refractometer,
     ];
@@ -309,6 +311,15 @@ class _SettingsPageState extends State<SettingsPage> {
         ScaleSection(scale: scale),
         device: scale,
         status: scaleStatusLabel,
+      ),
+    if (services.portalSensor case final portal?)
+      _deviceTile(
+        'settings-portal',
+        'Belka Portal',
+        Icons.sensors,
+        PortalSection(sensor: portal),
+        device: portal,
+        status: pressureSensorStatusLabel,
       ),
     if (services.pressureSensor case final sensor?)
       _deviceTile(
