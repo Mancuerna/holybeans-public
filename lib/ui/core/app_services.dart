@@ -10,6 +10,7 @@ import 'package:holybeans/data/services/export_folder.dart';
 import 'package:holybeans/data/services/incoming_shares.dart';
 import 'package:holybeans/data/services/loffee_api.dart';
 import 'package:holybeans/data/services/photo_store.dart';
+import 'package:holybeans/data/services/portal_sensor.dart';
 import 'package:holybeans/data/services/pressure_sensor.dart';
 import 'package:holybeans/data/services/rate_reminders.dart';
 import 'package:holybeans/data/services/refractometer.dart';
@@ -29,6 +30,7 @@ class AppServices {
     this.reminders,
     this.openRate,
     this.scale,
+    this.portalSensor,
     this.pressureSensor,
     this.refractometer,
     this.exportFolder,
@@ -47,6 +49,7 @@ class AppServices {
     required BrewParameterSettings parameterSettings,
     PhotoStore? photos,
     Scale? scale,
+    BlePortalSensor? portalSensor,
     PressureSensor? pressureSensor,
     Refractometer? refractometer,
   }) => AppServices(
@@ -55,6 +58,7 @@ class AppServices {
     parameterSettings: parameterSettings,
     photos: photos,
     scale: scale,
+    portalSensor: portalSensor,
     pressureSensor: pressureSensor,
     refractometer: refractometer,
   );
@@ -65,6 +69,7 @@ class AppServices {
     RateReminderSettings? reminderSettings,
     RateReminders? reminders,
     Scale? scale,
+    BlePortalSensor? portalSensor,
     PressureSensor? pressureSensor,
     Refractometer? refractometer,
   }) => AppServices(
@@ -74,6 +79,7 @@ class AppServices {
     reminderSettings: reminderSettings,
     reminders: reminders,
     scale: scale,
+    portalSensor: portalSensor,
     pressureSensor: pressureSensor,
     refractometer: refractometer,
   );
@@ -87,6 +93,7 @@ class AppServices {
   final RateReminders? reminders;
   final ValueNotifier<String?>? openRate;
   final Scale? scale;
+  final BlePortalSensor? portalSensor;
   final PressureSensor? pressureSensor;
   final Refractometer? refractometer;
   final ExportFolder? exportFolder;

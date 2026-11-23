@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:holybeans/domain/axis_ticks.dart';
+import 'package:holybeans/domain/portal_protocol.dart';
 
 /// One quantity recorded along a shot.
 enum CurveSeries { weight, flow, pressure }
@@ -37,6 +38,9 @@ class ShotCurve {
       throw const FormatException('Curve series differ in length');
     }
     return ShotCurve(
+      portal: json['portal'] == null
+          ? null
+          : PortalRecording.fromJson(json['portal']),
       timesMs: [for (final time in times) time.round()],
       pressure: [for (final value in pressure) value.toDouble()],
       flow: [for (final value in flow) value.toDouble()],
@@ -45,6 +49,7 @@ class ShotCurve {
   }
   ShotCurve({
     required this.timesMs,
+    this.portal,
     this.pressure = const [],
     required this.flow,
     required this.weight,
@@ -55,6 +60,21 @@ class ShotCurve {
            weight,
          ].every((values) => values.isEmpty || values.length == timesMs.length),
        );
+
+  final PortalRecording? portal;
+  ShotCurve withPortal(PortalRecording? recording) => ShotCurve(
+    timesMs: timesMs,
+    pressure: pressure,
+    flow: flow,
+    weight: weight,
+    portal: recording,
+  );
+  static ShotCurve portalOnly(PortalRecording recording) => ShotCurve(
+    timesMs: const [],
+    flow: const [],
+    weight: const [],
+    portal: recording,
+  );
 
   final List<int> timesMs;
   final List<double> pressure;
@@ -145,6 +165,7 @@ class ShotCurve {
     return ShotCurve(
       timesMs: timesMs,
       pressure: pressure,
+      portal: portal,
       flow: output,
       weight: weight,
     );
@@ -157,6 +178,7 @@ class ShotCurve {
       for (final value in values) (value * 100).round() / 100,
     ];
     return jsonEncode({
+      if (portal != null) 'portal': portal!.toJson(),
       't': timesMs,
       if (pressure.isNotEmpty) 'p': round(pressure),
       if (flow.isNotEmpty) 'f': round(flow),

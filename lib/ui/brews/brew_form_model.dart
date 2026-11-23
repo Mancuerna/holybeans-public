@@ -14,6 +14,7 @@ import 'package:holybeans/domain/extraction_profile.dart';
 import 'package:holybeans/domain/freeze_plan.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
 import 'package:holybeans/domain/gaggimate/shot.dart';
+import 'package:holybeans/domain/portal_protocol.dart';
 import 'package:holybeans/domain/pour_detection.dart';
 import 'package:holybeans/domain/pour_plan.dart';
 import 'package:holybeans/domain/recipient_snapshot.dart';
@@ -97,6 +98,7 @@ class BrewFormModel extends ChangeNotifier {
       timer: timer,
       isEspresso: () => isEspresso,
       scale: services.scale,
+      portalSensor: services.portalSensor,
       pressureSensor: services.pressureSensor,
       refractometer: services.refractometer,
       onMeasurement: _notify,
@@ -184,6 +186,18 @@ class BrewFormModel extends ChangeNotifier {
 
   BrewScaleSession? get scaleSession => devices.scale;
   BrewPressureSession? get pressureSession => devices.pressure;
+
+  late final savedRecording = existing == null
+      ? Future<({ShotCurve curve, String source})?>.value()
+      : repository.brewCurve(existing!.id);
+  PortalRecording? alignedPortal;
+
+  ShotCurve? _recordedCurve(bool espresso) {
+    final primary = devices.curve;
+    final portal = espresso ? alignedPortal : null;
+    if (portal == null || primary?.portal != null) return primary;
+    return primary?.withPortal(portal) ?? ShotCurve.portalOnly(portal);
+  }
 
   bool get isNew => existing == null;
 
@@ -755,7 +769,7 @@ class BrewFormModel extends ChangeNotifier {
         shot: importedShot,
         gaggimateShot: gaggimateMethod == null ? null : importedGaggimateShot,
         freePour: importedFreePour,
-        curve: devices.curve,
+        curve: _recordedCurve(espresso),
         extractionProfileJson: extractionProfileJson,
       );
     } finally {

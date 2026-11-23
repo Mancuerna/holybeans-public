@@ -22,6 +22,7 @@ import 'package:holybeans/ui/brews/gaggimate_shot_widgets.dart';
 import 'package:holybeans/ui/brews/meticulous_free_pour_widgets.dart';
 import 'package:holybeans/ui/brews/meticulous_shot_widgets.dart';
 import 'package:holybeans/ui/brews/portafilter_weighing.dart';
+import 'package:holybeans/ui/brews/portal_chart.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/pressure_reference_page.dart';
 import 'package:holybeans/ui/brews/refractometer_button.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart' show formatGrams;
@@ -32,6 +33,7 @@ import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/core/suggested_text_field.dart';
 import 'package:holybeans/ui/equipment/recipients_page.dart';
 import 'package:holybeans/ui/scale/scale_compact.dart';
+import 'package:holybeans/ui/settings/portal_section.dart';
 
 /// The brew form in the order of brewing: what is brewed, the recipe,
 /// the equipment, the timing with its devices, and the result. Each section
@@ -243,6 +245,7 @@ List<Widget> brewHelpCards(BrewFormModel model, BrewFormActions actions) => [
       onImport: () => actions.importShot(method),
       onRemove: model.removeShot,
     ),
+  if (model.existing != null && model.isEspresso) savedPortalAlignment(model),
   if (model.freePourAddress case final address?)
     MeticulousFreePourCard(
       pour: model.importedFreePour,
@@ -595,6 +598,8 @@ class BrewTimingSection extends StatelessWidget {
                   null => null,
                 },
         ),
+      if (model.devices.portal case final session? when espresso)
+        PortalReadout(sensor: session.sensor),
       if (model.pressureSession case final session? when espresso)
         PressureStatusRow(
           sensor: session.sensor,
