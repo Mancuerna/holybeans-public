@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.18.0](https://github.com/Mancuerna/holybeans-public/compare/v1.17.0...v1.18.0) (2026-11-23)
+
+
+### Features
+
+* **equipment:** reveal hidden tabs with a scroll button ([#177](https://github.com/Mancuerna/holybeans-public/issues/177)) ([c172fa2](https://github.com/Mancuerna/holybeans-public/commit/c172fa25d5594213ba5331118740685311cef200))
+* **water:** calculate profile hardness and alkalinity from minerals ([#180](https://github.com/Mancuerna/holybeans-public/issues/180)) ([88a82c5](https://github.com/Mancuerna/holybeans-public/commit/88a82c5472c4030c0b16451a27a514ebc19ff2af))
+
+
+### Bug Fixes
+
+* **forms:** keep journal forms usable in short windows ([#179](https://github.com/Mancuerna/holybeans-public/issues/179)) ([5306588](https://github.com/Mancuerna/holybeans-public/commit/5306588a8a1bb76240f3be505d3de81cecfe2e0b))
+
 ## [1.17.0](https://github.com/Mancuerna/holybeans-public/compare/v1.16.0...v1.17.0) (2026-11-22)
 
 
