@@ -40,7 +40,7 @@ Future<T?> showFormSheet<T>(
 }
 
 /// Frame of a form bottom sheet: title, scrolling fields and fixed
-/// Cancel/Save buttons.
+/// Cancel/Save buttons. In short windows all three scroll together.
 class SheetFrame extends StatefulWidget {
   const SheetFrame({
     super.key,
@@ -112,37 +112,36 @@ class _SheetFrameState extends State<SheetFrame> {
     final keyboard = MediaQuery.viewInsetsOf(context).bottom;
     final available =
         screen - keyboard - MediaQuery.paddingOf(context).top - 20;
-    final height = math.min(available * 0.98, screen * 0.88);
+    final height = math.min(math.max(0.0, available * 0.98), screen * 0.88);
     return Padding(
       padding: EdgeInsets.only(bottom: keyboard),
       child: SafeArea(
         top: false,
         child: SizedBox(
           height: height,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    widget.title,
-                    style: Theme.of(context).textTheme.headlineSmall
-                        ?.copyWith(fontWeight: FontWeight.w700),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // Leave room for editing when a split window or keyboard
+              // makes the fixed header and actions too tall.
+              final compact = constraints.maxHeight < 360;
+              final heading = Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        widget.title,
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              ?widget.header,
-              Expanded(
-                child: Form(
-                  key: widget.formKey,
-                  child: SheetScrollArea(
-                    showScrollCue: widget.showScrollCue,
-                    children: widget.children,
-                  ),
-                ),
-              ),
-              Padding(
+                  ?widget.header,
+                ],
+              );
+              final actions = Padding(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
                 child: Row(
                   children: [
@@ -161,8 +160,26 @@ class _SheetFrameState extends State<SheetFrame> {
                     ),
                   ],
                 ),
-              ),
-            ],
+              );
+              return Column(
+                children: [
+                  if (!compact) heading,
+                  Expanded(
+                    key: const ValueKey('form-fields'),
+                    child: Form(
+                      key: widget.formKey,
+                      child: SheetScrollArea(
+                        showScrollCue: widget.showScrollCue,
+                        heading: compact ? heading : null,
+                        actions: compact ? actions : null,
+                        children: widget.children,
+                      ),
+                    ),
+                  ),
+                  if (!compact) actions,
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -176,10 +193,14 @@ class SheetScrollArea extends StatefulWidget {
     super.key,
     required this.children,
     required this.showScrollCue,
+    this.heading,
+    this.actions,
   });
 
   final List<Widget> children;
   final bool showScrollCue;
+  final Widget? heading;
+  final Widget? actions;
 
   @override
   State<SheetScrollArea> createState() => _SheetScrollAreaState();
@@ -221,11 +242,27 @@ class _SheetScrollAreaState extends State<SheetScrollArea> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            ListView.separated(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-              itemCount: widget.children.length,
-              itemBuilder: (context, index) => widget.children[index],
-              separatorBuilder: (context, index) => const SizedBox(height: 20),
+            ListView.builder(
+              padding: EdgeInsets.zero,
+              // Keep field indices stable when the window changes height.
+              itemCount: widget.children.length + 2,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return widget.heading ?? const SizedBox.shrink();
+                }
+                if (index > widget.children.length) {
+                  return widget.actions ?? const SizedBox.shrink();
+                }
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    20,
+                    20,
+                    20,
+                    index == widget.children.length ? 16 : 0,
+                  ),
+                  child: widget.children[index - 1],
+                );
+              },
             ),
             if (widget.showScrollCue && _showCue)
               Positioned(
