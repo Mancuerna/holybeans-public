@@ -11,6 +11,7 @@ import 'package:holybeans/ui/cupping/cupping_sessions_page.dart';
 import 'package:holybeans/ui/equipment/equipment_delete.dart';
 import 'package:holybeans/ui/equipment/equipment_forms.dart';
 import 'package:holybeans/ui/equipment/equipment_presets_page.dart';
+import 'package:holybeans/ui/equipment/equipment_tab_bar.dart';
 import 'package:holybeans/ui/equipment/method_tools_sheet.dart';
 import 'package:holybeans/ui/equipment/piston/piston_page.dart';
 import 'package:holybeans/ui/equipment/recipients_page.dart';
@@ -162,35 +163,7 @@ class _EquipmentPageState extends State<EquipmentPage>
     ];
     return Column(
       children: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final style = Theme.of(context).textTheme.titleSmall!;
-            final scale = MediaQuery.textScalerOf(context);
-            final direction = Directionality.of(context);
-            final scrollable = labels.asMap().entries.any((entry) {
-              final painter = TextPainter(
-                text: TextSpan(text: entry.value, style: style),
-                textDirection: direction,
-                textScaler: scale,
-                maxLines: 1,
-              )..layout();
-              final tooWide =
-                  painter.width > constraints.maxWidth / labels.length;
-              painter.dispose();
-              return tooWide;
-            });
-            return TabBar(
-              key: const ValueKey('equipment-tabs'),
-              controller: tabs,
-              isScrollable: scrollable,
-              tabAlignment: scrollable ? TabAlignment.start : null,
-              labelPadding: scrollable
-                  ? const EdgeInsets.symmetric(horizontal: 14)
-                  : null,
-              tabs: [for (final label in labels) Tab(text: label)],
-            );
-          },
-        ),
+        EquipmentTabBar(controller: tabs, labels: labels),
         const SizedBox(height: 12),
         Expanded(
           child: switch (widget.section) {
