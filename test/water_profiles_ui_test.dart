@@ -6,11 +6,82 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/main.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/core/app_services.dart';
+import 'package:holybeans/ui/equipment/water_profile_form.dart';
 
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
 void main() {
+  testWidgets('bottle minerals supply live and saved GH and KH', (
+    tester,
+  ) async {
+    final database = memoryDatabase();
+    addTearDown(database.close);
+    final repository = JournalRepository(database);
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    WaterProfile? saved;
+    await tester.pumpWidget(
+      localizedApp(
+        locale: const Locale('en'),
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => TextButton(
+              onPressed: () async {
+                saved = await showWaterProfileForm(
+                  context,
+                  repository,
+                  existing: saved,
+                );
+              },
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    Finder field(String label) => find.widgetWithText(TextFormField, label);
+    Future<void> enter(String label, String value) async {
+      await tester.enterText(field(label), value);
+      await tester.pump();
+    }
+
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    await enter('Profile name', 'Bottle');
+    await tester.tap(find.byKey(const ValueKey('water-minerals')));
+    await tester.pumpAndSettle();
+    await enter('Calcium', '40,078');
+    await enter('Magnesium', '24.305');
+    await enter('Bicarbonate', '61.0168');
+    expect(find.text('200.174'), findsOneWidget);
+    expect(find.text('50.043'), findsOneWidget);
+    await enter('Magnesium', '');
+    expect(find.text('200.174'), findsNothing);
+    await enter('Magnesium', '0');
+    expect(find.text('100.087'), findsOneWidget);
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    final stored = await database.select(database.waterProfiles).getSingle();
+    expect(stored.ghPpmAsCaCO3, closeTo(100.0869, 1e-8));
+    expect(stored.khPpmAsCaCO3, closeTo(50.04345, 1e-8));
+
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    await enter('KH alkalinity (ppm as CaCO₃)', '45');
+    await enter('KH alkalinity (ppm as CaCO₃)', '');
+    expect(find.text('50.043'), findsOneWidget);
+    await enter('KH alkalinity (ppm as CaCO₃)', '45');
+    await enter('Bicarbonate', '0');
+    await enter('Calcium', '0');
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(saved!.ghPpmAsCaCO3, 0);
+    expect(saved!.khPpmAsCaCO3, 45);
+  });
+
   testWidgets('water profile catalog supports create, edit, archive, restore', (
     tester,
   ) async {

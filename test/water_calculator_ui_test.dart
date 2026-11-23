@@ -202,8 +202,8 @@ void main() {
       await tester.tap(find.text('Save').last);
       await tester.pumpAndSettle();
       profile = (await db.select(db.waterProfiles).get()).single;
-      expect(profile.ghPpmAsCaCO3, isNull);
-      expect(profile.khPpmAsCaCO3, isNull);
+      expect(profile.ghPpmAsCaCO3, closeTo(80, 1e-8));
+      expect(profile.khPpmAsCaCO3, closeTo(40, 1e-8));
       expect(profile.bicarbonatePpm, originalBicarbonate);
       expect(profile.recipeJson, isNotNull);
       await tester.tap(find.byTooltip('Actions'));
