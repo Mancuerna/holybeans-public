@@ -69,6 +69,58 @@ class _WaterProfileFormState extends State<_WaterProfileForm> {
     bicarbonate: _read(bicarbonate, _seed?.bicarbonatePpm),
   );
 
+  WaterComposition get _calculated {
+    double? concentration(double? value) =>
+        value != null && value.isFinite && value >= 0 ? value : null;
+    final minerals = _minerals;
+    return WaterComposition(
+      ions: {
+        WaterIon.calcium: concentration(minerals.calcium),
+        WaterIon.magnesium: concentration(minerals.magnesium),
+        WaterIon.bicarbonate: concentration(minerals.bicarbonate),
+      },
+    );
+  }
+
+  late bool _automaticGh;
+  late bool _automaticKh;
+
+  @override
+  void initState() {
+    super.initState();
+    final calculated = _calculated;
+    _automaticGh =
+        _seed?.ghPpmAsCaCO3 == null || _seed?.ghPpmAsCaCO3 == calculated.gh;
+    _automaticKh =
+        _seed?.khPpmAsCaCO3 == null || _seed?.khPpmAsCaCO3 == calculated.kh;
+    _updateHardness();
+  }
+
+  void _updateHardness() {
+    final calculated = _calculated;
+    if (_automaticGh) gh.text = _display(calculated.gh);
+    if (_automaticKh) kh.text = _display(calculated.kh);
+  }
+
+  void _numberChanged(TextEditingController controller, String value) {
+    if (controller == gh) {
+      _automaticGh = value.trim().isEmpty;
+      if (_automaticGh) _updateHardness();
+    } else if (controller == kh) {
+      _automaticKh = value.trim().isEmpty;
+      if (_automaticKh) _updateHardness();
+    } else if (controller == calcium ||
+        controller == magnesium ||
+        controller == bicarbonate) {
+      _updateHardness();
+    }
+  }
+
+  double? get _ghValue =>
+      _automaticGh ? _calculated.gh : _read(gh, _seed?.ghPpmAsCaCO3);
+  double? get _khValue =>
+      _automaticKh ? _calculated.kh : _read(kh, _seed?.khPpmAsCaCO3);
+
   @override
   void dispose() {
     name.dispose();
@@ -120,8 +172,8 @@ class _WaterProfileFormState extends State<_WaterProfileForm> {
     setState(() => saving = true);
     try {
       final profileName = name.text.trim();
-      final ghValue = _read(gh, _seed?.ghPpmAsCaCO3);
-      final khValue = _read(kh, _seed?.khPpmAsCaCO3);
+      final ghValue = _ghValue;
+      final khValue = _khValue;
       final tdsValue = _read(tds, _seed?.tdsPpm);
       final phValue = _read(ph, _seed?.ph);
       final minerals = _minerals;
@@ -190,8 +242,8 @@ class _WaterProfileFormState extends State<_WaterProfileForm> {
       final expected = WaterRecipe.fromJson(source).result;
       final minerals = _minerals;
       final edited = WaterComposition(
-        measuredGh: _read(gh, _seed?.ghPpmAsCaCO3),
-        measuredKh: _read(kh, _seed?.khPpmAsCaCO3),
+        measuredGh: _ghValue,
+        measuredKh: _khValue,
         ions: {
           WaterIon.calcium: minerals.calcium,
           WaterIon.magnesium: minerals.magnesium,
@@ -408,6 +460,7 @@ class _WaterProfileFormState extends State<_WaterProfileForm> {
     double? maximum,
   }) => TextFormField(
     controller: controller,
+    onChanged: (value) => _numberChanged(controller, value),
     inputFormatters: [decimalInputFormatter],
     keyboardType: const TextInputType.numberWithOptions(decimal: true),
     decoration: InputDecoration(
