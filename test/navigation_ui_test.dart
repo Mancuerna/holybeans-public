@@ -70,6 +70,8 @@ void main() {
       expect(tester.takeException(), isNull);
     }
     expect(find.text('Equipment'), findsWidgets);
+    await tester.tap(find.byTooltip('More'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Grinders'));
     await tester.pumpAndSettle();
     expect(find.text('Add grinder'), findsOneWidget);
