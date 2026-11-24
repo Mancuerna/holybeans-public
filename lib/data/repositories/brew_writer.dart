@@ -202,6 +202,7 @@ class BrewWriter {
     final coffeeId = input.coffeeId;
     final waterProfileId = input.waterProfileId;
     return Brew(
+      equipmentPresetId: previous?.equipmentPresetId ?? input.equipmentPresetId,
       id: id,
       coffeeId: coffeeId,
       lotId: input.lotId,
@@ -335,6 +336,9 @@ class BrewWriter {
       await _recordings.attachMeticulousFreePour(row.id, freePour);
     } else if (curve != null) {
       await _recordings.saveScaleCurve(row.id, curve);
+    }
+    if (curve?.portal case final portal?) {
+      await _recordings.savePortal(row.id, portal);
     }
     if (photos != null) await _photos.setBrewPhotos(row.id, photos);
   }

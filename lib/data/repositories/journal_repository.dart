@@ -1,4 +1,5 @@
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/bag_end_blends.dart';
 import 'package:holybeans/data/repositories/beanconqueror_repository.dart';
 import 'package:holybeans/data/repositories/brew_recipe_context.dart';
 import 'package:holybeans/data/repositories/brew_recipe_queries.dart';
@@ -10,6 +11,7 @@ import 'package:holybeans/data/repositories/coffee_profile_writer.dart';
 import 'package:holybeans/data/repositories/coffee_repository.dart';
 import 'package:holybeans/data/repositories/cupping_repository.dart';
 import 'package:holybeans/data/repositories/cupping_share.dart';
+import 'package:holybeans/data/repositories/equipment_presets.dart';
 import 'package:holybeans/data/repositories/equipment_repository.dart';
 import 'package:holybeans/data/repositories/extraction_profile_repository.dart';
 import 'package:holybeans/data/repositories/freezer_repository.dart';
@@ -72,6 +74,7 @@ part 'journal_repository/tools.dart';
 class JournalRepository {
   JournalRepository(this.database);
 
+  late final blends = BagEndBlends(database, records, coffees);
   late final JournalRecordQueries records = JournalRecordQueries(database);
   late final StockAdjustmentRepository stockEdits = StockAdjustmentRepository(
     database,
@@ -136,6 +139,7 @@ class JournalRepository {
   late final CafeRepository cafes = CafeRepository(database);
 
   final AppDatabase database;
+  late final presets = EquipmentPresetRepository(database);
   late final extractionProfiles = ExtractionProfileRepository(database);
   late final PistonRepository piston = PistonRepository(database);
   late final _recipeQueries = BrewRecipeQueries(

@@ -47,6 +47,11 @@ part of '../journal_backup.dart';
       }.every((key) => data[key] is List)) {
     throw const FormatException('Missing piston collections');
   }
+  if ((decoded['version'] as int) >= 38 &&
+      !(data['equipmentPresets'] is List &&
+          data['equipmentPresetTools'] is List)) {
+    throw const FormatException('Missing equipment presets');
+  }
   const keys = JournalBackup._collections;
   if (data.keys.toSet().difference(keys).isNotEmpty) {
     throw const FormatException('Unknown backup collection');
@@ -104,6 +109,8 @@ List<T> _decode<T>(
       final CoffeeLot row => row.toJson().keys.toSet(),
       final FrozenPortion row => row.toJson().keys.toSet(),
       final Recipient row => row.toJson().keys.toSet(),
+      final EquipmentPreset row => row.toJson().keys.toSet(),
+      final EquipmentPresetTool row => row.toJson().keys.toSet(),
       final BrewMethod row => row.toJson().keys.toSet(),
       final Grinder row => row.toJson().keys.toSet(),
       final WaterProfile row => row.toJson().keys.toSet(),

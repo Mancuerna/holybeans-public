@@ -8,6 +8,8 @@ part of '../journal_backup.dart';
 class _RestoredJournal {
   _RestoredJournal._({
     required this.recipients,
+    required this.equipmentPresets,
+    required this.presetTools,
     required this.extractionProfiles,
     required this.cafeData,
     required this.pistonData,
@@ -189,6 +191,12 @@ class _RestoredJournal {
     }
 
     return _RestoredJournal._(
+      equipmentPresets: data.containsKey('equipmentPresets')
+          ? _decode(data, 'equipmentPresets', EquipmentPreset.fromJson)
+          : [],
+      presetTools: data.containsKey('equipmentPresetTools')
+          ? _decode(data, 'equipmentPresetTools', EquipmentPresetTool.fromJson)
+          : [],
       extractionProfiles: data.containsKey('extractionProfiles')
           ? _decode(data, 'extractionProfiles', ExtractionProfileRow.fromJson)
           : [],
@@ -240,6 +248,8 @@ class _RestoredJournal {
   final _PistonBackup pistonData;
   final bool restoreBrewJugs;
   final List<Recipient> recipients;
+  final List<EquipmentPreset> equipmentPresets;
+  final List<EquipmentPresetTool> presetTools;
   final List<ExtractionProfileRow> extractionProfiles;
   final List<StockAdjustment> adjustments;
   final List<CuppingSession> sessions;
@@ -322,6 +332,7 @@ class _RestoredJournal {
     _checkAdjustments();
     _checkTools();
     _checkEquipment();
+    _checkPresets();
     _checkPhotos();
     _checkBrews();
     _checkImports();
@@ -440,50 +451,6 @@ class _RestoredJournal {
         throw const FormatException('Frozen portion has invalid weights');
       }
     }
-  }
-
-  void _checkAdjustments() {
-    _ensureUnique(adjustments.map((r) => r.id), 'stock adjustments');
-    final groups = <String, StockAdjustment>{};
-    for (final row in adjustments) {
-      final lot = _lotsById[row.lotId];
-      final portion = frozenPortions
-          .where((p) => p.id == row.frozenPortionId)
-          .firstOrNull;
-      final previous = row.previousGrams;
-      if (row.id.isEmpty ||
-          row.operationId.isEmpty ||
-          lot == null ||
-          lot.coffeeId != row.coffeeId ||
-          (row.frozenPortionId != null &&
-              (portion == null || portion.lotId != row.lotId)) ||
-          !{'gift', 'waste', 'correction'}.contains(row.reason) ||
-          !row.resultingGrams.isFinite ||
-          (previous != null && !previous.isFinite) ||
-          (row.reason != 'correction' &&
-              (previous == null || row.resultingGrams >= previous)) ||
-          (row.frozenPortionId != null &&
-              (previous == null || previous < 0 || row.resultingGrams < 0)) ||
-          (row.notes?.length ?? 0) > 500 ||
-          row.createdAtMs < 0 ||
-          (row.reversedAtMs != null && row.reversedAtMs! < row.createdAtMs)) {
-        throw const FormatException('Invalid stock adjustment');
-      }
-      final first = groups.putIfAbsent(row.operationId, () => row);
-      if (first.coffeeId != row.coffeeId ||
-          first.reason != row.reason ||
-          first.notes != row.notes ||
-          first.createdAtMs != row.createdAtMs ||
-          first.reversedAtMs != row.reversedAtMs) {
-        throw const FormatException('Inconsistent stock adjustment operation');
-      }
-    }
-    _ensureUnique(
-      adjustments.map(
-        (r) => '${r.operationId}:${r.lotId}:${r.frozenPortionId}',
-      ),
-      'stock adjustment allocations',
-    );
   }
 
   void _checkTools() {
@@ -742,6 +709,8 @@ class _RestoredJournal {
           tool.copyWith(mergedIntoId: const Value(null)),
       ]);
       batch.insertAll(database.toolMethodLinks, toolMethodLinks);
+      batch.insertAll(database.equipmentPresets, equipmentPresets);
+      batch.insertAll(database.equipmentPresetTools, presetTools);
       batch.insertAll(database.brews, brews);
       batch.insertAll(database.cuppingSessions, sessions);
       batch.insertAll(database.cuppingSessionCups, sessionCups);

@@ -275,6 +275,8 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Settings'));
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('settings-preparation')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('brew-parameters')));
       await tester.pumpAndSettle();
       Future<void> tapRow(Finder row) async {
@@ -317,6 +319,8 @@ void main() {
     );
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Settings'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('settings-preparation')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('brew-parameters')));
     await tester.pumpAndSettle();
@@ -362,6 +366,8 @@ void main() {
     );
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Settings'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('settings-preparation')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('brew-parameters')));
     await tester.pumpAndSettle();

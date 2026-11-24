@@ -44,44 +44,53 @@ class CoffeeRepository {
   /// Deletes an unused coffee and its inventory, origins and photo references.
   /// Checks all brews again inside the transaction, archived ones included.
   /// Returns photo files no longer referenced by any coffee or brew.
-  Future<List<String>> deleteUnusedCoffee(String id) =>
-      database.transaction(() async {
-        if (await _records.coffee(id) == null) {
-          throw StateError('Coffee not found');
-        }
-        final brew =
-            await (database.select(database.brews)
-                  ..where((row) => row.coffeeId.equals(id))
-                  ..limit(1))
-                .getSingleOrNull();
-        if (brew != null) throw const CoffeeHasBrewsException();
-        final files = await _photos.coffeePhotos(id);
-        final lots = await (database.select(
-          database.coffeeLots,
-        )..where((row) => row.coffeeId.equals(id))).get();
-        for (final lot in lots) {
-          await (database.delete(
-            database.frozenPortions,
-          )..where((row) => row.lotId.equals(lot.id))).go();
-        }
+  Future<List<String>> deleteUnusedCoffee(String id) => database.transaction(
+    () async {
+      final coffee = await _records.coffee(id);
+      if (coffee == null) {
+        throw StateError('Coffee not found');
+      }
+      final brew =
+          await (database.select(database.brews)
+                ..where((row) => row.coffeeId.equals(id))
+                ..limit(1))
+              .getSingleOrNull();
+      if (brew != null) throw const CoffeeHasBrewsException();
+      final transfer =
+          await (database.select(database.stockAdjustments)
+                ..where((r) => r.coffeeId.equals(id) & r.blendLotId.isNotNull())
+                ..limit(1))
+              .getSingleOrNull();
+      if (transfer != null || coffee.mixedAtMs != null) {
+        throw StateError('Coffee belongs to a bag-end blend');
+      }
+      final files = await _photos.coffeePhotos(id);
+      final lots = await (database.select(
+        database.coffeeLots,
+      )..where((row) => row.coffeeId.equals(id))).get();
+      for (final lot in lots) {
         await (database.delete(
-          database.coffeeLots,
-        )..where((row) => row.coffeeId.equals(id))).go();
-        await (database.delete(
-          database.coffeeComponents,
-        )..where((row) => row.coffeeId.equals(id))).go();
-        // Remove the import mapping too, so a later import can add it again.
-        // Its original payload is removed by the foreign-key cascade.
-        await (database.delete(database.importRecords)..where(
-              (row) =>
-                  row.localEntity.equals('coffee') & row.localId.equals(id),
-            ))
-            .go();
-        await (database.delete(
-          database.coffees,
-        )..where((row) => row.id.equals(id))).go();
-        return _photos.unreferencedPhotos(files);
-      });
+          database.frozenPortions,
+        )..where((row) => row.lotId.equals(lot.id))).go();
+      }
+      await (database.delete(
+        database.coffeeLots,
+      )..where((row) => row.coffeeId.equals(id))).go();
+      await (database.delete(
+        database.coffeeComponents,
+      )..where((row) => row.coffeeId.equals(id))).go();
+      // Remove the import mapping too, so a later import can add it again.
+      // Its original payload is removed by the foreign-key cascade.
+      await (database.delete(database.importRecords)..where(
+            (row) => row.localEntity.equals('coffee') & row.localId.equals(id),
+          ))
+          .go();
+      await (database.delete(
+        database.coffees,
+      )..where((row) => row.id.equals(id))).go();
+      return _photos.unreferencedPhotos(files);
+    },
+  );
 
   Future<String> createCoffee({
     required String name,

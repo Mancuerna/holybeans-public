@@ -213,6 +213,19 @@ class ToolRepository {
     await (database.delete(
       database.toolMethodLinks,
     )..where((row) => row.toolId.isIn(sourceIds))).go();
+    final presetLinks = await (database.select(
+      database.equipmentPresetTools,
+    )..where((t) => t.toolId.isIn(sourceIds))).get();
+    for (final link in presetLinks) {
+      await database
+          .into(database.equipmentPresetTools)
+          .insertOnConflictUpdate(
+            EquipmentPresetTool(presetId: link.presetId, toolId: target),
+          );
+    }
+    await (database.delete(
+      database.equipmentPresetTools,
+    )..where((t) => t.toolId.isIn(sourceIds))).go();
     await _replaceToolMethods(target, methodIds);
   });
 

@@ -6,6 +6,7 @@ import 'package:holybeans/domain/brew_pours.dart';
 import 'package:holybeans/domain/brew_ratio.dart';
 import 'package:holybeans/domain/flow_guide.dart';
 import 'package:holybeans/domain/gaggimate/shot.dart';
+import 'package:holybeans/domain/portal_protocol.dart';
 import 'package:holybeans/domain/pour_detection.dart';
 import 'package:holybeans/domain/pressure_guide.dart';
 import 'package:holybeans/domain/shot_curve.dart';
@@ -113,22 +114,7 @@ class RecordingRepository {
       database.brews,
     )..where((row) => row.id.equals(brewId))).getSingleOrNull();
     if (brew == null) throw StateError('Brew not found');
-    if (curve != null && !curve.isEmpty) {
-      await database
-          .into(database.brewCurves)
-          .insertOnConflictUpdate(
-            BrewCurvesCompanion.insert(
-              brewId: brewId,
-              source: curveSource,
-              samplesJson: curve.toJson(),
-            ),
-          );
-    }
-    if (curve == null || curve.isEmpty) {
-      await (database.delete(
-        database.brewCurves,
-      )..where((r) => r.brewId.equals(brewId))).go();
-    }
+    await _replacePrimary(brewId, curveSource, curve);
     await (database.delete(database.importRecords)..where(
           (row) =>
               (row.source.equals(source) &
@@ -159,12 +145,45 @@ class RecordingRepository {
   /// any curve the brew had.
   Future<void> saveScaleCurve(String brewId, ShotCurve curve) async {
     if (curve.isEmpty) return;
+    await database.transaction(
+      () => _replacePrimary(brewId, scaleSource, curve),
+    );
+  }
+
+  Future<void> _replacePrimary(
+    String brewId,
+    String source,
+    ShotCurve? primary,
+  ) async {
+    final portal = (await brewCurve(brewId))?.curve.portal;
+    if (primary != null && !primary.isEmpty) {
+      await _write(brewId, source, primary.withPortal(portal));
+    } else if (portal != null) {
+      await _write(brewId, 'belka', ShotCurve.portalOnly(portal));
+    } else {
+      await (database.delete(
+        database.brewCurves,
+      )..where((r) => r.brewId.equals(brewId))).go();
+    }
+  }
+
+  Future<void> savePortal(String brewId, PortalRecording portal) =>
+      database.transaction(() async {
+        final existing = await brewCurve(brewId);
+        await _write(
+          brewId,
+          existing?.source ?? 'belka',
+          existing?.curve.withPortal(portal) ?? ShotCurve.portalOnly(portal),
+        );
+      });
+
+  Future<void> _write(String brewId, String source, ShotCurve curve) async {
     await database
         .into(database.brewCurves)
         .insertOnConflictUpdate(
           BrewCurvesCompanion.insert(
             brewId: brewId,
-            source: scaleSource,
+            source: source,
             samplesJson: curve.toJson(),
           ),
         );

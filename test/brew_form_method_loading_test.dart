@@ -8,6 +8,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
+import 'package:holybeans/ui/brews/brew_form_fields.dart';
 import 'package:holybeans/ui/brews/brew_form_sections.dart';
 import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
@@ -137,6 +138,16 @@ void main() {
       expect(find.byType(BrewRecipeSection), findsOneWidget);
       expect(find.byType(BrewTimingSection), findsOneWidget);
       expect(find.byType(BrewResultSection), findsOneWidget);
+      expect(
+        tester.getBottomLeft(find.byType(BrewRecipeSection)).dy,
+        lessThanOrEqualTo(
+          tester.getTopLeft(find.byType(BrewEquipmentSection)).dy,
+        ),
+      );
+      expect(
+        tester.getBottomLeft(find.byType(BrewDateTimeChips)).dy,
+        lessThanOrEqualTo(tester.getTopLeft(find.byType(BrewChoiceSection)).dy),
+      );
       expect(find.byKey(const ValueKey('brew-pressure')), findsOneWidget);
       expect(find.widgetWithText(TextFormField, 'Water (g)'), findsNothing);
       expect(find.byKey(const ValueKey('pour-assistant')), findsNothing);

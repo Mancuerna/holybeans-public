@@ -43,6 +43,14 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
   @protected
   void configureServices(FoundDevice device, List<BleService> services) {}
 
+  /// Whether to reopen this peripheral after an established link drops.
+  @protected
+  bool get reconnectAfterLoss => false;
+
+  int? _recoveryAttempt;
+  bool get recoveringConnection =>
+      status == DeviceStatus.connecting && _recoveryAttempt == _attempt;
+
   /// Releases protocol work as soon as a connection is closed or lost.
   @protected
   void connectionClosed() {}
@@ -329,7 +337,7 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
       // subscription must not leave a phantom connection blocking retries.
       _link = UniversalBle.connectionStream(id).listen((linked) {
         traceEvent('connection.changed', {'id': id, 'linked': linked});
-        if (!linked && _deviceId == id && attempt == _attempt) _lost();
+        if (!linked && _deviceId == id && attempt == _attempt) _lost(device);
       });
       traceEvent('connect.start', {'id': id, 'name': device.name});
       await UniversalBle.connect(id, timeout: _connectTime);
@@ -397,12 +405,36 @@ abstract class BleLink<T extends Object> extends ChangeNotifier
   }
 
   /// The device went away (switched off, out of range).
-  void _lost() {
+  void _lost(FoundDevice device) {
+    if (connected && reconnectAfterLoss && !_heldOff && !_disposed) {
+      final attempt = ++_attempt;
+      _recoveryAttempt = attempt;
+      _opening = true;
+      final closing = _close();
+      _set(DeviceStatus.connecting);
+      unawaited(_recover(device, attempt, closing));
+      return;
+    }
     // Setup may still be awaiting a platform response. A new attempt must be
     // allowed to proceed; its generation guards against the old setup result.
     _opening = false;
     _close();
     _set(DeviceStatus.idle);
+  }
+
+  Future<void> _recover(
+    FoundDevice device,
+    int attempt,
+    Future<void> closing,
+  ) async {
+    try {
+      await closing;
+      await Future<void>.delayed(const Duration(seconds: 1));
+      if (_disposed || attempt != _attempt) return;
+      await _open(device);
+    } finally {
+      if (attempt == _attempt) _opening = false;
+    }
   }
 
   Future<void> _close({bool disconnect = false}) {

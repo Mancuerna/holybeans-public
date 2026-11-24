@@ -73,6 +73,7 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
   bool loading = false;
   Object? loadError;
   Object? poursError;
+  String? presetName;
   @override
   void initState() {
     super.initState();
@@ -87,9 +88,15 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
     try {
       final full = await widget.actions.read.queries.brew(widget.brew.id);
       if (full == null) throw StateError('Brew no longer exists');
+      final preset = full.equipmentPresetId == null
+          ? null
+          : await widget.actions.read.queries.presetName(
+              full.equipmentPresetId!,
+            );
       if (mounted) {
         setState(() {
           brew = full;
+          presetName = preset;
           loading = false;
         });
       }
@@ -321,6 +328,7 @@ class _BrewDetailsSheetState extends State<BrewDetailsSheet> {
                         ),
                   subtitle: [
                     brew.methodName,
+                    ?presetName,
                     formatBrewTimestamp(brew, regionalLocale),
                     if (brew.archivedAtMs != null) s.archivedStatus,
                   ].join(', '),

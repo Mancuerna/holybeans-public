@@ -78,6 +78,7 @@ Future<Widget> prepareApp({
   openRate.value = launchBrew;
   final backupServices = await backupsReady;
   final scale = await optionalStartup(() => services.scale(database));
+  final portalSensor = await optionalStartup(services.portalSensor);
   final pressureSensor = await optionalStartup(services.pressureSensor);
   final refractometer = await optionalStartup(services.refractometer);
   final driveSync = await optionalStartup(
@@ -93,6 +94,7 @@ Future<Widget> prepareApp({
       reminders: reminders,
       openRate: openRate,
       scale: scale,
+      portalSensor: portalSensor,
       pressureSensor: pressureSensor,
       refractometer: refractometer,
       exportFolder: android ? const AndroidExportFolder() : null,
@@ -168,6 +170,7 @@ class _HolyBeansAppState extends State<HolyBeansApp>
   void _reconnectDevices() {
     for (final device in <PairedDevice?>[
       widget.services.scale,
+      widget.services.portalSensor,
       widget.services.pressureSensor,
       widget.services.refractometer,
     ]) {

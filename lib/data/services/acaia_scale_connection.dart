@@ -13,29 +13,32 @@ class AcaiaScaleConnection {
     required this.notify,
     required this.write,
     required this.classic,
+    required this.requestHighPriority,
     required this.withResponse,
     required this.supportsWriteWithoutResponse,
+    bool timerRunning = false,
     this.trace,
-  });
+  }) : _decoder = AcaiaDecoder(timerRunning: timerRunning);
 
   final String id;
   final String service;
   final String notify;
   final String write;
   final bool classic;
+  final bool requestHighPriority;
   final bool withResponse;
   final bool supportsWriteWithoutResponse;
   final BleTrace? trace;
-  final _decoder = AcaiaDecoder();
+  final AcaiaDecoder _decoder;
+  bool get timerRunning => _decoder.timerRunning;
   final _clock = Stopwatch()..start();
   final _ready = Completer<bool>();
   final _settingsReady = Completer<bool>();
   int _writeSequence = 0;
-  Timer? _recovery;
+  Timer? _maintenance;
   bool _active = true;
   bool _busy = false;
-  int _lastPacketMs = 0;
-  int _lastHeartbeatMs = 0;
+  int _lastReadingMs = 0;
   Future<void> _queue = Future.value();
 
   List<ScaleReading> parse(Uint8List bytes) {
@@ -45,9 +48,10 @@ class AcaiaScaleConnection {
     if (_decoder.hasSettings && !_settingsReady.isCompleted) {
       _settingsReady.complete(true);
     }
-    if (readings.isNotEmpty && !_ready.isCompleted) _ready.complete(true);
-    _lastPacketMs = now;
-    unawaited(_onNotification(now));
+    if (readings.isNotEmpty) {
+      _lastReadingMs = now;
+      if (!_ready.isCompleted) _ready.complete(true);
+    }
     return readings;
   }
 
@@ -116,10 +120,28 @@ class AcaiaScaleConnection {
     // Identification and subscription are not gated on a settings reply.
     // Readiness still requires known units and an actual decoded reading.
     await _negotiateMtu();
+    if (_active && requestHighPriority) {
+      try {
+        await UniversalBle.requestConnectionPriority(
+          id,
+          BleConnectionPriority.highPerformance,
+          timeout: const Duration(seconds: 1),
+        );
+        emitBleTrace(trace, 'acaia.priority.ok', {});
+      } on Object catch (error) {
+        emitBleTrace(trace, 'acaia.priority.error', {'error': '$error'});
+      }
+    }
     await Future<void>.delayed(const Duration(milliseconds: 150));
     if (!classic) {
       try {
-        await _write(acaiaAndroidWakeUp);
+        // Keep the wake-up in the handshake's supported write mode too.
+        // A failed acknowledged wake-up can leave the Pearl's GATT writes
+        // unusable before identification even starts.
+        await _write(
+          acaiaAndroidWakeUp,
+          withoutResponse: supportsWriteWithoutResponse,
+        );
       } on Object {
         // The traced wake-up is best effort; readings still decide readiness.
       }
@@ -131,10 +153,9 @@ class AcaiaScaleConnection {
     await Future<void>.delayed(const Duration(milliseconds: 100));
     await _write(acaiaSubscribe, withoutResponse: supportsWriteWithoutResponse);
     if (!_active) throw StateError('Acaia disconnected');
-    _lastPacketMs = _clock.elapsedMilliseconds;
-    _lastHeartbeatMs = _lastPacketMs;
-    _recovery = Timer.periodic(const Duration(seconds: 2), (_) {
-      if (!_busy && _active) unawaited(_recoverIfSilent());
+    _lastReadingMs = _clock.elapsedMilliseconds;
+    _maintenance = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!_busy && _active) unawaited(_maintainConnection());
     });
     if (!await _settingsReady.future.timeout(
       const Duration(seconds: 5),
@@ -152,38 +173,34 @@ class AcaiaScaleConnection {
   }
 
   Future<void> _recoverIfSilent() async {
-    if (_clock.elapsedMilliseconds - _lastPacketMs < 1000) return;
-    _busy = true;
-    try {
-      await _write(
-        acaiaIdentify(classic: classic),
-        withoutResponse: supportsWriteWithoutResponse,
-      );
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-      await _write(
-        acaiaSubscribe,
-        withoutResponse: supportsWriteWithoutResponse,
-      );
-    } on Object {
-      // BleLink observes disconnection; recovery remains best effort.
-    } finally {
-      _busy = false;
-    }
+    if (_clock.elapsedMilliseconds - _lastReadingMs < 2000) return;
+    await _write(
+      acaiaIdentify(classic: classic),
+      withoutResponse: supportsWriteWithoutResponse,
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+    await _write(acaiaSubscribe, withoutResponse: supportsWriteWithoutResponse);
   }
 
-  Future<void> _onNotification(int now) async {
-    if (_lastHeartbeatMs == 0 || _busy || now - _lastHeartbeatMs < 1000) {
-      return;
-    }
+  Future<void> _maintainConnection() async {
     _busy = true;
-    _lastHeartbeatMs = now;
     try {
+      // Keep the link alive even when notifications pause during a brew.
+      // Use the working handshake mode so a missing GATT acknowledgement on
+      // dual-mode Pearl firmware cannot block all subsequent heartbeats.
       if (!classic) {
-        await _write(acaiaIdentify(classic: classic));
+        await _write(
+          acaiaIdentify(classic: classic),
+          withoutResponse: supportsWriteWithoutResponse,
+        );
       }
-      await _write(acaiaHeartbeat);
+      await _write(
+        acaiaHeartbeat,
+        withoutResponse: supportsWriteWithoutResponse,
+      );
+      await _recoverIfSilent();
     } on Object {
-      // A failed heartbeat must not become an unhandled asynchronous error.
+      // BleLink observes disconnection; retry maintenance on the next tick.
     } finally {
       _busy = false;
     }
@@ -205,7 +222,7 @@ class AcaiaScaleConnection {
 
   void close() {
     _active = false;
-    _recovery?.cancel();
+    _maintenance?.cancel();
     if (!_ready.isCompleted) _ready.complete(false);
     if (!_settingsReady.isCompleted) _settingsReady.complete(false);
   }

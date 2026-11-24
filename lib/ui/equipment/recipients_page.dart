@@ -7,6 +7,7 @@ import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/form_widgets.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
+import 'package:holybeans/ui/equipment/equipment_delete.dart';
 import 'package:intl/intl.dart';
 
 /// "Kinto SCS-S02 (179.3 g)": the vessel and its empty weight.
@@ -217,9 +218,23 @@ class _RecipientsListState extends State<RecipientsList> {
                         showRecipientForm(context, widget.repository, row),
                     trailing: PopupMenuButton<String>(
                       tooltip: s.actions,
-                      onSelected: (value) => value == 'edit'
-                          ? showRecipientForm(context, widget.repository, row)
-                          : archive(row),
+                      onSelected: (value) {
+                        switch (value) {
+                          case 'edit':
+                            showRecipientForm(context, widget.repository, row);
+                          case 'archive':
+                            archive(row);
+                          case 'delete':
+                            deleteEquipmentAfterConfirming(
+                              context,
+                              name: row.name,
+                              check: () => widget.repository
+                                  .portafilterDeletionBlockers(row.id),
+                              delete: () => widget.repository
+                                  .deleteUnusedPortafilter(row.id),
+                            );
+                        }
+                      },
                       itemBuilder: (_) => [
                         PopupMenuItem(
                           value: 'edit',
@@ -239,6 +254,11 @@ class _RecipientsListState extends State<RecipientsList> {
                                 : s.restore,
                           ),
                         ),
+                        if (widget.isPortafilter)
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Text(s.deletePortafilter),
+                          ),
                       ],
                     ),
                   ),

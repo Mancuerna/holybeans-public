@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
+import 'package:holybeans/data/repositories/equipment_presets.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/meticulous_client.dart';
 import 'package:holybeans/data/services/meticulous_free_pour.dart';
@@ -13,6 +14,7 @@ import 'package:holybeans/domain/extraction_profile.dart';
 import 'package:holybeans/domain/freeze_plan.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
 import 'package:holybeans/domain/gaggimate/shot.dart';
+import 'package:holybeans/domain/portal_protocol.dart';
 import 'package:holybeans/domain/pour_detection.dart';
 import 'package:holybeans/domain/pour_plan.dart';
 import 'package:holybeans/domain/recipient_snapshot.dart';
@@ -51,6 +53,7 @@ class BrewFormModel extends ChangeNotifier {
     double? initialDoseGrams,
     this.initialFrozenSource,
     String? initialMethodId,
+    PresetDetails? initialPreset,
     List<String> savedPhotos = const [],
   }) : draft = BrewDraft(
          existing: existing,
@@ -95,15 +98,17 @@ class BrewFormModel extends ChangeNotifier {
       timer: timer,
       isEspresso: () => isEspresso,
       scale: services.scale,
+      portalSensor: services.portalSensor,
       pressureSensor: services.pressureSensor,
       refractometer: services.refractometer,
       onMeasurement: _notify,
     );
     devices.scale?.addListener(_notify);
+    selectedPreset = initialPreset;
     _start(
       initialCoffeeId: initialCoffeeId,
       initialLotId: initialLotId,
-      initialMethodId: initialMethodId,
+      initialMethodId: initialPreset?.preset.methodId ?? initialMethodId,
     );
   }
 
@@ -182,6 +187,18 @@ class BrewFormModel extends ChangeNotifier {
   BrewScaleSession? get scaleSession => devices.scale;
   BrewPressureSession? get pressureSession => devices.pressure;
 
+  late final savedRecording = existing == null
+      ? Future<({ShotCurve curve, String source})?>.value()
+      : repository.brewCurve(existing!.id);
+  PortalRecording? alignedPortal;
+
+  ShotCurve? _recordedCurve(bool espresso) {
+    final primary = devices.curve;
+    final portal = espresso ? alignedPortal : null;
+    if (portal == null || primary?.portal != null) return primary;
+    return primary?.withPortal(portal) ?? ShotCurve.portalOnly(portal);
+  }
+
   bool get isNew => existing == null;
 
   /// Whether the method memory and the last brew help apply: only to a
@@ -204,6 +221,9 @@ class BrewFormModel extends ChangeNotifier {
   List<CoffeeLot> get lots => catalogs.lots;
   bool get loadingLots => catalogs.loadingLots;
 
+  PresetDetails? selectedPreset;
+  List<PresetDetails> presetChoices = const [];
+  bool presetsFailed = false;
   String? methodId;
   List<BrewMethod> get methods => catalogs.methods;
   bool get loadingMethods => catalogs.loadingMethods;
@@ -317,6 +337,9 @@ class BrewFormModel extends ChangeNotifier {
         existing?.waterProfileId ?? (repeat ? seed?.waterProfileId : null);
     isPreGround = existing?.isPreGround ?? seed?.isPreGround ?? false;
     grinderId = isPreGround ? null : existing?.grinderId ?? seed?.grinderId;
+    if (selectedPreset case final details?) {
+      _applyPresetEquipment(details);
+    }
     final preferred = existing?.coffeeId ?? seed?.coffeeId ?? initialCoffeeId;
     coffeeId = coffees.any((coffee) => coffee.id == preferred)
         ? preferred
@@ -325,6 +348,7 @@ class BrewFormModel extends ChangeNotifier {
         : coffees.firstOrNull?.id;
     catalogs.prepareLots(loading: coffeeId != null);
 
+    _watchPresets();
     _subscriptions.add(
       settings.watchHidden().listen((hidden) {
         hiddenFields = hidden;
@@ -379,13 +403,7 @@ class BrewFormModel extends ChangeNotifier {
           methodName: brew.methodName,
         ),
       );
-      if (!_waterTouched &&
-          waterProfileId == null &&
-          waterProfiles.any(
-            (row) => row.id == brew.waterProfileId && row.archivedAtMs == null,
-          )) {
-        waterProfileId = brew.waterProfileId;
-      }
+      if (!loadingWaterProfiles) _waterProfilesChanged(waterProfiles);
       _notify();
       await _loadTools(
         selectedMethodId,
@@ -607,29 +625,9 @@ class BrewFormModel extends ChangeNotifier {
     _notify();
   }
 
-  Future<void> selectMethod(String? id) async {
-    if (id == null || id == methodId) return;
-    importedGaggimateShot = null;
-    importedShot = null;
-    importedFreePour = null;
-    methodId = id;
-    _repeatedRecipientId = null;
-    _recipientChosen = false;
-    _defaultRecipient();
-    draft.jugTotal.clear();
-    toolSelection.resetForMethod();
-    draft.applyTare(jugGrams);
-    toolSelection.publish();
-    if (isNew) unawaited(_loadDialIn());
-    if (_fresh) {
-      await _applyMethodMemory(id);
-    } else {
-      await _loadTools(id);
-    }
-  }
-
   /// Picks a grinder by id, '' for none or [preGroundChoice].
   void selectGrinder(String choice) {
+    selectedPreset = null;
     isPreGround = choice == preGroundChoice;
     grinderId = choice.isEmpty || isPreGround ? null : choice;
     if (isPreGround) draft.grindSetting.clear();
@@ -638,13 +636,16 @@ class BrewFormModel extends ChangeNotifier {
   }
 
   void selectWaterProfile(String? id) {
+    selectedPreset = null;
     _waterTouched = true;
     waterProfileId = id == null || id.isEmpty ? null : id;
     _notify();
   }
 
-  void toggleTool(String id, bool selected) =>
-      toolSelection.toggle(id, selected);
+  void toggleTool(String id, bool selected) {
+    selectedPreset = null;
+    toolSelection.toggle(id, selected);
+  }
 
   /// Reloads the method's tools, e.g. after managing them.
   Future<void> reloadTools() async {
@@ -743,6 +744,7 @@ class BrewFormModel extends ChangeNotifier {
       if (_disposed || coffeeId != coffee || lotId != selectedLot) return null;
       return await BrewFormPersistence(repository, draft, photoDraft).save(
         id: existing?.id,
+        equipmentPresetId: selectedPreset?.preset.id,
         coffeeId: coffee,
         lotId: lotId,
         frozenSource: source,
@@ -767,7 +769,7 @@ class BrewFormModel extends ChangeNotifier {
         shot: importedShot,
         gaggimateShot: gaggimateMethod == null ? null : importedGaggimateShot,
         freePour: importedFreePour,
-        curve: devices.curve,
+        curve: _recordedCurve(espresso),
         extractionProfileJson: extractionProfileJson,
       );
     } finally {

@@ -3,6 +3,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 
 String stockAdjustmentReason(AppLocalizations s, String reason) =>
     switch (reason) {
+      'blend' => s.blendTransfer,
       'gift' => s.stockAdjustGift,
       'waste' => s.stockAdjustWaste,
       _ => s.stockAdjustCorrection,

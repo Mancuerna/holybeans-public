@@ -12,6 +12,7 @@ import 'package:holybeans/data/services/ble_scale.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/data/services/journal_restore.dart';
 import 'package:holybeans/data/services/photo_store.dart';
+import 'package:holybeans/data/services/portal_sensor.dart';
 import 'package:holybeans/data/services/pre_migration_copies.dart';
 import 'package:holybeans/data/services/pressure_sensor.dart';
 import 'package:holybeans/data/services/rate_reminders.dart';
@@ -61,6 +62,10 @@ class StartupServices {
 
   Future<Scale?> scale(AppDatabase database) async =>
       android ? _load<BleScale>(BleScale(ScaleSettings(database))) : null;
+
+  Future<BlePortalSensor?> portalSensor() async => android
+      ? _load(BlePortalSensor(await BlePortalSensor.openStore()))
+      : null;
 
   Future<PressureSensor?> pressureSensor() async => android
       ? _load<BlePressureSensor>(

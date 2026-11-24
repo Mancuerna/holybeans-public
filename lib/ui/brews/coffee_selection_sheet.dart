@@ -11,13 +11,13 @@ class CoffeeSelectionSheet extends StatefulWidget {
     required this.coffees,
     this.allowAny = false,
     this.selected,
-    this.trailing,
+    this.subtitleDetail,
   });
 
   final List<Coffee> coffees;
   final bool allowAny;
   final String? selected;
-  final Widget Function(Coffee)? trailing;
+  final Widget? Function(Coffee)? subtitleDetail;
 
   @override
   State<CoffeeSelectionSheet> createState() => _CoffeeSelectionSheetState();
@@ -50,16 +50,28 @@ class _CoffeeSelectionSheetState extends State<CoffeeSelectionSheet> {
       for (final coffee in matches)
         if (coffee.archivedAtMs != null) coffee,
     ];
-    Widget tile(Coffee coffee) => ListTile(
-      key: ValueKey(
-        '${widget.allowAny ? 'history-bean-choice' : 'coffee-choice'}-${coffee.id}',
-      ),
-      selected: coffee.id == widget.selected,
-      trailing: widget.trailing?.call(coffee),
-      title: Text(coffee.name),
-      subtitle: coffee.roaster.trim().isEmpty ? null : Text(coffee.roaster),
-      onTap: () => Navigator.pop(context, coffee.id),
-    );
+    Widget tile(Coffee coffee) {
+      final detail = widget.subtitleDetail?.call(coffee);
+      final roaster = coffee.roaster.trim().isEmpty
+          ? null
+          : Text(coffee.roaster);
+      return ListTile(
+        key: ValueKey(
+          '${widget.allowAny ? 'history-bean-choice' : 'coffee-choice'}-${coffee.id}',
+        ),
+        selected: coffee.id == widget.selected,
+        title: Text(coffee.name),
+        subtitle: detail == null
+            ? roaster
+            : Wrap(
+                spacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [?roaster, detail],
+              ),
+        onTap: () => Navigator.pop(context, coffee.id),
+      );
+    }
+
     Widget header(String text) => Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       child: Text(

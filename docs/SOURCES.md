@@ -5,6 +5,7 @@ inform its calculations and integrations; their names do not imply endorsement.
 
 ## Coffee and water
 
+- [Robert Asami’s Watering Hole recipe collection](https://www.robertasami.com/water)
 - [Coffee Ad Astra: Water for Coffee Extraction](https://coffeeadastra.com/2018/12/16/water-for-coffee-extraction/)
 - [Barista Hustle: DIY Water Recipes Redux](https://www.baristahustle.com/diy-water-recipes-redux/)
 - [Espresso Aficionados: Water](https://espressoaf.com/guides/water.html)

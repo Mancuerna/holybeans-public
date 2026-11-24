@@ -86,6 +86,33 @@ void main() {
               .map((c) => c.coffee.name),
           ['Alpha', 'Beta'],
         );
+        final availableWeight = find.text('150 g');
+        final frozenWeight = find.text('100 g');
+        expect(
+          tester.getTopRight(frozenWeight).dx,
+          tester.getTopRight(availableWeight).dx,
+        );
+        expect(
+          tester.getTopRight(frozenWeight).dy,
+          greaterThan(tester.getTopRight(availableWeight).dy),
+        );
+        expect(
+          tester.getTopLeft(find.text('Alpha')).dx,
+          tester.getTopLeft(find.text('Beta')).dx,
+        );
+        final groupLeft = tester
+            .getTopLeft(find.byType(RoasterGroupHeader).first)
+            .dx;
+        for (final card in find.byType(BeanCard).evaluate()) {
+          expect(
+            tester.getTopLeft(find.byWidget(card.widget)).dx,
+            greaterThan(groupLeft),
+          );
+        }
+        expect(
+          tester.getTopLeft(find.byType(RoasterGroupHeader).last).dx,
+          groupLeft,
+        );
         await tester.tap(find.byKey(const ValueKey('roaster-group-big sur')));
         await tester.pumpAndSettle();
         await tester.enterText(find.byType(TextField).first, 'Beta');

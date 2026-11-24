@@ -62,6 +62,36 @@ void main() {
   });
   tearDown(() => db.close());
 
+  test('recipe water survives a delayed water catalog', () async {
+    final water = await repository.createWaterProfile(name: 'Filter water');
+    await repository.createBrew(
+      coffeeId: coffee,
+      methodId: method,
+      methodName: 'V60',
+      waterProfileId: water,
+      waterGrams: 250,
+    );
+    reads.holdTable = 'water_profiles';
+    final model = BrewFormModel(
+      services: AppServices.forJournal(
+        repository,
+        parameterSettings: BrewParameterSettings(db),
+      ),
+      coffees: await repository.allCoffees(),
+      initialCoffeeId: coffee,
+      initialMethodId: method,
+    );
+    addTearDown(model.dispose);
+    try {
+      await reads.entered.future;
+      await _until(() => model.draft.water.text == '250');
+    } finally {
+      reads.release.complete();
+    }
+    await _until(() => !model.busy);
+    expect(model.waterProfileId, water);
+  });
+
   for (final table in [
     'recipients',
     'water_profiles',

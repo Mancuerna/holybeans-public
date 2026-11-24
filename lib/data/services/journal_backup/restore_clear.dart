@@ -16,6 +16,8 @@ Future<void> _clearJournal(AppDatabase database) async {
   await database.delete(database.brewPhotos).go();
   await database.delete(database.coffeePhotos).go();
   await database.delete(database.brews).go();
+  await database.delete(database.equipmentPresetTools).go();
+  await database.delete(database.equipmentPresets).go();
   await database.delete(database.waterProfiles).go();
   await database.delete(database.toolMethodLinks).go();
   // Redirects reference other tools. Clear them before deleting the

@@ -61,12 +61,15 @@ List<List<int>> acaiaCommands(ScaleCommand command) => switch (command) {
 /// One connection's framed notification stream. Never guesses units or stops
 /// a brew merely because a scale clock temporarily stops advancing.
 class AcaiaDecoder {
+  AcaiaDecoder({bool timerRunning = false}) : _running = timerRunning;
+
+  bool get timerRunning => _running;
   final _buffer = <int>[];
   double? _weight;
   int? _unit;
   int? _battery;
   int _timer = 0;
-  bool _running = false;
+  bool _running;
   bool _freshWeight = false;
   double _flow = 0;
   final _weights = <(int, double)>[];

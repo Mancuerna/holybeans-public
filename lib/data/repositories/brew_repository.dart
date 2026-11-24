@@ -3,6 +3,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/brew_stock_ledger.dart';
 import 'package:holybeans/data/repositories/brew_writer.dart';
 import 'package:holybeans/data/repositories/catalog_validation.dart';
+import 'package:holybeans/data/repositories/equipment_presets.dart';
 import 'package:holybeans/data/repositories/journal_inputs.dart';
 import 'package:holybeans/data/repositories/journal_record_queries.dart';
 import 'package:holybeans/data/repositories/photos_repository.dart';
@@ -214,6 +215,20 @@ class BrewRepository {
       }
       final lot = await _writer.brewLot(input.lotId, input.coffeeId);
       final catalog = await _writer.brewCatalog(input, previous);
+      if (input.equipmentPresetId case final presetId?) {
+        final details = await EquipmentPresetRepository(database).get(presetId);
+        final preset = details.preset;
+        if (previous != null ||
+            !details.available ||
+            preset.methodId != catalog.methodId ||
+            preset.grinderId != catalog.grinderId ||
+            preset.waterProfileId != waterProfile?.id ||
+            input.isPreGround ||
+            details.toolIds.length != catalog.toolIds.length ||
+            !details.toolIds.containsAll(catalog.toolIds)) {
+          throw StateError('Equipment preset no longer matches the brew');
+        }
+      }
       if (recipient?.isPortafilter == true &&
           !isEspressoMethod(
             category: catalog.method.category,

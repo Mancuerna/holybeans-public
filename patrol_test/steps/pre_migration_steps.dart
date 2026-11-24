@@ -60,6 +60,7 @@ Future<void> checkPreMigrationCopy(
     ),
   );
   await $.tap(find.byTooltip('Settings'));
+  await $.tap(find.byKey(const ValueKey('settings-backup')));
   await $.scrollUntilVisible(
     finder: find.byKey(const ValueKey('auto-backups')),
   );

@@ -10,6 +10,7 @@ import 'package:holybeans/ui/core/detail_widgets.dart';
 import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/core/settle_in.dart';
+import 'package:holybeans/ui/core/swipe_actions.dart';
 import 'package:holybeans/ui/shell/journal_actions.dart';
 
 /// The recipe in parts such as "18 g → 288 g", "1:16" and "3:00", without
@@ -132,12 +133,24 @@ class BrewCard extends StatelessWidget {
   /// Shows the date with the time; lists grouped by day show only the time.
   final bool showDate;
 
+  Future<void> _repeat() =>
+      actions.navigation.openBrewForm(data.coffees, seed: brew, repeat: true);
+
   @override
-  Widget build(BuildContext context) => SettleIn(
+  Widget build(BuildContext context) => SwipeActions(
     id: brew.id,
-    createdAtMs: brew.createdAtMs,
-    builder: (context, reveal, fill) =>
-        SettleIn.open(reveal, _card(context, fill)),
+    start: SwipeAction(
+      icon: Icons.replay_rounded,
+      label: AppLocalizations.of(context).repeatBrew,
+      primary: true,
+      run: _repeat,
+    ),
+    child: SettleIn(
+      id: brew.id,
+      createdAtMs: brew.createdAtMs,
+      builder: (context, reveal, fill) =>
+          SettleIn.open(reveal, _card(context, fill)),
+    ),
   );
 
   Widget _card(BuildContext context, double fill) {
@@ -214,6 +227,7 @@ class BrewCard extends StatelessWidget {
     void onLongPress() => _onAction(context, 'edit', coffee);
     return Card(
       key: ValueKey('brew-card-${brew.id}'),
+      color: brew.isFavorite ? theme.colorScheme.primaryContainer : null,
       child: Semantics(
         onLongPressHint: s.editBrew,
         child: InkWell(
@@ -253,16 +267,28 @@ class BrewCard extends StatelessWidget {
                     _actionsMenu(context, coffee),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: _BrewCardLines(
-                    brewId: brew.id,
-                    recipe: recipe,
-                    settledRecipe: finalRecipe,
-                    identity: identity,
-                    subtitle: subtitle,
-                    equipment: equipment,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _BrewCardLines(
+                        brewId: brew.id,
+                        recipe: recipe,
+                        settledRecipe: finalRecipe,
+                        identity: identity,
+                        subtitle: subtitle,
+                        equipment: equipment,
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: s.repeatBrew,
+                      constraints: const BoxConstraints(
+                        minWidth: 48,
+                        minHeight: 48,
+                      ),
+                      onPressed: _repeat,
+                      icon: const Icon(Icons.replay_rounded),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -335,7 +361,7 @@ class BrewCard extends StatelessWidget {
   void _onAction(BuildContext context, String value, Coffee? coffee) {
     switch (value) {
       case 'repeat':
-        actions.navigation.openBrewForm(data.coffees, seed: brew, repeat: true);
+        _repeat();
       case 'rate':
         actions.commands.rateBrew(brew, coffee);
       case 'favorite':

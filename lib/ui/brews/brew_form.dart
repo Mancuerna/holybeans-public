@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:holybeans/core/decimal_format.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
+import 'package:holybeans/data/repositories/equipment_presets.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/device_feedback.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
@@ -11,6 +12,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_adjust_section.dart';
 import 'package:holybeans/ui/brews/brew_draft.dart';
 import 'package:holybeans/ui/brews/brew_form_changes.dart';
+import 'package:holybeans/ui/brews/brew_form_fields.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_form_sections.dart';
 import 'package:holybeans/ui/brews/brew_frozen_picker.dart';
@@ -58,6 +60,7 @@ class BrewForm extends StatefulWidget {
     this.initialDoseGrams,
     this.initialFrozenSource,
     this.initialMethodId,
+    this.initialPreset,
     this.repeat = false,
     this.adjust = false,
     this.savedPhotos = const [],
@@ -76,6 +79,7 @@ class BrewForm extends StatefulWidget {
 
   /// Method to preselect, e.g. from a method card.
   final String? initialMethodId;
+  final PresetDetails? initialPreset;
   final bool repeat;
 
   /// Opens on what usually changes when tuning [seed] (grind, dose, water,
@@ -117,6 +121,7 @@ class _BrewFormState extends State<BrewForm> {
       initialDoseGrams: widget.initialDoseGrams,
       initialFrozenSource: widget.initialFrozenSource,
       initialMethodId: widget.initialMethodId,
+      initialPreset: widget.initialPreset,
       savedPhotos: widget.savedPhotos,
     );
     changes = BrewFormChanges(model);
@@ -454,12 +459,22 @@ class _BrewFormState extends State<BrewForm> {
                       ),
                       result(),
                     ] else ...[
+                      BrewDateTimeChips(
+                        value: model.brewedAt,
+                        onChanged: model.setBrewedAt,
+                      ),
                       BrewChoiceSection(
                         model: model,
                         coffees: widget.coffees,
                         isNew: widget.existing == null && !widget.repeat,
                         actions: actions,
                       ),
+                      if (!model.loadingMethods)
+                        ListenableBuilder(
+                          listenable: recipeInputs,
+                          builder: (_, _) =>
+                              BrewRecipeSection(model: model, actions: actions),
+                        ),
                       BrewEquipmentSection(
                         model: model,
                         actions: actions,
@@ -471,11 +486,6 @@ class _BrewFormState extends State<BrewForm> {
                                   repeatedWaterProfile!.name,
                       ),
                       if (!model.loadingMethods) ...[
-                        ListenableBuilder(
-                          listenable: recipeInputs,
-                          builder: (_, _) =>
-                              BrewRecipeSection(model: model, actions: actions),
-                        ),
                         BrewTimingSection(
                           model: model,
                           liveChartKey: _liveChartKey,

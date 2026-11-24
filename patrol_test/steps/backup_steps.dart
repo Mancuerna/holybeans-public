@@ -44,6 +44,7 @@ Future<void> _until(Future<bool> Function() done) async {
 
 Future<void> _openSettingsTile(PatrolIntegrationTester $, String key) async {
   await $.tap(find.byTooltip('Settings'));
+  await $.tap(find.byKey(const ValueKey('settings-backup')));
   await $.scrollUntilVisible(finder: find.byKey(ValueKey(key)));
 }
 

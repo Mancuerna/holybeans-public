@@ -1,5 +1,82 @@
 # Changelog
 
+## [1.18.0](https://github.com/Mancuerna/holybeans-public/compare/v1.17.0...v1.18.0) (2026-11-23)
+
+
+### Features
+
+* **equipment:** reveal hidden tabs with a scroll button ([#177](https://github.com/Mancuerna/holybeans-public/issues/177)) ([c172fa2](https://github.com/Mancuerna/holybeans-public/commit/c172fa25d5594213ba5331118740685311cef200))
+* **water:** calculate profile hardness and alkalinity from minerals ([#180](https://github.com/Mancuerna/holybeans-public/issues/180)) ([88a82c5](https://github.com/Mancuerna/holybeans-public/commit/88a82c5472c4030c0b16451a27a514ebc19ff2af))
+
+
+### Bug Fixes
+
+* **forms:** keep journal forms usable in short windows ([#179](https://github.com/Mancuerna/holybeans-public/issues/179)) ([5306588](https://github.com/Mancuerna/holybeans-public/commit/5306588a8a1bb76240f3be505d3de81cecfe2e0b))
+
+## [1.17.0](https://github.com/Mancuerna/holybeans-public/compare/v1.16.0...v1.17.0) (2026-11-22)
+
+
+### Features
+
+* **water:** add reproducible Watering Hole recipes ([#176](https://github.com/Mancuerna/holybeans-public/issues/176)) ([a3a19fb](https://github.com/Mancuerna/holybeans-public/commit/a3a19fbe8163fa4a08016f8433ac2467d6700d11))
+
+
+### Bug Fixes
+
+* **scales:** request high connection priority for Pearl on Android ([#174](https://github.com/Mancuerna/holybeans-public/issues/174)) ([57098ea](https://github.com/Mancuerna/holybeans-public/commit/57098ea8832e4a5d7e72dbc2ad76cf9edb7971ac))
+
+## [1.16.0](https://github.com/Mancuerna/holybeans-public/compare/v1.15.1...v1.16.0) (2026-11-20)
+
+
+### Features
+
+* **beans:** create traceable blends from bag ends ([#169](https://github.com/Mancuerna/holybeans-public/issues/169)) ([bd4ad88](https://github.com/Mancuerna/holybeans-public/commit/bd4ad884bccdde6974e08ee385b675db9dbe6ea4))
+
+
+### Bug Fixes
+
+* align piston summary with selected chart range and measure ([#171](https://github.com/Mancuerna/holybeans-public/issues/171)) ([393c8e2](https://github.com/Mancuerna/holybeans-public/commit/393c8e2ed75559338dab586b09fe220f25c655c3))
+* **brews:** restore date placement and prefill recipe water reliably ([#173](https://github.com/Mancuerna/holybeans-public/issues/173)) ([5ab7531](https://github.com/Mancuerna/holybeans-public/commit/5ab75312af7235f89dbba2c87b860e25b6d76f7c))
+* **scales:** recover interrupted Acaia filter connections ([#172](https://github.com/Mancuerna/holybeans-public/issues/172)) ([bd5b4e3](https://github.com/Mancuerna/holybeans-public/commit/bd5b4e332cc4f4d3788a137d465d73f108a37bb1))
+
+## [1.15.1](https://github.com/Mancuerna/holybeans-public/compare/v1.15.0...v1.15.1) (2026-11-19)
+
+
+### Bug Fixes
+
+* align frozen stock with coffee weights and selector details ([#166](https://github.com/Mancuerna/holybeans-public/issues/166)) ([9d8cae3](https://github.com/Mancuerna/holybeans-public/commit/9d8cae36b7895ea689b896da747df107a9bdf631))
+* distinguish expanded coffees in roaster groups ([#164](https://github.com/Mancuerna/holybeans-public/issues/164)) ([f2a8487](https://github.com/Mancuerna/holybeans-public/commit/f2a848716d7906f2dad30502d4cd81b861b95f63))
+* require stable espresso weight before stopping the timer ([#167](https://github.com/Mancuerna/holybeans-public/issues/167)) ([f307d2b](https://github.com/Mancuerna/holybeans-public/commit/f307d2b07f208985b461bdc6adf818c58e227754))
+* restart espresso settling after rejected scale readings ([#168](https://github.com/Mancuerna/holybeans-public/issues/168)) ([71c79e5](https://github.com/Mancuerna/holybeans-public/commit/71c79e5310608f6c302b9750b87169731c56581c))
+
+## [1.15.0](https://github.com/Mancuerna/holybeans-public/compare/v1.14.0...v1.15.0) (2026-11-18)
+
+
+### Features
+
+* add reusable equipment presets for new brews ([#162](https://github.com/Mancuerna/holybeans-public/issues/162)) ([6edb0d4](https://github.com/Mancuerna/holybeans-public/commit/6edb0d4ff7b886d0bedbd78e93fdfc532698e0e5))
+* **beans:** surface favourite recipes in coffee details ([#159](https://github.com/Mancuerna/holybeans-public/issues/159)) ([4ac3a6a](https://github.com/Mancuerna/holybeans-public/commit/4ac3a6acbf7f7c641a0dee461534e4ddf39d334e))
+* **journal:** refine bean cards and streamline brew entry ([#157](https://github.com/Mancuerna/holybeans-public/issues/157)) ([b581c79](https://github.com/Mancuerna/holybeans-public/commit/b581c794270c1c2e65f7f694305c62741ac15b36))
+* **settings:** organize preferences into a compact index ([#161](https://github.com/Mancuerna/holybeans-public/issues/161)) ([cd36082](https://github.com/Mancuerna/holybeans-public/commit/cd3608244d320b0f12f3f72a34558f6780d2bd09))
+
+
+### Bug Fixes
+
+* **acaia:** use the handshake write mode for wake-up ([#163](https://github.com/Mancuerna/holybeans-public/issues/163)) ([9166b32](https://github.com/Mancuerna/holybeans-public/commit/9166b32c89f2e00dc41d75870cdce58cebdf00c9))
+* **beans:** use the outlined roast icon on compact cards ([#160](https://github.com/Mancuerna/holybeans-public/issues/160)) ([9f378db](https://github.com/Mancuerna/holybeans-public/commit/9f378db3ec161513c3903892338d2625e600e00c))
+
+## [1.14.0](https://github.com/Mancuerna/holybeans-public/compare/v1.13.0...v1.14.0) (2026-11-17)
+
+
+### Features
+
+* **equipment:** allow deleting unused portafilters ([a681f35](https://github.com/Mancuerna/holybeans-public/commit/a681f3597e4d1ba47a8d1303fa3accef66a7dbb2))
+
+
+### Bug Fixes
+
+* **acaia:** keep connections alive during notification gaps ([#154](https://github.com/Mancuerna/holybeans-public/issues/154)) ([35949ee](https://github.com/Mancuerna/holybeans-public/commit/35949ee5d7a26e2c77f72c2f4877075cfe6a5856))
+
 ## [1.13.0](https://github.com/Mancuerna/holybeans-public/compare/v1.12.1...v1.13.0) (2026-11-16)
 
 

@@ -46,8 +46,6 @@ class BeanCard extends StatelessWidget {
       return SettleIn.open(
         reveal,
         compact
-            // A compact card's stock sits inside a sentence, which a
-            // running figure would shake; it only opens.
             ? _CompactBeanCard(facts: facts, data: data, actions: actions)
             : _InformativeBeanCard(
                 facts: facts,
@@ -77,6 +75,12 @@ class _BeanFacts {
   final CoffeeStock stock;
   final int brewCount;
 
+  bool get canDelete =>
+      brewCount == 0 &&
+      coffee.mixedAtMs == null &&
+      !stock.adjustments.any(
+        (row) => row.coffeeId == coffee.id && row.blendLotId != null,
+      );
   String get flags => components
       .map((component) => coffeeCountryFor(component.country)?.flag)
       .whereType<String>()
@@ -137,20 +141,35 @@ class _CompactBeanCard extends StatelessWidget {
     final s = AppLocalizations.of(context);
     final coffee = facts.coffee;
     final stock = facts.stock;
-    final details = [
-      [facts.flags, coffee.roaster].where((text) => text.isNotEmpty).join(' '),
-      if (stock.remainingGrams case final grams?)
-        formatGrams(grams, regionalLocale.toString()),
-      if (stock.frozen.isNotEmpty)
-        '${s.frozen} ${formatGrams(stock.frozenGrams, regionalLocale.toString())}',
-      if (facts.roastAge case final age?) s.roastedDaysAgo(age),
-      // In the Archived tab, when it was finished tells coffees apart.
-      if (coffee.archivedAtMs case final ms?)
-        s.archivedOn(
-          DateFormat.yMMM(regionalLocale.toString())
-              .format(DateTime.fromMillisecondsSinceEpoch(ms)),
+    final age = facts.roastAge;
+    final origin = [
+      facts.flags,
+      coffee.roaster,
+    ].where((value) => value.isNotEmpty).join(' ');
+    final details = <TextSpan>[
+      if (origin.isNotEmpty) TextSpan(text: origin),
+      if (age != null)
+        TextSpan(
+          children: [
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Icon(
+                Icons.local_fire_department_outlined,
+                size: 17,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            TextSpan(text: ' $age d', semanticsLabel: s.roastedDaysAgo(age)),
+          ],
         ),
-    ].where((text) => text.trim().isNotEmpty).join(', ');
+      if (coffee.archivedAtMs case final ms?)
+        TextSpan(
+          text: s.archivedOn(
+            DateFormat.yMMM(regionalLocale.toString())
+                .format(DateTime.fromMillisecondsSinceEpoch(ms)),
+          ),
+        ),
+    ];
     return Card(
       key: ValueKey('bean-card-${coffee.id}'),
       // Holding it edits the bean, like Edit in its menu.
@@ -159,34 +178,75 @@ class _CompactBeanCard extends StatelessWidget {
         child: ListTile(
           title: Row(
             children: [
-              if (coffee.isFavorite) const _FavoriteIcon(),
-              FrozenStockBadge(
-                state: frozenStockState(
-                  stock.remainingGrams,
-                  stock.frozenGrams,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        if (coffee.isFavorite) const _FavoriteIcon(),
+                        Flexible(
+                          child: Text(
+                            coffee.name,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (details.isNotEmpty)
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            for (final (index, detail) in details.indexed) ...[
+                              if (index > 0) const TextSpan(text: ', '),
+                              detail,
+                            ],
+                          ],
+                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
                 ),
               ),
-              Flexible(
-                child: Text(
-                  coffee.name,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+              if (stock.remainingGrams != null ||
+                  stock.frozenGrams > 0 ||
+                  coffee.rating != null)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (stock.remainingGrams case final grams?)
+                        Text(
+                          formatGrams(grams, regionalLocale.toString()),
+                          style: AppTheme.figures(
+                            Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                      if (stock.frozenGrams > 0)
+                        FrozenStockBadge(
+                          state: frozenStockState(
+                            stock.remainingGrams,
+                            stock.frozenGrams,
+                          ),
+                          weight: formatGrams(
+                            stock.frozenGrams,
+                            regionalLocale.toString(),
+                          ),
+                        ),
+                      if (coffee.rating case final rating?)
+                        _CoffeeRating(rating),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
-          subtitle: details.isEmpty
-              ? null
-              : Text(details, maxLines: 2, overflow: TextOverflow.ellipsis),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (coffee.rating case final rating?) _CoffeeRating(rating),
-              BeanMenu(
-                coffee: coffee,
-                hasBrews: facts.brewCount > 0,
-                actions: actions,
-              ),
-            ],
+          trailing: BeanMenu(
+            coffee: coffee,
+            canDelete: facts.canDelete,
+            actions: actions,
           ),
           onTap: () => actions.navigation.showCoffeeDetails(coffee, data),
           onLongPress: () => actions.navigation.addCoffee(coffee),
@@ -363,12 +423,6 @@ class _Heading extends StatelessWidget {
             padding: EdgeInsets.only(top: 3),
             child: _FavoriteIcon(),
           ),
-        FrozenStockBadge(
-          state: frozenStockState(
-            facts.stock.remainingGrams,
-            facts.stock.frozenGrams,
-          ),
-        ),
         Expanded(
           child: Text(
             coffee.name,
@@ -381,11 +435,7 @@ class _Heading extends StatelessWidget {
           const SizedBox(width: 8),
           _CoffeeRating(rating),
         ],
-        BeanMenu(
-          coffee: coffee,
-          hasBrews: facts.brewCount > 0,
-          actions: actions,
-        ),
+        BeanMenu(coffee: coffee, canDelete: facts.canDelete, actions: actions),
       ],
     );
   }

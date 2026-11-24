@@ -8,6 +8,7 @@ Future<void> reconstructLegacySchema(AppDatabase db, int version) async {
     // Current access indexes may refer to columns absent from old fixtures.
     for (final name in [
       'brew_history',
+      'brew_preset_lookup',
       'brew_active_history',
       'brew_coffee_history',
       'brew_coffee_recipe',
@@ -23,6 +24,22 @@ Future<void> reconstructLegacySchema(AppDatabase db, int version) async {
       'brew_photo_file_lookup',
     ]) {
       await db.customStatement('DROP INDEX IF EXISTS $name');
+    }
+    if (version < 41) {
+      await db.customStatement(
+        'ALTER TABLE stock_adjustments DROP COLUMN blend_lot_id',
+      );
+      await db.customStatement(
+        'ALTER TABLE stock_adjustments DROP COLUMN source_roast_date',
+      );
+      await db.customStatement('ALTER TABLE coffees DROP COLUMN mixed_at_ms');
+    }
+    if (version < 40) {
+      await db.customStatement(
+        'ALTER TABLE brews DROP COLUMN equipment_preset_id',
+      );
+      await db.customStatement('DROP TABLE equipment_preset_tools');
+      await db.customStatement('DROP TABLE equipment_presets');
     }
     if (version < 39) {
       await db.customStatement('DROP TABLE extraction_profiles');

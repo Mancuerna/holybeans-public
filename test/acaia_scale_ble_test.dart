@@ -1,6 +1,9 @@
 @Tags(['slow'])
 library;
 
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/scale_settings.dart';
@@ -14,6 +17,23 @@ import 'helpers/fake_acaia_ble_platform.dart';
 import 'helpers/test_database.dart';
 
 void main() {
+  // Model a peripheral that closes the link without application heartbeats.
+  // Identification, subscription and weight traffic do not renew its deadline.
+  void requireHeartbeats(FakeAcaiaBlePlatform platform) {
+    Timer? deadline;
+    void renew() {
+      deadline?.cancel();
+      deadline = Timer(const Duration(seconds: 3), platform.loseConnection);
+    }
+
+    platform.onHeartbeat = renew;
+    renew();
+    addTearDown(() {
+      platform.onHeartbeat = null;
+      deadline?.cancel();
+    });
+  }
+
   group('captured Pearl startup', () {
     late FakeAcaiaBlePlatform platform;
     late AppDatabase db;
@@ -35,6 +55,167 @@ void main() {
       scale.dispose();
       await db.close();
     });
+    test(
+      'filter after discarding a running brew recovers the same Pearl',
+      () async {
+        await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+        var now = DateTime(2026);
+        final practice = BrewScaleSession(scale);
+        practice.timerStarted(0);
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        expect(practice.recording, isTrue);
+        practice.dispose();
+
+        final brew = BrewScaleSession(scale, clock: () => now);
+        addTearDown(brew.dispose);
+        brew.requestStop = (_) => brew.timerStopped();
+        brew.timerStarted(0);
+        await Future<void>.delayed(const Duration(milliseconds: 150));
+        now = now.add(const Duration(seconds: 3));
+        platform.emit(10);
+        await Future<void>.delayed(Duration.zero);
+        expect(brew.pouredGrams, 10);
+        expect(platform.events.where((event) => event.startsWith('connect:')), [
+          'connect:${platform.id}',
+        ]);
+        final tares = platform.tareCount;
+        platform.loseConnection();
+        await Future<void>.delayed(Duration.zero);
+        expect(scale.recoveringConnection, isTrue);
+        expect(brew.recording, isTrue);
+        platform.grams = 24;
+        final recovered = Completer<void>();
+        void observe() {
+          if (scale.connected && !recovered.isCompleted) recovered.complete();
+        }
+
+        scale.addListener(observe);
+        try {
+          await recovered.future.timeout(const Duration(seconds: 4));
+        } finally {
+          scale.removeListener(observe);
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 120));
+        platform.emit(35);
+        await Future<void>.delayed(Duration.zero);
+        expect(brew.recording, isTrue);
+        expect(brew.pouredGrams, 35);
+        expect(brew.curve!.weight, containsAllInOrder([10, 24, 35]));
+        expect(platform.priorityRequests, [
+          (platform.id, BleConnectionPriority.highPerformance),
+          (platform.id, BleConnectionPriority.highPerformance),
+        ]);
+        expect(platform.tareCount, tares);
+        platform.button(10);
+        await Future<void>.delayed(Duration.zero);
+        expect(brew.recording, isFalse);
+      },
+    );
+    test('Pearl keeps streaming if Android rejects high priority', () async {
+      platform.failPriority = true;
+      await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+      expect(scale.connected, isTrue);
+      expect(scale.reading!.grams, 18);
+      expect(trace.map((entry) => entry.$1), contains('acaia.priority.error'));
+    });
+
+    test('Pearl skips the priority request on iOS', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+      expect(scale.connected, isTrue);
+      expect(platform.priorityRequests, isEmpty);
+    });
+
+    test('filter stops when the Pearl cannot be recovered', () async {
+      await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+      final brew = BrewScaleSession(scale);
+      addTearDown(brew.dispose);
+      final stopped = Completer<void>();
+      brew.requestStop = (_) {
+        brew.timerStopped();
+        stopped.complete();
+      };
+      brew.timerStarted(0);
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+      platform.respond = false;
+      platform.loseConnection();
+      await Future<void>.delayed(Duration.zero);
+      expect(brew.recording, isTrue);
+      await stopped.future.timeout(const Duration(seconds: 10));
+      expect(scale.status, DeviceStatus.failed);
+      expect(brew.recording, isFalse);
+    });
+    test('Pearl brew survives a stalled acknowledged protocol write', () async {
+      await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+      expect(await scale.send(ScaleCommand.tareAndStartTimer), isTrue);
+      final pending = platform.acknowledgedProtocolWrite = Completer<void>();
+      addTearDown(pending.complete);
+      requireHeartbeats(platform);
+      final notifications = Timer.periodic(
+        const Duration(milliseconds: 100),
+        (_) => platform.emit(22),
+      );
+      addTearDown(notifications.cancel);
+      await Future<void>.delayed(const Duration(milliseconds: 8500));
+      expect(scale.connected, isTrue);
+      expect(scale.reading!.grams, 22);
+      expect(
+        platform.writes.where((frame) => frame[2] == 0).length,
+        greaterThanOrEqualTo(7),
+      );
+      expect(
+        platform.writeProperties,
+        everyElement(BleOutputProperty.withoutResponse),
+      );
+    });
+    test(
+      'Pearl connects and reconnects without an acknowledged wake-up',
+      () async {
+        platform
+          ..requiresAndroidWakeUp = true
+          ..failAcknowledgedWakeUp = true;
+        await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+        expect(scale.connected, isTrue);
+        expect(scale.reading!.grams, 18);
+        for (final grams in [42.0, 120.0]) {
+          await scale.disconnect();
+          expect(scale.connected, isFalse);
+          platform.grams = grams;
+          await scale.connect();
+          expect(scale.connected, isTrue);
+          expect(scale.reading!.grams, grams);
+          expect(await scale.send(ScaleCommand.startTimer), isTrue);
+          expect(await scale.send(ScaleCommand.stopTimer), isTrue);
+          expect(await scale.send(ScaleCommand.resetTimer), isTrue);
+        }
+        expect(platform.wakeUpProperties, [
+          BleOutputProperty.withoutResponse,
+          BleOutputProperty.withoutResponse,
+          BleOutputProperty.withoutResponse,
+        ]);
+        expect(
+          trace.where((event) => event.$1 == 'acaia.write.error'),
+          isEmpty,
+        );
+      },
+    );
+    test(
+      'write-only Pearl retains acknowledged wake-up and handshake',
+      () async {
+        platform
+          ..requiresAndroidWakeUp = true
+          ..supportsWriteWithoutResponse = false;
+        await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+        expect(scale.connected, isTrue);
+        expect(scale.reading!.grams, 18);
+        expect(platform.wakeUpProperties, [BleOutputProperty.withResponse]);
+        expect(
+          platform.writeProperties,
+          everyElement(BleOutputProperty.withResponse),
+        );
+      },
+    );
     test('Android wake-up precedes the Pearl S handshake', () async {
       platform.requiresAndroidWakeUp = true;
       await scale.pair(FoundDevice(id: platform.id, name: 'PEARLS-TEST'));
@@ -42,7 +223,7 @@ void main() {
       expect(platform.wakeUps, [
         [0, 1],
       ]);
-      expect(platform.wakeUpProperties, [BleOutputProperty.withResponse]);
+      expect(platform.wakeUpProperties, [BleOutputProperty.withoutResponse]);
       expect(platform.writes.take(3).map((frame) => frame[2]), [11, 12]);
       await Future<void>.delayed(const Duration(milliseconds: 2100));
       expect(
@@ -143,7 +324,7 @@ void main() {
         trace
             .where((event) => event.$1 == 'acaia.write.ok')
             .map((event) => event.$2['withResponse']),
-        [true, false, false],
+        [false, false, false],
       );
     });
     test(
@@ -199,34 +380,42 @@ void main() {
       },
     );
     test(
-      'silent recovery repeats identification and subscription only',
+      'settings replies alone do not suppress subscription recovery',
       () async {
         await scale.pair(FoundDevice(id: platform.id, name: platform.name));
         platform.respond = false;
         final initialWrites = platform.writes.length;
-        await Future<void>.delayed(const Duration(milliseconds: 2100));
+        final settings = Timer.periodic(
+          const Duration(milliseconds: 150),
+          (_) => platform.reply(8, [9, 73, 2, 2, 1, 0, 1, 1, 0]),
+        );
+        addTearDown(settings.cancel);
+        await Future<void>.delayed(const Duration(milliseconds: 3300));
         final recovery = platform.writes.skip(initialWrites).toList();
         expect(recovery.map((frame) => frame[2]), containsAllInOrder([11, 12]));
-        expect(recovery.where((frame) => frame[2] == 0), isEmpty);
+        expect(recovery.where((frame) => frame[2] == 0), hasLength(3));
       },
     );
-    test('a received notification drives the due heartbeat', () async {
-      await scale.pair(FoundDevice(id: platform.id, name: platform.name));
-      final initialHeartbeats = platform.writes
-          .where((frame) => frame[2] == 0)
-          .length;
-      await Future<void>.delayed(const Duration(milliseconds: 1100));
-      platform.emit(22);
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-      expect(
-        platform.writes.where((frame) => frame[2] == 0).length,
-        initialHeartbeats + 1,
-      );
-      expect(platform.writeProperties.skip(2), [
-        BleOutputProperty.withResponse,
-        BleOutputProperty.withResponse,
-      ]);
-    });
+    test(
+      'notifications do not add heartbeats between periodic ticks',
+      () async {
+        await scale.pair(FoundDevice(id: platform.id, name: platform.name));
+        final initialHeartbeats = platform.writes
+            .where((frame) => frame[2] == 0)
+            .length;
+        await Future<void>.delayed(const Duration(milliseconds: 1100));
+        platform.emit(22);
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        expect(
+          platform.writes.where((frame) => frame[2] == 0).length,
+          initialHeartbeats + 1,
+        );
+        expect(platform.writeProperties.skip(2), [
+          BleOutputProperty.withoutResponse,
+          BleOutputProperty.withoutResponse,
+        ]);
+      },
+    );
     test('modern timer controls use unacknowledged writes', () async {
       await scale.pair(FoundDevice(id: platform.id, name: platform.name));
       final initialWrites = platform.writeProperties.length;
@@ -289,6 +478,24 @@ void main() {
         await scale.pair(FoundDevice(id: platform.id, name: platform.name));
         await Future<void>.delayed(Duration.zero);
       }
+
+      test('Acaia classic=$classic keeps a silent brew connected', () async {
+        await pair();
+        expect(await scale.send(ScaleCommand.tareAndStartTimer), isTrue);
+        platform.respond = false;
+        requireHeartbeats(platform);
+        await Future<void>.delayed(const Duration(milliseconds: 8500));
+        expect(scale.connected, isTrue);
+        expect(
+          platform.writes.where((frame) => frame[2] == 0).length,
+          greaterThanOrEqualTo(7),
+        );
+        platform.respond = true;
+        platform.emit(120);
+        await Future<void>.delayed(Duration.zero);
+        expect(scale.reading!.grams, 120);
+        expect(await scale.send(ScaleCommand.stopTimer), isTrue);
+      });
 
       test(
         'Acaia classic=$classic discovers, validates readings and only controls on request',
@@ -407,7 +614,7 @@ void main() {
         },
       );
       test(
-        'Acaia classic=$classic closes heartbeat and resets decoder on reconnect',
+        'Acaia classic=$classic manual disconnect cancels pending recovery',
         () async {
           await pair();
           await Future<void>.delayed(const Duration(milliseconds: 1100));
@@ -418,6 +625,7 @@ void main() {
           await Future<void>.delayed(Duration.zero);
           expect(scale.connected, isFalse);
           expect(scale.reading, isNull);
+          await scale.disconnect();
           final count = platform.writes.length;
           await Future<void>.delayed(const Duration(milliseconds: 2100));
           expect(platform.writes.length, count);

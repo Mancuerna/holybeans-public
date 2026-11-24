@@ -136,6 +136,7 @@ Future<void> checkLoffeeImport(
       expect(lot.initialGrams, isNull);
     }
     await $.tap(find.byKey(const ValueKey('settings-button')));
+    await $.tap(find.byKey(const ValueKey('settings-advanced')));
     final setting = find.byKey(const ValueKey('loffee-key-settings'));
     await $.scrollUntilVisible(finder: setting);
     await $.tap(setting);

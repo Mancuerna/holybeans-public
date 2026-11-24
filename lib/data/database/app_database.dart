@@ -24,6 +24,7 @@ part 'roaster_migration.dart';
 part 'stock_tables.dart';
 
 class Coffees extends Table {
+  IntColumn get mixedAtMs => integer().nullable()();
   TextColumn get id => text()();
   TextColumn get name => text().withLength(min: 1, max: 200)();
   TextColumn get roaster => text().withLength(max: 200)();
@@ -246,7 +247,28 @@ class ToolMethodLinks extends Table {
   Set<Column> get primaryKey => {toolId, methodId};
 }
 
+class EquipmentPresets extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text().withLength(min: 1, max: 120)();
+  TextColumn get methodId => text().references(BrewMethods, #id)();
+  TextColumn get grinderId => text().nullable().references(Grinders, #id)();
+  TextColumn get waterProfileId =>
+      text().nullable().references(WaterProfiles, #id)();
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class EquipmentPresetTools extends Table {
+  TextColumn get presetId =>
+      text().references(EquipmentPresets, #id, onDelete: KeyAction.cascade)();
+  TextColumn get toolId => text().references(MethodTools, #id)();
+  @override
+  Set<Column> get primaryKey => {presetId, toolId};
+}
+
 class Brews extends Table {
+  TextColumn get equipmentPresetId =>
+      text().nullable().references(EquipmentPresets, #id)();
   TextColumn get extractionProfileJson => text().nullable()();
   TextColumn get id => text()();
   TextColumn get coffeeId =>
@@ -503,6 +525,8 @@ class AppPreferences extends Table {
     CoffeePhotos,
     BrewPhotos,
     BrewToolSelections,
+    EquipmentPresets,
+    EquipmentPresetTools,
     ImportRecords,
     LegacyPayloads,
     AppPreferences,
@@ -527,7 +551,7 @@ class AppDatabase extends _$AppDatabase {
   final JournalWriteGate writeGate;
 
   /// The schema this version of the app writes.
-  static const currentSchema = 39;
+  static const currentSchema = 41;
 
   /// Where the journal lives.
   static Future<File> file() async {
@@ -614,6 +638,22 @@ class AppDatabase extends _$AppDatabase {
                 schema.waterProfiles,
                 schema.waterProfiles.recipeJson,
               );
+            },
+            from40To41: (m, schema) async {
+              await m.addColumn(schema.coffees, schema.coffees.mixedAtMs);
+              await m.addColumn(
+                schema.stockAdjustments,
+                schema.stockAdjustments.blendLotId,
+              );
+              await m.addColumn(
+                schema.stockAdjustments,
+                schema.stockAdjustments.sourceRoastDate,
+              );
+            },
+            from39To40: (m, schema) async {
+              await m.createTable(schema.equipmentPresets);
+              await m.createTable(schema.equipmentPresetTools);
+              await m.addColumn(schema.brews, schema.brews.equipmentPresetId);
             },
             from38To39: (m, schema) async {
               await m.createTable(schema.extractionProfiles);

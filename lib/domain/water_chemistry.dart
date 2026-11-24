@@ -10,18 +10,23 @@ enum WaterIon {
   bicarbonate,
 }
 
-enum WaterSaltGroup { magnesium, calcium, alkalinity }
+enum WaterSaltGroup { magnesium, calcium, alkalinity, neutral, carbonated }
 
 enum WaterSalt {
   epsom(WaterSaltGroup.magnesium),
   magnesiumChloride(WaterSaltGroup.magnesium),
   calciumChloride(WaterSaltGroup.calcium),
   sodiumBicarbonate(WaterSaltGroup.alkalinity),
-  potassiumBicarbonate(WaterSaltGroup.alkalinity);
+  potassiumBicarbonate(WaterSaltGroup.alkalinity),
+  gypsum(WaterSaltGroup.calcium),
+  sodiumChloride(WaterSaltGroup.neutral),
+  potassiumChloride(WaterSaltGroup.neutral),
+  calciumCarbonate(WaterSaltGroup.carbonated);
 
   const WaterSalt(this.group);
   final WaterSaltGroup group;
-  bool get contributesGh => group != WaterSaltGroup.alkalinity;
+  bool get isHardnessSource =>
+      group == WaterSaltGroup.calcium || group == WaterSaltGroup.magnesium;
 }
 
 enum CalciumForm { anhydrous, dihydrate }
@@ -119,6 +124,10 @@ class WaterComposition {
 }
 
 double saltMolarMass(WaterSalt salt, CalciumForm calcium) => switch (salt) {
+  WaterSalt.calciumCarbonate => calciumCarbonateMass,
+  WaterSalt.gypsum => 172.17,
+  WaterSalt.sodiumChloride => 58.44,
+  WaterSalt.potassiumChloride => 74.55,
   WaterSalt.epsom => 246.47,
   WaterSalt.magnesiumChloride => 203.30,
   WaterSalt.calciumChloride =>
@@ -128,6 +137,20 @@ double saltMolarMass(WaterSalt salt, CalciumForm calcium) => switch (salt) {
 };
 
 Map<WaterIon, double> _ionMasses(WaterSalt salt) => switch (salt) {
+  // Dissolving CaCO₃ with CO₂ yields one Ca²⁺ and two HCO₃⁻.
+  WaterSalt.calciumCarbonate => {
+    WaterIon.calcium: 40.078,
+    WaterIon.bicarbonate: 2 * bicarbonateMass,
+  },
+  WaterSalt.gypsum => {WaterIon.calcium: 40.078, WaterIon.sulfate: 96.063},
+  WaterSalt.sodiumChloride => {
+    WaterIon.sodium: 22.989769,
+    WaterIon.chloride: 35.45,
+  },
+  WaterSalt.potassiumChloride => {
+    WaterIon.potassium: 39.0983,
+    WaterIon.chloride: 35.45,
+  },
   WaterSalt.epsom => {WaterIon.magnesium: 24.305, WaterIon.sulfate: 96.063},
   WaterSalt.magnesiumChloride => {
     WaterIon.magnesium: 24.305,
@@ -205,7 +228,9 @@ class WaterRecipe {
             : WaterComposition.fromMap(raw['target'] as Map<String, dynamic>),
         grams: {
           for (final salt in WaterSalt.values)
-            salt: (amounts[salt.name] as num).toDouble(),
+            if (amounts.containsKey(salt.name) ||
+                salt.index <= WaterSalt.potassiumBicarbonate.index)
+              salt: (amounts[salt.name] as num).toDouble(),
         },
         presetId: raw['preset'] as String?,
         ghSource: WaterSalt.values.byName(raw['ghSource'] as String),
@@ -269,7 +294,8 @@ class WaterRecipe {
         )) {
       throw ArgumentError('Dose requires an unavailable salt');
     }
-    if (!ghSource.contributesGh || khSource.contributesGh) {
+    if (!ghSource.isHardnessSource ||
+        khSource.group != WaterSaltGroup.alkalinity) {
       throw ArgumentError('Invalid salt sources');
     }
     if (mode != WaterCalculationMode.quantities &&

@@ -2772,6 +2772,17 @@ class $CoffeesTable extends Coffees with TableInfo<$CoffeesTable, Coffee> {
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $CoffeesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _mixedAtMsMeta = const VerificationMeta(
+    'mixedAtMs',
+  );
+  @override
+  late final GeneratedColumn<int> mixedAtMs = GeneratedColumn<int>(
+    'mixed_at_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -2944,6 +2955,7 @@ class $CoffeesTable extends Coffees with TableInfo<$CoffeesTable, Coffee> {
   );
   @override
   List<GeneratedColumn> get $columns => [
+    mixedAtMs,
     id,
     name,
     roaster,
@@ -2972,6 +2984,12 @@ class $CoffeesTable extends Coffees with TableInfo<$CoffeesTable, Coffee> {
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('mixed_at_ms')) {
+      context.handle(
+        _mixedAtMsMeta,
+        mixedAtMs.isAcceptableOrUnknown(data['mixed_at_ms']!, _mixedAtMsMeta),
+      );
+    }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
@@ -3093,6 +3111,10 @@ class $CoffeesTable extends Coffees with TableInfo<$CoffeesTable, Coffee> {
   Coffee map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Coffee(
+      mixedAtMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}mixed_at_ms'],
+      ),
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -3163,6 +3185,7 @@ class $CoffeesTable extends Coffees with TableInfo<$CoffeesTable, Coffee> {
 }
 
 class Coffee extends DataClass implements Insertable<Coffee> {
+  final int? mixedAtMs;
   final String id;
   final String name;
   final String roaster;
@@ -3185,6 +3208,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   final int updatedAtMs;
   final int? archivedAtMs;
   const Coffee({
+    this.mixedAtMs,
     required this.id,
     required this.name,
     required this.roaster,
@@ -3204,6 +3228,9 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || mixedAtMs != null) {
+      map['mixed_at_ms'] = Variable<int>(mixedAtMs);
+    }
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
     map['roaster'] = Variable<String>(roaster);
@@ -3240,6 +3267,9 @@ class Coffee extends DataClass implements Insertable<Coffee> {
 
   CoffeesCompanion toCompanion(bool nullToAbsent) {
     return CoffeesCompanion(
+      mixedAtMs: mixedAtMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mixedAtMs),
       id: Value(id),
       name: Value(name),
       roaster: Value(roaster),
@@ -3280,6 +3310,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Coffee(
+      mixedAtMs: serializer.fromJson<int?>(json['mixedAtMs']),
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       roaster: serializer.fromJson<String>(json['roaster']),
@@ -3301,6 +3332,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'mixedAtMs': serializer.toJson<int?>(mixedAtMs),
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
       'roaster': serializer.toJson<String>(roaster),
@@ -3320,6 +3352,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   }
 
   Coffee copyWith({
+    Value<int?> mixedAtMs = const Value.absent(),
     String? id,
     String? name,
     String? roaster,
@@ -3336,6 +3369,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
     int? updatedAtMs,
     Value<int?> archivedAtMs = const Value.absent(),
   }) => Coffee(
+    mixedAtMs: mixedAtMs.present ? mixedAtMs.value : this.mixedAtMs,
     id: id ?? this.id,
     name: name ?? this.name,
     roaster: roaster ?? this.roaster,
@@ -3358,6 +3392,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   );
   Coffee copyWithCompanion(CoffeesCompanion data) {
     return Coffee(
+      mixedAtMs: data.mixedAtMs.present ? data.mixedAtMs.value : this.mixedAtMs,
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       roaster: data.roaster.present ? data.roaster.value : this.roaster,
@@ -3393,6 +3428,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   @override
   String toString() {
     return (StringBuffer('Coffee(')
+          ..write('mixedAtMs: $mixedAtMs, ')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('roaster: $roaster, ')
@@ -3414,6 +3450,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
 
   @override
   int get hashCode => Object.hash(
+    mixedAtMs,
     id,
     name,
     roaster,
@@ -3434,6 +3471,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Coffee &&
+          other.mixedAtMs == this.mixedAtMs &&
           other.id == this.id &&
           other.name == this.name &&
           other.roaster == this.roaster &&
@@ -3452,6 +3490,7 @@ class Coffee extends DataClass implements Insertable<Coffee> {
 }
 
 class CoffeesCompanion extends UpdateCompanion<Coffee> {
+  final Value<int?> mixedAtMs;
   final Value<String> id;
   final Value<String> name;
   final Value<String> roaster;
@@ -3469,6 +3508,7 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
   final Value<int?> archivedAtMs;
   final Value<int> rowid;
   const CoffeesCompanion({
+    this.mixedAtMs = const Value.absent(),
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.roaster = const Value.absent(),
@@ -3487,6 +3527,7 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
     this.rowid = const Value.absent(),
   });
   CoffeesCompanion.insert({
+    this.mixedAtMs = const Value.absent(),
     required String id,
     required String name,
     required String roaster,
@@ -3509,6 +3550,7 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
        createdAtMs = Value(createdAtMs),
        updatedAtMs = Value(updatedAtMs);
   static Insertable<Coffee> custom({
+    Expression<int>? mixedAtMs,
     Expression<String>? id,
     Expression<String>? name,
     Expression<String>? roaster,
@@ -3527,6 +3569,7 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (mixedAtMs != null) 'mixed_at_ms': mixedAtMs,
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (roaster != null) 'roaster': roaster,
@@ -3547,6 +3590,7 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
   }
 
   CoffeesCompanion copyWith({
+    Value<int?>? mixedAtMs,
     Value<String>? id,
     Value<String>? name,
     Value<String>? roaster,
@@ -3565,6 +3609,7 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
     Value<int>? rowid,
   }) {
     return CoffeesCompanion(
+      mixedAtMs: mixedAtMs ?? this.mixedAtMs,
       id: id ?? this.id,
       name: name ?? this.name,
       roaster: roaster ?? this.roaster,
@@ -3587,6 +3632,9 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (mixedAtMs.present) {
+      map['mixed_at_ms'] = Variable<int>(mixedAtMs.value);
+    }
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
@@ -3641,6 +3689,7 @@ class CoffeesCompanion extends UpdateCompanion<Coffee> {
   @override
   String toString() {
     return (StringBuffer('CoffeesCompanion(')
+          ..write('mixedAtMs: $mixedAtMs, ')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('roaster: $roaster, ')
@@ -9893,11 +9942,409 @@ class ToolMethodLinksCompanion extends UpdateCompanion<ToolMethodLink> {
   }
 }
 
+class $EquipmentPresetsTable extends EquipmentPresets
+    with TableInfo<$EquipmentPresetsTable, EquipmentPreset> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EquipmentPresetsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 120,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _methodIdMeta = const VerificationMeta(
+    'methodId',
+  );
+  @override
+  late final GeneratedColumn<String> methodId = GeneratedColumn<String>(
+    'method_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES brew_methods (id)',
+    ),
+  );
+  static const VerificationMeta _grinderIdMeta = const VerificationMeta(
+    'grinderId',
+  );
+  @override
+  late final GeneratedColumn<String> grinderId = GeneratedColumn<String>(
+    'grinder_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES grinders (id)',
+    ),
+  );
+  static const VerificationMeta _waterProfileIdMeta = const VerificationMeta(
+    'waterProfileId',
+  );
+  @override
+  late final GeneratedColumn<String> waterProfileId = GeneratedColumn<String>(
+    'water_profile_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES water_profiles (id)',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    methodId,
+    grinderId,
+    waterProfileId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'equipment_presets';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<EquipmentPreset> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('method_id')) {
+      context.handle(
+        _methodIdMeta,
+        methodId.isAcceptableOrUnknown(data['method_id']!, _methodIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_methodIdMeta);
+    }
+    if (data.containsKey('grinder_id')) {
+      context.handle(
+        _grinderIdMeta,
+        grinderId.isAcceptableOrUnknown(data['grinder_id']!, _grinderIdMeta),
+      );
+    }
+    if (data.containsKey('water_profile_id')) {
+      context.handle(
+        _waterProfileIdMeta,
+        waterProfileId.isAcceptableOrUnknown(
+          data['water_profile_id']!,
+          _waterProfileIdMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  EquipmentPreset map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return EquipmentPreset(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      methodId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}method_id'],
+      )!,
+      grinderId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}grinder_id'],
+      ),
+      waterProfileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}water_profile_id'],
+      ),
+    );
+  }
+
+  @override
+  $EquipmentPresetsTable createAlias(String alias) {
+    return $EquipmentPresetsTable(attachedDatabase, alias);
+  }
+}
+
+class EquipmentPreset extends DataClass implements Insertable<EquipmentPreset> {
+  final String id;
+  final String name;
+  final String methodId;
+  final String? grinderId;
+  final String? waterProfileId;
+  const EquipmentPreset({
+    required this.id,
+    required this.name,
+    required this.methodId,
+    this.grinderId,
+    this.waterProfileId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['method_id'] = Variable<String>(methodId);
+    if (!nullToAbsent || grinderId != null) {
+      map['grinder_id'] = Variable<String>(grinderId);
+    }
+    if (!nullToAbsent || waterProfileId != null) {
+      map['water_profile_id'] = Variable<String>(waterProfileId);
+    }
+    return map;
+  }
+
+  EquipmentPresetsCompanion toCompanion(bool nullToAbsent) {
+    return EquipmentPresetsCompanion(
+      id: Value(id),
+      name: Value(name),
+      methodId: Value(methodId),
+      grinderId: grinderId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(grinderId),
+      waterProfileId: waterProfileId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(waterProfileId),
+    );
+  }
+
+  factory EquipmentPreset.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return EquipmentPreset(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      methodId: serializer.fromJson<String>(json['methodId']),
+      grinderId: serializer.fromJson<String?>(json['grinderId']),
+      waterProfileId: serializer.fromJson<String?>(json['waterProfileId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'methodId': serializer.toJson<String>(methodId),
+      'grinderId': serializer.toJson<String?>(grinderId),
+      'waterProfileId': serializer.toJson<String?>(waterProfileId),
+    };
+  }
+
+  EquipmentPreset copyWith({
+    String? id,
+    String? name,
+    String? methodId,
+    Value<String?> grinderId = const Value.absent(),
+    Value<String?> waterProfileId = const Value.absent(),
+  }) => EquipmentPreset(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    methodId: methodId ?? this.methodId,
+    grinderId: grinderId.present ? grinderId.value : this.grinderId,
+    waterProfileId: waterProfileId.present
+        ? waterProfileId.value
+        : this.waterProfileId,
+  );
+  EquipmentPreset copyWithCompanion(EquipmentPresetsCompanion data) {
+    return EquipmentPreset(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      methodId: data.methodId.present ? data.methodId.value : this.methodId,
+      grinderId: data.grinderId.present ? data.grinderId.value : this.grinderId,
+      waterProfileId: data.waterProfileId.present
+          ? data.waterProfileId.value
+          : this.waterProfileId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EquipmentPreset(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('methodId: $methodId, ')
+          ..write('grinderId: $grinderId, ')
+          ..write('waterProfileId: $waterProfileId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, name, methodId, grinderId, waterProfileId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EquipmentPreset &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.methodId == this.methodId &&
+          other.grinderId == this.grinderId &&
+          other.waterProfileId == this.waterProfileId);
+}
+
+class EquipmentPresetsCompanion extends UpdateCompanion<EquipmentPreset> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> methodId;
+  final Value<String?> grinderId;
+  final Value<String?> waterProfileId;
+  final Value<int> rowid;
+  const EquipmentPresetsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.methodId = const Value.absent(),
+    this.grinderId = const Value.absent(),
+    this.waterProfileId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  EquipmentPresetsCompanion.insert({
+    required String id,
+    required String name,
+    required String methodId,
+    this.grinderId = const Value.absent(),
+    this.waterProfileId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       methodId = Value(methodId);
+  static Insertable<EquipmentPreset> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? methodId,
+    Expression<String>? grinderId,
+    Expression<String>? waterProfileId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (methodId != null) 'method_id': methodId,
+      if (grinderId != null) 'grinder_id': grinderId,
+      if (waterProfileId != null) 'water_profile_id': waterProfileId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  EquipmentPresetsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String>? methodId,
+    Value<String?>? grinderId,
+    Value<String?>? waterProfileId,
+    Value<int>? rowid,
+  }) {
+    return EquipmentPresetsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      methodId: methodId ?? this.methodId,
+      grinderId: grinderId ?? this.grinderId,
+      waterProfileId: waterProfileId ?? this.waterProfileId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (methodId.present) {
+      map['method_id'] = Variable<String>(methodId.value);
+    }
+    if (grinderId.present) {
+      map['grinder_id'] = Variable<String>(grinderId.value);
+    }
+    if (waterProfileId.present) {
+      map['water_profile_id'] = Variable<String>(waterProfileId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EquipmentPresetsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('methodId: $methodId, ')
+          ..write('grinderId: $grinderId, ')
+          ..write('waterProfileId: $waterProfileId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $BrewsTable extends Brews with TableInfo<$BrewsTable, Brew> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $BrewsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _equipmentPresetIdMeta = const VerificationMeta(
+    'equipmentPresetId',
+  );
+  @override
+  late final GeneratedColumn<String> equipmentPresetId =
+      GeneratedColumn<String>(
+        'equipment_preset_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES equipment_presets (id)',
+        ),
+      );
   static const VerificationMeta _extractionProfileJsonMeta =
       const VerificationMeta('extractionProfileJson');
   @override
@@ -10501,6 +10948,7 @@ class $BrewsTable extends Brews with TableInfo<$BrewsTable, Brew> {
   );
   @override
   List<GeneratedColumn> get $columns => [
+    equipmentPresetId,
     extractionProfileJson,
     id,
     coffeeId,
@@ -10566,6 +11014,15 @@ class $BrewsTable extends Brews with TableInfo<$BrewsTable, Brew> {
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('equipment_preset_id')) {
+      context.handle(
+        _equipmentPresetIdMeta,
+        equipmentPresetId.isAcceptableOrUnknown(
+          data['equipment_preset_id']!,
+          _equipmentPresetIdMeta,
+        ),
+      );
+    }
     if (data.containsKey('extraction_profile_json')) {
       context.handle(
         _extractionProfileJsonMeta,
@@ -10983,6 +11440,10 @@ class $BrewsTable extends Brews with TableInfo<$BrewsTable, Brew> {
   Brew map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Brew(
+      equipmentPresetId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}equipment_preset_id'],
+      ),
       extractionProfileJson: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}extraction_profile_json'],
@@ -11201,6 +11662,7 @@ class $BrewsTable extends Brews with TableInfo<$BrewsTable, Brew> {
 }
 
 class Brew extends DataClass implements Insertable<Brew> {
+  final String? equipmentPresetId;
   final String? extractionProfileJson;
   final String id;
   final String coffeeId;
@@ -11279,6 +11741,7 @@ class Brew extends DataClass implements Insertable<Brew> {
   final bool? archivedByCoffee;
   final bool? stockReviewPending;
   const Brew({
+    this.equipmentPresetId,
     this.extractionProfileJson,
     required this.id,
     required this.coffeeId,
@@ -11335,6 +11798,9 @@ class Brew extends DataClass implements Insertable<Brew> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || equipmentPresetId != null) {
+      map['equipment_preset_id'] = Variable<String>(equipmentPresetId);
+    }
     if (!nullToAbsent || extractionProfileJson != null) {
       map['extraction_profile_json'] = Variable<String>(extractionProfileJson);
     }
@@ -11478,6 +11944,9 @@ class Brew extends DataClass implements Insertable<Brew> {
 
   BrewsCompanion toCompanion(bool nullToAbsent) {
     return BrewsCompanion(
+      equipmentPresetId: equipmentPresetId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(equipmentPresetId),
       extractionProfileJson: extractionProfileJson == null && nullToAbsent
           ? const Value.absent()
           : Value(extractionProfileJson),
@@ -11621,6 +12090,9 @@ class Brew extends DataClass implements Insertable<Brew> {
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Brew(
+      equipmentPresetId: serializer.fromJson<String?>(
+        json['equipmentPresetId'],
+      ),
       extractionProfileJson: serializer.fromJson<String?>(
         json['extractionProfileJson'],
       ),
@@ -11685,6 +12157,7 @@ class Brew extends DataClass implements Insertable<Brew> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'equipmentPresetId': serializer.toJson<String?>(equipmentPresetId),
       'extractionProfileJson': serializer.toJson<String?>(
         extractionProfileJson,
       ),
@@ -11743,6 +12216,7 @@ class Brew extends DataClass implements Insertable<Brew> {
   }
 
   Brew copyWith({
+    Value<String?> equipmentPresetId = const Value.absent(),
     Value<String?> extractionProfileJson = const Value.absent(),
     String? id,
     String? coffeeId,
@@ -11796,6 +12270,9 @@ class Brew extends DataClass implements Insertable<Brew> {
     Value<bool?> archivedByCoffee = const Value.absent(),
     Value<bool?> stockReviewPending = const Value.absent(),
   }) => Brew(
+    equipmentPresetId: equipmentPresetId.present
+        ? equipmentPresetId.value
+        : this.equipmentPresetId,
     extractionProfileJson: extractionProfileJson.present
         ? extractionProfileJson.value
         : this.extractionProfileJson,
@@ -11880,6 +12357,9 @@ class Brew extends DataClass implements Insertable<Brew> {
   );
   Brew copyWithCompanion(BrewsCompanion data) {
     return Brew(
+      equipmentPresetId: data.equipmentPresetId.present
+          ? data.equipmentPresetId.value
+          : this.equipmentPresetId,
       extractionProfileJson: data.extractionProfileJson.present
           ? data.extractionProfileJson.value
           : this.extractionProfileJson,
@@ -12012,6 +12492,7 @@ class Brew extends DataClass implements Insertable<Brew> {
   @override
   String toString() {
     return (StringBuffer('Brew(')
+          ..write('equipmentPresetId: $equipmentPresetId, ')
           ..write('extractionProfileJson: $extractionProfileJson, ')
           ..write('id: $id, ')
           ..write('coffeeId: $coffeeId, ')
@@ -12070,6 +12551,7 @@ class Brew extends DataClass implements Insertable<Brew> {
 
   @override
   int get hashCode => Object.hashAll([
+    equipmentPresetId,
     extractionProfileJson,
     id,
     coffeeId,
@@ -12127,6 +12609,7 @@ class Brew extends DataClass implements Insertable<Brew> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Brew &&
+          other.equipmentPresetId == this.equipmentPresetId &&
           other.extractionProfileJson == this.extractionProfileJson &&
           other.id == this.id &&
           other.coffeeId == this.coffeeId &&
@@ -12182,6 +12665,7 @@ class Brew extends DataClass implements Insertable<Brew> {
 }
 
 class BrewsCompanion extends UpdateCompanion<Brew> {
+  final Value<String?> equipmentPresetId;
   final Value<String?> extractionProfileJson;
   final Value<String> id;
   final Value<String> coffeeId;
@@ -12236,6 +12720,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
   final Value<bool?> stockReviewPending;
   final Value<int> rowid;
   const BrewsCompanion({
+    this.equipmentPresetId = const Value.absent(),
     this.extractionProfileJson = const Value.absent(),
     this.id = const Value.absent(),
     this.coffeeId = const Value.absent(),
@@ -12291,6 +12776,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
     this.rowid = const Value.absent(),
   });
   BrewsCompanion.insert({
+    this.equipmentPresetId = const Value.absent(),
     this.extractionProfileJson = const Value.absent(),
     required String id,
     required String coffeeId,
@@ -12351,6 +12837,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
        createdAtMs = Value(createdAtMs),
        updatedAtMs = Value(updatedAtMs);
   static Insertable<Brew> custom({
+    Expression<String>? equipmentPresetId,
     Expression<String>? extractionProfileJson,
     Expression<String>? id,
     Expression<String>? coffeeId,
@@ -12406,6 +12893,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (equipmentPresetId != null) 'equipment_preset_id': equipmentPresetId,
       if (extractionProfileJson != null)
         'extraction_profile_json': extractionProfileJson,
       if (id != null) 'id': id,
@@ -12466,6 +12954,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
   }
 
   BrewsCompanion copyWith({
+    Value<String?>? equipmentPresetId,
     Value<String?>? extractionProfileJson,
     Value<String>? id,
     Value<String>? coffeeId,
@@ -12521,6 +13010,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
     Value<int>? rowid,
   }) {
     return BrewsCompanion(
+      equipmentPresetId: equipmentPresetId ?? this.equipmentPresetId,
       extractionProfileJson:
           extractionProfileJson ?? this.extractionProfileJson,
       id: id ?? this.id,
@@ -12582,6 +13072,9 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (equipmentPresetId.present) {
+      map['equipment_preset_id'] = Variable<String>(equipmentPresetId.value);
+    }
     if (extractionProfileJson.present) {
       map['extraction_profile_json'] = Variable<String>(
         extractionProfileJson.value,
@@ -12751,6 +13244,7 @@ class BrewsCompanion extends UpdateCompanion<Brew> {
   @override
   String toString() {
     return (StringBuffer('BrewsCompanion(')
+          ..write('equipmentPresetId: $equipmentPresetId, ')
           ..write('extractionProfileJson: $extractionProfileJson, ')
           ..write('id: $id, ')
           ..write('coffeeId: $coffeeId, ')
@@ -13837,6 +14331,230 @@ class BrewToolSelectionsCompanion extends UpdateCompanion<BrewToolSelection> {
   String toString() {
     return (StringBuffer('BrewToolSelectionsCompanion(')
           ..write('brewId: $brewId, ')
+          ..write('toolId: $toolId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $EquipmentPresetToolsTable extends EquipmentPresetTools
+    with TableInfo<$EquipmentPresetToolsTable, EquipmentPresetTool> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EquipmentPresetToolsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _presetIdMeta = const VerificationMeta(
+    'presetId',
+  );
+  @override
+  late final GeneratedColumn<String> presetId = GeneratedColumn<String>(
+    'preset_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES equipment_presets (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _toolIdMeta = const VerificationMeta('toolId');
+  @override
+  late final GeneratedColumn<String> toolId = GeneratedColumn<String>(
+    'tool_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES method_tools (id)',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [presetId, toolId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'equipment_preset_tools';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<EquipmentPresetTool> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('preset_id')) {
+      context.handle(
+        _presetIdMeta,
+        presetId.isAcceptableOrUnknown(data['preset_id']!, _presetIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_presetIdMeta);
+    }
+    if (data.containsKey('tool_id')) {
+      context.handle(
+        _toolIdMeta,
+        toolId.isAcceptableOrUnknown(data['tool_id']!, _toolIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_toolIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {presetId, toolId};
+  @override
+  EquipmentPresetTool map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return EquipmentPresetTool(
+      presetId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preset_id'],
+      )!,
+      toolId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tool_id'],
+      )!,
+    );
+  }
+
+  @override
+  $EquipmentPresetToolsTable createAlias(String alias) {
+    return $EquipmentPresetToolsTable(attachedDatabase, alias);
+  }
+}
+
+class EquipmentPresetTool extends DataClass
+    implements Insertable<EquipmentPresetTool> {
+  final String presetId;
+  final String toolId;
+  const EquipmentPresetTool({required this.presetId, required this.toolId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['preset_id'] = Variable<String>(presetId);
+    map['tool_id'] = Variable<String>(toolId);
+    return map;
+  }
+
+  EquipmentPresetToolsCompanion toCompanion(bool nullToAbsent) {
+    return EquipmentPresetToolsCompanion(
+      presetId: Value(presetId),
+      toolId: Value(toolId),
+    );
+  }
+
+  factory EquipmentPresetTool.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return EquipmentPresetTool(
+      presetId: serializer.fromJson<String>(json['presetId']),
+      toolId: serializer.fromJson<String>(json['toolId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'presetId': serializer.toJson<String>(presetId),
+      'toolId': serializer.toJson<String>(toolId),
+    };
+  }
+
+  EquipmentPresetTool copyWith({String? presetId, String? toolId}) =>
+      EquipmentPresetTool(
+        presetId: presetId ?? this.presetId,
+        toolId: toolId ?? this.toolId,
+      );
+  EquipmentPresetTool copyWithCompanion(EquipmentPresetToolsCompanion data) {
+    return EquipmentPresetTool(
+      presetId: data.presetId.present ? data.presetId.value : this.presetId,
+      toolId: data.toolId.present ? data.toolId.value : this.toolId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EquipmentPresetTool(')
+          ..write('presetId: $presetId, ')
+          ..write('toolId: $toolId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(presetId, toolId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EquipmentPresetTool &&
+          other.presetId == this.presetId &&
+          other.toolId == this.toolId);
+}
+
+class EquipmentPresetToolsCompanion
+    extends UpdateCompanion<EquipmentPresetTool> {
+  final Value<String> presetId;
+  final Value<String> toolId;
+  final Value<int> rowid;
+  const EquipmentPresetToolsCompanion({
+    this.presetId = const Value.absent(),
+    this.toolId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  EquipmentPresetToolsCompanion.insert({
+    required String presetId,
+    required String toolId,
+    this.rowid = const Value.absent(),
+  }) : presetId = Value(presetId),
+       toolId = Value(toolId);
+  static Insertable<EquipmentPresetTool> custom({
+    Expression<String>? presetId,
+    Expression<String>? toolId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (presetId != null) 'preset_id': presetId,
+      if (toolId != null) 'tool_id': toolId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  EquipmentPresetToolsCompanion copyWith({
+    Value<String>? presetId,
+    Value<String>? toolId,
+    Value<int>? rowid,
+  }) {
+    return EquipmentPresetToolsCompanion(
+      presetId: presetId ?? this.presetId,
+      toolId: toolId ?? this.toolId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (presetId.present) {
+      map['preset_id'] = Variable<String>(presetId.value);
+    }
+    if (toolId.present) {
+      map['tool_id'] = Variable<String>(toolId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EquipmentPresetToolsCompanion(')
+          ..write('presetId: $presetId, ')
           ..write('toolId: $toolId, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -15655,6 +16373,31 @@ class $StockAdjustmentsTable extends StockAdjustments
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $StockAdjustmentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _blendLotIdMeta = const VerificationMeta(
+    'blendLotId',
+  );
+  @override
+  late final GeneratedColumn<String> blendLotId = GeneratedColumn<String>(
+    'blend_lot_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES coffee_lots (id)',
+    ),
+  );
+  static const VerificationMeta _sourceRoastDateMeta = const VerificationMeta(
+    'sourceRoastDate',
+  );
+  @override
+  late final GeneratedColumn<String> sourceRoastDate = GeneratedColumn<String>(
+    'source_roast_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -15779,6 +16522,8 @@ class $StockAdjustmentsTable extends StockAdjustments
   );
   @override
   List<GeneratedColumn> get $columns => [
+    blendLotId,
+    sourceRoastDate,
     id,
     operationId,
     coffeeId,
@@ -15803,6 +16548,24 @@ class $StockAdjustmentsTable extends StockAdjustments
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('blend_lot_id')) {
+      context.handle(
+        _blendLotIdMeta,
+        blendLotId.isAcceptableOrUnknown(
+          data['blend_lot_id']!,
+          _blendLotIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('source_roast_date')) {
+      context.handle(
+        _sourceRoastDateMeta,
+        sourceRoastDate.isAcceptableOrUnknown(
+          data['source_roast_date']!,
+          _sourceRoastDateMeta,
+        ),
+      );
+    }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
@@ -15907,6 +16670,14 @@ class $StockAdjustmentsTable extends StockAdjustments
   StockAdjustment map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return StockAdjustment(
+      blendLotId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}blend_lot_id'],
+      ),
+      sourceRoastDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_roast_date'],
+      ),
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -15961,6 +16732,8 @@ class $StockAdjustmentsTable extends StockAdjustments
 }
 
 class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
+  final String? blendLotId;
+  final String? sourceRoastDate;
   final String id;
   final String operationId;
   final String coffeeId;
@@ -15973,6 +16746,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   final int createdAtMs;
   final int? reversedAtMs;
   const StockAdjustment({
+    this.blendLotId,
+    this.sourceRoastDate,
     required this.id,
     required this.operationId,
     required this.coffeeId,
@@ -15988,6 +16763,12 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || blendLotId != null) {
+      map['blend_lot_id'] = Variable<String>(blendLotId);
+    }
+    if (!nullToAbsent || sourceRoastDate != null) {
+      map['source_roast_date'] = Variable<String>(sourceRoastDate);
+    }
     map['id'] = Variable<String>(id);
     map['operation_id'] = Variable<String>(operationId);
     map['coffee_id'] = Variable<String>(coffeeId);
@@ -16012,6 +16793,12 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
 
   StockAdjustmentsCompanion toCompanion(bool nullToAbsent) {
     return StockAdjustmentsCompanion(
+      blendLotId: blendLotId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(blendLotId),
+      sourceRoastDate: sourceRoastDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceRoastDate),
       id: Value(id),
       operationId: Value(operationId),
       coffeeId: Value(coffeeId),
@@ -16040,6 +16827,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return StockAdjustment(
+      blendLotId: serializer.fromJson<String?>(json['blendLotId']),
+      sourceRoastDate: serializer.fromJson<String?>(json['sourceRoastDate']),
       id: serializer.fromJson<String>(json['id']),
       operationId: serializer.fromJson<String>(json['operationId']),
       coffeeId: serializer.fromJson<String>(json['coffeeId']),
@@ -16057,6 +16846,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'blendLotId': serializer.toJson<String?>(blendLotId),
+      'sourceRoastDate': serializer.toJson<String?>(sourceRoastDate),
       'id': serializer.toJson<String>(id),
       'operationId': serializer.toJson<String>(operationId),
       'coffeeId': serializer.toJson<String>(coffeeId),
@@ -16072,6 +16863,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   }
 
   StockAdjustment copyWith({
+    Value<String?> blendLotId = const Value.absent(),
+    Value<String?> sourceRoastDate = const Value.absent(),
     String? id,
     String? operationId,
     String? coffeeId,
@@ -16084,6 +16877,10 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
     int? createdAtMs,
     Value<int?> reversedAtMs = const Value.absent(),
   }) => StockAdjustment(
+    blendLotId: blendLotId.present ? blendLotId.value : this.blendLotId,
+    sourceRoastDate: sourceRoastDate.present
+        ? sourceRoastDate.value
+        : this.sourceRoastDate,
     id: id ?? this.id,
     operationId: operationId ?? this.operationId,
     coffeeId: coffeeId ?? this.coffeeId,
@@ -16102,6 +16899,12 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   );
   StockAdjustment copyWithCompanion(StockAdjustmentsCompanion data) {
     return StockAdjustment(
+      blendLotId: data.blendLotId.present
+          ? data.blendLotId.value
+          : this.blendLotId,
+      sourceRoastDate: data.sourceRoastDate.present
+          ? data.sourceRoastDate.value
+          : this.sourceRoastDate,
       id: data.id.present ? data.id.value : this.id,
       operationId: data.operationId.present
           ? data.operationId.value
@@ -16131,6 +16934,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   @override
   String toString() {
     return (StringBuffer('StockAdjustment(')
+          ..write('blendLotId: $blendLotId, ')
+          ..write('sourceRoastDate: $sourceRoastDate, ')
           ..write('id: $id, ')
           ..write('operationId: $operationId, ')
           ..write('coffeeId: $coffeeId, ')
@@ -16148,6 +16953,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
 
   @override
   int get hashCode => Object.hash(
+    blendLotId,
+    sourceRoastDate,
     id,
     operationId,
     coffeeId,
@@ -16164,6 +16971,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is StockAdjustment &&
+          other.blendLotId == this.blendLotId &&
+          other.sourceRoastDate == this.sourceRoastDate &&
           other.id == this.id &&
           other.operationId == this.operationId &&
           other.coffeeId == this.coffeeId &&
@@ -16178,6 +16987,8 @@ class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
 }
 
 class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
+  final Value<String?> blendLotId;
+  final Value<String?> sourceRoastDate;
   final Value<String> id;
   final Value<String> operationId;
   final Value<String> coffeeId;
@@ -16191,6 +17002,8 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
   final Value<int?> reversedAtMs;
   final Value<int> rowid;
   const StockAdjustmentsCompanion({
+    this.blendLotId = const Value.absent(),
+    this.sourceRoastDate = const Value.absent(),
     this.id = const Value.absent(),
     this.operationId = const Value.absent(),
     this.coffeeId = const Value.absent(),
@@ -16205,6 +17018,8 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
     this.rowid = const Value.absent(),
   });
   StockAdjustmentsCompanion.insert({
+    this.blendLotId = const Value.absent(),
+    this.sourceRoastDate = const Value.absent(),
     required String id,
     required String operationId,
     required String coffeeId,
@@ -16225,6 +17040,8 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
        resultingGrams = Value(resultingGrams),
        createdAtMs = Value(createdAtMs);
   static Insertable<StockAdjustment> custom({
+    Expression<String>? blendLotId,
+    Expression<String>? sourceRoastDate,
     Expression<String>? id,
     Expression<String>? operationId,
     Expression<String>? coffeeId,
@@ -16239,6 +17056,8 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (blendLotId != null) 'blend_lot_id': blendLotId,
+      if (sourceRoastDate != null) 'source_roast_date': sourceRoastDate,
       if (id != null) 'id': id,
       if (operationId != null) 'operation_id': operationId,
       if (coffeeId != null) 'coffee_id': coffeeId,
@@ -16255,6 +17074,8 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
   }
 
   StockAdjustmentsCompanion copyWith({
+    Value<String?>? blendLotId,
+    Value<String?>? sourceRoastDate,
     Value<String>? id,
     Value<String>? operationId,
     Value<String>? coffeeId,
@@ -16269,6 +17090,8 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
     Value<int>? rowid,
   }) {
     return StockAdjustmentsCompanion(
+      blendLotId: blendLotId ?? this.blendLotId,
+      sourceRoastDate: sourceRoastDate ?? this.sourceRoastDate,
       id: id ?? this.id,
       operationId: operationId ?? this.operationId,
       coffeeId: coffeeId ?? this.coffeeId,
@@ -16287,6 +17110,12 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (blendLotId.present) {
+      map['blend_lot_id'] = Variable<String>(blendLotId.value);
+    }
+    if (sourceRoastDate.present) {
+      map['source_roast_date'] = Variable<String>(sourceRoastDate.value);
+    }
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
@@ -16329,6 +17158,8 @@ class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
   @override
   String toString() {
     return (StringBuffer('StockAdjustmentsCompanion(')
+          ..write('blendLotId: $blendLotId, ')
+          ..write('sourceRoastDate: $sourceRoastDate, ')
           ..write('id: $id, ')
           ..write('operationId: $operationId, ')
           ..write('coffeeId: $coffeeId, ')
@@ -17184,12 +18015,17 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ToolMethodLinksTable toolMethodLinks = $ToolMethodLinksTable(
     this,
   );
+  late final $EquipmentPresetsTable equipmentPresets = $EquipmentPresetsTable(
+    this,
+  );
   late final $BrewsTable brews = $BrewsTable(this);
   late final $BrewCurvesTable brewCurves = $BrewCurvesTable(this);
   late final $CoffeePhotosTable coffeePhotos = $CoffeePhotosTable(this);
   late final $BrewPhotosTable brewPhotos = $BrewPhotosTable(this);
   late final $BrewToolSelectionsTable brewToolSelections =
       $BrewToolSelectionsTable(this);
+  late final $EquipmentPresetToolsTable equipmentPresetTools =
+      $EquipmentPresetToolsTable(this);
   late final $ImportRecordsTable importRecords = $ImportRecordsTable(this);
   late final $LegacyPayloadsTable legacyPayloads = $LegacyPayloadsTable(this);
   late final $AppPreferencesTable appPreferences = $AppPreferencesTable(this);
@@ -17227,11 +18063,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     waterProfiles,
     methodTools,
     toolMethodLinks,
+    equipmentPresets,
     brews,
     brewCurves,
     coffeePhotos,
     brewPhotos,
     brewToolSelections,
+    equipmentPresetTools,
     importRecords,
     legacyPayloads,
     appPreferences,
@@ -17311,6 +18149,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('brew_tool_selections', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'equipment_presets',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('equipment_preset_tools', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -18371,6 +19216,26 @@ final class $$BrewMethodsTableReferences
     );
   }
 
+  static MultiTypedResultKey<$EquipmentPresetsTable, List<EquipmentPreset>>
+  _equipmentPresetsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.equipmentPresets,
+    aliasName: 'brew_methods__id__equipment_presets__method_id',
+  );
+
+  $$EquipmentPresetsTableProcessedTableManager get equipmentPresetsRefs {
+    final manager = $$EquipmentPresetsTableTableManager(
+      $_db,
+      $_db.equipmentPresets,
+    ).filter((f) => f.methodId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _equipmentPresetsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$BrewsTable, List<Brew>> _brewsRefsTable(
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
@@ -18544,6 +19409,31 @@ class $$BrewMethodsTableFilterComposer
           }) => $$ToolMethodLinksTableFilterComposer(
             $db: $db,
             $table: $db.toolMethodLinks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> equipmentPresetsRefs(
+    Expression<bool> Function($$EquipmentPresetsTableFilterComposer f) f,
+  ) {
+    final $$EquipmentPresetsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.equipmentPresets,
+      getReferencedColumn: (t) => t.methodId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EquipmentPresetsTableFilterComposer(
+            $db: $db,
+            $table: $db.equipmentPresets,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -18820,6 +19710,31 @@ class $$BrewMethodsTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> equipmentPresetsRefs<T extends Object>(
+    Expression<T> Function($$EquipmentPresetsTableAnnotationComposer a) f,
+  ) {
+    final $$EquipmentPresetsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.equipmentPresets,
+      getReferencedColumn: (t) => t.methodId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EquipmentPresetsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.equipmentPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> brewsRefs<T extends Object>(
     Expression<T> Function($$BrewsTableAnnotationComposer a) f,
   ) {
@@ -18864,6 +19779,7 @@ class $$BrewMethodsTableTableManager
             bool pistonMethodLinksRefs,
             bool methodToolsRefs,
             bool toolMethodLinksRefs,
+            bool equipmentPresetsRefs,
             bool brewsRefs,
           })
         > {
@@ -18952,6 +19868,7 @@ class $$BrewMethodsTableTableManager
                 pistonMethodLinksRefs = false,
                 methodToolsRefs = false,
                 toolMethodLinksRefs = false,
+                equipmentPresetsRefs = false,
                 brewsRefs = false,
               }) {
                 return PrefetchHooks(
@@ -18960,6 +19877,7 @@ class $$BrewMethodsTableTableManager
                     if (pistonMethodLinksRefs) db.pistonMethodLinks,
                     if (methodToolsRefs) db.methodTools,
                     if (toolMethodLinksRefs) db.toolMethodLinks,
+                    if (equipmentPresetsRefs) db.equipmentPresets,
                     if (brewsRefs) db.brews,
                   ],
                   addJoins:
@@ -19057,6 +19975,27 @@ class $$BrewMethodsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (equipmentPresetsRefs)
+                        await $_getPrefetchedData<
+                          BrewMethod,
+                          $BrewMethodsTable,
+                          EquipmentPreset
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BrewMethodsTableReferences
+                              ._equipmentPresetsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BrewMethodsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).equipmentPresetsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.methodId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (brewsRefs)
                         await $_getPrefetchedData<
                           BrewMethod,
@@ -19103,6 +20042,7 @@ typedef $$BrewMethodsTableProcessedTableManager =
         bool pistonMethodLinksRefs,
         bool methodToolsRefs,
         bool toolMethodLinksRefs,
+        bool equipmentPresetsRefs,
         bool brewsRefs,
       })
     >;
@@ -20529,6 +21469,7 @@ typedef $$RoastersTableProcessedTableManager =
       PrefetchHooks Function({bool coffeeRoasterLinksRefs, bool cafeDrinksRefs})
     >;
 typedef $$CoffeesTableCreateCompanionBuilder = CoffeesCompanion Function({
+  Value<int?> mixedAtMs,
   required String id,
   required String name,
   required String roaster,
@@ -20547,6 +21488,7 @@ typedef $$CoffeesTableCreateCompanionBuilder = CoffeesCompanion Function({
   Value<int> rowid,
 });
 typedef $$CoffeesTableUpdateCompanionBuilder = CoffeesCompanion Function({
+  Value<int?> mixedAtMs,
   Value<String> id,
   Value<String> name,
   Value<String> roaster,
@@ -20695,6 +21637,11 @@ class $$CoffeesTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<int> get mixedAtMs => $composableBuilder(
+    column: $table.mixedAtMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnFilters(column),
@@ -20930,6 +21877,11 @@ class $$CoffeesTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<int> get mixedAtMs => $composableBuilder(
+    column: $table.mixedAtMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnOrderings(column),
@@ -21015,6 +21967,9 @@ class $$CoffeesTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<int> get mixedAtMs =>
+      $composableBuilder(column: $table.mixedAtMs, builder: (column) => column);
+
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
@@ -21261,6 +22216,7 @@ class $$CoffeesTableTableManager
               $$CoffeesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
+                Value<int?> mixedAtMs = const Value.absent(),
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String> roaster = const Value.absent(),
@@ -21278,6 +22234,7 @@ class $$CoffeesTableTableManager
                 Value<int?> archivedAtMs = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CoffeesCompanion(
+                mixedAtMs: mixedAtMs,
                 id: id,
                 name: name,
                 roaster: roaster,
@@ -21297,6 +22254,7 @@ class $$CoffeesTableTableManager
               ),
           createCompanionCallback:
               ({
+                Value<int?> mixedAtMs = const Value.absent(),
                 required String id,
                 required String name,
                 required String roaster,
@@ -21314,6 +22272,7 @@ class $$CoffeesTableTableManager
                 Value<int?> archivedAtMs = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CoffeesCompanion.insert(
+                mixedAtMs: mixedAtMs,
                 id: id,
                 name: name,
                 roaster: roaster,
@@ -23811,6 +24770,27 @@ final class $$CoffeeLotsTableReferences
   }
 
   static MultiTypedResultKey<$StockAdjustmentsTable, List<StockAdjustment>>
+  _incomingBlendContributionsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.stockAdjustments,
+        aliasName: 'coffee_lots__id__stock_adjustments__blend_lot_id',
+      );
+
+  $$StockAdjustmentsTableProcessedTableManager get incomingBlendContributions {
+    final manager = $$StockAdjustmentsTableTableManager(
+      $_db,
+      $_db.stockAdjustments,
+    ).filter((f) => f.blendLotId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _incomingBlendContributionsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$StockAdjustmentsTable, List<StockAdjustment>>
   _stockAdjustmentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.stockAdjustments,
     aliasName: 'coffee_lots__id__stock_adjustments__lot_id',
@@ -23959,6 +24939,31 @@ class $$CoffeeLotsTableFilterComposer
           }) => $$BrewsTableFilterComposer(
             $db: $db,
             $table: $db.brews,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> incomingBlendContributions(
+    Expression<bool> Function($$StockAdjustmentsTableFilterComposer f) f,
+  ) {
+    final $$StockAdjustmentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.stockAdjustments,
+      getReferencedColumn: (t) => t.blendLotId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StockAdjustmentsTableFilterComposer(
+            $db: $db,
+            $table: $db.stockAdjustments,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -24215,6 +25220,31 @@ class $$CoffeeLotsTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> incomingBlendContributions<T extends Object>(
+    Expression<T> Function($$StockAdjustmentsTableAnnotationComposer a) f,
+  ) {
+    final $$StockAdjustmentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.stockAdjustments,
+      getReferencedColumn: (t) => t.blendLotId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StockAdjustmentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.stockAdjustments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> stockAdjustmentsRefs<T extends Object>(
     Expression<T> Function($$StockAdjustmentsTableAnnotationComposer a) f,
   ) {
@@ -24258,6 +25288,7 @@ class $$CoffeeLotsTableTableManager
             bool coffeeId,
             bool frozenPortionsRefs,
             bool brewsRefs,
+            bool incomingBlendContributions,
             bool stockAdjustmentsRefs,
           })
         > {
@@ -24345,6 +25376,7 @@ class $$CoffeeLotsTableTableManager
                 coffeeId = false,
                 frozenPortionsRefs = false,
                 brewsRefs = false,
+                incomingBlendContributions = false,
                 stockAdjustmentsRefs = false,
               }) {
                 return PrefetchHooks(
@@ -24352,6 +25384,7 @@ class $$CoffeeLotsTableTableManager
                   explicitlyWatchedTables: [
                     if (frozenPortionsRefs) db.frozenPortions,
                     if (brewsRefs) db.brews,
+                    if (incomingBlendContributions) db.stockAdjustments,
                     if (stockAdjustmentsRefs) db.stockAdjustments,
                   ],
                   addJoins:
@@ -24428,6 +25461,27 @@ class $$CoffeeLotsTableTableManager
                           ) => referencedItems.where((e) => e.lotId == item.id),
                           typedResults: items,
                         ),
+                      if (incomingBlendContributions)
+                        await $_getPrefetchedData<
+                          CoffeeLot,
+                          $CoffeeLotsTable,
+                          StockAdjustment
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CoffeeLotsTableReferences
+                              ._incomingBlendContributionsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CoffeeLotsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).incomingBlendContributions,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.blendLotId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (stockAdjustmentsRefs)
                         await $_getPrefetchedData<
                           CoffeeLot,
@@ -24473,6 +25527,7 @@ typedef $$CoffeeLotsTableProcessedTableManager =
         bool coffeeId,
         bool frozenPortionsRefs,
         bool brewsRefs,
+        bool incomingBlendContributions,
         bool stockAdjustmentsRefs,
       })
     >;
@@ -25143,6 +26198,26 @@ final class $$GrindersTableReferences
     extends BaseReferences<_$AppDatabase, $GrindersTable, Grinder> {
   $$GrindersTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
+  static MultiTypedResultKey<$EquipmentPresetsTable, List<EquipmentPreset>>
+  _equipmentPresetsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.equipmentPresets,
+    aliasName: 'grinders__id__equipment_presets__grinder_id',
+  );
+
+  $$EquipmentPresetsTableProcessedTableManager get equipmentPresetsRefs {
+    final manager = $$EquipmentPresetsTableTableManager(
+      $_db,
+      $_db.equipmentPresets,
+    ).filter((f) => f.grinderId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _equipmentPresetsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$BrewsTable, List<Brew>> _brewsRefsTable(
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
@@ -25201,6 +26276,31 @@ class $$GrindersTableFilterComposer
     column: $table.archivedAtMs,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> equipmentPresetsRefs(
+    Expression<bool> Function($$EquipmentPresetsTableFilterComposer f) f,
+  ) {
+    final $$EquipmentPresetsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.equipmentPresets,
+      getReferencedColumn: (t) => t.grinderId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EquipmentPresetsTableFilterComposer(
+            $db: $db,
+            $table: $db.equipmentPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 
   Expression<bool> brewsRefs(
     Expression<bool> Function($$BrewsTableFilterComposer f) f,
@@ -25301,6 +26401,31 @@ class $$GrindersTableAnnotationComposer
     builder: (column) => column,
   );
 
+  Expression<T> equipmentPresetsRefs<T extends Object>(
+    Expression<T> Function($$EquipmentPresetsTableAnnotationComposer a) f,
+  ) {
+    final $$EquipmentPresetsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.equipmentPresets,
+      getReferencedColumn: (t) => t.grinderId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EquipmentPresetsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.equipmentPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> brewsRefs<T extends Object>(
     Expression<T> Function($$BrewsTableAnnotationComposer a) f,
   ) {
@@ -25340,7 +26465,7 @@ class $$GrindersTableTableManager
           $$GrindersTableUpdateCompanionBuilder,
           (Grinder, $$GrindersTableReferences),
           Grinder,
-          PrefetchHooks Function({bool brewsRefs})
+          PrefetchHooks Function({bool equipmentPresetsRefs, bool brewsRefs})
         > {
   $$GrindersTableTableManager(_$AppDatabase db, $GrindersTable table)
     : super(
@@ -25397,28 +26522,63 @@ class $$GrindersTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({brewsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (brewsRefs) db.brews],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (brewsRefs)
-                    await $_getPrefetchedData<Grinder, $GrindersTable, Brew>(
-                      currentTable: table,
-                      referencedTable: $$GrindersTableReferences
-                          ._brewsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$GrindersTableReferences(db, table, p0).brewsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.grinderId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({equipmentPresetsRefs = false, brewsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (equipmentPresetsRefs) db.equipmentPresets,
+                    if (brewsRefs) db.brews,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (equipmentPresetsRefs)
+                        await $_getPrefetchedData<
+                          Grinder,
+                          $GrindersTable,
+                          EquipmentPreset
+                        >(
+                          currentTable: table,
+                          referencedTable: $$GrindersTableReferences
+                              ._equipmentPresetsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$GrindersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).equipmentPresetsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.grinderId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (brewsRefs)
+                        await $_getPrefetchedData<
+                          Grinder,
+                          $GrindersTable,
+                          Brew
+                        >(
+                          currentTable: table,
+                          referencedTable: $$GrindersTableReferences
+                              ._brewsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$GrindersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).brewsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.grinderId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -25435,7 +26595,7 @@ typedef $$GrindersTableProcessedTableManager =
       $$GrindersTableUpdateCompanionBuilder,
       (Grinder, $$GrindersTableReferences),
       Grinder,
-      PrefetchHooks Function({bool brewsRefs})
+      PrefetchHooks Function({bool equipmentPresetsRefs, bool brewsRefs})
     >;
 typedef $$WaterProfilesTableCreateCompanionBuilder =
     WaterProfilesCompanion Function({
@@ -25485,6 +26645,26 @@ final class $$WaterProfilesTableReferences
     super.$_table,
     super.$_typedResult,
   );
+
+  static MultiTypedResultKey<$EquipmentPresetsTable, List<EquipmentPreset>>
+  _equipmentPresetsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.equipmentPresets,
+    aliasName: 'water_profiles__id__equipment_presets__water_profile_id',
+  );
+
+  $$EquipmentPresetsTableProcessedTableManager get equipmentPresetsRefs {
+    final manager = $$EquipmentPresetsTableTableManager(
+      $_db,
+      $_db.equipmentPresets,
+    ).filter((f) => f.waterProfileId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _equipmentPresetsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 
   static MultiTypedResultKey<$BrewsTable, List<Brew>> _brewsRefsTable(
     _$AppDatabase db,
@@ -25594,6 +26774,31 @@ class $$WaterProfilesTableFilterComposer
     column: $table.archivedAtMs,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> equipmentPresetsRefs(
+    Expression<bool> Function($$EquipmentPresetsTableFilterComposer f) f,
+  ) {
+    final $$EquipmentPresetsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.equipmentPresets,
+      getReferencedColumn: (t) => t.waterProfileId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EquipmentPresetsTableFilterComposer(
+            $db: $db,
+            $table: $db.equipmentPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 
   Expression<bool> brewsRefs(
     Expression<bool> Function($$BrewsTableFilterComposer f) f,
@@ -25788,6 +26993,31 @@ class $$WaterProfilesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  Expression<T> equipmentPresetsRefs<T extends Object>(
+    Expression<T> Function($$EquipmentPresetsTableAnnotationComposer a) f,
+  ) {
+    final $$EquipmentPresetsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.equipmentPresets,
+      getReferencedColumn: (t) => t.waterProfileId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EquipmentPresetsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.equipmentPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> brewsRefs<T extends Object>(
     Expression<T> Function($$BrewsTableAnnotationComposer a) f,
   ) {
@@ -25827,7 +27057,7 @@ class $$WaterProfilesTableTableManager
           $$WaterProfilesTableUpdateCompanionBuilder,
           (WaterProfile, $$WaterProfilesTableReferences),
           WaterProfile,
-          PrefetchHooks Function({bool brewsRefs})
+          PrefetchHooks Function({bool equipmentPresetsRefs, bool brewsRefs})
         > {
   $$WaterProfilesTableTableManager(_$AppDatabase db, $WaterProfilesTable table)
     : super(
@@ -25924,38 +27154,63 @@ class $$WaterProfilesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({brewsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (brewsRefs) db.brews],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (brewsRefs)
-                    await $_getPrefetchedData<
-                      WaterProfile,
-                      $WaterProfilesTable,
-                      Brew
-                    >(
-                      currentTable: table,
-                      referencedTable: $$WaterProfilesTableReferences
-                          ._brewsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$WaterProfilesTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).brewsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.waterProfileId == item.id,
-                          ),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({equipmentPresetsRefs = false, brewsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (equipmentPresetsRefs) db.equipmentPresets,
+                    if (brewsRefs) db.brews,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (equipmentPresetsRefs)
+                        await $_getPrefetchedData<
+                          WaterProfile,
+                          $WaterProfilesTable,
+                          EquipmentPreset
+                        >(
+                          currentTable: table,
+                          referencedTable: $$WaterProfilesTableReferences
+                              ._equipmentPresetsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$WaterProfilesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).equipmentPresetsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.waterProfileId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (brewsRefs)
+                        await $_getPrefetchedData<
+                          WaterProfile,
+                          $WaterProfilesTable,
+                          Brew
+                        >(
+                          currentTable: table,
+                          referencedTable: $$WaterProfilesTableReferences
+                              ._brewsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$WaterProfilesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).brewsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.waterProfileId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -25972,7 +27227,7 @@ typedef $$WaterProfilesTableProcessedTableManager =
       $$WaterProfilesTableUpdateCompanionBuilder,
       (WaterProfile, $$WaterProfilesTableReferences),
       WaterProfile,
-      PrefetchHooks Function({bool brewsRefs})
+      PrefetchHooks Function({bool equipmentPresetsRefs, bool brewsRefs})
     >;
 typedef $$MethodToolsTableCreateCompanionBuilder =
     MethodToolsCompanion Function({
@@ -26067,6 +27322,31 @@ final class $$MethodToolsTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _brewToolSelectionsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $EquipmentPresetToolsTable,
+    List<EquipmentPresetTool>
+  >
+  _equipmentPresetToolsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.equipmentPresetTools,
+        aliasName: 'method_tools__id__equipment_preset_tools__tool_id',
+      );
+
+  $$EquipmentPresetToolsTableProcessedTableManager
+  get equipmentPresetToolsRefs {
+    final manager = $$EquipmentPresetToolsTableTableManager(
+      $_db,
+      $_db.equipmentPresetTools,
+    ).filter((f) => f.toolId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _equipmentPresetToolsRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -26185,6 +27465,31 @@ class $$MethodToolsTableFilterComposer
           }) => $$BrewToolSelectionsTableFilterComposer(
             $db: $db,
             $table: $db.brewToolSelections,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> equipmentPresetToolsRefs(
+    Expression<bool> Function($$EquipmentPresetToolsTableFilterComposer f) f,
+  ) {
+    final $$EquipmentPresetToolsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.equipmentPresetTools,
+      getReferencedColumn: (t) => t.toolId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EquipmentPresetToolsTableFilterComposer(
+            $db: $db,
+            $table: $db.equipmentPresetTools,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -26382,6 +27687,32 @@ class $$MethodToolsTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> equipmentPresetToolsRefs<T extends Object>(
+    Expression<T> Function($$EquipmentPresetToolsTableAnnotationComposer a) f,
+  ) {
+    final $$EquipmentPresetToolsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.equipmentPresetTools,
+          getReferencedColumn: (t) => t.toolId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$EquipmentPresetToolsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.equipmentPresetTools,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$MethodToolsTableTableManager
@@ -26402,6 +27733,7 @@ class $$MethodToolsTableTableManager
             bool mergedIntoId,
             bool toolMethodLinksRefs,
             bool brewToolSelectionsRefs,
+            bool equipmentPresetToolsRefs,
           })
         > {
   $$MethodToolsTableTableManager(_$AppDatabase db, $MethodToolsTable table)
@@ -26461,12 +27793,14 @@ class $$MethodToolsTableTableManager
                 mergedIntoId = false,
                 toolMethodLinksRefs = false,
                 brewToolSelectionsRefs = false,
+                equipmentPresetToolsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (toolMethodLinksRefs) db.toolMethodLinks,
                     if (brewToolSelectionsRefs) db.brewToolSelections,
+                    if (equipmentPresetToolsRefs) db.equipmentPresetTools,
                   ],
                   addJoins:
                       <
@@ -26553,6 +27887,27 @@ class $$MethodToolsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (equipmentPresetToolsRefs)
+                        await $_getPrefetchedData<
+                          MethodTool,
+                          $MethodToolsTable,
+                          EquipmentPresetTool
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MethodToolsTableReferences
+                              ._equipmentPresetToolsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MethodToolsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).equipmentPresetToolsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.toolId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -26578,6 +27933,7 @@ typedef $$MethodToolsTableProcessedTableManager =
         bool mergedIntoId,
         bool toolMethodLinksRefs,
         bool brewToolSelectionsRefs,
+        bool equipmentPresetToolsRefs,
       })
     >;
 typedef $$ToolMethodLinksTableCreateCompanionBuilder =
@@ -26929,7 +28285,708 @@ typedef $$ToolMethodLinksTableProcessedTableManager =
       ToolMethodLink,
       PrefetchHooks Function({bool toolId, bool methodId})
     >;
+typedef $$EquipmentPresetsTableCreateCompanionBuilder =
+    EquipmentPresetsCompanion Function({
+      required String id,
+      required String name,
+      required String methodId,
+      Value<String?> grinderId,
+      Value<String?> waterProfileId,
+      Value<int> rowid,
+    });
+typedef $$EquipmentPresetsTableUpdateCompanionBuilder =
+    EquipmentPresetsCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<String> methodId,
+      Value<String?> grinderId,
+      Value<String?> waterProfileId,
+      Value<int> rowid,
+    });
+
+final class $$EquipmentPresetsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $EquipmentPresetsTable, EquipmentPreset> {
+  $$EquipmentPresetsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $BrewMethodsTable _methodIdTable(_$AppDatabase db) => db.brewMethods
+      .createAlias('equipment_presets__method_id__brew_methods__id');
+
+  $$BrewMethodsTableProcessedTableManager get methodId {
+    final $_column = $_itemColumn<String>('method_id')!;
+
+    final manager = $$BrewMethodsTableTableManager(
+      $_db,
+      $_db.brewMethods,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_methodIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $GrindersTable _grinderIdTable(_$AppDatabase db) =>
+      db.grinders.createAlias('equipment_presets__grinder_id__grinders__id');
+
+  $$GrindersTableProcessedTableManager? get grinderId {
+    final $_column = $_itemColumn<String>('grinder_id');
+    if ($_column == null) return null;
+    final manager = $$GrindersTableTableManager(
+      $_db,
+      $_db.grinders,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_grinderIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $WaterProfilesTable _waterProfileIdTable(_$AppDatabase db) => db
+      .waterProfiles
+      .createAlias('equipment_presets__water_profile_id__water_profiles__id');
+
+  $$WaterProfilesTableProcessedTableManager? get waterProfileId {
+    final $_column = $_itemColumn<String>('water_profile_id');
+    if ($_column == null) return null;
+    final manager = $$WaterProfilesTableTableManager(
+      $_db,
+      $_db.waterProfiles,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_waterProfileIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$BrewsTable, List<Brew>> _brewsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.brews,
+    aliasName: 'equipment_presets__id__brews__equipment_preset_id',
+  );
+
+  $$BrewsTableProcessedTableManager get brewsRefs {
+    final manager = $$BrewsTableTableManager($_db, $_db.brews).filter(
+      (f) => f.equipmentPresetId.id.sqlEquals($_itemColumn<String>('id')!),
+    );
+
+    final cache = $_typedResult.readTableOrNull(_brewsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $EquipmentPresetToolsTable,
+    List<EquipmentPresetTool>
+  >
+  _equipmentPresetToolsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.equipmentPresetTools,
+        aliasName: 'equipment_presets__id__equipment_preset_tools__preset_id',
+      );
+
+  $$EquipmentPresetToolsTableProcessedTableManager
+  get equipmentPresetToolsRefs {
+    final manager = $$EquipmentPresetToolsTableTableManager(
+      $_db,
+      $_db.equipmentPresetTools,
+    ).filter((f) => f.presetId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _equipmentPresetToolsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$EquipmentPresetsTableFilterComposer
+    extends Composer<_$AppDatabase, $EquipmentPresetsTable> {
+  $$EquipmentPresetsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$BrewMethodsTableFilterComposer get methodId {
+    final $$BrewMethodsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.methodId,
+      referencedTable: $db.brewMethods,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewMethodsTableFilterComposer(
+            $db: $db,
+            $table: $db.brewMethods,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$GrindersTableFilterComposer get grinderId {
+    final $$GrindersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.grinderId,
+      referencedTable: $db.grinders,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GrindersTableFilterComposer(
+            $db: $db,
+            $table: $db.grinders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$WaterProfilesTableFilterComposer get waterProfileId {
+    final $$WaterProfilesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.waterProfileId,
+      referencedTable: $db.waterProfiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WaterProfilesTableFilterComposer(
+            $db: $db,
+            $table: $db.waterProfiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> brewsRefs(
+    Expression<bool> Function($$BrewsTableFilterComposer f) f,
+  ) {
+    final $$BrewsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.brews,
+      getReferencedColumn: (t) => t.equipmentPresetId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewsTableFilterComposer(
+            $db: $db,
+            $table: $db.brews,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> equipmentPresetToolsRefs(
+    Expression<bool> Function($$EquipmentPresetToolsTableFilterComposer f) f,
+  ) {
+    final $$EquipmentPresetToolsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.equipmentPresetTools,
+      getReferencedColumn: (t) => t.presetId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EquipmentPresetToolsTableFilterComposer(
+            $db: $db,
+            $table: $db.equipmentPresetTools,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$EquipmentPresetsTableOrderingComposer
+    extends Composer<_$AppDatabase, $EquipmentPresetsTable> {
+  $$EquipmentPresetsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BrewMethodsTableOrderingComposer get methodId {
+    final $$BrewMethodsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.methodId,
+      referencedTable: $db.brewMethods,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewMethodsTableOrderingComposer(
+            $db: $db,
+            $table: $db.brewMethods,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$GrindersTableOrderingComposer get grinderId {
+    final $$GrindersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.grinderId,
+      referencedTable: $db.grinders,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GrindersTableOrderingComposer(
+            $db: $db,
+            $table: $db.grinders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$WaterProfilesTableOrderingComposer get waterProfileId {
+    final $$WaterProfilesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.waterProfileId,
+      referencedTable: $db.waterProfiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WaterProfilesTableOrderingComposer(
+            $db: $db,
+            $table: $db.waterProfiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$EquipmentPresetsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $EquipmentPresetsTable> {
+  $$EquipmentPresetsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  $$BrewMethodsTableAnnotationComposer get methodId {
+    final $$BrewMethodsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.methodId,
+      referencedTable: $db.brewMethods,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewMethodsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.brewMethods,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$GrindersTableAnnotationComposer get grinderId {
+    final $$GrindersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.grinderId,
+      referencedTable: $db.grinders,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GrindersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.grinders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$WaterProfilesTableAnnotationComposer get waterProfileId {
+    final $$WaterProfilesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.waterProfileId,
+      referencedTable: $db.waterProfiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WaterProfilesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.waterProfiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> brewsRefs<T extends Object>(
+    Expression<T> Function($$BrewsTableAnnotationComposer a) f,
+  ) {
+    final $$BrewsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.brews,
+      getReferencedColumn: (t) => t.equipmentPresetId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.brews,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> equipmentPresetToolsRefs<T extends Object>(
+    Expression<T> Function($$EquipmentPresetToolsTableAnnotationComposer a) f,
+  ) {
+    final $$EquipmentPresetToolsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.equipmentPresetTools,
+          getReferencedColumn: (t) => t.presetId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$EquipmentPresetToolsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.equipmentPresetTools,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$EquipmentPresetsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $EquipmentPresetsTable,
+          EquipmentPreset,
+          $$EquipmentPresetsTableFilterComposer,
+          $$EquipmentPresetsTableOrderingComposer,
+          $$EquipmentPresetsTableAnnotationComposer,
+          $$EquipmentPresetsTableCreateCompanionBuilder,
+          $$EquipmentPresetsTableUpdateCompanionBuilder,
+          (EquipmentPreset, $$EquipmentPresetsTableReferences),
+          EquipmentPreset,
+          PrefetchHooks Function({
+            bool methodId,
+            bool grinderId,
+            bool waterProfileId,
+            bool brewsRefs,
+            bool equipmentPresetToolsRefs,
+          })
+        > {
+  $$EquipmentPresetsTableTableManager(
+    _$AppDatabase db,
+    $EquipmentPresetsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$EquipmentPresetsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$EquipmentPresetsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$EquipmentPresetsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> methodId = const Value.absent(),
+                Value<String?> grinderId = const Value.absent(),
+                Value<String?> waterProfileId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => EquipmentPresetsCompanion(
+                id: id,
+                name: name,
+                methodId: methodId,
+                grinderId: grinderId,
+                waterProfileId: waterProfileId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required String methodId,
+                Value<String?> grinderId = const Value.absent(),
+                Value<String?> waterProfileId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => EquipmentPresetsCompanion.insert(
+                id: id,
+                name: name,
+                methodId: methodId,
+                grinderId: grinderId,
+                waterProfileId: waterProfileId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$EquipmentPresetsTable, EquipmentPreset>(table),
+                  $$EquipmentPresetsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                methodId = false,
+                grinderId = false,
+                waterProfileId = false,
+                brewsRefs = false,
+                equipmentPresetToolsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (brewsRefs) db.brews,
+                    if (equipmentPresetToolsRefs) db.equipmentPresetTools,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (methodId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.methodId,
+                            referencedTable: $$EquipmentPresetsTableReferences
+                                ._methodIdTable(db),
+                            referencedColumn: $$EquipmentPresetsTableReferences
+                                ._methodIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+                        if (grinderId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.grinderId,
+                            referencedTable: $$EquipmentPresetsTableReferences
+                                ._grinderIdTable(db),
+                            referencedColumn: $$EquipmentPresetsTableReferences
+                                ._grinderIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+                        if (waterProfileId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.waterProfileId,
+                            referencedTable: $$EquipmentPresetsTableReferences
+                                ._waterProfileIdTable(db),
+                            referencedColumn: $$EquipmentPresetsTableReferences
+                                ._waterProfileIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (brewsRefs)
+                        await $_getPrefetchedData<
+                          EquipmentPreset,
+                          $EquipmentPresetsTable,
+                          Brew
+                        >(
+                          currentTable: table,
+                          referencedTable: $$EquipmentPresetsTableReferences
+                              ._brewsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$EquipmentPresetsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).brewsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.equipmentPresetId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (equipmentPresetToolsRefs)
+                        await $_getPrefetchedData<
+                          EquipmentPreset,
+                          $EquipmentPresetsTable,
+                          EquipmentPresetTool
+                        >(
+                          currentTable: table,
+                          referencedTable: $$EquipmentPresetsTableReferences
+                              ._equipmentPresetToolsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$EquipmentPresetsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).equipmentPresetToolsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.presetId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$EquipmentPresetsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $EquipmentPresetsTable,
+      EquipmentPreset,
+      $$EquipmentPresetsTableFilterComposer,
+      $$EquipmentPresetsTableOrderingComposer,
+      $$EquipmentPresetsTableAnnotationComposer,
+      $$EquipmentPresetsTableCreateCompanionBuilder,
+      $$EquipmentPresetsTableUpdateCompanionBuilder,
+      (EquipmentPreset, $$EquipmentPresetsTableReferences),
+      EquipmentPreset,
+      PrefetchHooks Function({
+        bool methodId,
+        bool grinderId,
+        bool waterProfileId,
+        bool brewsRefs,
+        bool equipmentPresetToolsRefs,
+      })
+    >;
 typedef $$BrewsTableCreateCompanionBuilder = BrewsCompanion Function({
+  Value<String?> equipmentPresetId,
   Value<String?> extractionProfileJson,
   required String id,
   required String coffeeId,
@@ -26985,6 +29042,7 @@ typedef $$BrewsTableCreateCompanionBuilder = BrewsCompanion Function({
   Value<int> rowid,
 });
 typedef $$BrewsTableUpdateCompanionBuilder = BrewsCompanion Function({
+  Value<String?> equipmentPresetId,
   Value<String?> extractionProfileJson,
   Value<String> id,
   Value<String> coffeeId,
@@ -27043,6 +29101,24 @@ typedef $$BrewsTableUpdateCompanionBuilder = BrewsCompanion Function({
 final class $$BrewsTableReferences
     extends BaseReferences<_$AppDatabase, $BrewsTable, Brew> {
   $$BrewsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $EquipmentPresetsTable _equipmentPresetIdTable(_$AppDatabase db) => db
+      .equipmentPresets
+      .createAlias('brews__equipment_preset_id__equipment_presets__id');
+
+  $$EquipmentPresetsTableProcessedTableManager? get equipmentPresetId {
+    final $_column = $_itemColumn<String>('equipment_preset_id');
+    if ($_column == null) return null;
+    final manager = $$EquipmentPresetsTableTableManager(
+      $_db,
+      $_db.equipmentPresets,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_equipmentPresetIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 
   static $CoffeesTable _coffeeIdTable(_$AppDatabase db) =>
       db.coffees.createAlias('brews__coffee_id__coffees__id');
@@ -27476,6 +29552,29 @@ class $$BrewsTableFilterComposer extends Composer<_$AppDatabase, $BrewsTable> {
     column: $table.stockReviewPending,
     builder: (column) => ColumnFilters(column),
   );
+
+  $$EquipmentPresetsTableFilterComposer get equipmentPresetId {
+    final $$EquipmentPresetsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.equipmentPresetId,
+      referencedTable: $db.equipmentPresets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EquipmentPresetsTableFilterComposer(
+            $db: $db,
+            $table: $db.equipmentPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   $$CoffeesTableFilterComposer get coffeeId {
     final $$CoffeesTableFilterComposer composer = $composerBuilder(
@@ -27973,6 +30072,29 @@ class $$BrewsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  $$EquipmentPresetsTableOrderingComposer get equipmentPresetId {
+    final $$EquipmentPresetsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.equipmentPresetId,
+      referencedTable: $db.equipmentPresets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EquipmentPresetsTableOrderingComposer(
+            $db: $db,
+            $table: $db.equipmentPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   $$CoffeesTableOrderingComposer get coffeeId {
     final $$CoffeesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -28347,6 +30469,29 @@ class $$BrewsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  $$EquipmentPresetsTableAnnotationComposer get equipmentPresetId {
+    final $$EquipmentPresetsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.equipmentPresetId,
+      referencedTable: $db.equipmentPresets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EquipmentPresetsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.equipmentPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   $$CoffeesTableAnnotationComposer get coffeeId {
     final $$CoffeesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -28625,6 +30770,7 @@ class $$BrewsTableTableManager
           (Brew, $$BrewsTableReferences),
           Brew,
           PrefetchHooks Function({
+            bool equipmentPresetId,
             bool coffeeId,
             bool lotId,
             bool methodId,
@@ -28651,6 +30797,7 @@ class $$BrewsTableTableManager
               $$BrewsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
+                Value<String?> equipmentPresetId = const Value.absent(),
                 Value<String?> extractionProfileJson = const Value.absent(),
                 Value<String> id = const Value.absent(),
                 Value<String> coffeeId = const Value.absent(),
@@ -28705,6 +30852,7 @@ class $$BrewsTableTableManager
                 Value<bool?> stockReviewPending = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BrewsCompanion(
+                equipmentPresetId: equipmentPresetId,
                 extractionProfileJson: extractionProfileJson,
                 id: id,
                 coffeeId: coffeeId,
@@ -28761,6 +30909,7 @@ class $$BrewsTableTableManager
               ),
           createCompanionCallback:
               ({
+                Value<String?> equipmentPresetId = const Value.absent(),
                 Value<String?> extractionProfileJson = const Value.absent(),
                 required String id,
                 required String coffeeId,
@@ -28815,6 +30964,7 @@ class $$BrewsTableTableManager
                 Value<bool?> stockReviewPending = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BrewsCompanion.insert(
+                equipmentPresetId: equipmentPresetId,
                 extractionProfileJson: extractionProfileJson,
                 id: id,
                 coffeeId: coffeeId,
@@ -28879,6 +31029,7 @@ class $$BrewsTableTableManager
               .toList(),
           prefetchHooksCallback:
               ({
+                equipmentPresetId = false,
                 coffeeId = false,
                 lotId = false,
                 methodId = false,
@@ -28915,6 +31066,17 @@ class $$BrewsTableTableManager
                           dynamic
                         >
                       >(state) {
+                        if (equipmentPresetId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.equipmentPresetId,
+                            referencedTable: $$BrewsTableReferences
+                                ._equipmentPresetIdTable(db),
+                            referencedColumn: $$BrewsTableReferences
+                                ._equipmentPresetIdTable(db)
+                                .id,
+                          ) as T;
+                        }
                         if (coffeeId) {
                           state = state.withJoin(
                             currentTable: table,
@@ -29095,6 +31257,7 @@ typedef $$BrewsTableProcessedTableManager =
       (Brew, $$BrewsTableReferences),
       Brew,
       PrefetchHooks Function({
+        bool equipmentPresetId,
         bool coffeeId,
         bool lotId,
         bool methodId,
@@ -30295,6 +32458,368 @@ typedef $$BrewToolSelectionsTableProcessedTableManager =
       BrewToolSelection,
       PrefetchHooks Function({bool brewId, bool toolId})
     >;
+typedef $$EquipmentPresetToolsTableCreateCompanionBuilder =
+    EquipmentPresetToolsCompanion Function({
+      required String presetId,
+      required String toolId,
+      Value<int> rowid,
+    });
+typedef $$EquipmentPresetToolsTableUpdateCompanionBuilder =
+    EquipmentPresetToolsCompanion Function({
+      Value<String> presetId,
+      Value<String> toolId,
+      Value<int> rowid,
+    });
+
+final class $$EquipmentPresetToolsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $EquipmentPresetToolsTable,
+          EquipmentPresetTool
+        > {
+  $$EquipmentPresetToolsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $EquipmentPresetsTable _presetIdTable(_$AppDatabase db) => db
+      .equipmentPresets
+      .createAlias('equipment_preset_tools__preset_id__equipment_presets__id');
+
+  $$EquipmentPresetsTableProcessedTableManager get presetId {
+    final $_column = $_itemColumn<String>('preset_id')!;
+
+    final manager = $$EquipmentPresetsTableTableManager(
+      $_db,
+      $_db.equipmentPresets,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_presetIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $MethodToolsTable _toolIdTable(_$AppDatabase db) => db.methodTools
+      .createAlias('equipment_preset_tools__tool_id__method_tools__id');
+
+  $$MethodToolsTableProcessedTableManager get toolId {
+    final $_column = $_itemColumn<String>('tool_id')!;
+
+    final manager = $$MethodToolsTableTableManager(
+      $_db,
+      $_db.methodTools,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_toolIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$EquipmentPresetToolsTableFilterComposer
+    extends Composer<_$AppDatabase, $EquipmentPresetToolsTable> {
+  $$EquipmentPresetToolsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$EquipmentPresetsTableFilterComposer get presetId {
+    final $$EquipmentPresetsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.presetId,
+      referencedTable: $db.equipmentPresets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EquipmentPresetsTableFilterComposer(
+            $db: $db,
+            $table: $db.equipmentPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MethodToolsTableFilterComposer get toolId {
+    final $$MethodToolsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.toolId,
+      referencedTable: $db.methodTools,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MethodToolsTableFilterComposer(
+            $db: $db,
+            $table: $db.methodTools,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$EquipmentPresetToolsTableOrderingComposer
+    extends Composer<_$AppDatabase, $EquipmentPresetToolsTable> {
+  $$EquipmentPresetToolsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$EquipmentPresetsTableOrderingComposer get presetId {
+    final $$EquipmentPresetsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.presetId,
+      referencedTable: $db.equipmentPresets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EquipmentPresetsTableOrderingComposer(
+            $db: $db,
+            $table: $db.equipmentPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MethodToolsTableOrderingComposer get toolId {
+    final $$MethodToolsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.toolId,
+      referencedTable: $db.methodTools,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MethodToolsTableOrderingComposer(
+            $db: $db,
+            $table: $db.methodTools,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$EquipmentPresetToolsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $EquipmentPresetToolsTable> {
+  $$EquipmentPresetToolsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$EquipmentPresetsTableAnnotationComposer get presetId {
+    final $$EquipmentPresetsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.presetId,
+      referencedTable: $db.equipmentPresets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EquipmentPresetsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.equipmentPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MethodToolsTableAnnotationComposer get toolId {
+    final $$MethodToolsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.toolId,
+      referencedTable: $db.methodTools,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MethodToolsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.methodTools,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$EquipmentPresetToolsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $EquipmentPresetToolsTable,
+          EquipmentPresetTool,
+          $$EquipmentPresetToolsTableFilterComposer,
+          $$EquipmentPresetToolsTableOrderingComposer,
+          $$EquipmentPresetToolsTableAnnotationComposer,
+          $$EquipmentPresetToolsTableCreateCompanionBuilder,
+          $$EquipmentPresetToolsTableUpdateCompanionBuilder,
+          (EquipmentPresetTool, $$EquipmentPresetToolsTableReferences),
+          EquipmentPresetTool,
+          PrefetchHooks Function({bool presetId, bool toolId})
+        > {
+  $$EquipmentPresetToolsTableTableManager(
+    _$AppDatabase db,
+    $EquipmentPresetToolsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$EquipmentPresetToolsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$EquipmentPresetToolsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$EquipmentPresetToolsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> presetId = const Value.absent(),
+                Value<String> toolId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => EquipmentPresetToolsCompanion(
+                presetId: presetId,
+                toolId: toolId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String presetId,
+                required String toolId,
+                Value<int> rowid = const Value.absent(),
+              }) => EquipmentPresetToolsCompanion.insert(
+                presetId: presetId,
+                toolId: toolId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$EquipmentPresetToolsTable, EquipmentPresetTool>(
+                    table,
+                  ),
+                  $$EquipmentPresetToolsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({presetId = false, toolId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (presetId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.presetId,
+                        referencedTable: $$EquipmentPresetToolsTableReferences
+                            ._presetIdTable(db),
+                        referencedColumn: $$EquipmentPresetToolsTableReferences
+                            ._presetIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+                    if (toolId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.toolId,
+                        referencedTable: $$EquipmentPresetToolsTableReferences
+                            ._toolIdTable(db),
+                        referencedColumn: $$EquipmentPresetToolsTableReferences
+                            ._toolIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$EquipmentPresetToolsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $EquipmentPresetToolsTable,
+      EquipmentPresetTool,
+      $$EquipmentPresetToolsTableFilterComposer,
+      $$EquipmentPresetToolsTableOrderingComposer,
+      $$EquipmentPresetToolsTableAnnotationComposer,
+      $$EquipmentPresetToolsTableCreateCompanionBuilder,
+      $$EquipmentPresetToolsTableUpdateCompanionBuilder,
+      (EquipmentPresetTool, $$EquipmentPresetToolsTableReferences),
+      EquipmentPresetTool,
+      PrefetchHooks Function({bool presetId, bool toolId})
+    >;
 typedef $$ImportRecordsTableCreateCompanionBuilder =
     ImportRecordsCompanion Function({
       required String id,
@@ -31482,6 +34007,8 @@ typedef $$ExtractionProfilesTableProcessedTableManager =
     >;
 typedef $$StockAdjustmentsTableCreateCompanionBuilder =
     StockAdjustmentsCompanion Function({
+      Value<String?> blendLotId,
+      Value<String?> sourceRoastDate,
       required String id,
       required String operationId,
       required String coffeeId,
@@ -31497,6 +34024,8 @@ typedef $$StockAdjustmentsTableCreateCompanionBuilder =
     });
 typedef $$StockAdjustmentsTableUpdateCompanionBuilder =
     StockAdjustmentsCompanion Function({
+      Value<String?> blendLotId,
+      Value<String?> sourceRoastDate,
       Value<String> id,
       Value<String> operationId,
       Value<String> coffeeId,
@@ -31519,6 +34048,23 @@ final class $$StockAdjustmentsTableReferences
     super.$_table,
     super.$_typedResult,
   );
+
+  static $CoffeeLotsTable _blendLotIdTable(_$AppDatabase db) => db.coffeeLots
+      .createAlias('stock_adjustments__blend_lot_id__coffee_lots__id');
+
+  $$CoffeeLotsTableProcessedTableManager? get blendLotId {
+    final $_column = $_itemColumn<String>('blend_lot_id');
+    if ($_column == null) return null;
+    final manager = $$CoffeeLotsTableTableManager(
+      $_db,
+      $_db.coffeeLots,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_blendLotIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 
   static $CoffeesTable _coffeeIdTable(_$AppDatabase db) =>
       db.coffees.createAlias('stock_adjustments__coffee_id__coffees__id');
@@ -31582,6 +34128,11 @@ class $$StockAdjustmentsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<String> get sourceRoastDate => $composableBuilder(
+    column: $table.sourceRoastDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnFilters(column),
@@ -31621,6 +34172,29 @@ class $$StockAdjustmentsTableFilterComposer
     column: $table.reversedAtMs,
     builder: (column) => ColumnFilters(column),
   );
+
+  $$CoffeeLotsTableFilterComposer get blendLotId {
+    final $$CoffeeLotsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.blendLotId,
+      referencedTable: $db.coffeeLots,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CoffeeLotsTableFilterComposer(
+            $db: $db,
+            $table: $db.coffeeLots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   $$CoffeesTableFilterComposer get coffeeId {
     final $$CoffeesTableFilterComposer composer = $composerBuilder(
@@ -31701,6 +34275,11 @@ class $$StockAdjustmentsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<String> get sourceRoastDate => $composableBuilder(
+    column: $table.sourceRoastDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnOrderings(column),
@@ -31740,6 +34319,29 @@ class $$StockAdjustmentsTableOrderingComposer
     column: $table.reversedAtMs,
     builder: (column) => ColumnOrderings(column),
   );
+
+  $$CoffeeLotsTableOrderingComposer get blendLotId {
+    final $$CoffeeLotsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.blendLotId,
+      referencedTable: $db.coffeeLots,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CoffeeLotsTableOrderingComposer(
+            $db: $db,
+            $table: $db.coffeeLots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   $$CoffeesTableOrderingComposer get coffeeId {
     final $$CoffeesTableOrderingComposer composer = $composerBuilder(
@@ -31820,6 +34422,11 @@ class $$StockAdjustmentsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<String> get sourceRoastDate => $composableBuilder(
+    column: $table.sourceRoastDate,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
@@ -31853,6 +34460,29 @@ class $$StockAdjustmentsTableAnnotationComposer
     column: $table.reversedAtMs,
     builder: (column) => column,
   );
+
+  $$CoffeeLotsTableAnnotationComposer get blendLotId {
+    final $$CoffeeLotsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.blendLotId,
+      referencedTable: $db.coffeeLots,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CoffeeLotsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.coffeeLots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   $$CoffeesTableAnnotationComposer get coffeeId {
     final $$CoffeesTableAnnotationComposer composer = $composerBuilder(
@@ -31938,6 +34568,7 @@ class $$StockAdjustmentsTableTableManager
           (StockAdjustment, $$StockAdjustmentsTableReferences),
           StockAdjustment,
           PrefetchHooks Function({
+            bool blendLotId,
             bool coffeeId,
             bool lotId,
             bool frozenPortionId,
@@ -31958,6 +34589,8 @@ class $$StockAdjustmentsTableTableManager
               $$StockAdjustmentsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
+                Value<String?> blendLotId = const Value.absent(),
+                Value<String?> sourceRoastDate = const Value.absent(),
                 Value<String> id = const Value.absent(),
                 Value<String> operationId = const Value.absent(),
                 Value<String> coffeeId = const Value.absent(),
@@ -31971,6 +34604,8 @@ class $$StockAdjustmentsTableTableManager
                 Value<int?> reversedAtMs = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StockAdjustmentsCompanion(
+                blendLotId: blendLotId,
+                sourceRoastDate: sourceRoastDate,
                 id: id,
                 operationId: operationId,
                 coffeeId: coffeeId,
@@ -31986,6 +34621,8 @@ class $$StockAdjustmentsTableTableManager
               ),
           createCompanionCallback:
               ({
+                Value<String?> blendLotId = const Value.absent(),
+                Value<String?> sourceRoastDate = const Value.absent(),
                 required String id,
                 required String operationId,
                 required String coffeeId,
@@ -31999,6 +34636,8 @@ class $$StockAdjustmentsTableTableManager
                 Value<int?> reversedAtMs = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StockAdjustmentsCompanion.insert(
+                blendLotId: blendLotId,
+                sourceRoastDate: sourceRoastDate,
                 id: id,
                 operationId: operationId,
                 coffeeId: coffeeId,
@@ -32021,7 +34660,12 @@ class $$StockAdjustmentsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({coffeeId = false, lotId = false, frozenPortionId = false}) {
+              ({
+                blendLotId = false,
+                coffeeId = false,
+                lotId = false,
+                frozenPortionId = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [],
@@ -32041,6 +34685,17 @@ class $$StockAdjustmentsTableTableManager
                           dynamic
                         >
                       >(state) {
+                        if (blendLotId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.blendLotId,
+                            referencedTable: $$StockAdjustmentsTableReferences
+                                ._blendLotIdTable(db),
+                            referencedColumn: $$StockAdjustmentsTableReferences
+                                ._blendLotIdTable(db)
+                                .id,
+                          ) as T;
+                        }
                         if (coffeeId) {
                           state = state.withJoin(
                             currentTable: table,
@@ -32098,7 +34753,12 @@ typedef $$StockAdjustmentsTableProcessedTableManager =
       $$StockAdjustmentsTableUpdateCompanionBuilder,
       (StockAdjustment, $$StockAdjustmentsTableReferences),
       StockAdjustment,
-      PrefetchHooks Function({bool coffeeId, bool lotId, bool frozenPortionId})
+      PrefetchHooks Function({
+        bool blendLotId,
+        bool coffeeId,
+        bool lotId,
+        bool frozenPortionId,
+      })
     >;
 typedef $$CuppingSessionsTableCreateCompanionBuilder =
     CuppingSessionsCompanion Function({
@@ -32899,6 +35559,8 @@ class $AppDatabaseManager {
       $$MethodToolsTableTableManager(_db, _db.methodTools);
   $$ToolMethodLinksTableTableManager get toolMethodLinks =>
       $$ToolMethodLinksTableTableManager(_db, _db.toolMethodLinks);
+  $$EquipmentPresetsTableTableManager get equipmentPresets =>
+      $$EquipmentPresetsTableTableManager(_db, _db.equipmentPresets);
   $$BrewsTableTableManager get brews =>
       $$BrewsTableTableManager(_db, _db.brews);
   $$BrewCurvesTableTableManager get brewCurves =>
@@ -32909,6 +35571,8 @@ class $AppDatabaseManager {
       $$BrewPhotosTableTableManager(_db, _db.brewPhotos);
   $$BrewToolSelectionsTableTableManager get brewToolSelections =>
       $$BrewToolSelectionsTableTableManager(_db, _db.brewToolSelections);
+  $$EquipmentPresetToolsTableTableManager get equipmentPresetTools =>
+      $$EquipmentPresetToolsTableTableManager(_db, _db.equipmentPresetTools);
   $$ImportRecordsTableTableManager get importRecords =>
       $$ImportRecordsTableTableManager(_db, _db.importRecords);
   $$LegacyPayloadsTableTableManager get legacyPayloads =>

@@ -60,6 +60,8 @@ void main() {
               ),
             );
             await tester.pumpAndSettle();
+            await tester.tap(find.byKey(const ValueKey('settings-devices')));
+            await tester.pumpAndSettle();
             final tile = find.byKey(ValueKey('settings-$device'));
             await tester.scrollUntilVisible(tile, 200);
             await tester.pumpAndSettle();

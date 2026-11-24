@@ -16,6 +16,7 @@ Future<void> installJournalIndexes(GeneratedDatabase database) async {
     );
   }
   for (final (name, table, columns) in const [
+    ('brew_preset_lookup', 'brews', 'equipment_preset_id'),
     ('brew_lot_lookup', 'brews', 'lot_id'),
     ('brew_method_lookup', 'brews', 'method_id'),
     ('brew_water_lookup', 'brews', 'water_profile_id'),

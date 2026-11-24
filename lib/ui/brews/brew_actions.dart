@@ -4,6 +4,7 @@ import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/preferences/rate_reminder_settings.dart';
 import 'package:holybeans/data/preferences/share_template_settings.dart';
+import 'package:holybeans/data/repositories/equipment_presets.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/photo_store.dart';
 import 'package:holybeans/data/services/pressure_sensor.dart';
@@ -57,6 +58,7 @@ class BrewActions {
     double? initialDoseGrams,
     FrozenBrewSource? initialFrozenSource,
     String? initialMethodId,
+    PresetDetails? initialPreset,
     bool repeat = false,
     bool adjust = false,
   }) async {
@@ -101,6 +103,7 @@ class BrewActions {
         initialDoseGrams: initialDoseGrams,
         initialFrozenSource: initialFrozenSource,
         initialMethodId: initialMethodId,
+        initialPreset: initialPreset,
         repeat: repeat,
         adjust: adjust,
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:holybeans/core/error_report.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/equipment_overview.dart';
+import 'package:holybeans/data/repositories/equipment_presets.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/journal_codes.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
@@ -9,6 +10,8 @@ import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/cupping/cupping_sessions_page.dart';
 import 'package:holybeans/ui/equipment/equipment_delete.dart';
 import 'package:holybeans/ui/equipment/equipment_forms.dart';
+import 'package:holybeans/ui/equipment/equipment_presets_page.dart';
+import 'package:holybeans/ui/equipment/equipment_tab_bar.dart';
 import 'package:holybeans/ui/equipment/method_tools_sheet.dart';
 import 'package:holybeans/ui/equipment/piston/piston_page.dart';
 import 'package:holybeans/ui/equipment/recipients_page.dart';
@@ -19,6 +22,7 @@ import 'package:intl/intl.dart';
 
 enum EquipmentSection {
   methods,
+  presets,
   grinders,
   tools,
   water,
@@ -36,6 +40,7 @@ class EquipmentPage extends StatefulWidget {
     required this.showArchived,
     this.onShowMethodBrews,
     this.onBrewWithMethod,
+    this.onBrewWithPreset,
   });
 
   final JournalRepository repository;
@@ -48,6 +53,7 @@ class EquipmentPage extends StatefulWidget {
 
   /// Starts a new brew with a method preselected.
   final ValueChanged<BrewMethod>? onBrewWithMethod;
+  final ValueChanged<PresetDetails>? onBrewWithPreset;
 
   @override
   State<EquipmentPage> createState() => _EquipmentPageState();
@@ -148,6 +154,7 @@ class _EquipmentPageState extends State<EquipmentPage>
     final s = AppLocalizations.of(context);
     final labels = [
       s.methods,
+      s.equipmentPresets,
       s.grinders,
       s.methodTools,
       s.waterTab,
@@ -156,38 +163,14 @@ class _EquipmentPageState extends State<EquipmentPage>
     ];
     return Column(
       children: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final style = Theme.of(context).textTheme.titleSmall!;
-            final scale = MediaQuery.textScalerOf(context);
-            final direction = Directionality.of(context);
-            final scrollable = labels.asMap().entries.any((entry) {
-              final painter = TextPainter(
-                text: TextSpan(text: entry.value, style: style),
-                textDirection: direction,
-                textScaler: scale,
-                maxLines: 1,
-              )..layout();
-              final tooWide =
-                  painter.width > constraints.maxWidth / labels.length;
-              painter.dispose();
-              return tooWide;
-            });
-            return TabBar(
-              key: const ValueKey('equipment-tabs'),
-              controller: tabs,
-              isScrollable: scrollable,
-              tabAlignment: scrollable ? TabAlignment.start : null,
-              labelPadding: scrollable
-                  ? const EdgeInsets.symmetric(horizontal: 14)
-                  : null,
-              tabs: [for (final label in labels) Tab(text: label)],
-            );
-          },
-        ),
+        EquipmentTabBar(controller: tabs, labels: labels),
         const SizedBox(height: 12),
         Expanded(
           child: switch (widget.section) {
+            EquipmentSection.presets => EquipmentPresetList(
+              repository: widget.repository,
+              onBrew: widget.onBrewWithPreset,
+            ),
             EquipmentSection.portafilters => RecipientsList(
               key: const ValueKey('portafilters-list'),
               repository: widget.repository,
@@ -317,7 +300,7 @@ class _EquipmentSectionList extends StatelessWidget {
       return ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 112),
         itemCount: visible.length + 1,
-        separatorBuilder: (context, index) => const SizedBox(height: 8),
+        separatorBuilder: (context, index) => const SizedBox(height: 2),
         itemBuilder: (context, index) {
           if (index == 0) return CuppingEntry(repository: repository);
           final method = visible[index - 1];
@@ -471,6 +454,8 @@ class _MethodCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
+            minVerticalPadding: 0,
+            visualDensity: const VisualDensity(vertical: -2),
             title: Text(
               method.name,
               style: const TextStyle(fontWeight: FontWeight.w700),
@@ -539,7 +524,7 @@ class _MethodCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 2),
             child: Wrap(
               spacing: 4,
               children: [

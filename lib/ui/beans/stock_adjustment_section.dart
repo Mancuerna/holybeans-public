@@ -159,7 +159,7 @@ class _AdjustmentRowState extends State<_AdjustmentRow> {
           if (row.notes != null) Text(row.notes!),
           if (row.reversedAtMs != null)
             Text(s.stockAdjustReversed)
-          else if (widget.active)
+          else if (widget.active && row.blendLotId == null)
             TextButton(onPressed: busy ? null : undo, child: Text(s.undo)),
           if (error != null)
             Text(

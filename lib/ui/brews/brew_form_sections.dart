@@ -9,6 +9,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form_fields.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
+import 'package:holybeans/ui/brews/brew_preset_picker.dart';
 import 'package:holybeans/ui/brews/brew_ratio_slider.dart';
 import 'package:holybeans/ui/brews/brew_scale_reset_button.dart';
 import 'package:holybeans/ui/brews/brew_scale_wait_button.dart';
@@ -21,6 +22,7 @@ import 'package:holybeans/ui/brews/gaggimate_shot_widgets.dart';
 import 'package:holybeans/ui/brews/meticulous_free_pour_widgets.dart';
 import 'package:holybeans/ui/brews/meticulous_shot_widgets.dart';
 import 'package:holybeans/ui/brews/portafilter_weighing.dart';
+import 'package:holybeans/ui/brews/portal_chart.dart';
 import 'package:holybeans/ui/brews/pressure_assistant/pressure_reference_page.dart';
 import 'package:holybeans/ui/brews/refractometer_button.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart' show formatGrams;
@@ -31,9 +33,10 @@ import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:holybeans/ui/core/suggested_text_field.dart';
 import 'package:holybeans/ui/equipment/recipients_page.dart';
 import 'package:holybeans/ui/scale/scale_compact.dart';
+import 'package:holybeans/ui/settings/portal_section.dart';
 
-/// The brew form in the order of brewing: what is brewed, the equipment,
-/// the recipe, the timing with its devices, and the result. Each section
+/// The brew form in the order of brewing: what is brewed, the recipe,
+/// the equipment, the timing with its devices, and the result. Each section
 /// lays its fields out like the form's list (20 between them) and leaves
 /// hidden parameters out.
 const _fieldGap = 20.0;
@@ -86,7 +89,7 @@ class _Section extends StatelessWidget {
   );
 }
 
-/// Date, coffee and lot, method with the last brew and the machine's shot,
+/// Coffee and lot, method with the last brew and the machine's shot,
 /// profile, tools and the method memory hint.
 class BrewChoiceSection extends StatelessWidget {
   const BrewChoiceSection({
@@ -108,12 +111,12 @@ class BrewChoiceSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context);
     final draft = model.draft;
+    final selected = model.selectedPreset;
     final activeMethods = [
       for (final row in model.methods)
         if (row.archivedAtMs == null || row.id == model.methodId) row,
     ];
     return _Section([
-      BrewDateTimeChips(value: model.brewedAt, onChanged: model.setBrewedAt),
       CoffeePicker(
         repository: model.repository,
         coffees: coffees,
@@ -145,6 +148,9 @@ class BrewChoiceSection extends StatelessWidget {
           ],
           onChanged: model.selectLot,
         ),
+      if (isNew && model.presetsFailed) Text(s.dataError),
+      if (isNew && (model.presetChoices.isNotEmpty || selected != null))
+        BrewPresetPicker(model: model),
       if (model.loadingMethods)
         const LinearProgressIndicator()
       else if (activeMethods.isEmpty)
@@ -239,6 +245,7 @@ List<Widget> brewHelpCards(BrewFormModel model, BrewFormActions actions) => [
       onImport: () => actions.importShot(method),
       onRemove: model.removeShot,
     ),
+  if (model.existing != null && model.isEspresso) savedPortalAlignment(model),
   if (model.freePourAddress case final address?)
     MeticulousFreePourCard(
       pour: model.importedFreePour,
@@ -591,6 +598,8 @@ class BrewTimingSection extends StatelessWidget {
                   null => null,
                 },
         ),
+      if (model.devices.portal case final session? when espresso)
+        PortalReadout(sensor: session.sensor),
       if (model.pressureSession case final session? when espresso)
         PressureStatusRow(
           sensor: session.sensor,

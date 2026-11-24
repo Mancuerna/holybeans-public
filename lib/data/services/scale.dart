@@ -6,6 +6,7 @@ export 'package:holybeans/data/services/paired_device.dart';
 /// A Bluetooth scale as the app sees it: the weight it reads and the few
 /// commands it accepts (several readings a second while connected).
 abstract interface class Scale implements PairedDevice {
+  bool get recoveringConnection;
   List<FoundDevice> get rememberedScales;
   String? get activeScaleId;
   Future<void> forgetScale(String id);
