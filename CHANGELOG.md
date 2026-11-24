@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.0](https://github.com/Mancuerna/holybeans-public/compare/v1.18.0...v1.19.0) (2026-11-24)
+
+
+### Features
+
+* **brews:** record Belka Portal alongside espresso shots ([#181](https://github.com/Mancuerna/holybeans-public/issues/181)) ([0007b5a](https://github.com/Mancuerna/holybeans-public/commit/0007b5ae353b2c842f976ea179a5b7e548b2f0ae))
+
 ## [1.18.0](https://github.com/Mancuerna/holybeans-public/compare/v1.17.0...v1.18.0) (2026-11-23)
 
 
