@@ -361,6 +361,7 @@ class DriveRemoteAdapter implements DriveSyncRemote {
               'snapshot': snapshot.toJson(),
               'journal': payload.source,
               'photos': references,
+              if (payload.journalOnly) 'journalOnly': true,
             }),
           ),
         ),
@@ -400,6 +401,7 @@ class DriveRemoteAdapter implements DriveSyncRemote {
       envelope['journal'] as String,
       photos,
       includePreferences: backupMode,
+      journalOnly: backupMode && envelope['journalOnly'] == true,
     );
     if (payload.hash != snapshot.contentHash ||
         payload.photos.length != references.length) {

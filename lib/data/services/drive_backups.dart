@@ -64,7 +64,7 @@ class DriveBackups {
   late final DriveRemoteAdapter legacy;
   DateTime? lastBackupAt;
 
-  Future<DriveSyncPayload> capture() async {
+  Future<DriveSyncPayload> _captureWithPhotos() async {
     // Release the database transaction before validation, hashing, compression
     // or any network I/O. A missing/deleted photo fails the copy, never a save.
     final (source, files) = await JournalLock.withJournalLock(photos, () async {
@@ -111,10 +111,24 @@ class DriveBackups {
     final pending = state['pending'];
     if (pending != null) {
       // Retry the same immutable ID after an uncertain upload, even on restart.
-      await _finish(DriveSnapshot.fromJson(pending));
+      final snapshot = DriveSnapshot.fromJson(pending);
+      if (state['pendingJournalOnly'] == true) {
+        await _finish(snapshot);
+      } else {
+        // Old pending uploads may be blocked on photos. Only discard local
+        // staging. A copy already published to Drive remains recoverable.
+        await payloads.remove(snapshot.id);
+        state.remove('pending');
+        await stateFile.write(state);
+      }
       state = await _state();
     }
-    final payload = await capture();
+    final payload = await DriveSyncPayload.prepare(
+      await backup.exportJsonInBackground(),
+      const {},
+      includePreferences: true,
+      journalOnly: true,
+    );
     if (payload.hash == state['hash'] && state['completed'] != null) {
       final completed = DriveSnapshot.fromJson(state['completed']);
       final copies = await remote.listCopies();
@@ -131,7 +145,11 @@ class DriveBackups {
       createdAt: DateTime.now(),
     );
     await payloads.write(snapshot.id, payload);
-    await stateFile.write({...state, 'pending': snapshot.toJson()});
+    await stateFile.write({
+      ...state,
+      'pending': snapshot.toJson(),
+      'pendingJournalOnly': true,
+    });
     await _finish(snapshot);
     await _retain(snapshot, await remote.listCopies());
   }
@@ -185,7 +203,7 @@ class DriveBackups {
   }
 
   Future<void> safetyCopy() async {
-    final payload = await capture();
+    final payload = await _captureWithPhotos();
     final bytes = await Isolate.run(
       () => JournalBackup.encodeArchive(payload.source, payload.photos),
     );

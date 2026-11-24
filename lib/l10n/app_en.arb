@@ -2353,7 +2353,7 @@
     }
   },
   "driveSyncTitle": "Google Drive backup",
-  "driveSyncIntro": "Back up your journal and photos when you open the app or move it to the background if there are changes, or tap “Back up now”. You can keep using your journal during uploads, even offline. The latest five backups from each device are kept. Internal backups and the daily folder backup keep working. To recover another journal, choose a backup and restore it.",
+  "driveSyncIntro": "Back up your journal without photos when you open the app or move it to the background if there are changes, or tap “Back up now”. You can keep using your journal during uploads, even offline. The latest five backups from each device are kept. Internal backups and the daily folder backup keep working. To recover another journal, choose a backup and restore it.",
   "driveSyncDisabled": "Drive backups are off",
   "driveSyncConnect": "Enable with Google",
   "driveSyncChecking": "Preparing Drive backup…",

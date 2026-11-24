@@ -3150,7 +3150,7 @@
     }
   },
   "driveSyncTitle": "Copia de seguridad en Google Drive",
-  "driveSyncIntro": "Guarda una copia del diario y sus fotos al abrir la app o pasarla a segundo plano si hay cambios, o cuando pulses «Crear copia ahora». Puedes seguir usando el diario durante la subida, incluso sin conexión. Se conservan las cinco últimas copias de cada dispositivo. Las copias internas y la copia diaria en carpeta siguen funcionando. Para recuperar otro diario, elige una copia y restáurala.",
+  "driveSyncIntro": "Guarda una copia del diario sin fotos al abrir la app o pasarla a segundo plano si hay cambios, o cuando pulses «Crear copia ahora». Puedes seguir usando el diario durante la subida, incluso sin conexión. Se conservan las cinco últimas copias de cada dispositivo. Las copias internas y la copia diaria en carpeta siguen funcionando. Para recuperar otro diario, elige una copia y restáurala.",
   "driveSyncDisabled": "Copias en Drive desactivadas",
   "driveSyncConnect": "Activar con Google",
   "driveSyncChecking": "Preparando copia en Drive…",

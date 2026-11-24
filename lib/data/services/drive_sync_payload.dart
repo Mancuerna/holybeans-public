@@ -27,6 +27,7 @@ class DriveSyncPayload {
     String source,
     Map<String, Uint8List> photos, {
     bool includePreferences = false,
+    bool journalOnly = false,
   }) {
     JournalBackup.inspectJson(source);
     final root = jsonDecode(source) as Map<String, dynamic>;
@@ -52,11 +53,14 @@ class DriveSyncPayload {
         if (name is! String || !PhotoStore.isValidName(name)) {
           throw const FormatException('Invalid synchronization photo name');
         }
-        referenced.add(name);
+        if (!journalOnly) referenced.add(name);
       }
     }
     final frozenPhotos = <String, Uint8List>{};
     final hashes = <String, String>{};
+    if (journalOnly && photos.isNotEmpty) {
+      throw const FormatException('Unexpected photos in journal-only backup');
+    }
     for (final name in referenced.toList()..sort()) {
       final bytes = photos[name];
       if (bytes == null || bytes.isEmpty) {
@@ -68,7 +72,11 @@ class DriveSyncPayload {
     final canonicalSource = jsonEncode(_canonical(root));
     final digest = driveDigest(
       utf8.encode(
-        jsonEncode({'journal': _canonical(digestRoot), 'photos': hashes}),
+        jsonEncode({
+          'journal': _canonical(digestRoot),
+          'photos': hashes,
+          if (journalOnly) 'journalOnly': true,
+        }),
       ),
     );
     return DriveSyncPayload._(
@@ -77,6 +85,7 @@ class DriveSyncPayload {
       Map.unmodifiable(hashes),
       digest,
       includePreferences,
+      journalOnly,
     );
   }
   DriveSyncPayload._(
@@ -85,19 +94,23 @@ class DriveSyncPayload {
     this.photoHashes,
     this.hash,
     this.includePreferences,
+    this.journalOnly,
   );
 
   final bool includePreferences;
+  final bool journalOnly;
 
   static Future<DriveSyncPayload> prepare(
     String source,
     Map<String, Uint8List> photos, {
     bool includePreferences = false,
+    bool journalOnly = false,
   }) => Isolate.run(
     () => DriveSyncPayload.create(
       source,
       photos,
       includePreferences: includePreferences,
+      journalOnly: journalOnly,
     ),
   );
 
@@ -163,6 +176,7 @@ class DriveSyncPayloadStore {
           .write({
             'version': 1,
             'includePreferences': payload.includePreferences,
+            if (payload.journalOnly) 'journalOnly': true,
             'hash': payload.hash,
             'photos': payload.photoHashes,
           });
@@ -196,6 +210,7 @@ class DriveSyncPayloadStore {
       source,
       photos,
       includePreferences: manifest['includePreferences'] == true,
+      journalOnly: manifest['journalOnly'] == true,
     );
     if (manifest['hash'] != payload.hash ||
         jsonEncode(_canonical(manifest['photos'])) !=
