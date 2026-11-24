@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/drive_backups.dart';
+import 'package:holybeans/data/services/drive_sync_payload.dart';
 import 'package:holybeans/data/services/drive_sync_remote.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
 import 'package:holybeans/data/services/photo_store.dart';
@@ -82,6 +83,67 @@ void main() {
       expect(payloadIds(), {copy.snapshot.id});
     },
   );
+
+  test(
+    'Drive saves data despite missing photos and relinks available files',
+    () async {
+      final repository = JournalRepository(database);
+      final photo = await service.photos.add(Uint8List.fromList([1, 2, 3]));
+      final missing = await service.photos.add(Uint8List.fromList([4]));
+      await repository.setCoffeePhotos(coffee, [photo, missing]);
+      await service.photos.delete(missing);
+      await service.save();
+      expect(server.files, hasLength(1));
+      final payload = await service.read((await service.list()).single);
+      expect(payload.photos, isEmpty);
+      await repository.setCoffeePhotos(coffee, []);
+      await service.restore(payload);
+      expect(await repository.coffeePhotos(coffee), [photo]);
+      await service.photos.delete(photo);
+      await service.restore(payload);
+      expect(await repository.coffeePhotos(coffee), isEmpty);
+      expect((await database.select(database.coffees).get()).single.id, coffee);
+    },
+  );
+
+  for (final published in [false, true]) {
+    test(
+      'upgrade replaces old pending upload (published: $published)',
+      () async {
+        final bytes = Uint8List.fromList([1, 2, 3]);
+        final photo = await service.photos.add(bytes);
+        await JournalRepository(database).setCoffeePhotos(coffee, [photo]);
+        final old = await DriveSyncPayload.prepare(
+          await service.backup.exportJson(),
+          {photo: bytes},
+          includePreferences: true,
+        );
+        final snapshot = DriveSnapshot(
+          id: await service.remote.reserveId(),
+          deviceId: service.deviceId,
+          contentHash: old.hash,
+          createdAt: DateTime.now(),
+        );
+        await service.payloads.write(snapshot.id, old);
+        await service.stateFile.write({
+          'version': 1,
+          'pending': snapshot.toJson(),
+        });
+        if (published) await service.remote.publish(snapshot);
+        await service.photos.delete(photo);
+        await service.save();
+        expect(payloadIds(), isEmpty);
+        expect(server.files, hasLength(published ? 3 : 1));
+        if (published) {
+          final copy = (await service.list()).singleWhere(
+            (c) => c.snapshot.id == snapshot.id,
+          );
+          await service.restore(await service.read(copy));
+          expect(await service.photos.file(photo).readAsBytes(), bytes);
+        }
+      },
+    );
+  }
 
   for (final other in [false, true]) {
     test(
