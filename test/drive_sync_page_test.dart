@@ -423,7 +423,7 @@ void main() {
   );
 
   test(
-    'missing referenced photo rejects a copy but allows further journal saves',
+    'missing referenced photo allows backups and further journal saves',
     () async {
       await model.enable();
       final repo = JournalRepository(database);
@@ -432,8 +432,8 @@ void main() {
       await repo.setCoffeePhotos(id, [photo]);
       await model.photos.delete(photo);
       await model.synchronize();
-      expect(model.status, DriveSyncStatus.unavailable);
-      expect(server.files, hasLength(1));
+      expect(model.status, DriveSyncStatus.current);
+      expect(server.files, hasLength(2));
       await repo.createCoffee(name: 'Next', roaster: 'Test');
       expect(await database.select(database.coffees).get(), hasLength(2));
     },
