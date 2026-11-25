@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.20.0](https://github.com/Mancuerna/holybeans-public/compare/v1.19.0...v1.20.0) (2026-11-25)
+
+
+### Features
+
+* **brews:** correct the dose source when editing a brew ([#185](https://github.com/Mancuerna/holybeans-public/issues/185)) ([af10030](https://github.com/Mancuerna/holybeans-public/commit/af1003005c5d6e0d7a71fada7e02051606f6c7e8))
+
+
+### Bug Fixes
+
+* **drive:** back up journal data without uploading photos ([#183](https://github.com/Mancuerna/holybeans-public/issues/183)) ([b253ce2](https://github.com/Mancuerna/holybeans-public/commit/b253ce2f51e81a8714cfc9ce19618a44ad334a38))
+
 ## [1.19.0](https://github.com/Mancuerna/holybeans-public/compare/v1.18.0...v1.19.0) (2026-11-24)
 
 
