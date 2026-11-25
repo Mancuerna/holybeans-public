@@ -69,8 +69,7 @@ import 'package:holybeans/ui/shell/retained_journal_tab.dart';
 import 'package:holybeans/ui/shell/system_surfaces.dart';
 import 'package:holybeans/ui/stats/live_stats_page.dart';
 
-/// The app's main screen: navigation between Home, Beans, History and
-/// Equipment, the floating action, and the [JournalActions] the tabs use.
+/// Hosts the journal tabs, floating action and shared [JournalActions].
 class JournalShell extends StatefulWidget {
   const JournalShell({
     super.key,
@@ -463,6 +462,7 @@ class _JournalShellState extends State<JournalShell>
   Future<void> openBrewForm(
     List<Coffee> coffees, {
     Brew? existing,
+    bool editDoseSource = false,
     Brew? seed,
     String? initialCoffeeId,
     String? initialLotId,
@@ -474,6 +474,7 @@ class _JournalShellState extends State<JournalShell>
   }) => brewActions.openBrewForm(
     coffees,
     existing: existing,
+    editDoseSource: editDoseSource,
     seed: seed,
     initialCoffeeId: initialCoffeeId,
     initialLotId: initialLotId,

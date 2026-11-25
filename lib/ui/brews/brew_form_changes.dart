@@ -44,6 +44,7 @@ class BrewFormChanges {
     for (final field in model.draft.fields) field.text,
     model.coffeeId,
     model.lotId,
+    if (model.doseSourceCorrection case final source?) [source.portionId],
     model.methodId,
     model.selectedPreset?.preset.id,
     model.grinderId,

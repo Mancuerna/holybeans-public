@@ -46,6 +46,7 @@ class BrewFormModel extends ChangeNotifier {
     required this.services,
     required this.coffees,
     this.existing,
+    this.editDoseSource = false,
     this.seed,
     this.repeat = false,
     String? initialCoffeeId,
@@ -153,6 +154,10 @@ class BrewFormModel extends ChangeNotifier {
     onGrinders: _grindersChanged,
     onWaterProfiles: _waterProfilesChanged,
     onRecipients: _recipientsChanged,
+    needsPortions: (id) =>
+        existing != null &&
+        existing!.stockReviewPending != true &&
+        (editDoseSource || id != existing!.lotId),
     onLots: (rows, preferred) {
       lotId = rows.any((lot) => lot.id == preferred)
           ? preferred
@@ -172,6 +177,7 @@ class BrewFormModel extends ChangeNotifier {
 
   /// The brew being edited.
   final Brew? existing;
+  final bool editDoseSource;
 
   /// The brew being repeated, or the one the form starts from.
   final Brew? seed;
@@ -218,6 +224,17 @@ class BrewFormModel extends ChangeNotifier {
     ),
   );
   String? lotId;
+  BrewDoseSource? doseSourceCorrection;
+  List<FrozenPortion> get dosePortions => [
+    for (final p in catalogs.portionsByLot[lotId] ?? const <FrozenPortion>[])
+      if (p.remainingGrams > 0 || p.id == existing?.frozenPortionId) p,
+  ];
+
+  void selectDoseSource(String? portionId) {
+    doseSourceCorrection = (portionId: portionId);
+    _notify();
+  }
+
   List<CoffeeLot> get lots => catalogs.lots;
   bool get loadingLots => catalogs.loadingLots;
 
@@ -603,28 +620,6 @@ class BrewFormModel extends ChangeNotifier {
     _notify();
   }
 
-  void selectCoffee(String id) {
-    coffeeId = id;
-    toolSelection.cancelPending();
-    lotId = null;
-    catalogs.prepareLots(clear: true);
-    catalogs.publish();
-    toolSelection.publish();
-    _loadLots(id);
-    if (isNew) {
-      _loadDialIn();
-      // The recipe last used with this coffee beats the method's.
-      if (_fresh && methodId != null) {
-        unawaited(_applyMethodMemory(methodId!));
-      }
-    }
-  }
-
-  void selectLot(String? id) {
-    lotId = id;
-    _notify();
-  }
-
   /// Picks a grinder by id, '' for none or [preGroundChoice].
   void selectGrinder(String choice) {
     selectedPreset = null;
@@ -748,6 +743,7 @@ class BrewFormModel extends ChangeNotifier {
         coffeeId: coffee,
         lotId: lotId,
         frozenSource: source,
+        doseSourceCorrection: doseSourceCorrection,
         method: method,
         grinder: grinder,
         grinderName: grinderName,

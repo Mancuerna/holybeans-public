@@ -52,6 +52,7 @@ class BrewActions {
   Future<void> openBrewForm(
     List<Coffee> coffees, {
     Brew? existing,
+    bool editDoseSource = false,
     Brew? seed,
     String? initialCoffeeId,
     String? initialLotId,
@@ -97,6 +98,7 @@ class BrewActions {
 
         coffees: available,
         existing: existing,
+        editDoseSource: editDoseSource,
         seed: seed,
         initialCoffeeId: initialCoffeeId,
         initialLotId: initialLotId,

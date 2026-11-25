@@ -11,6 +11,9 @@ class FrozenBrewSource {
   final double grams;
 }
 
+/// Explicit replacement for an edited brew. A null portion uses available coffee.
+typedef BrewDoseSource = ({String? portionId});
+
 /// Where deleting or archiving a brew returns its recorded dose.
 class BrewStockReturn {
   const BrewStockReturn({

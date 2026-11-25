@@ -6,6 +6,7 @@ import 'package:holybeans/data/services/refractometer.dart';
 import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/brew_ratio.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
+import 'package:holybeans/ui/brews/brew_dose_source_field.dart';
 import 'package:holybeans/ui/brews/brew_form_fields.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/brews/brew_pours_fields.dart';
@@ -148,6 +149,8 @@ class BrewChoiceSection extends StatelessWidget {
           ],
           onChanged: model.selectLot,
         ),
+      if (!model.loadingLots && model.dosePortions.isNotEmpty)
+        BrewDoseSourceField(model: model),
       if (isNew && model.presetsFailed) Text(s.dataError),
       if (isNew && (model.presetChoices.isNotEmpty || selected != null))
         BrewPresetPicker(model: model),

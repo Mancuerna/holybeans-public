@@ -54,6 +54,7 @@ abstract interface class JournalNavigation {
   Future<void> openBrewForm(
     List<Coffee> coffees, {
     Brew? existing,
+    bool editDoseSource = false,
     Brew? seed,
     String? initialCoffeeId,
     String? initialLotId,

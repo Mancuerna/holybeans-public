@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/data/services/journal_backup.dart';
+import 'package:holybeans/domain/brew_input.dart';
 import 'package:holybeans/domain/frozen_brew.dart';
 
 import 'helpers/test_database.dart';
@@ -132,6 +133,54 @@ void main() {
       await stock(150, 100);
     },
   );
+
+  test('a correction moves the dose atomically across coffees and back to available stock', () async {
+    final id = await brew(dose: 20, thaw: 15);
+    final other = await repository.createCoffee(
+      name: 'Other',
+      roaster: 'R',
+      initialGrams: 250,
+    );
+    final otherLot = (await repository.coffeeLots(other)).single.id;
+    final otherPortion = await repository.freezeCoffee(
+      lotId: otherLot,
+      grams: 20,
+      frozenDate: '2026-09-20',
+    );
+    Future<void> correct(String? target, double grams) async {
+      await repository.saveBrewWithOutcome(
+        BrewInput(
+          coffeeId: other,
+          lotId: otherLot,
+          methodName: 'V60',
+          doseGrams: grams,
+          doseSourceCorrection: (portionId: target),
+        ),
+        id: id,
+      );
+    }
+
+    await expectLater(correct(otherPortion, 21), throwsStateError);
+    await stock(145, 85);
+    expect((await repository.brew(id))!.coffeeId, coffee);
+    await correct(otherPortion, 20);
+    await correct(otherPortion, 20);
+    await stock(150, 100);
+    expect((await repository.coffeeLot(otherLot))!.remainingGrams, 230);
+    expect(
+      (await repository.frozenPortionsForLot(otherLot)).single.remainingGrams,
+      0,
+    );
+    expect((await repository.brew(id))!.frozenDoseGrams, 20);
+    await expectLater(correct(portion, 20), throwsArgumentError);
+    await correct(null, 20);
+    expect((await repository.brew(id))!.frozenPortionId, isNull);
+    expect((await repository.coffeeLot(otherLot))!.remainingGrams, 210);
+    expect(
+      (await repository.frozenPortionsForLot(otherLot)).single.remainingGrams,
+      20,
+    );
+  });
 
   test('changing the lot returns the original frozen portion', () async {
     final id = await brew();

@@ -2,6 +2,30 @@ part of 'brew_form_model.dart';
 
 /// Reconciles the form choices after its independent catalog changes.
 extension BrewFormCatalogs on BrewFormModel {
+  void selectCoffee(String id) {
+    doseSourceCorrection = null;
+    coffeeId = id;
+    toolSelection.cancelPending();
+    lotId = null;
+    catalogs.prepareLots(clear: true);
+    catalogs.publish();
+    toolSelection.publish();
+    _loadLots(id);
+    if (isNew) {
+      _loadDialIn();
+      // The recipe last used with this coffee beats the method's.
+      if (_fresh && methodId != null) {
+        unawaited(_applyMethodMemory(methodId!));
+      }
+    }
+  }
+
+  void selectLot(String? id) {
+    doseSourceCorrection = null;
+    lotId = id;
+    _notify();
+  }
+
   Future<void> selectMethod(String? id) async {
     if (id == null || id == methodId) return;
     selectedPreset = null;

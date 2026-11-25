@@ -54,6 +54,7 @@ class BrewForm extends StatefulWidget {
     super.key,
     required this.coffees,
     this.existing,
+    this.editDoseSource = false,
     this.seed,
     this.initialCoffeeId,
     this.initialLotId,
@@ -69,6 +70,7 @@ class BrewForm extends StatefulWidget {
   final AppServices? services;
   final List<Coffee> coffees;
   final Brew? existing;
+  final bool editDoseSource;
   final Brew? seed;
   final String? initialCoffeeId;
 
@@ -114,6 +116,7 @@ class _BrewFormState extends State<BrewForm> {
       services: services,
       coffees: widget.coffees,
       existing: widget.existing,
+      editDoseSource: widget.editDoseSource,
       seed: widget.seed,
       repeat: widget.repeat,
       initialCoffeeId: widget.initialCoffeeId,
