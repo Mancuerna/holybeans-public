@@ -203,6 +203,7 @@ class BrewRepository {
         coffeeId: input.coffeeId,
         lotId: input.lotId,
         doseGrams: input.doseGrams,
+        correctingSource: input.doseSourceCorrection != null,
       );
       final waterProfile = await _writer.brewWaterProfile(
         input.waterProfileId,
@@ -241,6 +242,7 @@ class BrewRepository {
         lotId: input.lotId,
         doseGrams: input.doseGrams,
         frozenSource: input.frozenSource,
+        correction: input.doseSourceCorrection,
       );
       final row = _writer.brewRow(
         input,

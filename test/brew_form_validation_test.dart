@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/database/app_database.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
+import 'package:holybeans/domain/frozen_brew.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/brew_form.dart';
 import 'package:holybeans/ui/core/app_services.dart';
@@ -55,6 +56,116 @@ void main() {
       await tester.pump(const Duration(milliseconds: 10));
     });
   }
+
+  testWidgets(
+    'changing coffee asks for a source only when the destination has frozen stock',
+    (tester) async {
+      final first = (await repository.allCoffees()).single;
+      final firstLot = (await repository.coffeeLots(first.id)).single;
+      final id = await repository.createBrew(
+        coffeeId: first.id,
+        lotId: firstLot.id,
+        methodName: 'V60',
+        methodId: v60Id,
+        doseGrams: 15,
+      );
+      final other = await repository.createCoffee(
+        name: 'Campanario',
+        roaster: 'R',
+        initialGrams: 250,
+      );
+      final lot = (await repository.coffeeLots(other)).single.id;
+      await repository.freezeCoffee(
+        lotId: lot,
+        grams: 20,
+        frozenDate: '2026-09-20',
+      );
+      final portion = (await repository.frozenPortionsForLot(lot)).single;
+      await _openForm(
+        tester,
+        repository,
+        await repository.allCoffees(),
+        v60Id,
+        'es',
+        existing: await repository.brew(id),
+      );
+      final s = lookupAppLocalizations(const Locale('es'));
+      expect(find.text(s.chooseDoseSource), findsNothing);
+      final picker = find.byKey(const ValueKey('brew-coffee-picker'));
+      await tester.ensureVisible(picker);
+      await tester.tap(picker);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Campanario').last);
+      await tester.pumpAndSettle();
+      final field = find.byKey(ValueKey('dose-source-$lot'));
+      await tester.ensureVisible(field);
+      await tester.tap(field);
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining(portion.label).last);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Se devolverán'), findsOneWidget);
+      await tester.tap(find.text(s.save).last);
+      await tester.pumpAndSettle();
+      expect((await repository.brew(id))!.frozenPortionId, portion.id);
+      expect((await repository.coffeeLot(lot))!.remainingGrams, 230);
+      expect(
+        (await repository.frozenPortionsForLot(lot)).single.remainingGrams,
+        5,
+      );
+    },
+  );
+
+  testWidgets(
+    'source action can move a dose between portions of the same lot',
+    (tester) async {
+      final coffee = (await repository.allCoffees()).single;
+      final lot = (await repository.coffeeLots(coffee.id)).single.id;
+      final first = await repository.freezeCoffee(
+        lotId: lot,
+        grams: 15,
+        frozenDate: '2026-09-20',
+      );
+      final second = await repository.freezeCoffee(
+        lotId: lot,
+        grams: 15,
+        frozenDate: '2026-09-21',
+      );
+      final id = await repository.createBrew(
+        coffeeId: coffee.id,
+        lotId: lot,
+        methodName: 'V60',
+        methodId: v60Id,
+        doseGrams: 15,
+        frozenSource: FrozenBrewSource(portionId: first, lotId: lot, grams: 15),
+      );
+      final portions = await repository.frozenPortionsForLot(lot);
+      await _openForm(
+        tester,
+        repository,
+        [coffee],
+        v60Id,
+        'es',
+        existing: await repository.brew(id),
+        editDoseSource: true,
+      );
+      final field = find.byKey(ValueKey('dose-source-$lot'));
+      await tester.ensureVisible(field);
+      await tester.tap(field);
+      await tester.pumpAndSettle();
+      final label = portions.singleWhere((p) => p.id == second).label;
+      await tester.tap(find.textContaining(label).last);
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.text(lookupAppLocalizations(const Locale('es')).save).last,
+      );
+      await tester.pumpAndSettle();
+      final updated = await repository.frozenPortionsForLot(lot);
+      expect(updated.singleWhere((p) => p.id == first).remainingGrams, 15);
+      expect(updated.singleWhere((p) => p.id == second).remainingGrams, 0);
+      expect((await repository.coffeeLot(lot))!.remainingGrams, 220);
+      expect((await repository.brew(id))!.frozenPortionId, second);
+    },
+  );
 
   testWidgets('timer start does not validate an invalid dose', (tester) async {
     final coffees = await database.select(database.coffees).get();
@@ -131,8 +242,10 @@ Future<void> _openForm(
   JournalRepository repository,
   List<Coffee> coffees,
   String methodId,
-  String language,
-) async {
+  String language, {
+  Brew? existing,
+  bool editDoseSource = false,
+}) async {
   await tester.pumpWidget(
     localizedApp(
       locale: Locale(language),
@@ -152,6 +265,8 @@ Future<void> _openForm(
                   ),
 
                   coffees: coffees,
+                  existing: existing,
+                  editDoseSource: editDoseSource,
                   initialMethodId: methodId,
                 ),
               ),

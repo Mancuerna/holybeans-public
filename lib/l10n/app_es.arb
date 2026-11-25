@@ -1,4 +1,11 @@
 {
+  "doseSourceSummary": "Se devolverán {oldDose} a {oldCoffee} y se descontarán {newDose} de {destination}.",
+  "@doseSourceSummary": {"placeholders": {"oldDose": {"type": "String"}, "oldCoffee": {"type": "String"}, "newDose": {"type": "String"}, "destination": {"type": "String"}}},
+  "dosePortionTooSmall": "La porción no tiene suficiente café para esta dosis.",
+  "doseSourceRequired": "Elige el origen de la dosis.",
+  "doseAvailableCoffee": "Café disponible",
+  "chooseDoseSource": "¿De dónde salió la dosis?",
+  "changeDoseSource": "Cambiar origen de la dosis",
   "createBlend": "Crear mezcla",
   "bagEnds": "Fin de bolsas",
   "blendUseAll": "Usar todo lo que queda",

@@ -1,4 +1,11 @@
 {
+  "doseSourceSummary": "{oldDose} will be returned to {oldCoffee} and {newDose} taken from {destination}.",
+  "@doseSourceSummary": {"placeholders": {"oldDose": {"type": "String"}, "oldCoffee": {"type": "String"}, "newDose": {"type": "String"}, "destination": {"type": "String"}}},
+  "dosePortionTooSmall": "This portion does not have enough coffee for this dose.",
+  "doseSourceRequired": "Choose the dose source.",
+  "doseAvailableCoffee": "Available coffee",
+  "chooseDoseSource": "Where did the dose come from?",
+  "changeDoseSource": "Change dose source",
   "createBlend": "Create blend",
   "bagEnds": "Bag ends",
   "blendUseAll": "Use all remaining",

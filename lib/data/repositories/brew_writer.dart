@@ -49,6 +49,7 @@ class BrewWriter {
     required String coffeeId,
     required String? lotId,
     required double? doseGrams,
+    required bool correctingSource,
   }) async {
     final previous = id == null
         ? null
@@ -58,7 +59,8 @@ class BrewWriter {
     if (id != null && previous == null) throw StateError('Brew not found');
     final stockChanged =
         previous != null &&
-        (previous.coffeeId != coffeeId ||
+        (correctingSource ||
+            previous.coffeeId != coffeeId ||
             previous.lotId != lotId ||
             previous.doseGrams != doseGrams);
     if (stockChanged && previous.stockReviewPending == true) {

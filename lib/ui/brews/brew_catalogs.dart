@@ -16,8 +16,11 @@ class BrewCatalogs extends ChangeNotifier {
     required this.onWaterProfiles,
     required this.onRecipients,
     required this.onLots,
+    required this.needsPortions,
   });
   final JournalRepository repository;
+  final bool Function(String lotId) needsPortions;
+  Map<String, List<FrozenPortion>> portionsByLot = {};
   final void Function(List<BrewMethod>) onMethods;
   final VoidCallback onMethodsReady;
   final void Function(List<Grinder>) onGrinders;
@@ -149,8 +152,12 @@ class BrewCatalogs extends ChangeNotifier {
     final request = ++_lotRequest;
     _errors.remove('lots');
     List<CoffeeLot> rows;
+    final portions = <String, List<FrozenPortion>>{};
     try {
       rows = await repository.coffeeLots(selectedCoffeeId);
+      for (final row in rows.where((row) => needsPortions(row.id))) {
+        portions[row.id] = await repository.frozenPortionsForLot(row.id);
+      }
     } catch (error, stack) {
       reportError(error, stack);
       if (_disposed || request != _lotRequest) return;
@@ -160,6 +167,7 @@ class BrewCatalogs extends ChangeNotifier {
       return;
     }
     if (_disposed || request != _lotRequest) return;
+    portionsByLot = portions;
     _lots = rows;
     onLots(rows, preferred);
     _loadingLots = false;

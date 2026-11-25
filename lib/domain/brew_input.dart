@@ -25,6 +25,7 @@ class BrewInput {
     List<String>? methodToolIds,
     this.doseGrams,
     this.frozenSource,
+    this.doseSourceCorrection,
     this.waterGrams,
     this.beverageGrams,
     this.timeSeconds,
@@ -63,6 +64,7 @@ class BrewInput {
   final String? grindSetting;
   final List<String>? methodToolIds;
   final double? doseGrams;
+  final BrewDoseSource? doseSourceCorrection;
   final FrozenBrewSource? frozenSource;
   final double? waterGrams;
   final double? beverageGrams;

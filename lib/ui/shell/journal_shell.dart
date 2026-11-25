@@ -463,6 +463,7 @@ class _JournalShellState extends State<JournalShell>
   Future<void> openBrewForm(
     List<Coffee> coffees, {
     Brew? existing,
+    bool editDoseSource = false,
     Brew? seed,
     String? initialCoffeeId,
     String? initialLotId,
@@ -474,6 +475,7 @@ class _JournalShellState extends State<JournalShell>
   }) => brewActions.openBrewForm(
     coffees,
     existing: existing,
+    editDoseSource: editDoseSource,
     seed: seed,
     initialCoffeeId: initialCoffeeId,
     initialLotId: initialLotId,

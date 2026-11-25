@@ -119,6 +119,7 @@ class BrewStockLedger {
     required String? lotId,
     required double? doseGrams,
     required FrozenBrewSource? frozenSource,
+    required BrewDoseSource? correction,
   }) async {
     if (previous?.archivedByCoffee == true &&
         previous?.frozenPortionId != null &&
@@ -127,7 +128,24 @@ class BrewStockLedger {
     }
     String? portionId;
     double? frozenGrams;
-    if (frozenSource != null) {
+    if (correction != null) {
+      if (previous == null ||
+          frozenSource != null ||
+          lotId == null ||
+          (correction.portionId != null && doseGrams == null)) {
+        throw ArgumentError(
+          'A dose source correction requires an existing brew, lot and dose',
+        );
+      }
+      if (correction.portionId case final id?) {
+        final portion = await _freezer.requirePortion(id);
+        if (portion.lotId != lotId) {
+          throw ArgumentError('Frozen portion does not belong to selected lot');
+        }
+        portionId = id;
+        frozenGrams = doseGrams;
+      }
+    } else if (frozenSource != null) {
       if (previous != null || lotId == null || doseGrams == null) {
         throw ArgumentError('A frozen source needs a new brew, lot and dose');
       }

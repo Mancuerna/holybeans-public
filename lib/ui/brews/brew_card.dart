@@ -328,6 +328,16 @@ class BrewCard extends StatelessWidget {
         PopupMenuItem(value: 'repeat', child: Text(s.repeatBrew)),
         PopupMenuItem(value: 'rate', child: Text(s.rateBrew)),
         PopupMenuItem(value: 'edit', child: Text(s.editBrew)),
+        if (brew.stockReviewPending != true &&
+            coffee?.archivedAtMs == null &&
+            brew.archivedByCoffee != true &&
+            brew.lotId != null &&
+            actions.read.portions.any(
+              (p) =>
+                  p.lotId == brew.lotId &&
+                  (p.remainingGrams > 0 || p.id == brew.frozenPortionId),
+            ))
+          PopupMenuItem(value: 'source', child: Text(s.changeDoseSource)),
         PopupMenuItem(value: 'share', child: Text(s.shareText)),
         PopupMenuItem(
           key: ValueKey('brew-compare-${brew.id}'),
@@ -368,6 +378,12 @@ class BrewCard extends StatelessWidget {
         actions.commands.setBrewFavorite(brew, favorite: !brew.isFavorite);
       case 'edit':
         actions.navigation.openBrewForm(data.coffees, existing: brew);
+      case 'source':
+        actions.navigation.openBrewForm(
+          data.coffees,
+          existing: brew,
+          editDoseSource: true,
+        );
       case 'share':
         if (coffee != null) {
           actions.commands.shareBrew(

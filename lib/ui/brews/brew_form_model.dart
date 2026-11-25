@@ -46,6 +46,7 @@ class BrewFormModel extends ChangeNotifier {
     required this.services,
     required this.coffees,
     this.existing,
+    this.editDoseSource = false,
     this.seed,
     this.repeat = false,
     String? initialCoffeeId,
@@ -153,6 +154,10 @@ class BrewFormModel extends ChangeNotifier {
     onGrinders: _grindersChanged,
     onWaterProfiles: _waterProfilesChanged,
     onRecipients: _recipientsChanged,
+    needsPortions: (id) =>
+        existing != null &&
+        existing!.stockReviewPending != true &&
+        (editDoseSource || id != existing!.lotId),
     onLots: (rows, preferred) {
       lotId = rows.any((lot) => lot.id == preferred)
           ? preferred
@@ -172,6 +177,7 @@ class BrewFormModel extends ChangeNotifier {
 
   /// The brew being edited.
   final Brew? existing;
+  final bool editDoseSource;
 
   /// The brew being repeated, or the one the form starts from.
   final Brew? seed;
@@ -218,6 +224,17 @@ class BrewFormModel extends ChangeNotifier {
     ),
   );
   String? lotId;
+  BrewDoseSource? doseSourceCorrection;
+  List<FrozenPortion> get dosePortions => [
+    for (final p in catalogs.portionsByLot[lotId] ?? const <FrozenPortion>[])
+      if (p.remainingGrams > 0 || p.id == existing?.frozenPortionId) p,
+  ];
+
+  void selectDoseSource(String? portionId) {
+    doseSourceCorrection = (portionId: portionId);
+    _notify();
+  }
+
   List<CoffeeLot> get lots => catalogs.lots;
   bool get loadingLots => catalogs.loadingLots;
 
@@ -604,6 +621,7 @@ class BrewFormModel extends ChangeNotifier {
   }
 
   void selectCoffee(String id) {
+    doseSourceCorrection = null;
     coffeeId = id;
     toolSelection.cancelPending();
     lotId = null;
@@ -621,6 +639,7 @@ class BrewFormModel extends ChangeNotifier {
   }
 
   void selectLot(String? id) {
+    doseSourceCorrection = null;
     lotId = id;
     _notify();
   }
@@ -748,6 +767,7 @@ class BrewFormModel extends ChangeNotifier {
         coffeeId: coffee,
         lotId: lotId,
         frozenSource: source,
+        doseSourceCorrection: doseSourceCorrection,
         method: method,
         grinder: grinder,
         grinderName: grinderName,
