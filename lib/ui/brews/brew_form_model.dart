@@ -620,30 +620,6 @@ class BrewFormModel extends ChangeNotifier {
     _notify();
   }
 
-  void selectCoffee(String id) {
-    doseSourceCorrection = null;
-    coffeeId = id;
-    toolSelection.cancelPending();
-    lotId = null;
-    catalogs.prepareLots(clear: true);
-    catalogs.publish();
-    toolSelection.publish();
-    _loadLots(id);
-    if (isNew) {
-      _loadDialIn();
-      // The recipe last used with this coffee beats the method's.
-      if (_fresh && methodId != null) {
-        unawaited(_applyMethodMemory(methodId!));
-      }
-    }
-  }
-
-  void selectLot(String? id) {
-    doseSourceCorrection = null;
-    lotId = id;
-    _notify();
-  }
-
   /// Picks a grinder by id, '' for none or [preGroundChoice].
   void selectGrinder(String choice) {
     selectedPreset = null;
