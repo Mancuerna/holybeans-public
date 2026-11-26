@@ -234,7 +234,7 @@ void main() {
       name: 'TestWater',
     );
     final brewedAt = DateTime(2026, 9, 28, 13, 20);
-    await repository.createBrew(
+    final brewId = await repository.createBrew(
       coffeeId: coffeeId,
       methodName: 'V60',
       waterProfileId: waterProfileId,
@@ -249,7 +249,7 @@ void main() {
       name: 'Renamed water',
     );
     final coffee = await database.select(database.coffees).getSingle();
-    final brew = await database.select(database.brews).getSingle();
+    final brew = (await repository.brew(brewId))!;
     addTearDown(database.close);
 
     await tester.pumpWidget(
@@ -280,8 +280,8 @@ void main() {
     expect(find.text('Time'), findsOneWidget);
     expect(find.text('Water profile'), findsOneWidget);
     expect(find.text('Water profile (optional)'), findsNothing);
-    expect(find.text('TestWater'), findsOneWidget);
-    expect(find.text('Renamed water'), findsNothing);
+    expect(find.text('TestWater'), findsNothing);
+    expect(find.text('Renamed water'), findsOneWidget);
     expect(
       tester.getRect(find.text('Time')).bottom,
       lessThanOrEqualTo(
@@ -306,9 +306,15 @@ void main() {
       coffee: coffee,
       components: const [],
       brew: brew,
-      fields: {BrewParameter.date, BrewParameter.grinder, BrewParameter.time},
+      fields: {
+        BrewParameter.date,
+        BrewParameter.grinder,
+        BrewParameter.time,
+        BrewParameter.waterProfile,
+      },
       dateLocaleName: deviceLocale.toString(),
     );
+    expect(shared, contains('Renamed water'));
     expect(shared, contains('${strings.brewDate}: $timestamp'));
     expect(shared, contains('${strings.grinder}: ${strings.preGround}'));
     expect(shared, contains('${strings.extractionDuration}: 2:45'));
