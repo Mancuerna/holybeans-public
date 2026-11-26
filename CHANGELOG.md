@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.21.0](https://github.com/Mancuerna/holybeans-public/compare/v1.20.0...v1.21.0) (2026-11-26)
+
+
+### Features
+
+* support roast level in printed label templates ([#188](https://github.com/Mancuerna/holybeans-public/issues/188)) ([3586cbb](https://github.com/Mancuerna/holybeans-public/commit/3586cbb182b0fe5094627c2d7134061b8959a5a2))
+
+
+### Bug Fixes
+
+* **brews:** detect unsaved extraction profile changes ([#186](https://github.com/Mancuerna/holybeans-public/issues/186)) ([b8035d6](https://github.com/Mancuerna/holybeans-public/commit/b8035d6ef7f57657881659b1a2b1c69f70c91a2f))
+* **brews:** show current names for linked equipment ([#189](https://github.com/Mancuerna/holybeans-public/issues/189)) ([8ee1f03](https://github.com/Mancuerna/holybeans-public/commit/8ee1f03669ac3f3955502c5cdc6e8233c40b9145))
+
 ## [1.20.0](https://github.com/Mancuerna/holybeans-public/compare/v1.19.0...v1.20.0) (2026-11-25)
 
 
