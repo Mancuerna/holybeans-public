@@ -552,14 +552,6 @@ class AppDatabase extends _$AppDatabase {
   final JournalWriteGate writeGate;
   late final $BrewsTable displayBrews = _BrewDisplayRows(this);
 
-  Set<ResultSetImplementation<Object, Object>> get brewDisplaySources => {
-    brews,
-    brewMethods,
-    grinders,
-    waterProfiles,
-    recipients,
-  };
-
   /// The schema this version of the app writes.
   static const currentSchema = 41;
 

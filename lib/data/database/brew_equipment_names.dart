@@ -9,6 +9,16 @@ class _BrewDisplayRows extends $BrewsTable {
   String get actualTableName => 'display_brews';
 }
 
+extension BrewDisplaySources on AppDatabase {
+  Set<ResultSetImplementation<Object, Object>> get brewDisplaySources => {
+    brews,
+    brewMethods,
+    grinders,
+    waterProfiles,
+    recipients,
+  };
+}
+
 Future<void> _installBrewDisplayRows(AppDatabase db) async {
   const catalogs = {
     'method': 'brew_methods',
