@@ -17,7 +17,7 @@ class BrewRecipeQueries {
     required String methodId,
     bool rated = false,
   }) =>
-      (_database.select(_database.brews)
+      (_database.select(_database.displayBrews)
             ..where(
               (brew) =>
                   brew.coffeeId.equals(coffeeId) &
@@ -39,7 +39,7 @@ class BrewRecipeQueries {
     required String coffeeId,
     required String methodId,
   }) =>
-      (_database.select(_database.brews)
+      (_database.select(_database.displayBrews)
             ..where(
               (brew) =>
                   brew.coffeeId.equals(coffeeId) &
@@ -53,7 +53,7 @@ class BrewRecipeQueries {
   /// The most recent unarchived brew made with [methodId], used to prefill a
   /// new brew with the values last used for that method.
   Future<Brew?> latestBrewForMethod(String methodId) =>
-      (_database.select(_database.brews)
+      (_database.select(_database.displayBrews)
             ..where(
               (brew) =>
                   brew.methodId.equals(methodId) & brew.archivedAtMs.isNull(),

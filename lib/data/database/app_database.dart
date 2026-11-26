@@ -15,6 +15,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 part 'app_database.g.dart';
+part 'brew_equipment_names.dart';
 part 'cafe_tables.dart';
 part 'cupping_tables.dart';
 part 'piston_tables.dart';
@@ -549,6 +550,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor.interceptWith(writeGate));
 
   final JournalWriteGate writeGate;
+  late final $BrewsTable displayBrews = _BrewDisplayRows(this);
 
   /// The schema this version of the app writes.
   static const currentSchema = 41;
@@ -749,6 +751,7 @@ class AppDatabase extends _$AppDatabase {
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
       await installBrewChanges(this);
+      await _installBrewDisplayRows(this);
       await installJournalIndexes(this);
     },
   );

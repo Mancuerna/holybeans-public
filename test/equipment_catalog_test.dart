@@ -138,6 +138,7 @@ void main() {
     final editedBrew = await (database.select(
       database.brews,
     )..where((brew) => brew.id.equals(brewId))).getSingle();
+    expect((await repository.brew(brewId))!.waterProfileName, 'Home water');
     expect(editedBrew.waterProfileId, profileId);
     expect(editedBrew.waterProfileName, 'My tap water');
 
@@ -231,6 +232,7 @@ void main() {
       expect(brew.grindSetting, '22 clicks');
       expect(await repository.brewToolIds(brewId), [toolId]);
 
+      final beforeRename = await repository.reads.revision();
       await repository.updateMethod(
         id: methodId,
         name: 'Switch 03',
@@ -239,6 +241,11 @@ void main() {
         notes: 'Updated recipe',
       );
       await repository.updateGrinder(id: grinderId, name: 'Comandante C40');
+      final displayed = (await repository.brew(brewId))!;
+      expect(displayed.methodName, 'Switch 03');
+      expect(displayed.grinderName, 'Comandante C40');
+      expect(displayed.grindSetting, '22 clicks');
+      expect(await repository.reads.revision(), greaterThan(beforeRename));
       await repository.saveBrew(
         id: brewId,
         coffeeId: coffeeId,

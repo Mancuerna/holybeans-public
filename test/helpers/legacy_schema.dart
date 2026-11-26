@@ -5,6 +5,10 @@ import 'package:holybeans/data/database/app_database.dart';
 Future<void> reconstructLegacySchema(AppDatabase db, int version) async {
   await db.customStatement('PRAGMA foreign_keys = OFF');
   await db.transaction(() async {
+    await db.customStatement('DROP VIEW temp.display_brews');
+    for (final catalog in ['method', 'grinder', 'water_profile', 'recipient']) {
+      await db.customStatement('DROP TRIGGER temp.${catalog}_brew_rename');
+    }
     // Current access indexes may refer to columns absent from old fixtures.
     for (final name in [
       'brew_history',

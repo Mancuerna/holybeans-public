@@ -25,7 +25,7 @@ class JournalReadQueries {
   Stream<List<Brew>> watchCoffeeBrewHighlights(String coffeeId) => database
       .customSelect(
         '''
-        SELECT ${brewPreviewColumns(database)} FROM brews b WHERE b.id IN (
+        SELECT ${brewPreviewColumns(database)} FROM display_brews b WHERE b.id IN (
           SELECT id FROM (
             SELECT id FROM brews WHERE coffee_id = ?1
             ORDER BY brewed_at_ms DESC, created_at_ms DESC, id ASC LIMIT 3
@@ -36,7 +36,7 @@ class JournalReadQueries {
         ) ORDER BY brewed_at_ms DESC, created_at_ms DESC, id ASC
         ''',
         variables: [Variable(coffeeId)],
-        readsFrom: {database.brews},
+        readsFrom: database.brewDisplaySources,
       )
       .watch()
       .map((rows) => [for (final row in rows) database.brews.map(row.data)]);
@@ -44,7 +44,7 @@ class JournalReadQueries {
   Stream<int> watchRevision() => database
       .customSelect(
         'SELECT coalesce(max(revision), 0) AS revision FROM temp.brew_changes',
-        readsFrom: {database.brews},
+        readsFrom: database.brewDisplaySources,
       )
       .watchSingle()
       .map((row) => row.read<int>('revision'))
@@ -145,20 +145,20 @@ class JournalReadQueries {
     // The covering coffee/date index makes these bounded lookups independent
     // of the number or size of historical notes.
     final recent = await database.customSelect('''
-      SELECT ${brewPreviewColumns(database)} FROM coffees c CROSS JOIN brews b
+      SELECT ${brewPreviewColumns(database)} FROM coffees c CROSS JOIN display_brews b
       WHERE b.id IN (
         SELECT id FROM brews recent WHERE recent.coffee_id = c.id
         ORDER BY brewed_at_ms DESC, created_at_ms DESC, id ASC LIMIT 3
       ) AND ${affected('c.id')} ORDER BY b.brewed_at_ms DESC, b.created_at_ms DESC, b.id ASC
     ''').get();
     final seeds = await database.customSelect('''
-      SELECT ${brewPreviewColumns(database)} FROM coffees c JOIN brews b ON b.id = (
+      SELECT ${brewPreviewColumns(database)} FROM coffees c JOIN display_brews b ON b.id = (
         SELECT id FROM brews WHERE coffee_id = c.id AND archived_at_ms IS NULL
         ORDER BY is_favorite DESC, brewed_at_ms DESC, created_at_ms DESC, id ASC LIMIT 1
       ) WHERE ${affected('c.id')}
     ''').get();
     final latest = await database.customSelect('''
-      SELECT ${brewPreviewColumns(database)} FROM coffees c CROSS JOIN brews b
+      SELECT ${brewPreviewColumns(database)} FROM coffees c CROSS JOIN display_brews b
       WHERE b.id = (SELECT id FROM brews WHERE coffee_id = c.id AND archived_at_ms IS NULL
         ORDER BY brewed_at_ms DESC, created_at_ms DESC, id ASC LIMIT 1)
       AND ${affected('c.id')} ORDER BY b.brewed_at_ms DESC, b.created_at_ms DESC, b.id ASC
@@ -273,8 +273,8 @@ class JournalReadQueries {
   /// Analytics load only while requested and never transfer long notes.
   Stream<List<Brew>> watchAnalytics({bool ratedOnly = false}) => database
       .customSelect(
-        'SELECT ${brewPreviewColumns(database)} FROM brews b ${ratedOnly ? 'WHERE b.rating IS NOT NULL' : ''} ORDER BY b.brewed_at_ms DESC, b.created_at_ms DESC, b.id ASC',
-        readsFrom: {database.brews},
+        'SELECT ${brewPreviewColumns(database)} FROM display_brews b ${ratedOnly ? 'WHERE b.rating IS NOT NULL' : ''} ORDER BY b.brewed_at_ms DESC, b.created_at_ms DESC, b.id ASC',
+        readsFrom: database.brewDisplaySources,
       )
       .watch()
       .map(

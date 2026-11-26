@@ -75,6 +75,40 @@ void main() {
     },
   );
 
+  test(
+    'renames refresh history and cached previews only for linked brews',
+    () async {
+      final method = await repo.createMethod(name: 'V60');
+      await (db.update(db.brews)..where((b) => b.id.equals('brew-159'))).write(
+        BrewsCompanion(methodId: Value(method)),
+      );
+      final previous = await repo.reads.overview();
+      final revision = await repo.reads.revision();
+      await repo.updateMethod(id: method, name: 'Switch');
+      final current = await repo.reads.overview(
+        previous: previous,
+        sinceRevision: revision,
+      );
+      expect(current.latestActive.single.methodName, 'Switch');
+      expect((await repo.brew('brew-158'))!.methodName, 'V60');
+      final pages = HistoryPages(repo.reads);
+      expect(await pages.methods(), ['Switch', 'V60']);
+      final page = await pages.page((
+        text: 'switch',
+        archived: true,
+        ascending: false,
+        coffeeId: null,
+        methodId: null,
+        methodName: null,
+        startMs: null,
+        endMs: null,
+        toolIds: <String>[],
+        minimumRating: null,
+      ), await repo.allCoffees());
+      expect(page.rows.single.id, 'brew-159');
+    },
+  );
+
   test('keyset pages retain SQL ordering across ties and both directions', () async {
     final pages = HistoryPages(repo.reads);
     for (final ascending in [false, true]) {

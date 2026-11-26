@@ -39,6 +39,9 @@ void main() {
       await repo.saveRecipient(id: jug.id, name: 'Renamed', emptyGrams: 210);
       await repo.setRecipientArchived(jug.id, archived: true);
       var brew = await db.select(db.brews).getSingle();
+      final displayed = (await repo.brew(brew.id))!;
+      expect(displayed.recipientName, 'Renamed');
+      expect(displayed.recipientGrams, 200);
       expect(brew.recipientName, 'Glass');
       expect(brew.recipientGrams, 200);
       await repo.saveBrew(
