@@ -28,13 +28,14 @@ professional scoring system. Water presets retain their source links in the app.
 - [Fichero 5836 wire reference](https://github.com/0xMH/fichero-printer/blob/main/docs/PROTOCOL.md):
   independent AiYin D11s encoder and acknowledgement/error handling.
 - Typonos PM240: independent TSPL encoder derived from the Labelnize 4.10.0
-  device profile and command path, then physically tested in Printer Lab.
+  device profile and command path.
   No Labelnize binaries or proprietary source code are included.
 - [Meticulous integration](https://github.com/cjborchert/ha-meticulous) and
   [cards](https://github.com/cjborchert/ha-meticulous-cards):
   [MIT notices](../assets/licenses/meticulous-piston.txt).
 - Acaia implementation attribution: [aioacaia MIT notice](../assets/licenses/aioacaia.txt).
 - [Gaggimate](https://github.com/jniebuhr/gaggimate): documented history format and read-only endpoints.
+- The Brazil origin sound (`brazil_faaah.mp3`) was supplied by a contributor.
 - IBM Plex: [font license](../assets/fonts/OFL.txt).
 - Noto Emoji: [font license](../assets/licenses/noto-emoji.txt).
 - Café catalogue source: [Coffee & Translation map](https://coffeeandtranslation.com/pages/mapa-cafe-especialidad).

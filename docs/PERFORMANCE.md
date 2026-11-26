@@ -86,20 +86,18 @@ remain available to exports and callers that explicitly need them.
   bounded at 1,024 points; raw samples, cursor values and exports retain their
   original resolution. Snapshot transfer and display decimation still scan
   samples; the implementation does not claim every operation is constant time.
-- Removed the discarded search prototype and its standalone test. Retained the
-  production regression tests, reusable access/UI/media/chart/startup benchmarks,
-  this report and historical findings. Raw logs, JSONL, APKs and transient output
-  remain ignored under `artifacts/`.
 
 ### Regression budgets
 
 Structural limits run in ordinary CI: page/cache bounds, complete aggregates,
 notes excluded from previews, stable pagination, cancellation, and incremental
-curve equivalence/work counters. Device timings use a separate comparison:
+curve equivalence/work counters. For device timings, collect two comparable
+profile runs using [the measurement instructions](#reproduce-the-measurements).
+Save their records as `baseline-run.jsonl` and `repeat-run.jsonl`.
 
 ```sh
-python3 -m tool.performance snapshot artifacts/performance-phase2/device-confirmed.jsonl benchmark/device-baseline.json
-python3 -m tool.performance compare artifacts/performance-phase2/device-repeat.jsonl benchmark/device-baseline.json
+python3 -m tool.performance snapshot baseline-run.jsonl local-baseline.json
+python3 -m tool.performance compare repeat-run.jsonl local-baseline.json
 ```
 
 The snapshot contains only context, scenario identities and selected metrics,
@@ -133,8 +131,7 @@ A53 (Android 15, 60 Hz), using application source `cd36c82` from a historical
 branch not preserved in this repository. It includes all nine
 access fixtures, three UI journal sizes, media/backup round trips, startup and
 three live-curve sizes. The phone was USB powered; battery temperature was
-observed at 32 °C during the run. Raw evidence and the source manifest remain
-ignored under `artifacts/performance-phase2/`.
+observed at 32 °C during the run.
 
 | Scenario | First implementation | Bounded/incremental implementation |
 |---|---:|---:|
@@ -188,17 +185,7 @@ the reference nor allowances were changed to conceal them. Two runs cannot
 establish stable timing limits or isolate the source of device variability.
 The principal improvements persisted: the 10,000-entry shell loaded in
 277.8 ms, retained long-note model heap was 25.6 MiB, and the 10,000-point
-curve again used 560 process CPU ticks. Raw repeat records, its source manifest
-and comparison output remain in the ignored evidence directory.
-
-The [complete final-source CI](https://github.com/Mancuerna/holybeans-public/actions/runs/41911404458)
-passed **1,713 Flutter tests, with seven private-backup fixture skips**, native
-Android tests, 37 Python tooling tests, formatting, static analysis and
-documentation checks. Pagination/cancellation, complete summaries, replacement
-imports, rollback, old-schema migrations and incremental curve equivalence have
-regression coverage. The [implementation PR](https://github.com/Mancuerna/holybeans-public/pull/18)
-records delivery status; subsequent report-only changes preserve that validated
-application source.
+curve again used 560 process CPU ticks.
 
 ## First implementation measurements (PR #16)
 
@@ -269,13 +256,6 @@ eight-photo batch is 4.65 s versus 4.39 s. Individual 1.9/12 MP resizes are
 782.6/848.0 ms versus 817.3/953.3 ms. These small sequential sample sets do not
 establish that each difference comes from the code changes; no photo/backup
 speedup or battery improvement is claimed.
-
-Raw follow-up evidence is local under `artifacts/performance-improvements/`:
-`device-final.jsonl` for the nine access fixtures and UI/media/startup scenarios,
-and `device-chart-threshold.jsonl` for final chart results. Chart records in
-`device-final.jsonl` predate asynchronous preparation; `device-charts.jsonl`
-is an intermediate run with a 500-point worker threshold. Both are superseded
-by `device-chart-threshold.jsonl` for final chart conclusions.
 
 ## Baseline findings: 2026-11-04
 
@@ -484,17 +464,14 @@ throughput. SQLite writes and photo coordination still run on the caller;
 the largest fixture retains a noticeable pause. The `restoreSample` record
 contains elapsed time, maximum event-loop gap and heartbeat count.
 
-## Drive photo verification (November 2026)
+## Historical benchmark of Drive photo uploads
 
-Photo verification requests size and checksums from Drive, preferring SHA-256
-and using MD5 when SHA-256 is unavailable. Without checksum metadata it still
-downloads and verifies bytes. These fields are documented in the
-[Drive File resource](https://developers.google.com/workspace/drive/api/reference/rest/v3/files).
-Journal downloads retain SHA-256 verification. Photo IDs are resolved once per
-publish and new reservations are persisted together before any upload.
+Before version 1.20.0, Drive backups uploaded photos with the journal. The
+fake-server benchmark in `benchmark/drive_photo_verification_benchmark_test.dart`
+compared the upload path at `5e85a63` and `e15f13c`. The latter checked remote
+size and checksums, downloading bytes when checksum metadata was unavailable.
+New backups upload journal data only. See [backup and restore](DATA.md).
 
-`benchmark/drive_photo_verification_benchmark_test.dart` compares the previous
-implementation at `5e85a63` with this change using the same fake-server driver.
 Each fixture publishes 64 KiB synthetic photos, adds a preparation and publishes
 again without changing the photos. The second publication records:
 
@@ -1139,7 +1116,7 @@ com.caffeinateddev.holybeans.patrol` before each `adb shell am start -W -n
 com.caffeinateddev.holybeans.patrol/com.caffeinateddev.holybeans.MainActivity`.
 Keep the first launch after clearing the test sandbox separate from later
 samples. The audit waited two seconds after each force-stop and three seconds
-after each launch. Raw observations are in `cold-launch.json` locally.
+after each launch.
 
 ## What each measurement means
 
@@ -1215,53 +1192,6 @@ The chart scenario renders the production live extraction chart with 300,
 readout to contain the entire input curve before ending the frame window.
 This stresses chart rendering and includes fixture generation;
 it does not measure Bluetooth transport or physical extraction accuracy.
-
-## Audit record quality
-
-The first implementation CI on `be92bad` completed with **1,698 Flutter tests
-passed, seven skipped and zero failed**, plus successful native Android tests,
-Python tooling checks, formatting and static analysis. The seven skips still
-require private backup fixtures. See the
-[complete validation run](https://github.com/Mancuerna/holybeans-public/actions/runs/41897984725).
-Subsequent documentation-only commits retain the same source fingerprint.
-
-Implementation regressions cover incremental subscriptions and cancellation,
-transaction rollback, replacement imports, Unicode matching, stale worker
-results, retained tab state, full-resolution curve statistics and bounded
-polylines. Widget tests that open large curves use real asynchronous settling:
-the simulated clock in ordinary `pumpAndSettle` cannot complete worker-isolate
-futures. Both previously timing-out flows and a dedicated large-curve rendering
-test pass without removing their data assertions. The final validation status
-is recorded on [PR #16](https://github.com/Mancuerna/holybeans-public/pull/16).
-
-The baseline Flutter suite completed with **1,671 passed, seven skipped, and zero
-failed**. The seven skips require private real-backup fixtures that were not
-configured. Python tooling tests passed (31), as did native Android JVM tests
-(four). Final static analysis and documentation-link checks passed. The
-corrected device instrumentation test passed all selected access,
-UI, media, startup, and chart scenarios. The host access matrix and existing
-export benchmarks passed their 12 cases; the separate search-equivalence test
-passed on a fresh invocation. These checks cover the exercised scenarios, not
-every possible hardware/account configuration.
-
-Raw local evidence is under `artifacts/performance-audit/` (ignored by Git).
-`device-baseline.jsonl` contains the original nine access fixtures.
-`device-results.jsonl` contains the corrected follow-up, labeled
-`harnessVersion: 2`, including a repeated 5,000-entry access fixture and UI,
-media, startup, and chart scenarios.
-
-The first device run stopped because Patrol's binding did not inject text via
-`WidgetTester.enterText`. Its UI search records are invalid and are excluded
-from findings. Version 2 uses Patrol's text helper and asserts the actual field
-contents and missing-search result. Version 1 also counted pending warmup GC
-events; do not use its GC counts as measured-repeat totals. Version 2 drains
-the event queue before and after timed samples. GC event delivery remains an
-asynchronous diagnostic, not a latency gate.
-
-The first combined host benchmark run encountered a stale compilation after
-the prototype source changed while the runner was active. The access/export
-cases passed; a fresh prototype run passed afterwards. These harness issues
-are recorded separately from production test failures.
 
 ## Scope and interpretation
 

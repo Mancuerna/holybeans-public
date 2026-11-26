@@ -74,6 +74,8 @@ class BrewDraft {
       text: _integer(existing?.firstDripSeconds),
     );
     notes = TextEditingController(text: existing?.notes ?? repeated?.notes);
+    extractionProfileJson =
+        existing?.extractionProfileJson ?? repeated?.extractionProfileJson;
     profile = TextEditingController(
       text: existing?.profileName ?? repeated?.profileName,
     );
@@ -107,6 +109,7 @@ class BrewDraft {
   final jugTotal = TextEditingController();
   late final TextEditingController notes;
   late final TextEditingController profile;
+  String? extractionProfileJson;
 
   /// Values last written by the method memory, so a later method change can
   /// replace them without touching anything the user typed.
