@@ -219,15 +219,15 @@ class RecordingRepository {
       )..orderBy([(method) => OrderingTerm.asc(method.name)])).get())
         method.id: method,
     };
-    final query = database.select(database.brews).join([
+    final query = database.select(database.displayBrews).join([
       innerJoin(
         database.brewCurves,
-        database.brewCurves.brewId.equalsExp(database.brews.id),
+        database.brewCurves.brewId.equalsExp(database.displayBrews.id),
       ),
-    ])..orderBy([OrderingTerm.desc(database.brews.brewedAtMs)]);
+    ])..orderBy([OrderingTerm.desc(database.displayBrews.brewedAtMs)]);
     final result = <({Brew brew, T guide})>[];
     for (final row in await query.get()) {
-      final brew = row.readTable(database.brews);
+      final brew = row.readTable(database.displayBrews);
       if (!isEspressoMethod(
         category: methods[brew.methodId]?.category,
         methodName: brew.methodName,
@@ -294,15 +294,15 @@ class RecordingRepository {
       for (final method in await database.select(database.brewMethods).get())
         method.id: method,
     };
-    final query = database.select(database.brews).join([
+    final query = database.select(database.displayBrews).join([
       innerJoin(
         database.brewCurves,
-        database.brewCurves.brewId.equalsExp(database.brews.id),
+        database.brewCurves.brewId.equalsExp(database.displayBrews.id),
       ),
     ]);
     final found = <({Brew brew, BrewPours pours})>[];
     for (final row in await query.get()) {
-      final brew = row.readTable(database.brews);
+      final brew = row.readTable(database.displayBrews);
       if (isEspressoMethod(
         category: methods[brew.methodId]?.category,
         methodName: brew.methodName,

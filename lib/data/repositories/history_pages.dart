@@ -35,7 +35,7 @@ class HistoryPages {
     for (final row
         in await reads.database
             .customSelect(
-              'SELECT DISTINCT method_name FROM brews ORDER BY lower(method_name)',
+              'SELECT DISTINCT method_name FROM display_brews ORDER BY lower(method_name)',
             )
             .get())
       row.read<String>('method_name'),
@@ -117,7 +117,7 @@ class HistoryPages {
         }
         final batch = await database
             .customSelect(
-              'SELECT ${brewPreviewColumns(database, notes: query.text.isNotEmpty)} FROM brews b '
+              'SELECT ${brewPreviewColumns(database, notes: query.text.isNotEmpty)} FROM display_brews b '
               '${conditions.isEmpty ? '' : 'WHERE ${conditions.join(' AND ')}'} '
               'ORDER BY b.brewed_at_ms ${query.ascending ? 'ASC' : 'DESC'}, b.created_at_ms DESC, b.id ASC LIMIT 64',
               variables: variables,

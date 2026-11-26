@@ -32,7 +32,7 @@ extension EquipmentReads on JournalReadQueries {
       final rows = await database.customSelect('''
       SELECT grinder_id, method_name, trim(grind_setting) AS setting,
         count(*) AS n, max(brewed_at_ms) AS last_ms
-      FROM brews WHERE grinder_id IS NOT NULL
+      FROM display_brews WHERE grinder_id IS NOT NULL
       GROUP BY grinder_id, method_name, trim(grind_setting)
       ORDER BY last_ms DESC, method_name, setting
     ''').get();

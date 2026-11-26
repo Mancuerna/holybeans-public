@@ -19,7 +19,7 @@ class JournalRecordQueries {
   /// (for exports).
   Future<List<Coffee>> allCoffees() => database.select(database.coffees).get();
 
-  Future<List<Brew>> allBrews() => database.select(database.brews).get();
+  Future<List<Brew>> allBrews() => database.select(database.displayBrews).get();
 
   Future<List<BrewMethod>> allMethods() => (database.select(
     database.brewMethods,
@@ -111,11 +111,11 @@ class JournalRecordQueries {
           .get();
 
   Future<Brew?> brew(String id) => (database.select(
-    database.brews,
+    database.displayBrews,
   )..where((row) => row.id.equals(id))).getSingleOrNull();
 
   /// Every brew of a coffee, archived ones included.
   Future<List<Brew>> brewsOfCoffee(String coffeeId) => (database.select(
-    database.brews,
+    database.displayBrews,
   )..where((row) => row.coffeeId.equals(coffeeId))).get();
 }
