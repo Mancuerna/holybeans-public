@@ -17,6 +17,7 @@ const coffeeLabelTags = {
   'farm',
   'producer',
   'flavor_notes',
+  'roast_level',
   'roast_date',
   'days_from_roast',
 };

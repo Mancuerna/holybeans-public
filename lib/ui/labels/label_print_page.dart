@@ -250,6 +250,7 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
     imageOptions: imageOptions,
   );
   Map<String, String> get values => coffeeLabelValues(
+    strings: AppLocalizations.of(context),
     coffee: widget.coffee,
     components: widget.components,
     lot: lot,

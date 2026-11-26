@@ -140,6 +140,7 @@ void main() {
       template.validate();
       expect(LabelTemplate.fromJson(template.toJson()).body, _tag);
       final values = coffeeLabelValues(
+        strings: AppLocalizationsEn(),
         coffee: _coffee,
         components: [],
         lot: _lot,
@@ -178,6 +179,7 @@ void main() {
       (_lot.copyWith(roastDate: const Value('2024-02-29')), '—'),
     ]) {
       final values = coffeeLabelValues(
+        strings: AppLocalizationsEn(),
         coffee: _coffee,
         components: [],
         lot: lot,
