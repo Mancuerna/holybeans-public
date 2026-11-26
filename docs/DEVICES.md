@@ -83,10 +83,8 @@ before another starts; acknowledgement alone does not verify physical output.
 Connection diagnostics omit device addresses, names and label contents.
 
 Pristar / Marklife P15, Fichero 5836 and Typonos PM240 are available in the
-coffee label editor. Physical printing on all three was confirmed by the user
-in Printer Lab before promotion on 12 November 2026. That confirmation covers
-the tested devices; other firmware and repeatability across units remain
-unverified. The editor remembers each model's paper choice and paired device,
+coffee label editor. Physical prints were confirmed on all three models. Other firmware
+and repeatability across units remain unverified. The editor remembers each model's paper choice and paired device,
 and uses the same coffee templates, images, preview and manual copy controls.
 
 - P15 and Fichero use gap labels of 30 × 14 or 40 × 14 mm (select 14 × 30 or
@@ -108,7 +106,7 @@ and uses the same coffee templates, images, preview and manual copy controls.
   report and compare with a manual Labelnize print: status alone cannot locate
   a paper-output failure.
 
-These integrations retain the lab's paced writes and stop on a failed or
+The editor paces writes and stops on a failed or
 uncertain job without retrying or sending the remaining copies. No calibration,
 firmware, density or gap-setting commands are added. P12 continues to use its
 continuous-tape profile; select the exact model rather than a similar name.
@@ -118,9 +116,8 @@ uncertain result or issue calibration, firmware, power or unrelated settings
 commands. See [contribution boundaries](../CONTRIBUTING.md#hardware-boundaries).
 
 Timemore Dot TES017 supports weight in grams, tare and start/pause/reset of its
-timer. Weight and controls were confirmed with a physical v1.0.4 scale in Scale
-Lab; the production integration is covered by transport tests and a replay of
-the captured control sequence. Other firmware versions remain unverified.
+timer. Weight and controls were confirmed on a physical scale running v1.0.4. Transport tests
+replay the captured control sequence. Other firmware versions remain unverified.
 Close other apps connected to the scale and accept Bluetooth pairing if asked.
 Ounce readings are not converted or displayed as grams.
 

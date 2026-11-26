@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:holybeans/data/preferences/brew_parameter_settings.dart';
 import 'package:holybeans/data/repositories/journal_repository.dart';
 import 'package:holybeans/domain/extraction_profile.dart';
+import 'package:holybeans/ui/brews/brew_form_changes.dart';
 import 'package:holybeans/ui/brews/brew_form_model.dart';
 import 'package:holybeans/ui/core/app_services.dart';
 
@@ -63,8 +64,26 @@ void main() {
       for (var i = 0; i < 500 && repeat.busy; i++) {
         await Future<void>.delayed(const Duration(milliseconds: 10));
       }
-      expect(repeat.extractionProfileJson, profile.encode());
-      repeat.dispose();
+      addTearDown(repeat.dispose);
+      expect(repeat.draft.extractionProfileJson, profile.encode());
+      final inherited = BrewFormChanges(repeat);
+      repeat.clearExtractionProfile();
+      expect(inherited.changed, isTrue);
+      expect(await repeat.save(), isNotNull);
+      final repeated = await db.select(db.brews).get();
+      expect(
+        repeated.singleWhere((row) => row.id != brew.id).extractionProfileJson,
+        isNull,
+      );
+
+      final original = BrewFormChanges(model);
+      final revised = profile.copyWith(
+        pressure: profile.pressure.take(3).toList(),
+      );
+      model.useExtractionProfile(revised);
+      expect(original.changed, isTrue);
+      model.useExtractionProfile(profile);
+      expect(original.changed, isFalse);
     },
   );
 }

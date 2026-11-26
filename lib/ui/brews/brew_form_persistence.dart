@@ -43,7 +43,6 @@ class BrewFormPersistence {
     GaggimateShot? gaggimateShot,
     MeticulousFreePour? freePour,
     ShotCurve? curve,
-    String? extractionProfileJson,
   }) async {
     int? integer(TextEditingController field) =>
         int.tryParse(field.text.trim());
@@ -102,7 +101,7 @@ class BrewFormPersistence {
         rating: rating,
         notes: draft.notes.text,
         profileName: draft.profile.text,
-        extractionProfileJson: espresso ? extractionProfileJson : null,
+        extractionProfileJson: espresso ? draft.extractionProfileJson : null,
         replaceExtractionProfile: true,
         brewedAt: brewedAt,
       ),

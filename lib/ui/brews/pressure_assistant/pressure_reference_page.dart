@@ -269,7 +269,7 @@ class _PressureReferencePageState extends State<PressureReferencePage> {
                           },
                         ),
                         onTap: () {
-                          widget.model.extractionProfileJson = null;
+                          widget.model.clearExtractionProfile();
                           FocusManager.instance.primaryFocus?.unfocus();
                           Navigator.of(context).push<void>(
                             MaterialPageRoute(

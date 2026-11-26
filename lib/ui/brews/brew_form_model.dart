@@ -67,9 +67,6 @@ class BrewFormModel extends ChangeNotifier {
        brewedAt = existing == null
            ? DateTime.now()
            : DateTime.fromMillisecondsSinceEpoch(existing.brewedAtMs) {
-    extractionProfileJson =
-        existing?.extractionProfileJson ??
-        (repeat ? seed?.extractionProfileJson : null);
     draft.pours.addListener(_notify);
     photoDraft.addListener(_notify);
     timer = BrewTimer(
@@ -573,7 +570,11 @@ class BrewFormModel extends ChangeNotifier {
     return plan != null && plan.problem == null;
   }
 
-  String? extractionProfileJson;
+  void clearExtractionProfile() {
+    if (draft.extractionProfileJson == null) return;
+    draft.extractionProfileJson = null;
+    _notify();
+  }
 
   void useExtractionProfile(ExtractionProfile profile) {
     if (timer.running) return;
@@ -583,7 +584,7 @@ class BrewFormModel extends ChangeNotifier {
     if (profile.predictedGrams ?? profile.targetGrams case final grams?) {
       draft.beverage.text = grams.toStringAsFixed(1);
     }
-    extractionProfileJson = profile.encode();
+    draft.extractionProfileJson = profile.encode();
     draft.profile.text = profile.name;
     _notify();
   }
@@ -766,7 +767,6 @@ class BrewFormModel extends ChangeNotifier {
         gaggimateShot: gaggimateMethod == null ? null : importedGaggimateShot,
         freePour: importedFreePour,
         curve: _recordedCurve(espresso),
-        extractionProfileJson: extractionProfileJson,
       );
     } finally {
       photoDraft.endSave();

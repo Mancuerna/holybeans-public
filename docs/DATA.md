@@ -20,8 +20,13 @@ records the destination lot and a snapshot of the source roast date. The
 adjustment delta is the contribution in grams. Transferring stock and creating
 the blend happen in one transaction. The optional source archive follows it.
 
-Drive holds independent backups with manual restoration. It does not merge
-journals or provide live synchronization between devices.
+To move your journal **and photos** to another phone, export a manual ZIP backup
+on the original phone, transfer the ZIP, and restore it on the new phone.
+
+Since version 1.20.0, a new Drive backup uploads the journal and its photo
+references. On restore, HolyBeans reconnects photos that are still available
+locally. On a new phone those references alone cannot recover the image files.
+Drive backups are restored manually and replace the local journal.
 
 Tests with external real backups are optional locally and explicitly skipped
 when their environment variables are absent. Maintainers validate affected
