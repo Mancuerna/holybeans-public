@@ -249,14 +249,6 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
     imagePng: graphic.data,
     imageOptions: imageOptions,
   );
-  Map<String, String> get values => coffeeLabelValues(
-    strings: AppLocalizations.of(context),
-    coffee: widget.coffee,
-    components: widget.components,
-    lot: lot,
-    portion: portion,
-  );
-
   void _insert(String tag) {
     final selection = body.selection;
     final start = selection.isValid ? selection.start : body.text.length;
@@ -478,6 +470,13 @@ class _LabelPrintPageState extends State<LabelPrintPage> {
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context);
     final current = template;
+    final values = coffeeLabelValues(
+      strings: s,
+      coffee: widget.coffee,
+      components: widget.components,
+      lot: lot,
+      portion: portion,
+    );
     final unknown = TemplateEngine.unknownTags(
       body.text,
       allowedTags: current.allowedTags,
