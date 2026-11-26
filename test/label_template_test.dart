@@ -9,6 +9,8 @@ import 'package:holybeans/domain/brew_parameters.dart';
 import 'package:holybeans/domain/label_graphic.dart';
 import 'package:holybeans/domain/label_template.dart';
 import 'package:holybeans/domain/share_template.dart';
+import 'package:holybeans/l10n/app_localizations_en.dart';
+import 'package:holybeans/l10n/app_localizations_es.dart';
 import 'package:holybeans/ui/labels/label_values.dart';
 import 'package:image/image.dart' as img;
 import 'package:intl/date_symbol_data_local.dart';
@@ -238,6 +240,37 @@ void main() {
     },
   );
 
+  for (final kind in LabelKind.values) {
+    test('${kind.name} labels offer and render the localized roast level', () {
+      final template = LabelTemplate(
+        id: 'roast',
+        name: 'Roast',
+        kind: kind,
+        body: '<roast_level>',
+      );
+      template.validate();
+      const coffee = Coffee(
+        id: 'coffee',
+        name: 'Coffee',
+        roaster: 'Roaster',
+        roastLevel: 'light',
+        isFavorite: false,
+        isDecaf: false,
+        createdAtMs: 0,
+        updatedAtMs: 0,
+      );
+      for (final s in [AppLocalizationsEn(), AppLocalizationsEs()]) {
+        expect(labelTagNames(s, kind)['roast_level'], s.roastLevel);
+        final values = coffeeLabelValues(
+          strings: s,
+          coffee: coffee,
+          components: [],
+        );
+        expect(template.render(values), s.roastLight);
+      }
+    });
+  }
+
   test(
     'dates and weight come from the chosen lot and original frozen portion',
     () {
@@ -268,22 +301,32 @@ void main() {
         updatedAtMs: 0,
       );
       final values = coffeeLabelValues(
+        strings: AppLocalizationsEn(),
         coffee: coffee,
         components: [],
         lot: lot,
         portion: portion,
       );
+      expect(values['roast_level'], '');
       expect(values['roast_date'], contains('20'));
       expect(values['freeze_date'], contains('25'));
       expect(values['portion_weight'], '18 g');
       expect(values['portion_label'], 'F123');
       expect(
-        coffeeLabelValues(coffee: coffee, components: [])['roast_date'],
+        coffeeLabelValues(
+          strings: AppLocalizationsEn(),
+          coffee: coffee,
+          components: [],
+        )['roast_date'],
         '',
       );
       expect(
-        () =>
-            coffeeLabelValues(coffee: coffee, components: [], portion: portion),
+        () => coffeeLabelValues(
+          strings: AppLocalizationsEn(),
+          coffee: coffee,
+          components: [],
+          portion: portion,
+        ),
         throwsArgumentError,
       );
     },

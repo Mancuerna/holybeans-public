@@ -3,10 +3,12 @@ import 'package:holybeans/domain/freshness.dart';
 import 'package:holybeans/domain/label_template.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/core/detail_widgets.dart';
+import 'package:holybeans/ui/core/formatters.dart';
 import 'package:holybeans/ui/core/regional_dates.dart';
 import 'package:intl/intl.dart';
 
 Map<String, String> coffeeLabelValues({
+  required AppLocalizations strings,
   required Coffee coffee,
   required List<CoffeeComponent> components,
   CoffeeLot? lot,
@@ -43,6 +45,9 @@ Map<String, String> coffeeLabelValues({
     'variety': parts((c) => c.variety),
     'process': parts((c) => c.process),
     'flavor_notes': coffee.flavorProfile ?? '',
+    'roast_level': coffee.roastLevel == null
+        ? ''
+        : roastLevelLabel(strings, coffee.roastLevel!),
     'roast_date': date(lot?.roastDate),
     'days_from_roast': roastDays?.toString() ?? '',
     'freeze_date': date(portion?.frozenDate),
@@ -65,6 +70,7 @@ Map<String, String> labelTagNames(AppLocalizations s, LabelKind kind) => {
   'farm': s.farm,
   'producer': s.producer,
   'flavor_notes': s.flavorProfile,
+  'roast_level': s.roastLevel,
   'roast_date': s.labelRoastDate,
   'days_from_roast': s.daysFromRoast,
   if (kind == LabelKind.frozen) ...{
