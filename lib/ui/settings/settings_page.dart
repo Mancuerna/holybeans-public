@@ -11,6 +11,7 @@ import 'package:holybeans/ui/coffee_maze/coffee_maze_page.dart';
 import 'package:holybeans/ui/core/app_services.dart';
 import 'package:holybeans/ui/scale/scale_readout.dart';
 import 'package:holybeans/ui/settings/brew_parameters_page.dart';
+import 'package:holybeans/ui/settings/coffee_corrections_page.dart';
 import 'package:holybeans/ui/settings/portal_section.dart';
 import 'package:holybeans/ui/settings/pressure_sensor_section.dart';
 import 'package:holybeans/ui/settings/refractometer_section.dart';
@@ -210,14 +211,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   s.settingsTransfers,
                   () => _openTransfers(s),
                 ),
-                if (widget.onConfigureLoffee != null ||
-                    widget.onFillPoursFromCurves != null)
-                  entry(
-                    'advanced',
-                    Icons.build_outlined,
-                    s.settingsAdvanced,
-                    () => _openAdvanced(s),
-                  ),
+                entry(
+                  'advanced',
+                  Icons.build_outlined,
+                  s.settingsAdvanced,
+                  () => _openAdvanced(s),
+                ),
                 entry(
                   'language',
                   Icons.language_rounded,
@@ -360,6 +359,18 @@ class _SettingsPageState extends State<SettingsPage> {
   ]);
 
   void _openAdvanced(AppLocalizations s) => _openSection(s.settingsAdvanced, [
+    ListTile(
+      leading: const Icon(Icons.spellcheck),
+      title: Text(s.correctCoffees),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => CoffeeCorrectionsPage(
+            database: services.database,
+            exportBackup: widget.onExportBackup,
+          ),
+        ),
+      ),
+    ),
     if (widget.onConfigureLoffee case final onConfigure?)
       ListTile(
         key: const ValueKey('loffee-key-settings'),

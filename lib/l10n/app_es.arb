@@ -3645,5 +3645,38 @@
     }
   },
   "historyAccessoriesHint": "Elige accesorios por separado o combínalos con un método. Las preparaciones deben incluir todos los accesorios seleccionados.",
-  "historyNoMatchingAccessories": "No hay accesorios que coincidan."
+  "historyNoMatchingAccessories": "No hay accesorios que coincidan.",
+  "correctCoffees": "Corregir datos de cafés",
+  "correctionBackup": "Haz una copia de seguridad antes de cambiar varios cafés.",
+  "correctionArchived": "Incluir cafés archivados",
+  "correctionReview": "Revisar cambios",
+  "correctionTarget": "Reemplazar por",
+  "correctionEmpty": "No hay valores coincidentes en este campo.",
+  "correctionCount": "Cafés: {count}",
+  "@correctionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "correctionOrigins": "Orígenes: {count}",
+  "@correctionOrigins": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "correctionOrigin": "Origen {count}",
+  "@correctionOrigin": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "correctionConflict": "Los cafés han cambiado. Revisa la selección de nuevo.",
+  "correctionSaved": "Cambios guardados",
+  "correctionLoadFailed": "No se pudieron cargar los datos de cafés."
 }
