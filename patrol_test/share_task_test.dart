@@ -85,7 +85,9 @@ void main() {
           if (mode == 'image' || mode == 'caption') {
             await $.tap(find.text('Image'));
             if (mode == 'caption') {
-              await $.tap(find.byKey(const ValueKey('share-photo-caption')));
+              final caption = find.byKey(const ValueKey('share-photo-caption'));
+              await $.scrollUntilVisible(finder: caption);
+              await $.tap(caption);
             }
           }
           await $.tap(find.byKey(const ValueKey('share-confirm')));

@@ -14,6 +14,7 @@ import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/share_sheet.dart';
 import 'package:holybeans/ui/core/share_photo_overlay.dart';
 
+import 'helpers/share_controls.dart';
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
@@ -118,10 +119,10 @@ void main() {
           final s = lookupAppLocalizations(Locale(language));
           await tester.tap(find.text(s.shareFormatImage));
           await tester.pumpAndSettle();
+          await tapShareControl(tester, 'share-design-photo');
+          await tapShareControl(tester, 'share-customize');
           if (language == 'es') {
-            await tester.tap(
-              find.byKey(const ValueKey('share-transparent-background')),
-            );
+            await tapShareControl(tester, 'share-transparent-background');
             await tester.pumpAndSettle();
           }
           await tester.ensureVisible(
@@ -289,71 +290,20 @@ void main() {
           await tester.pumpAndSettle();
           await tester.tap(find.text(s.shareFormatImage));
           await tester.pumpAndSettle();
-          await tester.ensureVisible(
-            find.byKey(const ValueKey('share-photo-caption')),
-          );
-          await tester.tap(find.byKey(const ValueKey('share-photo-caption')));
-          await tester.pumpAndSettle();
-          await tester.ensureVisible(
-            find.byKey(const ValueKey('share-remove-photo')),
-          );
-          await tester.tap(find.byKey(const ValueKey('share-remove-photo')));
-          await tester.pumpAndSettle();
-          final reopenedCard = find.byKey(const ValueKey('share-photo-card'));
+          await tapShareControl(tester, 'share-design-photo');
+          await tapShareControl(tester, 'share-remove-photo');
+          expect(find.byKey(const ValueKey('share-photo-card')), findsNothing);
+          final share = find.byKey(const ValueKey('share-confirm'));
+          expect(tester.widget<FilledButton>(share).onPressed, isNull);
+          await tapShareControl(tester, 'share-design-charts');
+          expect(tester.widget<FilledButton>(share).onPressed, isNotNull);
+          expect(find.byType(SelectableText), findsNothing);
+          await tapShareControl(tester, 'share-photo-caption');
+          expect(find.text('My Photo coffee\n18 g'), findsOneWidget);
           expect(
-            find.descendant(of: reopenedCard, matching: find.byType(Image)),
-            findsNothing,
-          );
-          expect(
-            find.descendant(
-              of: reopenedCard,
-              matching: find.text('Photo coffee'),
-            ),
+            find.byKey(const ValueKey('share-extraction-chart')),
             findsOneWidget,
           );
-          if (panels) {
-            final toggle = find.byKey(const ValueKey('share-charts-overlay'));
-            await tester.ensureVisible(toggle);
-            await tester.tap(toggle);
-            await tester.pumpAndSettle();
-            expect(
-              tester
-                  .widget<FilledButton>(
-                    find.byKey(const ValueKey('share-confirm')),
-                  )
-                  .onPressed,
-              isNull,
-            );
-            expect(
-              tester
-                  .widget<IconButton>(find.byKey(const ValueKey('share-copy')))
-                  .onPressed,
-              isNull,
-            );
-            await tester.tap(find.text(s.shareFormatText));
-            await tester.pumpAndSettle();
-            expect(
-              tester
-                  .widget<FilledButton>(
-                    find.byKey(const ValueKey('share-confirm')),
-                  )
-                  .onPressed,
-              isNotNull,
-            );
-            await tester.tap(find.text(s.shareFormatImage));
-            await tester.pumpAndSettle();
-            await tester.ensureVisible(toggle);
-            await tester.tap(toggle);
-            await tester.pumpAndSettle();
-            expect(
-              tester
-                  .widget<FilledButton>(
-                    find.byKey(const ValueKey('share-confirm')),
-                  )
-                  .onPressed,
-              isNotNull,
-            );
-          }
           expect(tester.takeException(), isNull);
         },
       );

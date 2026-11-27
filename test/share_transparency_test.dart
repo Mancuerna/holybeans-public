@@ -14,6 +14,7 @@ import 'package:holybeans/ui/brews/share_sheet.dart';
 import 'package:holybeans/ui/core/share_image.dart';
 import 'package:holybeans/ui/core/share_image_appearance.dart';
 
+import 'helpers/share_controls.dart';
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
@@ -112,6 +113,7 @@ void main() {
         expect(find.text(s.shareTransparentBackground), findsNothing);
         await tester.tap(find.text(s.shareFormatImage));
         await tester.pumpAndSettle();
+        if (!bean) await tapShareControl(tester, 'share-customize');
         final toggle = find.byKey(
           const ValueKey('share-transparent-background'),
         );
@@ -129,6 +131,7 @@ void main() {
           await _checkPixels(bytes!, transparent: false, light: light);
         });
 
+        await tester.ensureVisible(toggle);
         await tester.tap(toggle);
         await tester.pumpAndSettle();
         final color = find.byKey(
@@ -152,6 +155,7 @@ void main() {
           );
           await _checkPixels(bytes!, transparent: false, light: light);
         });
+        await tester.ensureVisible(toggle);
         await tester.tap(toggle);
         await tester.pumpAndSettle();
 
@@ -185,6 +189,7 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(find.text(s.shareFormatImage));
         await tester.pumpAndSettle();
+        if (!bean) await tapShareControl(tester, 'share-customize');
         expect(tester.widget<SwitchListTile>(toggle).value, isFalse);
       });
     }
