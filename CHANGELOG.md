@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.22.0](https://github.com/Mancuerna/holybeans-public/compare/v1.21.0...v1.22.0) (2026-11-27)
+
+
+### Features
+
+* **settings:** correct coffee origins and roasters in bulk ([#190](https://github.com/Mancuerna/holybeans-public/issues/190)) ([1cf6d01](https://github.com/Mancuerna/holybeans-public/commit/1cf6d0162ce7895deb88b76335c1c2e6d6dce1ca))
+* **sharing:** simplify brew image designs and attach template captions ([#192](https://github.com/Mancuerna/holybeans-public/issues/192)) ([4128607](https://github.com/Mancuerna/holybeans-public/commit/4128607da3d8cbb8841fff04d932b04add4a1b4a))
+
 ## [1.21.0](https://github.com/Mancuerna/holybeans-public/compare/v1.20.0...v1.21.0) (2026-11-26)
 
 
