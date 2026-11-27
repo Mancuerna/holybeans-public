@@ -117,7 +117,7 @@ void main() {
         final s = lookupAppLocalizations(const Locale('en'));
         await tester.tap(find.text(s.shareFormatImage));
         await tester.pumpAndSettle();
-        await tester.tap(find.byKey(const ValueKey('share-photo-caption')));
+        await tester.tap(find.byKey(const ValueKey('share-design-photo')));
         await tester.pumpAndSettle();
         expect(
           find.descendant(
@@ -151,10 +151,12 @@ void main() {
           await tester.tap(find.text(camera ? s.takePhoto : s.choosePhoto));
           await tester.pumpAndSettle();
           expect(calls.last.arguments['source'], camera ? 0 : 1);
-          expect(
-            tester.widget<SharePhotoCard>(find.byType(SharePhotoCard)).photo,
-            initial,
-          );
+          final card = find.byType(SharePhotoCard);
+          if (initial == null) {
+            expect(card, findsNothing);
+          } else {
+            expect(tester.widget<SharePhotoCard>(card).photo, initial);
+          }
         }
         // Cancelling either native picker preserves the automatic photo.
         expect(

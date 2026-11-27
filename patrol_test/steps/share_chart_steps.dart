@@ -114,6 +114,10 @@ Future<void> checkShareCharts(
       );
       await $.tap(find.text('Image'));
       if (espresso) {
+        await $.tap(find.byKey(const ValueKey('share-design-photo')));
+        await $.scrollUntilVisible(
+          finder: find.byKey(const ValueKey('share-photo-caption')),
+        );
         await $.tap(find.byKey(const ValueKey('share-photo-caption')));
         expect(find.text('Change photo'), findsOneWidget);
         expect(
@@ -124,6 +128,9 @@ Future<void> checkShareCharts(
           findsOneWidget,
         );
       }
+      final customize = find.byKey(const ValueKey('share-customize'));
+      await $.scrollUntilVisible(finder: customize);
+      await $.tap(customize);
       for (final key in ['share-include-curve', 'share-include-map']) {
         final option = find.byKey(ValueKey(key));
         await $.scrollUntilVisible(finder: option);

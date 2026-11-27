@@ -32,6 +32,7 @@ class ShareChartOptions extends StatelessWidget {
     required this.onCurveChanged,
     required this.onMapChanged,
     this.enabled = true,
+    this.requireSelection = false,
   });
 
   final BrewShareChartData data;
@@ -40,6 +41,7 @@ class ShareChartOptions extends StatelessWidget {
   final ValueChanged<bool> onCurveChanged;
   final ValueChanged<bool> onMapChanged;
   final bool enabled;
+  final bool requireSelection;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +56,10 @@ class ShareChartOptions extends StatelessWidget {
             data.hasCurve ? s.shareCurveHint : s.shareCurveUnavailable,
           ),
           value: curveSelected && data.hasCurve,
-          onChanged: enabled && data.hasCurve
+          onChanged:
+              enabled &&
+                  data.hasCurve &&
+                  (!requireSelection || mapSelected || !curveSelected)
               ? (on) => onCurveChanged(on!)
               : null,
         ),
@@ -68,7 +73,12 @@ class ShareChartOptions extends StatelessWidget {
           ),
           subtitle: data.hasMap ? null : Text(s.shareMapUnavailable),
           value: mapSelected && data.hasMap,
-          onChanged: enabled && data.hasMap ? (on) => onMapChanged(on!) : null,
+          onChanged:
+              enabled &&
+                  data.hasMap &&
+                  (!requireSelection || curveSelected || !mapSelected)
+              ? (on) => onMapChanged(on!)
+              : null,
         ),
         const SizedBox(height: 12),
       ],

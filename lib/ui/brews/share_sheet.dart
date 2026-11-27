@@ -83,17 +83,23 @@ class ShareBrewSheet extends StatefulWidget {
   State<ShareBrewSheet> createState() => _ShareBrewSheetState();
 }
 
+enum _Design { card, photo, charts }
+
 class _ShareBrewSheetState extends State<ShareBrewSheet> {
   late final selected = {...widget.initialFields};
   final cardKey = GlobalKey();
   bool asImage = false;
   bool transparent = false;
   bool lightText = true;
-  bool photoCaption = false;
+  _Design design = _Design.card;
+  bool includeCaption = false;
+  bool customizing = false;
+  bool get hasCharts => chartData.hasCurve || chartData.hasMap;
+  bool get usesPhoto => design == _Design.photo;
   bool photoOverlay = false;
   bool chartsOnPhoto = false;
-  bool get overlayingCharts => photoCaption && chartsOnPhoto;
-  bool get hasPhotoOverlay => photoOverlay || overlayingCharts;
+  bool get overlayingCharts => usesPhoto && chartsOnPhoto;
+  bool get hasPhotoOverlay => usesPhoto && (photoOverlay || chartsOnPhoto);
   Alignment overlayAlignment = Alignment.bottomLeft;
   double overlayWidth = 0.65;
   late double overlayBackgroundOpacity =
@@ -113,7 +119,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
     }
   }
 
-  bool get needsPhoto => asImage && hasPhotoOverlay && photo == null;
+  bool get needsPhoto => asImage && usesPhoto && photo == null;
   late Uint8List? photo = widget.initialPhoto;
   bool pickingPhoto = false;
   bool copying = false;
@@ -210,7 +216,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
       final bytes = await (widget.imageRenderer ?? renderShareImage)(
         context,
         cardKey,
-        photo: photoCaption || photoOverlay ? photo : null,
+        photo: usesPhoto ? photo : null,
       );
       if (!mounted) return;
       if (bytes == null) throw StateError('Image capture failed');
@@ -219,7 +225,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
         ShareBrewResult(
           fields: selected,
           image: bytes,
-          text: photoCaption ? source : null,
+          text: includeCaption && source.isNotEmpty ? source : null,
           rememberFields: template == null,
         ),
       );
@@ -235,7 +241,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
   }
 
   Future<void> _copy(String source) async {
-    if (busy || source.isEmpty) return;
+    if (busy) return;
     final s = AppLocalizations.of(context);
     setState(() {
       copying = true;
@@ -246,7 +252,7 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
         final bytes = await (widget.imageRenderer ?? renderShareImage)(
           context,
           cardKey,
-          photo: photoCaption || photoOverlay ? photo : null,
+          photo: usesPhoto ? photo : null,
         );
         if (!mounted) return;
         if (bytes == null) throw StateError('Image capture failed');
@@ -274,76 +280,65 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
     String source,
     String? markdown,
   ) {
-    if (source.isEmpty) return Text(s.noShareFields);
-    if (!asImage) return SelectableText(source);
-    if (photoCaption) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: overlayingCharts && photo == null
-                ? Text(s.shareChartsOverlayHint)
-                : ShareImagePreview(
-                    captureKey: cardKey,
-                    transparent: transparent || overlayingCharts,
-                    lightText: lightText,
-                    child: overlayingCharts
-                        ? SharePhotoOverlay(
-                            photo: photo!,
-                            alignment: overlayAlignment,
-                            widthFraction: overlayWidth,
-                            backgroundOpacity: 0,
-                            child: BrewShareCharts(
-                              data: chartData,
-                              includeCurve: includeCurve,
-                              includeMap: includeMap,
-                              panelBackgroundOpacity: overlayBackgroundOpacity,
-                            ),
-                          )
-                        : SharePhotoCard(
-                            photo: photo,
-                            title: widget.coffee.name,
-                            charts: BrewShareCharts(
-                              data: chartData,
-                              includeCurve: includeCurve,
-                              includeMap: includeMap,
-                            ),
-                          ),
-                  ),
-          ),
-          const SizedBox(height: 16),
-          Text(s.sharePhotoCaptionHint),
-          const SizedBox(height: 8),
-          SelectableText(source),
-        ],
-      );
+    if (!asImage) {
+      return source.isEmpty ? Text(s.noShareFields) : SelectableText(source);
     }
+    if (needsPhoto) return const SizedBox.shrink();
+    final charts = BrewShareCharts(
+      data: chartData,
+      includeCurve: includeCurve,
+      includeMap: includeMap,
+      panelBackgroundOpacity: overlayingCharts
+          ? overlayBackgroundOpacity
+          : null,
+    );
     final card = BrewShareCard(
       title: widget.coffee.name,
       sections: sections,
       customText: markdown,
-      charts: BrewShareCharts(
-        data: chartData,
-        includeCurve: includeCurve,
-        includeMap: includeMap,
-      ),
+      charts: charts,
     );
-    if (photoOverlay && photo == null) return Text(s.sharePhotoOverlayHint);
-    return Center(
-      child: ShareImagePreview(
-        captureKey: cardKey,
-        transparent: transparent || photoOverlay,
-        lightText: lightText,
-        child: photoOverlay
-            ? SharePhotoOverlay(
-                photo: photo!,
-                alignment: overlayAlignment,
-                widthFraction: overlayWidth,
-                backgroundOpacity: overlayBackgroundOpacity,
-                child: card,
-              )
-            : card,
-      ),
+    final Widget content;
+    if (hasPhotoOverlay) {
+      content = SharePhotoOverlay(
+        photo: photo!,
+        alignment: overlayAlignment,
+        widthFraction: overlayWidth,
+        backgroundOpacity: overlayingCharts ? 0 : overlayBackgroundOpacity,
+        child: overlayingCharts ? charts : card,
+      );
+    } else if (design == _Design.card) {
+      if (source.isEmpty) return Text(s.noShareFields);
+      content = card;
+    } else {
+      content = SharePhotoCard(
+        photo: usesPhoto ? photo : null,
+        title: '',
+        charts: charts,
+      );
+    }
+    final preview = ShareImagePreview(
+      captureKey: cardKey,
+      transparent: transparent || hasPhotoOverlay,
+      lightText: lightText,
+      child: content,
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Scale the on-screen preview outside the full-resolution capture boundary.
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(context).height * 0.42,
+          ),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: SizedBox(
+              width: math.min(340, constraints.maxWidth),
+              child: preview,
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -384,6 +379,39 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
     final missing = template == null
         ? <String>{}
         : TemplateEngine.missingTags(template.body, values);
+    final usesText =
+        !asImage ||
+        design == _Design.card ||
+        (usesPhoto && photoOverlay) ||
+        includeCaption;
+    final canExport = !busy && !needsPhoto && (!usesText || source.isNotEmpty);
+    List<Widget> templateControls() => [
+      if (configuration?.templates.any((t) => t.style == style) ?? false)
+        _ShareTemplateChoice(
+          templates: configuration!.templates
+              .where((t) => t.style == style)
+              .toList(),
+          selected: template?.id,
+          onChanged: busy ? null : (id) => setState(() => templateId = id),
+        ),
+      if (widget.templateSettings != null)
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton.icon(
+            key: const ValueKey('share-manage-templates'),
+            onPressed: busy ? null : () => _manage(values),
+            icon: const Icon(Icons.edit_note_rounded),
+            label: Text(s.shareTemplateManage),
+          ),
+        ),
+      if (missing.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Text(
+            s.shareTemplateMissing(missing.map((t) => '<$t>').join(', ')),
+          ),
+        ),
+    ];
     return SafeArea(
       top: false,
       child: SizedBox(
@@ -402,37 +430,97 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (configuration?.templates.any((t) => t.style == style) ??
-                        false)
-                      _ShareTemplateChoice(
-                        templates: configuration!.templates
-                            .where((t) => t.style == style)
-                            .toList(),
-                        selected: template?.id,
-                        onChanged: busy
-                            ? null
-                            : (id) => setState(() => templateId = id),
+                    if (asImage)
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          for (final item in _Design.values)
+                            if (item != _Design.charts || hasCharts)
+                              ChoiceChip(
+                                key: ValueKey('share-design-${item.name}'),
+                                label: Text(switch (item) {
+                                  _Design.card => s.shareDesignCard,
+                                  _Design.photo => s.shareDesignPhoto,
+                                  _Design.charts => s.shareDesignCharts,
+                                }),
+                                selected: design == item,
+                                onSelected: busy
+                                    ? null
+                                    : (_) => setState(() {
+                                        design = item;
+                                        if (item == _Design.charts &&
+                                            !includeMap &&
+                                            !includeCurve) {
+                                          includeCurve = chartData.hasCurve;
+                                          includeMap =
+                                              !includeCurve && chartData.hasMap;
+                                        }
+                                      }),
+                              ),
+                        ],
                       ),
-                    if (widget.templateSettings != null)
-                      Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: TextButton.icon(
-                          key: const ValueKey('share-manage-templates'),
-                          onPressed: busy ? null : () => _manage(values),
-                          icon: const Icon(Icons.edit_note_rounded),
-                          label: Text(s.shareTemplateManage),
-                        ),
-                      ),
-                    if (missing.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Text(
-                          s.shareTemplateMissing(
-                            missing.map((t) => '<$t>').join(', '),
+                    if (!asImage) ...templateControls(),
+                    _preview(
+                      s,
+                      sections,
+                      source,
+                      template == null
+                          ? null
+                          : TemplateEngine.renderMarkdown(
+                              template.body,
+                              values,
+                            ),
+                    ),
+                    if (asImage && usesPhoto)
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          TextButton.icon(
+                            key: const ValueKey('share-choose-photo'),
+                            onPressed: busy ? null : _pickPhoto,
+                            icon: const Icon(Icons.photo_library_outlined),
+                            label: Text(
+                              photo == null ? s.addPhoto : s.changePhoto,
+                            ),
                           ),
-                        ),
+                          if (photo != null)
+                            TextButton(
+                              key: const ValueKey('share-remove-photo'),
+                              onPressed: busy
+                                  ? null
+                                  : () => setState(() => photo = null),
+                              child: Text(s.removePhoto),
+                            ),
+                        ],
                       ),
                     if (asImage) ...[
+                      SwitchListTile(
+                        key: const ValueKey('share-photo-caption'),
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(s.shareAddCaption),
+                        value: includeCaption,
+                        onChanged: busy
+                            ? null
+                            : (on) => setState(() => includeCaption = on),
+                      ),
+                      if (includeCaption)
+                        SelectableText(
+                          source.isEmpty ? s.noShareFields : source,
+                        ),
+                      if (includeCaption) ...templateControls(),
+                      ListTile(
+                        key: const ValueKey('share-customize'),
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(s.shareCustomize),
+                        trailing: Icon(
+                          customizing ? Icons.expand_less : Icons.expand_more,
+                        ),
+                        onTap: busy
+                            ? null
+                            : () => setState(() => customizing = !customizing),
+                      ),
+                    ],
+                    if (asImage && customizing) ...[
                       if (!hasPhotoOverlay)
                         ShareImageOptions(
                           transparent: transparent,
@@ -443,31 +531,20 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
                           onLightTextChanged: (value) =>
                               setState(() => lightText = value),
                         ),
-                      SwitchListTile(
-                        key: const ValueKey('share-photo-overlay'),
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(s.sharePhotoOverlay),
-                        value: photoOverlay,
-                        onChanged: busy
-                            ? null
-                            : (value) => setState(() {
-                                photoOverlay = value;
-                                if (value) photoCaption = false;
-                              }),
-                      ),
-                      SwitchListTile(
-                        key: const ValueKey('share-photo-caption'),
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(s.sharePhotoCaption),
-                        value: photoCaption,
-                        onChanged: busy
-                            ? null
-                            : (value) => setState(() {
-                                photoCaption = value;
-                                if (value) photoOverlay = false;
-                              }),
-                      ),
-                      if (photoCaption)
+                      if (usesPhoto)
+                        SwitchListTile(
+                          key: const ValueKey('share-photo-overlay'),
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(s.sharePhotoOverlay),
+                          value: photoOverlay,
+                          onChanged: busy
+                              ? null
+                              : (value) => setState(() {
+                                  photoOverlay = value;
+                                  if (value) chartsOnPhoto = false;
+                                }),
+                        ),
+                      if (usesPhoto && hasCharts)
                         SwitchListTile(
                           key: const ValueKey('share-charts-overlay'),
                           contentPadding: EdgeInsets.zero,
@@ -476,8 +553,10 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
                           value: chartsOnPhoto,
                           onChanged: busy
                               ? null
-                              : (value) =>
-                                    setState(() => chartsOnPhoto = value),
+                              : (value) => setState(() {
+                                  chartsOnPhoto = value;
+                                  if (value) photoOverlay = false;
+                                }),
                         ),
                       if (hasPhotoOverlay)
                         SharePhotoOverlayOptions(
@@ -503,52 +582,23 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
                           onLightTextChanged: (value) =>
                               setState(() => lightText = value),
                         ),
-                      if (photoCaption || photoOverlay)
-                        Wrap(
-                          spacing: 8,
-                          children: [
-                            TextButton.icon(
-                              key: const ValueKey('share-choose-photo'),
-                              onPressed: busy ? null : _pickPhoto,
-                              icon: const Icon(Icons.photo_library_outlined),
-                              label: Text(
-                                photo == null ? s.addPhoto : s.changePhoto,
-                              ),
-                            ),
-                            if (photo != null)
-                              TextButton(
-                                key: const ValueKey('share-remove-photo'),
-                                onPressed: busy
-                                    ? null
-                                    : () => setState(() => photo = null),
-                                child: Text(s.removePhoto),
-                              ),
-                          ],
+                      if (hasCharts)
+                        ShareChartOptions(
+                          data: chartData,
+                          curveSelected: includeCurve,
+                          mapSelected: includeMap,
+                          enabled: !busy,
+                          requireSelection: design == _Design.charts,
+                          onCurveChanged: (on) =>
+                              setState(() => includeCurve = on),
+                          onMapChanged: (on) => setState(() => includeMap = on),
                         ),
+                      if (usesText && !includeCaption) ...templateControls(),
                     ],
-                    if (asImage)
-                      ShareChartOptions(
-                        data: chartData,
-                        curveSelected: includeCurve,
-                        mapSelected: includeMap,
-                        enabled: !busy,
-                        onCurveChanged: (on) =>
-                            setState(() => includeCurve = on),
-                        onMapChanged: (on) => setState(() => includeMap = on),
-                      ),
-                    _preview(
-                      s,
-                      sections,
-                      source,
-                      template == null
-                          ? null
-                          : TemplateEngine.renderMarkdown(
-                              template.body,
-                              values,
-                            ),
-                    ),
                     const SizedBox(height: 18),
-                    if (template == null)
+                    if (usesText &&
+                        template == null &&
+                        (!asImage || includeCaption || customizing))
                       _ShareFields(
                         selected: selected,
                         enabled: !busy,
@@ -566,14 +616,9 @@ class _ShareBrewSheetState extends State<ShareBrewSheet> {
             ),
             ShareSheetActions(
               busy: busy,
-              onShare: source.isEmpty || busy || needsPhoto
-                  ? null
-                  : () => _share(source),
+              onShare: !canExport ? null : () => _share(source),
               onCopy:
-                  source.isEmpty ||
-                      needsPhoto ||
-                      busy ||
-                      (asImage && !widget.clipboard.supportsImages)
+                  !canExport || (asImage && !widget.clipboard.supportsImages)
                   ? null
                   : () => _copy(source),
               copyLabel: asImage && !widget.clipboard.supportsImages

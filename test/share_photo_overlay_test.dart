@@ -17,6 +17,7 @@ import 'package:holybeans/ui/brews/share_sheet.dart';
 import 'package:holybeans/ui/core/share_image_appearance.dart';
 import 'package:holybeans/ui/core/share_photo_overlay.dart';
 
+import 'helpers/share_controls.dart';
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
@@ -193,6 +194,8 @@ void main() {
       tester,
       find.text(lookupAppLocalizations(Locale(language)).shareFormatImage),
     );
+    await tapShareControl(tester, 'share-design-photo');
+    await tapShareControl(tester, 'share-customize');
     await tap(tester, overlay);
   }
 
@@ -331,6 +334,8 @@ void main() {
     await tester.pumpAndSettle();
     await tap(tester, find.text('Open'));
     await tap(tester, find.text('Image'));
+    await tapShareControl(tester, 'share-design-photo');
+    await tapShareControl(tester, 'share-customize');
     await tap(tester, overlay);
     expect(tester.widget<Slider>(opacity).value, selected);
     expect(tester.takeException(), isNull);
@@ -416,30 +421,17 @@ void main() {
     await open(tester, withPhoto: false);
     expect(tester.widget<FilledButton>(share).onPressed, isNull);
     expect(tester.widget<IconButton>(copy).onPressed, isNull);
-    expect(
-      find.text(
-        lookupAppLocalizations(const Locale('en')).sharePhotoOverlayHint,
-      ),
-      findsOneWidget,
-    );
+    expect(find.text('Add photo'), findsOneWidget);
     await tester.tap(find.text('Text'));
     await tester.pumpAndSettle();
     expect(tester.widget<FilledButton>(share).onPressed, isNotNull);
     await tester.tap(find.text('Image'));
     await tester.pumpAndSettle();
     await tap(tester, find.byKey(const ValueKey('share-photo-caption')));
-    expect(tester.widget<SwitchListTile>(overlay).value, isFalse);
-    expect(tester.widget<FilledButton>(share).onPressed, isNotNull);
-    await tap(tester, overlay);
-    expect(
-      tester
-          .widget<SwitchListTile>(
-            find.byKey(const ValueKey('share-photo-caption')),
-          )
-          .value,
-      isFalse,
-    );
+    expect(tester.widget<SwitchListTile>(overlay).value, isTrue);
     expect(tester.widget<FilledButton>(share).onPressed, isNull);
+    await tapShareControl(tester, 'share-design-card');
+    expect(tester.widget<FilledButton>(share).onPressed, isNotNull);
   });
 
   testWidgets('overlay controls lock during capture and recover on failure', (

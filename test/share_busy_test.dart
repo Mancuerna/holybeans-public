@@ -13,6 +13,7 @@ import 'package:holybeans/domain/shot_curve.dart';
 import 'package:holybeans/l10n/app_localizations.dart';
 import 'package:holybeans/ui/brews/share_sheet.dart';
 
+import 'helpers/share_controls.dart';
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
@@ -110,7 +111,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Image'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('share-photo-caption')));
+    await tapShareControl(tester, 'share-design-photo');
+    await tapShareControl(tester, 'share-photo-caption');
+    await tapShareControl(tester, 'share-customize');
     await tester.pumpAndSettle();
     final fields = find.text(
       lookupAppLocalizations(const Locale('en')).shareFields,

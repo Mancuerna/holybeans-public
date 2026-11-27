@@ -14,6 +14,7 @@ import 'package:holybeans/ui/brews/share_brew_charts.dart';
 import 'package:holybeans/ui/brews/share_sheet.dart';
 import 'package:holybeans/ui/core/app_theme.dart';
 
+import 'helpers/share_controls.dart';
 import 'helpers/test_database.dart';
 import 'helpers/ui_test_support.dart';
 
@@ -202,6 +203,7 @@ void main() {
           expect(find.byKey(const ValueKey('share-include-map')), findsNothing);
           await tester.tap(find.text(s.shareFormatImage));
           await tester.pumpAndSettle();
+          await tapShareControl(tester, 'share-customize');
           final card = find.byKey(const ValueKey('brew-share-card'));
           final initialHeight = tester.getSize(card).height;
           expect(find.byType(ExtractionChart), findsNothing);
@@ -230,8 +232,26 @@ void main() {
                 .interactive,
             isFalse,
           );
-          final height = tester.getSize(card).height;
-          expect(height, greaterThan(initialHeight + 400));
+          expect(tester.getSize(card).height, greaterThan(initialHeight + 400));
+          final chartsOnly = language == 'es';
+          if (chartsOnly) {
+            await tapShareControl(tester, 'share-design-charts');
+            expect(card, findsNothing);
+          }
+          final image = chartsOnly
+              ? find.byKey(const ValueKey('share-photo-card'))
+              : card;
+          final height = tester.getSize(image).height;
+          await tapShareControl(tester, 'share-photo-caption');
+          final caption = tester
+              .widget<SelectableText>(find.byType(SelectableText))
+              .data;
+          expect(caption, isNotEmpty);
+          expect(tester.getSize(image).height, height);
+          expect(
+            find.descendant(of: image, matching: find.byType(SelectableText)),
+            findsNothing,
+          );
           await tester.runAsync(() async {
             await tester.tap(find.byKey(const ValueKey('share-confirm')));
             for (var attempt = 0; result == null && attempt < 100; attempt++) {
@@ -242,11 +262,12 @@ void main() {
           await tester.pumpAndSettle();
           expect(result, isNotNull);
           expect(result!.rememberFields, !espresso);
+          expect(result!.text, caption);
           await tester.runAsync(() async {
             final codec = await ui.instantiateImageCodec(result!.image!);
             final frame = await codec.getNextFrame();
             expect(frame.image.height, closeTo(height * 3, 1));
-            expect(frame.image.height, greaterThan(850 * 3));
+            expect(frame.image.height, greaterThan(400 * 3));
             frame.image.dispose();
             codec.dispose();
           });
