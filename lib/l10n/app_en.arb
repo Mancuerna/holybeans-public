@@ -2844,5 +2844,38 @@
     }
   },
   "historyAccessoriesHint": "Choose accessories on their own or combine them with a method. Brews must include every selected accessory.",
-  "historyNoMatchingAccessories": "No matching accessories."
+  "historyNoMatchingAccessories": "No matching accessories.",
+  "correctCoffees": "Correct coffee data",
+  "correctionBackup": "Create a backup before changing several coffees.",
+  "correctionArchived": "Include archived coffees",
+  "correctionReview": "Review changes",
+  "correctionTarget": "Replace with",
+  "correctionEmpty": "No matching values in this field.",
+  "correctionCount": "Coffees: {count}",
+  "@correctionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "correctionOrigins": "Origins: {count}",
+  "@correctionOrigins": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "correctionOrigin": "Origin {count}",
+  "@correctionOrigin": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "correctionConflict": "The coffees have changed. Review the selection again.",
+  "correctionSaved": "Changes saved",
+  "correctionLoadFailed": "Could not load coffee data."
 }
